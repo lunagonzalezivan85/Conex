@@ -1,11 +1,37 @@
+@media (max-width: 1024px) {
+    .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .bento-card--wide,
+    .bento-card--full {
+        grid-column: span 2;
+    }
+
+    .bento-card--medium,
+    .bento-card--large {
+        grid-column: span 2;
+    }
+
+    .bento-card--tall {
+        grid-row: span 1;
+    }
+
+    .page-container {
+        padding: var(--space-xl) var(--space-md);
+    }
+}
+
 @media (max-width: 768px) {
     .bento-grid {
         grid-template-columns: 1fr;
     }
 
+    .bento-card--small,
+    .bento-card--medium,
     .bento-card--large,
     .bento-card--wide,
-    .bento-card--tall {
+    .bento-card--full {
         grid-column: span 1;
         grid-row: span 1;
     }
@@ -15,37 +41,65 @@
     }
 
     .page-container {
-        padding: 1rem 0.75rem;
+        padding: var(--space-lg) var(--space-md);
     }
 
     .auth-card {
-        padding: 1.5rem;
+        padding: var(--space-lg);
     }
 
-    h1 { font-size: 1.4rem; }
-    h2 { font-size: 1.2rem; }
+    .nav-bar {
+        padding: 0 var(--space-md);
+    }
 
-    .nav-desktop {
+    .nav-links {
         display: none;
     }
 
-    .nav-mobile {
-        display: flex;
+    .auth-top-bar {
+        padding: 0 var(--space-md);
     }
-}
 
-@media (min-width: 769px) {
-    .nav-mobile {
-        display: none;
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.25rem; }
+
+    .wizard-step-indicator {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .wizard-prompt {
+        flex-direction: column;
+        text-align: center;
     }
 }
 
 @media (max-width: 480px) {
     .bento-grid {
-        gap: 0.75rem;
+        gap: var(--space-sm);
     }
 
     .bento-card {
-        padding: 1rem;
+        padding: var(--space-md);
     }
+
+    .stat-value {
+        font-size: 1.75rem;
+    }
+
+    .auth-card {
+        padding: var(--space-md);
+        border-radius: var(--radius-lg);
+    }
+
+    .role-card {
+        padding: var(--space-lg) var(--space-md);
+    }
+
+    .nav-select {
+        font-size: 0.78rem;
+        padding: 0.35rem 0.5rem;
+    }
+
+    h1 { font-size: 1.3rem; }
 }
