@@ -39,6 +39,12 @@
 </div>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+    }
+
     private async Task OnThemeChanged(ChangeEventArgs e)
     {
         if (e.Value is string theme)
