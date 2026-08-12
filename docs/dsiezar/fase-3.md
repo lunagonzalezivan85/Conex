@@ -117,10 +117,49 @@ Cada accion de escritura (activar/desactivar/eliminar/moderar) debe registrar un
 
 Con el merge de `main`, la unica dependencia real que queda es de **datos**, no de disenio: `ApplicationsController` (admin, solo lectura) puede implementarse ya contra `PT_Applications`, que ya existe. Sin bloqueos pendientes para iniciar Etapa 3.
 
-- [ ] Aprobacion PM + FS para pasar a Etapa 3 (Implementacion)
+- [x] Aprobacion PM + FS para pasar a Etapa 3 (Implementacion)
+
+---
+
+## Etapa 3: Implementacion (FS)
+
+**Alcance implementado en esta iteracion:** base de `OpenToWork.AdminAPI` (JWT independiente + login admin + auditoria). Quedan pendientes para la siguiente iteracion: `UsersController`, `VacanciesController`, `SkillsController`, `DashboardController`, `ExportController` y todo `OpenToWork.AdminWEB`.
+
+**Archivos creados:**
+
+| Archivo | Descripcion |
+|---|---|
+| `src/OpenToWork.Models/Entities/ADAuditLog.cs` | Entidad `AD_AuditLog` |
+| `src/OpenToWork.Core/Interfaces/IAdminAuthService.cs` | Contrato login admin |
+| `src/OpenToWork.Core/Interfaces/IAuditLogService.cs` | Contrato registro/consulta de auditoria |
+| `src/OpenToWork.Core/Services/AdminAuthService.cs` | Login restringido a `PrimaryRole = Admin`, JWT firmado con config propia de `AdminAPI` |
+| `src/OpenToWork.Core/Services/AuditLogService.cs` | `LogAsync` (escribe fila) + `GetLogsAsync` (paginado) |
+| `src/OpenToWork.Shared/DTOs/AuditLogDto.cs` | DTO de auditoria |
+| `src/OpenToWork.AdminAPI/Controllers/AdminAuthController.cs` | `POST /api/admin/auth/login` |
+| `src/OpenToWork.AdminAPI/Controllers/AuditLogController.cs` | `GET /api/admin/audit-log` (solo rol Admin) |
+| `src/OpenToWork.Models/Migrations/20260812214205_AdminAuditLog.cs` | Migracion: crea tabla `AD_AuditLogs` |
+
+**Archivos modificados:**
+
+| Archivo | Cambio |
+|---|---|
+| `src/OpenToWork.Models/Context/AppDbContext.cs` | `DbSet<ADAuditLog>` + configuracion de tabla/indices |
+| `src/OpenToWork.Core/Extensions/ServiceCollectionExtensions.cs` | Nuevo `AddAdminCoreServices()` (no reutiliza `AddCoreServices()` para no exponer servicios del portal principal en el AdminAPI) |
+| `src/OpenToWork.AdminAPI/Program.cs` | JWT Bearer con config propia, `AppDbContext`, CORS hacia `AdminWEB`, Swagger con Bearer |
+| `src/OpenToWork.AdminAPI/appsettings.json` | `ConnectionStrings` + `Jwt` (issuer/audience/key **distintos** a `OpenToWork.API`, expiracion mas corta: 60 min / refresh 1 dia) |
+| `src/OpenToWork.AdminAPI/Properties/launchSettings.json` | Puerto alineado al README: 5001 (antes 5087, scaffolding por defecto) |
+| `src/OpenToWork.AdminWEB/Properties/launchSettings.json` | Puerto alineado al README: 5101 (antes 5018) |
+
+**Claves i18n agregadas:** ninguna (sin UI todavia).
+
+**Build:** `dotnet build OpenToWork.slnx` -> 0 errores, 20 advertencias (preexistentes: AutoMapper/Caching.Memory NU1903, paquetes Blazor NU1510/NU1603 - ninguna introducida por estos cambios).
+
+**Migracion:** `AdminAuditLog` creada. No aplicada a MySQL (no hay servidor MySQL disponible en este entorno de desarrollo).
+
+**Nota de entorno:** este equipo no tenia el SDK de .NET instalado (solo runtimes) ni fuente de NuGet configurada. Se instalo `Microsoft.DotNet.SDK.10` via `winget` y se agrego el source `nuget.org` para poder compilar y generar la migracion.
 
 ---
 
 ## Resumen de Cambios
 
-Etapa 1 (Planificacion) y Etapa 2 (Diseno Tecnico) de Fase 3 documentadas. Diseno actualizado tras el merge de los avances reales de Fase 2 (Iluna) a `main`. Sin implementacion de codigo aun.
+Etapa 1, Etapa 2 y primera entrega de Etapa 3 de Fase 3. Se implemento la base de `OpenToWork.AdminAPI`: entidad y migracion de `AD_AuditLog`, JWT independiente del portal principal, login exclusivo para administradores, y servicio de auditoria. Build verificado sin errores. Pendiente: resto de controllers admin (usuarios, vacantes, skills, dashboard, export) y todo `OpenToWork.AdminWEB`.

@@ -21,6 +21,14 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddAdminCoreServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IAdminAuthService, AdminAuthService>();
+        services.AddScoped<IAuditLogService, AuditLogService>();
+
+        return services;
+    }
+
     public static IServiceCollection AddDatabaseContext(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");

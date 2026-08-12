@@ -24,6 +24,7 @@ public class AppDbContext : DbContext
     public DbSet<PTCandidateEducation> PT_CandidateEducations => Set<PTCandidateEducation>();
     public DbSet<PTCandidateCertification> PT_CandidateCertifications => Set<PTCandidateCertification>();
     public DbSet<PTVacancySkill> PT_VacancySkills => Set<PTVacancySkill>();
+    public DbSet<ADAuditLog> AD_AuditLogs => Set<ADAuditLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -180,6 +181,14 @@ public class AppDbContext : DbContext
             e.HasIndex(vs => new { vs.PT_VacancyId, vs.PT_SkillId, vs.IsDeleted }).IsUnique();
             e.HasIndex(vs => new { vs.PT_SkillId, vs.IsDeleted });
             e.Property(vs => vs.IsRequired).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<ADAuditLog>(e =>
+        {
+            e.ToTable("AD_AuditLogs");
+            e.HasIndex(a => new { a.SCUserId, a.IsDeleted });
+            e.HasIndex(a => new { a.EntityType, a.EntityId, a.IsDeleted });
+            e.HasIndex(a => new { a.CreatedAt, a.IsDeleted });
         });
 
         SeedWizardSteps(modelBuilder);
