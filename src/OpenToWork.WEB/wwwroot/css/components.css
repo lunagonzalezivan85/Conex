@@ -212,6 +212,72 @@
     border: 1px solid var(--warning-soft);
 }
 
+/* ===== Segmented Control (One UI Pill Toggle) ===== */
+
+.segmented-control {
+    position: relative;
+    display: flex;
+    background: var(--bg-tertiary);
+    border-radius: 9999px;
+    padding: 3px;
+    height: 44px;
+    border: 1px solid var(--border-color);
+}
+
+.segmented-indicator {
+    position: absolute;
+    top: 3px;
+    bottom: 3px;
+    width: calc(50% - 3px);
+    background: var(--card-bg);
+    border-radius: 9999px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+}
+
+.segmented-indicator--left {
+    transform: translateX(0);
+}
+
+.segmented-indicator--right {
+    transform: translateX(100%);
+}
+
+.segmented-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--font-family);
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: color 0.2s ease;
+    z-index: 1;
+    padding: 0 var(--space-sm);
+    white-space: nowrap;
+}
+
+.segmented-option.active {
+    color: var(--accent-primary);
+}
+
+.segmented-option-icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.segmented-option-text {
+    font-size: 0.88rem;
+}
+
+/* ===== Role Selector (Home page - kept for bento cards) ===== */
+
 .role-selector {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -371,8 +437,8 @@
     gap: 0;
     padding: 0 var(--space-xl);
     height: 44px;
-    background-color: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
+    background-color: var(--nav-bg);
+    border-bottom: 1px solid var(--nav-hover);
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -380,16 +446,18 @@
 .nav-category-link {
     padding: 0.4rem 0.9rem;
     border-radius: var(--radius-sm);
-    color: var(--text-secondary);
+    color: var(--nav-text);
     font-size: 0.82rem;
     font-weight: 500;
     white-space: nowrap;
+    opacity: 0.7;
     transition: all var(--transition-fast);
 }
 
 .nav-category-link:hover {
-    background-color: var(--bg-tertiary);
-    color: var(--accent-primary);
+    background-color: var(--nav-hover);
+    color: var(--nav-text);
+    opacity: 1;
 }
 
 .main-content {
@@ -515,7 +583,7 @@
 /* ===== Hero Section (Command-Driven + One UI + Bento) ===== */
 
 .hero-section {
-    background: var(--bg-secondary);
+    background: var(--nav-bg);
     padding: var(--space-3xl) var(--space-lg) var(--space-2xl);
     text-align: center;
 }
@@ -528,7 +596,7 @@
 .hero-title {
     font-size: 2.75rem;
     font-weight: 800;
-    color: var(--text-primary);
+    color: var(--nav-text);
     margin-bottom: var(--space-sm);
     letter-spacing: -0.04em;
     line-height: 1.15;
@@ -536,7 +604,8 @@
 
 .hero-subtitle {
     font-size: 1.15rem;
-    color: var(--text-secondary);
+    color: var(--nav-text);
+    opacity: 0.7;
     margin-bottom: var(--space-2xl);
     font-weight: 400;
 }
@@ -677,7 +746,8 @@
 }
 
 .hero-pills-label {
-    color: var(--text-secondary);
+    color: var(--nav-text);
+    opacity: 0.5;
     font-size: 0.82rem;
     font-weight: 500;
     margin-right: var(--space-xs);
@@ -813,9 +883,12 @@
 }
 
 .auth-top-bar .nav-brand a {
-    color: var(--nav-text);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
     font-weight: 800;
     font-size: 1.15rem;
+    color: var(--nav-text);
     letter-spacing: -0.03em;
 }
 
@@ -1090,6 +1163,95 @@
     padding: var(--space-md) var(--space-lg);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
+}
+
+/* ===== Footer Vacancies Strip ===== */
+
+.footer-vacancies-strip {
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    padding: var(--space-lg) var(--space-lg);
+}
+
+.footer-vacancies-strip-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: var(--content-max-width);
+    margin: 0 auto var(--space-md);
+}
+
+.footer-vacancies-strip-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.footer-vacancies-strip-link {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-primary);
+    transition: color var(--transition-fast);
+}
+
+.footer-vacancies-strip-link:hover {
+    color: var(--accent-hover);
+}
+
+.footer-vacancies-strip-track {
+    display: flex;
+    gap: var(--space-md);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: var(--space-xs);
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    scrollbar-width: thin;
+}
+
+.footer-vacancies-strip-track::-webkit-scrollbar {
+    height: 4px;
+}
+
+.footer-vacancies-strip-track::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-pill);
+}
+
+.footer-vacancy-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: var(--space-md) var(--space-lg);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    min-width: 240px;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.footer-vacancy-chip:hover {
+    border-color: var(--accent-soft);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-2px);
+}
+
+.footer-vacancy-chip-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.footer-vacancy-chip-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    white-space: nowrap;
 }
 
 /* ===== Footer ===== */

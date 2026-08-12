@@ -1,22 +1,35 @@
 # OpenToWork
 
-Plataforma de empleo que conecta candidatos con empresas. Construida con **.NET 8, Blazor y MySQL**.
+Plataforma de **evaluacion, validacion y scoring de talento** que funciona como la capa de confianza para decisiones de contratacion. Construida con **.NET 10, Blazor y MySQL**.
+
+> Ver `docs/BUSINESS_PROPOSAL.md` para la propuesta de negocio completa.
+> Ver `docs/PLAN_DE_PROYECTO.md` para el plan detallado de fases y 3 portales.
 
 ---
 
 ## Introduccion
 
-OpenToWork es una plataforma de empleo con dos roles principales: **Buscar Empleo** (candidatos) y **Contratar** (empresas/reclutadores). El sistema permite registrar candidatos, completar perfiles mediante un wizard multi-paso, buscar vacantes y publicar ofertas de trabajo.
+OpenToWork no es una bolsa de empleo mas. Es una plataforma que genera **perfiles profesionales validados** con indices de confiabilidad, estabilidad y evidencia, permitiendo a las empresas identificar rapidamente a los candidatos mas confiables y mejor preparados.
+
+El proyecto se compone de **3 portales independientes**:
+
+| Portal | Descripcion | Estado |
+|--------|-------------|--------|
+| **Portal de Candidatos** | Registro, perfil, wizard, busqueda de vacantes, postulaciones | Completado |
+| **Portal Administrativo** | Verificaciones manuales, moderacion, gestion de usuarios, auditoria | Pendiente |
+| **Portal Corporativo** | Suscripcion mensual, perfiles evaluados, ranking, filtros avanzados | Pendiente |
 
 ### Caracteristicas principales
 
 - **Autenticacion JWT** con registro, login, refresh tokens y device fingerprinting
-- **Wizard de registro** multi-paso (6 pasos) para completar el perfil del candidato
+- **Wizard de registro** multi-paso (10 pasos) para completar el perfil del candidato
 - **Busqueda de vacantes** con filtros (texto, ubicacion, tipo de contrato, salario)
 - **Dashboard con Bento Grid** estilo Samsung One UI
 - **Sistema de temas** dinamicos (navy, dark, light) con CSS variables
 - **Internacionalizacion (i18n)** con Espanol e Ingles, archivos JSON, sin texto hardcoded
 - **Soft delete** en todas las tablas (auditoria completa: CreatedAt, UpdatedAt, IsDeleted, etc.)
+- **Motor de evaluacion** con 4 indices: Estabilidad, Confiabilidad, Evidencia, Compatibilidad (Fase 3)
+- **Sistema de verificaciones** con checkmarks: identidad, LinkedIn, experiencia, portafolio, referencias (Fase 3)
 
 ---
 
@@ -25,12 +38,14 @@ OpenToWork es una plataforma de empleo con dos roles principales: **Buscar Emple
 ```
 OpenToWork/
 ├── src/
-│   ├── OpenToWork.API/          # API REST del portal principal (puerto 5000)
-│   ├── OpenToWork.AdminAPI/     # API REST del portal admin (puerto 5001)
-│   ├── OpenToWork.WEB/          # Blazor Server del portal principal (puerto 5100)
-│   ├── OpenToWork.AdminWEB/     # Blazor Server del portal admin
+│   ├── OpenToWork.API/          # API REST del portal de candidatos (puerto 5000)
+│   ├── OpenToWork.AdminAPI/     # API REST del portal administrativo (puerto 5001)
+│   ├── OpenToWork.CorporateAPI/ # API REST del portal corporativo (puerto 5002) [Fase 5]
+│   ├── OpenToWork.WEB/          # Blazor Server del portal de candidatos (puerto 5100)
+│   ├── OpenToWork.AdminWEB/     # Blazor Server del portal administrativo (puerto 5101)
+│   ├── OpenToWork.CorporateWEB/ # Blazor Server del portal corporativo (puerto 5102) [Fase 5]
 │   ├── OpenToWork.SharedUI/     # Razor Class Library con componentes compartidos
-│   ├── OpenToWork.Core/         # Logica de negocio y servicios
+│   ├── OpenToWork.Core/         # Logica de negocio, scoring y validacion
 │   ├── OpenToWork.Models/       # Entidades EF Core y AppDbContext
 │   └── OpenToWork.Shared/       # DTOs, Enums y constantes
 ├── docs/                        # Documentacion completa del proyecto
@@ -40,11 +55,11 @@ OpenToWork/
 ### Referencias entre proyectos
 
 ```
-API / AdminAPI  ->  Core  ->  Models  ->  (EF Core, Pomelo MySQL)
-                 ->  Shared
-WEB / AdminWEB  ->  SharedUI
-                 ->  Core (via API HTTP)
-                 ->  Shared
+API / AdminAPI / CorporateAPI  ->  Core  ->  Models  ->  (EF Core, Pomelo MySQL)
+                                 ->  Shared
+WEB / AdminWEB / CorporateWEB   ->  SharedUI
+                                 ->  Core (via API HTTP)
+                                 ->  Shared
 ```
 
 ---
@@ -193,16 +208,20 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 
 | Proyecto | Puerto | Descripcion |
 |---|---|---|
-| OpenToWork.API | 5000 | API REST del portal principal |
-| OpenToWork.WEB | 5100 | Blazor Server del portal principal |
-| OpenToWork.AdminAPI | 5001 | API REST del portal admin (Fase 3) |
-| OpenToWork.AdminWEB | 5101 | Blazor Server del portal admin (Fase 3) |
+| OpenToWork.API | 5000 | API REST del portal de candidatos |
+| OpenToWork.WEB | 5100 | Blazor Server del portal de candidatos |
+| OpenToWork.AdminAPI | 5001 | API REST del portal administrativo (Fase 4) |
+| OpenToWork.AdminWEB | 5101 | Blazor Server del portal administrativo (Fase 4) |
+| OpenToWork.CorporateAPI | 5002 | API REST del portal corporativo (Fase 5) |
+| OpenToWork.CorporateWEB | 5102 | Blazor Server del portal corporativo (Fase 5) |
 
 ---
 
 ## Fases del Proyecto
 
-### Fase 1 - COMPLETADA
+> Ver `docs/PLAN_DE_PROYECTO.md` para el detalle completo de cada fase.
+
+### Fase 1: Fundacion - COMPLETADA
 
 - [x] Estructura de 8 proyectos creada
 - [x] Entidades EF Core con prefijos (SC_, PT_, SY_) y auditoria
@@ -213,11 +232,10 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 - [x] Componentes SharedUI (BentoCard, OTButton, OTInput, Wizard, ThemeSwitcher, LanguageSwitcher)
 - [x] Sistema de temas (navy, dark, light) con CSS variables
 - [x] Sistema de i18n (es/en) con archivos JSON
-- [x] Paginas: Home, Login, Register, Wizard (6 pasos), Dashboard, Vacancies
+- [x] Paginas: Home, Login, Register, Wizard, Dashboard, Vacancies
 - [x] Migracion inicial aplicada a MySQL
-- [x] Script SQL exportado en `docs/OpenToWork_InitialCreate.sql`
 
-### Fase 2 - Completada
+### Fase 2: Portal de Candidatos - COMPLETADA
 
 - [x] Vacantes permanentes (empresas)
 - [x] Sistema de solicitudes (aplicar a vacantes)
@@ -231,36 +249,90 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 - [x] Wizard pasos 7-10 (experiencia, educacion, certificaciones, CV)
 - [x] Migracion Phase2 + Phase2Security aplicada
 - [x] i18n completo (es + en) con claves nuevas
+- [x] UI/UX: One UI, Bento Grid, Command-Driven, temas (navy/dark/light)
 
-### Fase 3 - Pendiente
+### Fase 3: Motor de Evaluacion y Scoring - Pendiente
 
-- [ ] Portal Admin completo (AdminAPI + AdminWEB)
-- [ ] Gestion de usuarios (activar, desactivar, eliminar)
+- [ ] Entidades de scoring (`PTCandidateScore`, `PTVerification`, `PTCandidateReference`)
+- [ ] ValidationService: verificacion automatica (LinkedIn, portafolio, coherencia cronologica)
+- [ ] ScoringService: indices de Estabilidad, Confiabilidad, Evidencia
+- [ ] CompatibilityService: match candidato-vacante
+- [ ] API endpoints: `/api/candidates/{id}/score`, `/api/candidates/{id}/verifications`
+- [ ] Dashboard candidato: mostrar scores y verificaciones en el perfil
+- [ ] Referencias laborales: CRUD en wizard y perfil
+- [ ] Pruebas de habilidades: `PTSkillTest`, `PTCandidateTestResult`
+
+### Fase 4: Portal Administrativo - Pendiente
+
+- [ ] AdminAPI con JWT independiente (puerto 5001)
+- [ ] AdminWEB con login y layout (puerto 5101)
+- [ ] Gestion de usuarios (activar, desactivar, eliminar, roles)
+- [ ] Verificaciones manuales (aprobar/rechazar validaciones)
 - [ ] Moderacion de vacantes
-- [ ] Dashboard con metricas y estadisticas
+- [ ] Dashboard admin con metricas y estadisticas
 - [ ] Gestion de categorias y skills
-- [ ] Exportacion de datos
-- [ ] Log de auditoria admin
+- [ ] Log de auditoria admin (`ADAuditLog`)
+- [ ] Exportacion de datos (CSV/Excel)
+
+### Fase 5: Portal Corporativo - Pendiente
+
+- [ ] CorporateAPI con JWT independiente (puerto 5002)
+- [ ] CorporateWEB con login y layout (puerto 5102)
+- [ ] Registro de empresas (`COCompany`)
+- [ ] Sistema de suscripciones (`COSubscription`, planes: Basic/Pro/Enterprise)
+- [ ] Busqueda avanzada con filtros por score
+- [ ] Perfiles evaluados con checkmarks de verificacion
+- [ ] Ranking automatico de candidatos por compatibilidad
+- [ ] Reportes avanzados
+
+### Fase 6: Servicios Premium - Pendiente
+
+- [ ] Verificacion manual de referencias (servicio premium)
+- [ ] Evaluaciones especificas por industria
+- [ ] Integraciones con sistemas de RRHH
+
+### Fase 7: Integraciones Externas - Pendiente
+
+- [ ] LinkedIn API (validacion real de perfiles)
+- [ ] Pasarela de pagos (Stripe/PayPal)
+- [ ] Notificaciones por email (SMTP)
+- [ ] Notificaciones push
+
+### Fase 8: Pruebas y Despliegue - Pendiente
+
+- [ ] Pruebas unitarias (cobertura > 70% en Core)
+- [ ] Pruebas de integracion (3 APIs)
+- [ ] Documentacion final
+- [ ] Despliegue en produccion
 
 ---
 
 ## Como debe continuar el proyecto
 
-1. **Fase 2 - Completada:**
-   - Entidades `PT_Vacancies`, `PT_Applications`, `PT_CandidateExperience`, `PT_CandidateEducation`, `PT_CandidateCertification`, `PT_VacancySkills`
-   - Services: `PermanentVacancyService`, `ApplicationService`, `ProfileService`
-   - Controllers: `PermanentVacanciesController`, `ApplicationsController`, `ProfileController`
-   - Frontend: `MyVacancies`, `VacancyDetail`, `Applications`, `MyApplications`, `Profile`, `ForgotPassword`
-   - Wizard extendido a 10 pasos (7-10: experiencia, educacion, certificaciones, CV)
-   - Seguridad: Google OAuth, reCAPTCHA, AES-256, recuperacion de contrasena
-   - i18n: 10 archivos JSON actualizados (es + en)
+1. **Fase 3 - Motor de Evaluacion y Scoring (SIGUIENTE):**
+   - Crear entidades: `PTCandidateScore`, `PTVerification`, `PTCandidateReference`, `PTSkillTest`, `PTCandidateTestResult`
+   - Implementar `ValidationService` (verificacion automatica de LinkedIn, portafolio, coherencia cronologica)
+   - Implementar `ScoringService` (indices de Estabilidad, Confiabilidad, Evidencia)
+   - Implementar `CompatibilityService` (match candidato-vacante)
+   - API endpoints para scores y verificaciones
+   - UI: mostrar scores y verificaciones en el perfil del candidato
+   - Referencias laborales: CRUD en wizard y perfil
 
-2. **Fase 3 - Portal Admin:**
-   - Configurar `OpenToWork.AdminAPI` con JWT independiente
-   - Crear controllers de gestion (Users, Vacancies, Applications, Categories)
-   - Construir `OpenToWork.AdminWEB` con Blazor
+2. **Fase 4 - Portal Administrativo:**
+   - Configurar `OpenToWork.AdminAPI` con JWT independiente (puerto 5001)
+   - Construir `OpenToWork.AdminWEB` con Blazor (puerto 5101)
+   - Verificaciones manuales (aprobar/rechazar)
+   - Gestion de usuarios, moderacion de vacantes
    - Dashboard admin con metricas
-   - Log de auditoria admin (`AD_AuditLog`)
+   - Log de auditoria admin (`ADAuditLog`)
+
+3. **Fase 5 - Portal Corporativo:**
+   - Configurar `OpenToWork.CorporateAPI` con JWT independiente (puerto 5002)
+   - Construir `OpenToWork.CorporateWEB` con Blazor (puerto 5102)
+   - Registro de empresas y sistema de suscripciones
+   - Busqueda avanzada con filtros por score
+   - Perfiles evaluados con checkmarks
+   - Ranking automatico de candidatos
 
 ---
 
@@ -268,6 +340,8 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 
 | Documento | Descripcion |
 |---|---|
+| `docs/BUSINESS_PROPOSAL.md` | Propuesta de negocio y producto - plataforma de evaluacion de talento |
+| `docs/PLAN_DE_PROYECTO.md` | Plan de proyecto con 3 portales y 8 fases |
 | `docs/PRD.md` | Product Requirements Document - requisitos del producto |
 | `docs/TRN.md` | Technical Requirements Note - requisitos tecnicos |
 | `docs/APPFLOW.md` | Diagramas de flujo de la aplicacion |
@@ -281,7 +355,7 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 
 ## Convenciones
 
-- **Tablas:** Prefijos `SC_` (Security), `PT_` (Portal), `SY_` (System), `AD_` (Admin)
+- **Tablas:** Prefijos `SC_` (Security), `PT_` (Portal), `SY_` (System), `AD_` (Admin), `CO_` (Corporate), `VR_` (Verification)
 - **Auditoria:** Todas las tablas tienen `CreatedAt`, `CreatedBy`, `UpdatedAt`, `UpdatedBy`, `IsDeleted`, `DeletedAt`, `DeletedBy`
 - **Soft delete:** No se usa `DELETE` fisico, solo `IsDeleted = true`
 - **i18n:** Prohibido texto hardcoded en `.razor`. Usar `Lang.T("section.key")`
