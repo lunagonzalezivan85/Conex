@@ -53,12 +53,38 @@
     },
     "nav": {
         "home": "Home",
+        "about": "About Us",
         "dashboard": "Dashboard",
         "profile": "My Profile",
         "vacancies": "Vacancies",
         "applications": "My Applications",
         "settings": "Settings",
-        "logout": "Log Out"
+        "logout": "Log Out",
+        "categories": "Categories",
+        "categoryIT": "Technology",
+        "categoryFinance": "Finance",
+        "categoryHealth": "Healthcare",
+        "categoryEducation": "Education",
+        "categoryMarketing": "Marketing",
+        "categoryEngineering": "Engineering",
+        "categorySales": "Sales",
+        "categoryDesign": "Design"
+    },
+    "search": {
+        "placeholder": "Search jobs, companies, keywords...",
+        "button": "Search",
+        "location": "Location",
+        "locationPlaceholder": "City or country",
+        "category": "Category",
+        "allCategories": "All categories",
+        "popular": "Popular searches",
+        "noResults": "No results found"
+    },
+    "home": {
+        "heroTitle": "Find your next job",
+        "heroSubtitle": "Thousands of vacancies waiting for you. Connect with the best companies.",
+        "featuredVacancies": "Featured vacancies",
+        "viewAllVacancies": "View all vacancies"
     },
     "roles": {
         "candidate": "Candidate",
