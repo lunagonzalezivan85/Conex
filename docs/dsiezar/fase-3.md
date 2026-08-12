@@ -58,10 +58,69 @@ Fase 3 construye el portal de administracion completo: `OpenToWork.AdminAPI` y `
 - Moderacion de vacantes/solicitudes no se puede implementar ni probar end-to-end hasta que Iluna cierre Fase 2.
 - Se puede mitigar construyendo esas pantallas contra datos mock o adelantando solo la base del AdminAPI/AdminWEB mientras tanto.
 
-- [ ] Aprobacion para pasar a Etapa 2 (Diseno Tecnico)
+- [x] Aprobacion para pasar a Etapa 2 (Diseno Tecnico)
+
+---
+
+## Etapa 2: Diseno Tecnico (PM + FS)
+
+**Contexto:** Al momento de escribir esto, `main` ya trae mergeado gran parte de Fase 2 (Iluna): `PTVacancy`, `PTApplication`, `PTCandidateExperience/Education/Certification`, `ProfileController`, `PermanentVacanciesController`, `ApplicationsController`, 2 migraciones (`Phase2`, `Phase2Security`). Esto **desbloquea** varias tareas de Fase 3 que antes dependian de Fase 2 (moderacion de vacantes permanentes y solicitudes, metricas de perfiles).
+
+`OpenToWork.AdminAPI` y `OpenToWork.AdminWEB` siguen siendo scaffolding puro (sin JWT, sin DbContext, sin controllers reales; `AdminWEB` todavia con paginas de plantilla `Counter.razor`/`Weather.razor` y Bootstrap). Todo el diseño de abajo parte de cero en ambos proyectos.
+
+### Entidades nuevas/modificadas
+
+- `AD_AuditLog` (nueva) - segun `docs/DATABASE_DESIGN.md` seccion 5.1:
+  - `Id`, `SC_UserId` (FK admin que actua), `Action` (VARCHAR 100, ej. "DeactivateUser"), `EntityType` (VARCHAR 100), `EntityId` (nullable), `ChangesJson` (LONGTEXT, before/after), `IpAddress` (VARCHAR 45), + auditoria estandar (`BaseEntity`)
+  - Indices: `(SC_UserId, IsDeleted)`, `(EntityType, EntityId, IsDeleted)`, `(CreatedAt, IsDeleted)`
+- No se tocan entidades existentes de `PT_`/`SC_`; el AdminAPI las consulta a traves de `AppDbContext` compartido con el portal principal, solo agrega `AD_AuditLog`.
+
+### Endpoints nuevos (`OpenToWork.AdminAPI`)
+
+| Controller | Endpoints | Descripcion |
+|---|---|---|
+| `AdminAuthController` | `POST /api/admin/auth/login` | Login exclusivo admin (`SC_Users` con `PrimaryRole = Admin`), JWT propio (key/issuer/audience distintos al portal principal) |
+| `UsersController` | `GET /api/admin/users`, `GET /api/admin/users/{id}`, `PUT /api/admin/users/{id}/activate`, `PUT /api/admin/users/{id}/deactivate`, `DELETE /api/admin/users/{id}` (soft delete) | Gestion de usuarios |
+| `VacanciesController` (admin) | `GET /api/admin/vacancies`, `PUT /api/admin/vacancies/{id}/moderate` (aprobar/rechazar/cerrar) | Moderacion de `PT_Vacancies` y `PT_TempVacancies` |
+| `ApplicationsController` (admin) | `GET /api/admin/applications` | Vista de solicitudes (solo lectura, sin cambiar estado - eso es del candidato/empresa) |
+| `SkillsController` (admin) | `GET/POST/PUT/DELETE /api/admin/skills` | CRUD de `PT_Skills` (categorias/skills) |
+| `DashboardController` | `GET /api/admin/dashboard/metrics` | Conteos: usuarios activos, candidatos, empresas, vacantes por estado, solicitudes por estado |
+| `AuditLogController` | `GET /api/admin/audit-log` | Consulta de `AD_AuditLog` (solo lectura, paginado, filtros por usuario/entidad/fecha) |
+| `ExportController` | `GET /api/admin/export/users`, `GET /api/admin/export/vacancies` | Exportacion CSV |
+
+Cada accion de escritura (activar/desactivar/eliminar/moderar) debe registrar una fila en `AD_AuditLog` (Action, EntityType, EntityId, ChangesJson, IpAddress).
+
+### Componentes/paginas nuevas (`OpenToWork.AdminWEB`)
+
+- `Components/Pages/AdminLogin.razor` - login independiente
+- `Components/Layout/AdminLayout.razor` - reemplaza el layout de plantilla, reutiliza estilos/temas de `SharedUI` (no Bootstrap)
+- `Components/Pages/Dashboard.razor` - metricas con `BentoCard`
+- `Components/Pages/Users.razor` - tabla de usuarios con activar/desactivar/eliminar
+- `Components/Pages/VacanciesModeration.razor` - moderar vacantes
+- `Components/Pages/ApplicationsView.razor` - ver solicitudes
+- `Components/Pages/Skills.razor` - CRUD de skills/categorias
+- `Components/Pages/AuditLog.razor` - tabla de auditoria con filtros
+- Eliminar paginas de plantilla: `Counter.razor`, `Weather.razor`
+
+### Configuracion base pendiente (antes de las paginas)
+
+- `AdminAPI/Program.cs`: JWT Bearer (config propia), `AppDbContext` (misma BD MySQL), CORS, DI de servicios admin, Swagger ya existe
+- `AdminAPI/appsettings.json`: agregar `ConnectionStrings`, `Jwt` (key/issuer/audience **distintos** a `OpenToWork.API`, ej. issuer `OpenToWork.Admin`)
+- `AdminWEB/Program.cs`: DI de `HttpClient` hacia `AdminAPI` (puerto 5001), `AuthStateProvider` propio, quitar referencias a Bootstrap, agregar referencia a `SharedUI` y temas
+- `AdminWEB/wwwroot`: quitar carpeta `lib/bootstrap`, cargar CSS de `SharedUI`/temas del portal principal
+
+### Migraciones
+
+- `AdminAuditLog` - agrega solo `AD_AuditLog`. Se genera **despues** de que Iluna cierre su migracion `Phase2Security` (ya esta en `main`), asi que no hay conflicto de migracion concurrente.
+
+### Riesgo re-evaluado
+
+Con el merge de `main`, la unica dependencia real que queda es de **datos**, no de disenio: `ApplicationsController` (admin, solo lectura) puede implementarse ya contra `PT_Applications`, que ya existe. Sin bloqueos pendientes para iniciar Etapa 3.
+
+- [ ] Aprobacion PM + FS para pasar a Etapa 3 (Implementacion)
 
 ---
 
 ## Resumen de Cambios
 
-Planificacion inicial de Fase 3 (Portal Admin). Sin implementacion de codigo aun.
+Etapa 1 (Planificacion) y Etapa 2 (Diseno Tecnico) de Fase 3 documentadas. Diseno actualizado tras el merge de los avances reales de Fase 2 (Iluna) a `main`. Sin implementacion de codigo aun.
