@@ -31,4 +31,22 @@ public class PTCompany : BaseEntity
 
     [MaxLength(300)]
     public string? Address { get; set; }
+
+    [MaxLength(100)]
+    public string? Industry { get; set; }
+
+    public int? CompanySize { get; set; }
+
+    [MaxLength(256)]
+    public string? ContactEmail { get; set; }
+
+    [MaxLength(20)]
+    public string? ContactPhone { get; set; }
+
+    [MaxLength(500)]
+    public string? LinkedInUrl { get; set; }
+
+    public bool IsVerified { get; set; } = false;
+
+    public virtual ICollection<PTVacancy> Vacancies { get; set; } = new List<PTVacancy>();
 }

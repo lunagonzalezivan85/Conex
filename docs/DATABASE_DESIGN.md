@@ -492,7 +492,7 @@ ENGINE = InnoDB;
 
 ---
 
-## 5. Módulo Admin (AD_) — [Fase 2]
+## 5. Módulo Admin (AD_) — [Fase 3]
 
 ### 5.1 AD_AuditLog
 
@@ -542,12 +542,21 @@ ENGINE = InnoDB;
 | `SY_WizardSteps` | System | Configuración de pasos del wizard |
 | `SY_UserPreferences` | System | Tema visual, idioma y rol preferido |
 
-### 6.2 Fase 2 (Búsqueda pública + Vacantes permanentes + Admin)
+### 6.2 Fase 2 (Vacantes permanentes + Solicitudes + Perfil completo + Seguridad)
 
 | Tabla | Prefijo | Propósito |
 |-------|---------|-----------|
 | `PT_Vacancies` | Portal | Vacantes permanentes asociadas a empresas |
 | `PT_Applications` | Portal | Solicitudes de candidatos a vacantes |
+| `PT_CandidateExperience` | Portal | Experiencia laboral del candidato |
+| `PT_CandidateEducation` | Portal | Educacion del candidato |
+| `PT_CandidateCertification` | Portal | Certificaciones del candidato |
+| `PT_VacancySkills` | Portal | Skills requeridos por vacante |
+
+### 6.3 Fase 3 (Portal Admin + Auditoria)
+
+| Tabla | Prefijo | Propósito |
+|-------|---------|-----------|
 | `AD_AuditLog` | Admin | Log de acciones administrativas |
 
 ---

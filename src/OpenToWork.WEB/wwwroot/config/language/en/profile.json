@@ -4,5 +4,58 @@
     "professionalInfo": "Professional information",
     "skills": "Skills",
     "save": "Save changes",
-    "saved": "Changes saved"
+    "saved": "Changes saved",
+    "tabs": {
+        "personal": "Personal",
+        "experience": "Experience",
+        "education": "Education",
+        "certifications": "Certifications"
+    },
+    "fields": {
+        "title": "Professional title",
+        "yearsExperience": "Years of experience",
+        "linkedin": "LinkedIn URL",
+        "portfolio": "Portfolio URL",
+        "availability": "Availability",
+        "workAuthorization": "Work authorization",
+        "summary": "Professional summary",
+        "cvUrl": "CV URL",
+        "isPublic": "Public profile"
+    },
+    "availability": {
+        "immediate": "Immediate",
+        "twoWeeks": "2 weeks",
+        "oneMonth": "1 month",
+        "notAvailable": "Not available"
+    },
+    "workAuth": {
+        "citizen": "Citizen",
+        "workVisa": "Work visa",
+        "studentVisa": "Student visa",
+        "none": "No authorization"
+    },
+    "experience": {
+        "add": "Add experience",
+        "company": "Company",
+        "jobTitle": "Job title",
+        "location": "Location",
+        "description": "Description",
+        "current": "Current job",
+        "present": "Present"
+    },
+    "education": {
+        "add": "Add education",
+        "institution": "Institution",
+        "degree": "Degree",
+        "fieldOfStudy": "Field of study",
+        "inProgress": "In progress"
+    },
+    "certification": {
+        "add": "Add certification",
+        "name": "Name",
+        "issuer": "Issuer",
+        "credentialId": "Credential ID",
+        "credentialUrl": "Credential URL",
+        "verify": "Verify"
+    }
 }

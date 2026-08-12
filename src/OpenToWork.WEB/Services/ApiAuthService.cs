@@ -109,6 +109,206 @@ public class ApiAuthService
         return response.IsSuccessStatusCode;
     }
 
+    // === Phase 2: Security ===
+
+    public async Task<bool> ForgotPasswordAsync(string email)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/auth/forgot-password", new { Email = email });
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/auth/reset-password", new { Token = token, NewPassword = newPassword });
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<AuthResponseDto?> GoogleLoginAsync(string googleToken)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/auth/google", new { Token = googleToken });
+        if (!response.IsSuccessStatusCode) return null;
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        if (result != null) await PersistAuthAsync(result);
+        return result;
+    }
+
+    public async Task<bool> VerifyRecaptchaAsync(string recaptchaResponse)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/auth/verify-recaptcha", new { Response = recaptchaResponse });
+        if (!response.IsSuccessStatusCode) return false;
+        var result = await response.Content.ReadFromJsonAsync<RecaptchaResult>();
+        return result?.Success ?? false;
+    }
+
+    // === Phase 2: Permanent Vacancies ===
+
+    public async Task<(List<VacancyDto> Items, int Total)> SearchPermanentVacanciesAsync(SearchPermanentVacancyDto search)
+    {
+        var query = $"api/permanentvacancies/search?Page={search.Page}&PageSize={search.PageSize}";
+        if (!string.IsNullOrEmpty(search.Query)) query += $"&Query={Uri.EscapeDataString(search.Query)}";
+        if (!string.IsNullOrEmpty(search.Location)) query += $"&Location={Uri.EscapeDataString(search.Location)}";
+        if (search.ContractType.HasValue) query += $"&ContractType={search.ContractType}";
+        if (search.WorkMode.HasValue) query += $"&WorkMode={search.WorkMode}";
+        if (!string.IsNullOrEmpty(search.Category)) query += $"&Category={Uri.EscapeDataString(search.Category)}";
+        if (search.ExperienceLevel.HasValue) query += $"&ExperienceLevel={search.ExperienceLevel}";
+        if (search.EnglishLevel.HasValue) query += $"&EnglishLevel={search.EnglishLevel}";
+        if (search.SalaryMin.HasValue) query += $"&SalaryMin={search.SalaryMin}";
+
+        var response = await _httpClient.GetAsync(query);
+        if (!response.IsSuccessStatusCode) return (new(), 0);
+
+        var result = await response.Content.ReadFromJsonAsync<PermanentSearchResult>();
+        return (result?.Items ?? new(), result?.Total ?? 0);
+    }
+
+    public async Task<VacancyDto?> GetPermanentVacancyAsync(Guid id)
+    {
+        var response = await _httpClient.GetAsync($"api/permanentvacancies/{id}");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<VacancyDto>();
+    }
+
+    public async Task<List<VacancyDto>> GetMyCompanyVacanciesAsync()
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync("api/permanentvacancies/my-company");
+        if (!response.IsSuccessStatusCode) return new();
+        return await response.Content.ReadFromJsonAsync<List<VacancyDto>>() ?? new();
+    }
+
+    public async Task<VacancyDto?> CreateVacancyAsync(CreateVacancyDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsJsonAsync("api/permanentvacancies", dto);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<VacancyDto>();
+    }
+
+    public async Task<bool> PublishVacancyAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsync($"api/permanentvacancies/{id}/publish", null);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> CloseVacancyAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsync($"api/permanentvacancies/{id}/close", null);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteVacancyAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.DeleteAsync($"api/permanentvacancies/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> ConvertTempVacancyAsync(Guid tempVacancyId)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsync($"api/permanentvacancies/convert-temp/{tempVacancyId}", null);
+        return response.IsSuccessStatusCode;
+    }
+
+    // === Phase 2: Applications ===
+
+    public async Task<ApplicationDto?> ApplyAsync(CreateApplicationDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsJsonAsync("api/applications", dto);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<ApplicationDto>();
+    }
+
+    public async Task<List<ApplicationDto>> GetMyApplicationsAsync()
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync("api/applications/my");
+        if (!response.IsSuccessStatusCode) return new();
+        return await response.Content.ReadFromJsonAsync<List<ApplicationDto>>() ?? new();
+    }
+
+    public async Task<List<ApplicationDto>> GetApplicationsByVacancyAsync(Guid vacancyId)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync($"api/applications/vacancy/{vacancyId}");
+        if (!response.IsSuccessStatusCode) return new();
+        return await response.Content.ReadFromJsonAsync<List<ApplicationDto>>() ?? new();
+    }
+
+    public async Task<ApplicationDto?> UpdateApplicationStatusAsync(Guid id, int status)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PutAsJsonAsync($"api/applications/{id}/status", new UpdateApplicationStatusDto { Status = status });
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<ApplicationDto>();
+    }
+
+    // === Phase 2: Profile (Experience, Education, Certification) ===
+
+    public async Task<CandidateProfileDto?> GetProfileAsync()
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync("api/profile");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<CandidateProfileDto>();
+    }
+
+    public async Task<CandidateProfileDto?> UpdateProfileAsync(UpdateCandidateProfileDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PutAsJsonAsync("api/profile", dto);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<CandidateProfileDto>();
+    }
+
+    public async Task<CandidateExperienceDto?> AddExperienceAsync(CreateExperienceDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsJsonAsync("api/profile/experience", dto);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<CandidateExperienceDto>();
+    }
+
+    public async Task<bool> DeleteExperienceAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.DeleteAsync($"api/profile/experience/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<CandidateEducationDto?> AddEducationAsync(CreateEducationDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsJsonAsync("api/profile/education", dto);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<CandidateEducationDto>();
+    }
+
+    public async Task<bool> DeleteEducationAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.DeleteAsync($"api/profile/education/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<CandidateCertificationDto?> AddCertificationAsync(CreateCertificationDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsJsonAsync("api/profile/certification", dto);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<CandidateCertificationDto>();
+    }
+
+    public async Task<bool> DeleteCertificationAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.DeleteAsync($"api/profile/certification/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
     public async Task SetAuthHeaderAsync()
     {
         var token = await _localStorage.GetItemAsync("opentowork-token");
@@ -141,5 +341,16 @@ public class ApiAuthService
     {
         public List<TempVacancyDto> Items { get; set; } = new();
         public int Total { get; set; }
+    }
+
+    private class PermanentSearchResult
+    {
+        public List<VacancyDto> Items { get; set; } = new();
+        public int Total { get; set; }
+    }
+
+    private class RecaptchaResult
+    {
+        public bool Success { get; set; }
     }
 }

@@ -1,0 +1,17 @@
+{
+    "title": "Solicitudes",
+    "myTitle": "Mis Solicitudes",
+    "noApplications": "No hay solicitudes recibidas",
+    "noMyApplications": "No has aplicado a ninguna vacante",
+    "applyTitle": "Aplicar a esta vacante",
+    "apply": "Enviar solicitud",
+    "coverLetter": "Carta de presentación",
+    "expectedSalary": "Salario esperado",
+    "availableFrom": "Disponible desde",
+    "status": {
+        "pending": "Pendiente",
+        "inReview": "En revisión",
+        "accepted": "Aceptada",
+        "rejected": "Rechazada"
+    }
+}

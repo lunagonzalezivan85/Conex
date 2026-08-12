@@ -77,6 +77,34 @@ public class AuthController : ControllerBase
         return Ok(new { isKnown, requiresCaptcha = !isKnown });
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+    {
+        await _authService.RequestPasswordResetAsync(dto.Email);
+        return Ok(new { message = "If the email exists, a reset link has been sent." });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+    {
+        var result = await _authService.ResetPasswordAsync(dto.Token, dto.NewPassword);
+        return result ? Ok(new { message = "Password reset successfully." }) : BadRequest(new { message = "Invalid or expired token." });
+    }
+
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+    {
+        var result = await _authService.GoogleLoginAsync(dto.Token);
+        return result != null ? Ok(result) : Unauthorized(new { message = "Invalid Google token." });
+    }
+
+    [HttpPost("verify-recaptcha")]
+    public async Task<IActionResult> VerifyRecaptcha([FromBody] VerifyRecaptchaDto dto)
+    {
+        var isValid = await _authService.VerifyRecaptchaAsync(dto.Response);
+        return Ok(new { success = isValid });
+    }
+
     private Guid? GetUserId()
     {
         var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;

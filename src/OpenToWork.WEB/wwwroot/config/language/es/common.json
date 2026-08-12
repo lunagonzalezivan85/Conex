@@ -17,7 +17,10 @@
         "complete": "Finalizar",
         "create": "Crear",
         "viewAll": "Ver todas",
-        "apply": "Aplicar"
+        "apply": "Aplicar",
+        "add": "Agregar",
+        "view": "Ver",
+        "backToLogin": "Volver a Iniciar Sesión"
     },
     "labels": {
         "welcome": "Bienvenido",
@@ -42,7 +45,11 @@
         "summary": "Resumen profesional",
         "location": "Ubicación",
         "salary": "Salario",
-        "contractType": "Tipo de contrato"
+        "contractType": "Tipo de contrato",
+        "startDate": "Fecha de inicio",
+        "endDate": "Fecha de fin",
+        "issueDate": "Fecha de emisión",
+        "expiryDate": "Fecha de expiración"
     },
     "nav": {
         "home": "Inicio",

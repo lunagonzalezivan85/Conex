@@ -25,6 +25,23 @@
             "title": "Revisar y Confirmar",
             "description": "Verifica que tus datos sean correctos",
             "confirm": "Confirmar y continuar"
+        },
+        "workExperience": {
+            "title": "Experiencia Laboral",
+            "description": "Agrega tu experiencia laboral"
+        },
+        "education": {
+            "title": "Educación",
+            "description": "Agrega tu formación académica"
+        },
+        "certifications": {
+            "title": "Certificaciones",
+            "description": "Agrega tus certificaciones"
+        },
+        "uploadCv": {
+            "title": "Subir CV",
+            "description": "Sube tu CV o currículum",
+            "optional": "Este paso es opcional"
         }
     },
     "buttons": {

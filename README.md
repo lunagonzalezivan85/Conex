@@ -130,17 +130,20 @@ Swagger disponible en: `http://localhost:5000/swagger`
 - [x] Migracion inicial aplicada a MySQL
 - [x] Script SQL exportado en `docs/OpenToWork_InitialCreate.sql`
 
-### Fase 2 - Pendiente
+### Fase 2 - Completada
 
-- [ ] Vacantes permanentes (empresas)
-- [ ] Sistema de solicitudes (aplicar a vacantes)
-- [ ] Gestion de estados de solicitud (Pendiente, En revision, Aceptada, Rechazada)
-- [ ] Perfil completo del candidato (skills, experiencia, educacion)
-- [ ] Subida de CV y foto de perfil
-- [ ] Login con Google OAuth
-- [ ] reCAPTCHA en login desde dispositivo desconocido
-- [ ] Encriptacion de datos de sesion en localStorage (AES-256)
-- [ ] Recuperacion de contrasena
+- [x] Vacantes permanentes (empresas)
+- [x] Sistema de solicitudes (aplicar a vacantes)
+- [x] Gestion de estados de solicitud (Pendiente, En revision, Aceptada, Rechazada)
+- [x] Perfil completo del candidato (skills, experiencia, educacion, certificaciones)
+- [x] Subida de CV (URL)
+- [x] Login con Google OAuth
+- [x] reCAPTCHA en login desde dispositivo desconocido
+- [x] Encriptacion de datos de sesion en localStorage (AES-256)
+- [x] Recuperacion de contrasena
+- [x] Wizard pasos 7-10 (experiencia, educacion, certificaciones, CV)
+- [x] Migracion Phase2 + Phase2Security aplicada
+- [x] i18n completo (es + en) con claves nuevas
 
 ### Fase 3 - Pendiente
 
@@ -156,27 +159,21 @@ Swagger disponible en: `http://localhost:5000/swagger`
 
 ## Como debe continuar el proyecto
 
-1. **Fase 2 - Vacantes permanentes y solicitudes:**
-   - Crear entidades `PT_Vacancies` (permanent) y `PT_Applications`
-   - Implementar `VacancyService` para vacantes permanentes
-   - Crear `ApplicationsController` y flujo de aplicacion
-   - Agregar pagina de "Mis Solicitudes" en WEB
+1. **Fase 2 - Completada:**
+   - Entidades `PT_Vacancies`, `PT_Applications`, `PT_CandidateExperience`, `PT_CandidateEducation`, `PT_CandidateCertification`, `PT_VacancySkills`
+   - Services: `PermanentVacancyService`, `ApplicationService`, `ProfileService`
+   - Controllers: `PermanentVacanciesController`, `ApplicationsController`, `ProfileController`
+   - Frontend: `MyVacancies`, `VacancyDetail`, `Applications`, `MyApplications`, `Profile`, `ForgotPassword`
+   - Wizard extendido a 10 pasos (7-10: experiencia, educacion, certificaciones, CV)
+   - Seguridad: Google OAuth, reCAPTCHA, AES-256, recuperacion de contrasena
+   - i18n: 10 archivos JSON actualizados (es + en)
 
-2. **Fase 2 - Perfil completo del candidato:**
-   - Crear entidades `PT_CandidateExperience`, `PT_CandidateEducation`
-   - Implementar CRUD de experiencia y educacion
-   - Subida de archivos (CV, foto) con almacenamiento
-
-3. **Fase 2 - Seguridad avanzada:**
-   - Integrar Google OAuth (`GoogleOAuth` en appsettings ya configurado)
-   - Implementar reCAPTCHA (`Recaptcha` en appsettings ya configurado)
-   - Encriptar tokens en localStorage con AES-256
-
-4. **Fase 3 - Portal Admin:**
+2. **Fase 3 - Portal Admin:**
    - Configurar `OpenToWork.AdminAPI` con JWT independiente
    - Crear controllers de gestion (Users, Vacancies, Applications, Categories)
    - Construir `OpenToWork.AdminWEB` con Blazor
    - Dashboard admin con metricas
+   - Log de auditoria admin (`AD_AuditLog`)
 
 ---
 

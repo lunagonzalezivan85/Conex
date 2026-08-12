@@ -32,4 +32,13 @@ public class PTTempVacancy : BaseEntity
     public DateTime ExpiresAt { get; set; }
 
     public bool IsPublished { get; set; } = false;
+
+    [MaxLength(100)]
+    public string? Category { get; set; }
+
+    public int? ExperienceLevel { get; set; }
+
+    public int? EnglishLevel { get; set; }
+
+    public int WorkMode { get; set; } = 0;
 }

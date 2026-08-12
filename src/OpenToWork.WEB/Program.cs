@@ -14,6 +14,7 @@ builder.Services.AddScoped<LocalStorageService>();
 builder.Services.AddScoped<ApiAuthService>();
 builder.Services.AddScoped<AppAuthStateProvider>();
 builder.Services.AddScoped<LanguageService>();
+builder.Services.AddSingleton<AesEncryptionService>(sp => new AesEncryptionService(builder.Configuration["Security:AesKey"] ?? "OpenToWork-Default-Key-2024"));
 builder.Services.AddScoped<Microsoft.AspNetCore.Components.Authorization.AuthenticationStateProvider>(sp => sp.GetRequiredService<AppAuthStateProvider>());
 
 builder.Services.AddHttpClient<ApiAuthService>(client =>

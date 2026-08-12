@@ -37,7 +37,7 @@ public class LanguageService
 
     public async Task LoadTranslationsAsync(string lang)
     {
-        var sections = new[] { "common", "auth", "wizard", "dashboard", "vacancies", "profile", "validation", "errors" };
+        var sections = new[] { "common", "auth", "wizard", "dashboard", "vacancies", "profile", "validation", "errors", "applications" };
         _translations.Clear();
         foreach (var section in sections)
         {

@@ -17,7 +17,10 @@
         "complete": "Finish",
         "create": "Create",
         "viewAll": "View all",
-        "apply": "Apply"
+        "apply": "Apply",
+        "add": "Add",
+        "view": "View",
+        "backToLogin": "Back to Login"
     },
     "labels": {
         "welcome": "Welcome",
@@ -42,7 +45,11 @@
         "summary": "Professional summary",
         "location": "Location",
         "salary": "Salary",
-        "contractType": "Contract type"
+        "contractType": "Contract type",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "issueDate": "Issue date",
+        "expiryDate": "Expiry date"
     },
     "nav": {
         "home": "Home",
