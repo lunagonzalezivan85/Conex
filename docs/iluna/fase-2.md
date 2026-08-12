@@ -8,6 +8,63 @@
 
 ---
 
+## Progreso Visual de Fase 2
+
+### Etapas del Workflow
+
+```
+[0] Identidad     [x] Completada
+[1] Planificacion [x] Completada
+[2] Diseno Tec.   [ ] Pendiente
+[3] Implementacion[ ] Pendiente
+[4] Pruebas (QA)  [ ] Pendiente
+[5] Auditoria(SEC)[ ] Pendiente
+[6] Correcciones  [ ] Pendiente
+[7] Cierre        [ ] Pendiente
+```
+
+**Progreso general:** `[██░░░░░░░░░░░░░░░░░░] 10%`
+
+### Modulos de Implementacion
+
+| # | Modulo | Estado | Progreso |
+|---|---|---|---|
+| 1 | Enums nuevos (7) | Pendiente | `[░░░░░] 0%` |
+| 2 | Campos nuevos en entidades existentes | Pendiente | `[░░░░░] 0%` |
+| 3 | Entidad PTVacancy + PTVacancySkill | Pendiente | `[░░░░░] 0%` |
+| 4 | Entidad PTApplication | Pendiente | `[░░░░░] 0%` |
+| 5 | Entidad PTCandidateExperience | Pendiente | `[░░░░░] 0%` |
+| 6 | Entidad PTCandidateEducation | Pendiente | `[░░░░░] 0%` |
+| 7 | Entidad PTCandidateCertification | Pendiente | `[░░░░░] 0%` |
+| 8 | AppDbContext + Migracion | Pendiente | `[░░░░░] 0%` |
+| 9 | DTOs (Vacancy, Application, Experience, Education, Certification) | Pendiente | `[░░░░░] 0%` |
+| 10 | Services (Vacancy, Application, Profile) | Pendiente | `[░░░░░] 0%` |
+| 11 | Controllers (Vacancies, Applications, Profile) | Pendiente | `[░░░░░] 0%` |
+| 12 | Frontend: MyVacancies + VacancyDetail | Pendiente | `[░░░░░] 0%` |
+| 13 | Frontend: Applications + MyApplications | Pendiente | `[░░░░░] 0%` |
+| 14 | Frontend: Profile (tabs: exp, edu, cert) | Pendiente | `[░░░░░] 0%` |
+| 15 | Frontend: Wizard steps 7-10 + Upload CV | Pendiente | `[░░░░░] 0%` |
+| 16 | Google OAuth | Pendiente | `[░░░░░] 0%` |
+| 17 | reCAPTCHA en login | Pendiente | `[░░░░░] 0%` |
+| 18 | Encriptacion localStorage (AES-256) | Pendiente | `[░░░░░] 0%` |
+| 19 | Recuperacion de contrasena | Pendiente | `[░░░░░] 0%` |
+| 20 | Convertir vacante temporal a permanente | Pendiente | `[░░░░░] 0%` |
+| 21 | i18n (es + en) - todas las claves nuevas | Pendiente | `[░░░░░] 0%` |
+| 22 | Build sin errores | Pendiente | `[░░░░░] 0%` |
+
+### Checklist de Aprobacion
+
+```
+[ ] Build sin errores (dotnet build)
+[ ] Migracion creada y aplicada
+[ ] i18n completo (es + en)
+[ ] QA: 0 bugs criticos
+[ ] SEC: 0 hallazgos criticos
+[ ] PM: Cierre aprobado
+```
+
+---
+
 ## Resumen
 
 Fase 2 expande la plataforma con vacantes permanentes, sistema de solicitudes, perfil completo del candidato (experiencia, educacion, certificaciones), subida de CV, y mejoras de seguridad. Se valida escalabilidad de campos existentes y se agregan nuevos.
@@ -226,69 +283,70 @@ Agregar a `SY_WizardSteps`:
 
 ---
 
-## Division de Tareas entre IAs (Minimizar Dependencias)
+## Asignacion: Iluna toma TODA la Fase 2
 
-### Iluna - Vacantes Permanentes + Solicitudes (Full Stack)
+Iluna se encarga de todo el trabajo de Fase 2 (backend + frontend + seguridad). Dsiezar puede participar en fases futuras.
 
-**Backend:**
-- Entidades: PTVacancy, PTApplication, PTVacancySkill
-- Enums: WorkMode, ExperienceLevel, EnglishLevel, ApplicationSource
-- Campos nuevos en PT_Companies: Industry, CompanySize, ContactEmail, ContactPhone, LinkedInUrl, IsVerified
-- Campos nuevos en PT_TempVacancies: Category, ExperienceLevel, EnglishLevel, WorkMode
-- DTOs: VacancyDto, CreateVacancyDto, UpdateVacancyDto, ApplicationDto, CreateApplicationDto
-- Services: IVacancyService (permanent), IApplicationService
-- Controllers: VacanciesController (permanent), ApplicationsController
-- Migracion
+### Sprint 1: Backend - Entidades y Migracion
 
-**Frontend:**
-- Pagina: MyVacancies.razor (lista de vacantes de la empresa)
-- Pagina: VacancyDetail.razor (detalle de vacante + aplicar)
-- Pagina: Applications.razor (solicitudes recibidas por empresa)
-- Pagina: MyApplications.razor (solicitudes enviadas por candidato)
-- i18n: claves nuevas en vacancies.json, applications.json (nuevo)
-- CSS: vacancy-detail, application-card
+- [ ] Enums nuevos: WorkMode, ExperienceLevel, EnglishLevel, Availability, WorkAuthorization, CompanySize, ApplicationSource
+- [ ] Campos nuevos en PT_Candidates (7 campos)
+- [ ] Campos nuevos en PT_Companies (6 campos)
+- [ ] Campos nuevos en PT_TempVacancies (4 campos)
+- [ ] Entidad PTVacancy + configuracion EF
+- [ ] Entidad PTApplication + configuracion EF
+- [ ] Entidad PTCandidateExperience + configuracion EF
+- [ ] Entidad PTCandidateEducation + configuracion EF
+- [ ] Entidad PTCandidateCertification + configuracion EF
+- [ ] Entidad PTVacancySkill + configuracion EF
+- [ ] AppDbContext: agregar DbSets, indices, relaciones
+- [ ] Seed wizard steps 7-10
+- [ ] Migracion creada y aplicada
 
-### Dsiezar - Perfil Completo del Candidato (Full Stack)
+### Sprint 2: Backend - DTOs, Services y Controllers
 
-**Backend:**
-- Entidades: PTCandidateExperience, PTCandidateEducation, PTCandidateCertification
-- Enums: Availability, WorkAuthorization
-- Campos nuevos en PT_Candidates: YearsOfExperience, LinkedInUrl, PortfolioUrl, Availability, WorkAuthorization, IsProfilePublic, CompletedAt
-- DTOs: ExperienceDto, EducationDto, CertificationDto, UpdateCandidateProfileDto
-- Services: IProfileService (experience, education, certifications CRUD)
-- Controllers: ProfileController
-- Wizard steps seed: 7-10
-- Migracion (separada o conjunta)
+- [ ] DTOs: VacancyDto, CreateVacancyDto, UpdateVacancyDto
+- [ ] DTOs: ApplicationDto, CreateApplicationDto, UpdateApplicationStatusDto
+- [ ] DTOs: ExperienceDto, EducationDto, CertificationDto, UpdateCandidateProfileDto
+- [ ] IVacancyService + VacancyService (CRUD permanentes, busqueda avanzada)
+- [ ] IApplicationService + ApplicationService (aplicar, ver, cambiar estado)
+- [ ] IProfileService + ProfileService (experience, education, certifications CRUD)
+- [ ] VacanciesController (permanent vacancies endpoints)
+- [ ] ApplicationsController (applications endpoints)
+- [ ] ProfileController (candidate profile endpoints)
+- [ ] Convertir vacante temporal a permanente (endpoint + service)
 
-**Frontend:**
-- Pagina: Profile.razor (perfil completo con tabs: personal, experience, education, certifications)
-- Wizard steps 7-10 UI
-- Componente: ExperienceForm, EducationForm, CertificationForm
-- Subida de CV (file upload)
-- i18n: claves nuevas en profile.json, wizard.json
+### Sprint 3: Frontend - Vacantes y Solicitudes
 
-### Punto de Dependencia
+- [ ] Pagina: MyVacancies.razor (lista de vacantes de la empresa)
+- [ ] Pagina: VacancyDetail.razor (detalle + aplicar)
+- [ ] Pagina: Applications.razor (solicitudes recibidas por empresa)
+- [ ] Pagina: MyApplications.razor (solicitudes enviadas por candidato)
+- [ ] CSS: vacancy-detail, application-card
 
-**Unica dependencia:** Ambos modifican `AppDbContext.cs` y necesitan la misma migracion.
+### Sprint 4: Frontend - Perfil Completo y Wizard
 
-**Solucion:**
-1. Iluna crea las entidades y el AppDbContext primero (sprint 1)
-2. Dsiezar crea sus entidades despues (sprint 2) o acuerdan la migracion conjunta
-3. Alternativa: cada uno crea su migracion por separado y se consolidan al hacer merge
+- [ ] Pagina: Profile.razor (tabs: personal, experience, education, certifications)
+- [ ] Componente: ExperienceForm.razor
+- [ ] Componente: EducationForm.razor
+- [ ] Componente: CertificationForm.razor
+- [ ] Wizard steps 7-10 UI
+- [ ] Subida de CV (file upload)
 
-**Sin dependencia cruzada:** Las paginas y endpoints de Iluna no usan las entidades de Dsiezar y viceversa.
+### Sprint 5: Seguridad
 
----
+- [ ] Google OAuth (login alternativo)
+- [ ] reCAPTCHA en login desde dispositivo nuevo
+- [ ] Encriptacion localStorage (AES-256 para tokens)
+- [ ] Recuperacion de contrasena (email + token reset)
 
-## Otros Features de Fase 2 (Asignacion Pendiente)
+### Sprint 6: i18n y Build
 
-| Feature | Descripcion | Dependencia |
-|---|---|---|
-| Google OAuth | Login con Google | Ninguna (independiente) |
-| reCAPTCHA | Captcha en login desde dispositivo nuevo | Ninguna (independiente) |
-| Encriptacion localStorage | AES-256 para tokens | Ninguna (independiente) |
-| Recuperacion de contrasena | Email + token reset | Ninguna (independiente) |
-| Convertir vacante temporal a permanente | Mover PT_TempVacancy a PT_Vacancy | Depende de Iluna (PTVacancy) |
+- [ ] Claves nuevas en vacancies.json (es + en)
+- [ ] Claves nuevas en applications.json (es + en) (nuevo archivo)
+- [ ] Claves nuevas en profile.json (es + en)
+- [ ] Claves nuevas en wizard.json (es + en)
+- [ ] Build sin errores: `dotnet build OpenToWork.slnx`
 
 ---
 
@@ -317,7 +375,8 @@ Agregar a `SY_WizardSteps`:
 - [x] Analisis de campos actuales y escalabilidad
 - [x] Diseno de nuevas entidades
 - [x] Nuevos enums definidos
-- [x] Division de tareas entre IAs
+- [x] Asignacion: Iluna toma toda la Fase 2
 - [x] Criterios de aceptacion definidos
-- [x] Dependencias identificadas y minimizadas
-- [ ] Aprobacion para pasar a Etapa 2 (Diseno Tecnico)
+- [x] Sprints definidos (6 sprints)
+- [x] Aprobacion del usuario recibida
+- [x] Listo para Etapa 2 (Diseno Tecnico)
