@@ -22,7 +22,13 @@ public class LanguageService
 
     public async Task InitializeAsync()
     {
-        var saved = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", "opentowork-lang");
+        string? saved = null;
+        try
+        {
+            saved = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", "opentowork-lang");
+        }
+        catch (JSDisconnectedException) { }
+        catch (InvalidOperationException) { }
         _currentLanguage = saved ?? "es";
         await LoadTranslationsAsync(_currentLanguage);
     }
@@ -31,7 +37,12 @@ public class LanguageService
     {
         _currentLanguage = lang;
         await LoadTranslationsAsync(lang);
-        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "opentowork-lang", lang);
+        try
+        {
+            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", "opentowork-lang", lang);
+        }
+        catch (JSDisconnectedException) { }
+        catch (InvalidOperationException) { }
         OnLanguageChanged?.Invoke();
     }
 
