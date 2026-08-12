@@ -7,6 +7,14 @@
 
 ---
 
+> **NOTA (2026-08-12, Dsiezar):** Este documento es el **plan original** del proyecto, escrito antes de iniciar la implementación, con fases organizadas **por capa tecnica** (Fase 2 = Modelos, Fase 3 = Logica de Negocio, Fase 4 = APIs, Fase 5 = Frontend, etc.) y cronograma semanal.
+>
+> En la practica, la Fase 1 real (ver `docs/iluna/fase-1.md`) entrego de una sola vez entidades, DTOs, servicios, controllers y paginas Blazor, saltandose la separacion por capas de este plan. El proyecto migro a un esquema de fases **por feature/producto**, que es el que esta vigente y gobierna el trabajo actual: ver `README.md` (seccion "Fases del Proyecto"), `docs/GIT_BRANCHES.md` y `.agents/WORKFLOW.md`.
+>
+> Este archivo se conserva como referencia historica de la planificacion inicial, no como fuente de verdad del roadmap actual. Si necesitas saber "que fase estamos" o "que sigue", consulta `README.md`, no este documento.
+
+---
+
 ## 1. Visión General
 
 OpenToWork es una plataforma de empleo construida con C# y Blazor que conecta candidatos con empresas. El proyecto se desarrolla en capas separadas con **dos APIs independientes** (Portal Principal y Portal Administrativo) y **dos frontends Blazor independientes**, siguiendo buenas prácticas de arquitectura de software.
