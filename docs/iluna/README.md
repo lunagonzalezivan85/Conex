@@ -15,5 +15,5 @@
 | Fase | Rol | Estado | Archivo |
 |---|---|---|---|
 | Fase 1 | FS (Full Stack) | Completada | `fase-1.md` |
-| Fase 2 | - | Pendiente | - |
+| Fase 2 | PM (Project Manager) | En planificacion | `fase-2.md` |
 | Fase 3 | - | Pendiente | - |
