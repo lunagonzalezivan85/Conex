@@ -1,0 +1,168 @@
+@page "/my-vacancies"
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.WEB.Services
+@inject ApiAuthService AuthApi
+@inject LanguageService Lang
+
+<PageTitle>@Lang.T("vacancies.myTitle")</PageTitle>
+
+<div class="page-container">
+    <div class="flex-between mb-lg">
+        <h1>@Lang.T("vacancies.myTitle")</h1>
+        <button class="ot-btn ot-btn--primary ot-btn--medium" @onclick="() => ShowCreateForm = !ShowCreateForm">
+            @Lang.T("vacancies.create")
+        </button>
+    </div>
+
+    @if (ShowCreateForm)
+    {
+        <div class="ot-card mb-lg">
+            <h3 class="mb-md">@Lang.T("vacancies.createTitle")</h3>
+            <div class="form-grid">
+                <input class="ot-input" placeholder="@Lang.T("vacancies.fields.title")" @bind="NewVacancy.Title" />
+                <input class="ot-input" placeholder="@Lang.T("vacancies.fields.location")" @bind="NewVacancy.Location" />
+                <input class="ot-input" placeholder="@Lang.T("vacancies.fields.category")" @bind="NewVacancy.Category" />
+                <select class="ot-input" @bind="NewVacancy.ContractType">
+                    <option value="0">@Lang.T("common.contract.fullTime")</option>
+                    <option value="1">@Lang.T("common.contract.partTime")</option>
+                    <option value="2">@Lang.T("common.contract.contract")</option>
+                    <option value="3">@Lang.T("common.contract.remote")</option>
+                </select>
+                <select class="ot-input" @bind="NewVacancy.WorkMode">
+                    <option value="0">@Lang.T("vacancies.workMode.onSite")</option>
+                    <option value="1">@Lang.T("vacancies.workMode.hybrid")</option>
+                    <option value="2">@Lang.T("vacancies.workMode.remote")</option>
+                </select>
+                <input class="ot-input" type="number" placeholder="@Lang.T("vacancies.fields.salaryMin")" @bind="NewVacancy.SalaryMin" />
+                <input class="ot-input" type="number" placeholder="@Lang.T("vacancies.fields.salaryMax")" @bind="NewVacancy.SalaryMax" />
+            </div>
+            <textarea class="ot-input mt-md" rows="3" placeholder="@Lang.T("vacancies.fields.description")" @bind="NewVacancy.Description"></textarea>
+            <textarea class="ot-input mt-md" rows="3" placeholder="@Lang.T("vacancies.fields.requirements")" @bind="NewVacancy.Requirements"></textarea>
+            <div class="flex-center gap-sm mt-md">
+                <button class="ot-btn ot-btn--primary" @onclick="CreateVacancy">@Lang.T("common.buttons.save")</button>
+                <button class="ot-btn ot-btn--secondary" @onclick="() => ShowCreateForm = false">@Lang.T("common.buttons.cancel")</button>
+            </div>
+        </div>
+    }
+
+    @if (IsLoading)
+    {
+        <p>@Lang.T("common.labels.loading")</p>
+    }
+    else if (!VacancyList.Any())
+    {
+        <div class="ot-card text-center">
+            <p class="auth-subtitle">@Lang.T("vacancies.noVacancies")</p>
+        </div>
+    }
+    else
+    {
+        <div class="bento-grid">
+            @foreach (var vacancy in VacancyList)
+            {
+                <div class="vacancy-card">
+                    <div class="vacancy-card-title">@vacancy.Title</div>
+                    <div class="vacancy-card-location">@(vacancy.Location ?? "N/A")</div>
+                    @if (vacancy.SalaryMin.HasValue || vacancy.SalaryMax.HasValue)
+                    {
+                        <div class="vacancy-card-salary">
+                            @if (vacancy.SalaryMin.HasValue)
+                            {
+                                <span>$@vacancy.SalaryMin.Value.ToString("N0")</span>
+                            }
+                            @if (vacancy.SalaryMin.HasValue && vacancy.SalaryMax.HasValue)
+                            {
+                                <span> - </span>
+                            }
+                            @if (vacancy.SalaryMax.HasValue)
+                            {
+                                <span>$@vacancy.SalaryMax.Value.ToString("N0")</span>
+                            }
+                        </div>
+                    }
+                    <div class="vacancy-card-footer">
+                        <span class="vacancy-card-badge @GetStatusClass(vacancy.Status)">@GetStatusLabel(vacancy.Status)</span>
+                    </div>
+                    <div class="flex-center gap-sm mt-md">
+                        @if (vacancy.Status == 0)
+                        {
+                            <button class="ot-btn ot-btn--primary ot-btn--small" @onclick="() => PublishVacancy(vacancy.Id)">@Lang.T("vacancies.publish")</button>
+                        }
+                        @if (vacancy.Status == 1)
+                        {
+                            <button class="ot-btn ot-btn--secondary ot-btn--small" @onclick="() => CloseVacancy(vacancy.Id)">@Lang.T("vacancies.close")</button>
+                        }
+                        <a href="/vacancy/@vacancy.Id" class="ot-btn ot-btn--secondary ot-btn--small">@Lang.T("common.buttons.view")</a>
+                        <button class="ot-btn ot-btn--danger ot-btn--small" @onclick="() => DeleteVacancy(vacancy.Id)">@Lang.T("common.buttons.delete")</button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<VacancyDto> VacancyList { get; set; } = new();
+    private bool IsLoading { get; set; }
+    private bool ShowCreateForm { get; set; }
+    private CreateVacancyDto NewVacancy { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+        await LoadVacancies();
+    }
+
+    private async Task LoadVacancies()
+    {
+        IsLoading = true;
+        VacancyList = await AuthApi.GetMyCompanyVacanciesAsync();
+        IsLoading = false;
+    }
+
+    private async Task CreateVacancy()
+    {
+        var result = await AuthApi.CreateVacancyAsync(NewVacancy);
+        if (result != null)
+        {
+            NewVacancy = new CreateVacancyDto();
+            ShowCreateForm = false;
+            await LoadVacancies();
+        }
+    }
+
+    private async Task PublishVacancy(Guid id)
+    {
+        await AuthApi.PublishVacancyAsync(id);
+        await LoadVacancies();
+    }
+
+    private async Task CloseVacancy(Guid id)
+    {
+        await AuthApi.CloseVacancyAsync(id);
+        await LoadVacancies();
+    }
+
+    private async Task DeleteVacancy(Guid id)
+    {
+        await AuthApi.DeleteVacancyAsync(id);
+        await LoadVacancies();
+    }
+
+    private string GetStatusLabel(int status) => status switch
+    {
+        0 => Lang.T("vacancies.status.draft"),
+        1 => Lang.T("vacancies.status.active"),
+        2 => Lang.T("vacancies.status.closed"),
+        _ => ""
+    };
+
+    private string GetStatusClass(int status) => status switch
+    {
+        0 => "badge-draft",
+        1 => "badge-active",
+        2 => "badge-closed",
+        _ => ""
+    };
+}

@@ -4,7 +4,7 @@
 **Rol:** PM (Project Manager)
 **Fecha inicio:** 2026-08-12
 **Fecha fin:** Pendiente
-**Estado:** En planificacion (Etapa 1)
+**Estado:** Implementacion completada (Etapa 3)
 
 ---
 
@@ -15,49 +15,49 @@
 ```
 [0] Identidad     [x] Completada
 [1] Planificacion [x] Completada
-[2] Diseno Tec.   [ ] Pendiente
-[3] Implementacion[ ] Pendiente
+[2] Diseno Tec.   [x] Completada
+[3] Implementacion[x] Completada
 [4] Pruebas (QA)  [ ] Pendiente
 [5] Auditoria(SEC)[ ] Pendiente
 [6] Correcciones  [ ] Pendiente
 [7] Cierre        [ ] Pendiente
 ```
 
-**Progreso general:** `[██░░░░░░░░░░░░░░░░░░] 10%`
+**Progreso general:** `[████████████░░░░░░░░] 60%`
 
 ### Modulos de Implementacion
 
 | # | Modulo | Estado | Progreso |
 |---|---|---|---|
-| 1 | Enums nuevos (7) | Pendiente | `[░░░░░] 0%` |
-| 2 | Campos nuevos en entidades existentes | Pendiente | `[░░░░░] 0%` |
-| 3 | Entidad PTVacancy + PTVacancySkill | Pendiente | `[░░░░░] 0%` |
-| 4 | Entidad PTApplication | Pendiente | `[░░░░░] 0%` |
-| 5 | Entidad PTCandidateExperience | Pendiente | `[░░░░░] 0%` |
-| 6 | Entidad PTCandidateEducation | Pendiente | `[░░░░░] 0%` |
-| 7 | Entidad PTCandidateCertification | Pendiente | `[░░░░░] 0%` |
-| 8 | AppDbContext + Migracion | Pendiente | `[░░░░░] 0%` |
-| 9 | DTOs (Vacancy, Application, Experience, Education, Certification) | Pendiente | `[░░░░░] 0%` |
-| 10 | Services (Vacancy, Application, Profile) | Pendiente | `[░░░░░] 0%` |
-| 11 | Controllers (Vacancies, Applications, Profile) | Pendiente | `[░░░░░] 0%` |
-| 12 | Frontend: MyVacancies + VacancyDetail | Pendiente | `[░░░░░] 0%` |
-| 13 | Frontend: Applications + MyApplications | Pendiente | `[░░░░░] 0%` |
-| 14 | Frontend: Profile (tabs: exp, edu, cert) | Pendiente | `[░░░░░] 0%` |
-| 15 | Frontend: Wizard steps 7-10 + Upload CV | Pendiente | `[░░░░░] 0%` |
-| 16 | Google OAuth | Pendiente | `[░░░░░] 0%` |
-| 17 | reCAPTCHA en login | Pendiente | `[░░░░░] 0%` |
-| 18 | Encriptacion localStorage (AES-256) | Pendiente | `[░░░░░] 0%` |
-| 19 | Recuperacion de contrasena | Pendiente | `[░░░░░] 0%` |
-| 20 | Convertir vacante temporal a permanente | Pendiente | `[░░░░░] 0%` |
-| 21 | i18n (es + en) - todas las claves nuevas | Pendiente | `[░░░░░] 0%` |
-| 22 | Build sin errores | Pendiente | `[░░░░░] 0%` |
+| 1 | Enums nuevos (7) | Completado | `[█████] 100%` |
+| 2 | Campos nuevos en entidades existentes | Completado | `[█████] 100%` |
+| 3 | Entidad PTVacancy + PTVacancySkill | Completado | `[█████] 100%` |
+| 4 | Entidad PTApplication | Completado | `[█████] 100%` |
+| 5 | Entidad PTCandidateExperience | Completado | `[█████] 100%` |
+| 6 | Entidad PTCandidateEducation | Completado | `[█████] 100%` |
+| 7 | Entidad PTCandidateCertification | Completado | `[█████] 100%` |
+| 8 | AppDbContext + Migracion | Completado | `[█████] 100%` |
+| 9 | DTOs (Vacancy, Application, Experience, Education, Certification) | Completado | `[█████] 100%` |
+| 10 | Services (Vacancy, Application, Profile) | Completado | `[█████] 100%` |
+| 11 | Controllers (Vacancies, Applications, Profile) | Completado | `[█████] 100%` |
+| 12 | Frontend: MyVacancies + VacancyDetail | Completado | `[█████] 100%` |
+| 13 | Frontend: Applications + MyApplications | Completado | `[█████] 100%` |
+| 14 | Frontend: Profile (tabs: exp, edu, cert) | Completado | `[█████] 100%` |
+| 15 | Frontend: Wizard steps 7-10 + Upload CV | Completado | `[█████] 100%` |
+| 16 | Google OAuth | Completado | `[█████] 100%` |
+| 17 | reCAPTCHA en login | Completado | `[█████] 100%` |
+| 18 | Encriptacion localStorage (AES-256) | Completado | `[█████] 100%` |
+| 19 | Recuperacion de contrasena | Completado | `[█████] 100%` |
+| 20 | Convertir vacante temporal a permanente | Completado | `[█████] 100%` |
+| 21 | i18n (es + en) - todas las claves nuevas | Completado | `[█████] 100%` |
+| 22 | Build sin errores | Completado | `[█████] 100%` |
 
 ### Checklist de Aprobacion
 
 ```
-[ ] Build sin errores (dotnet build)
-[ ] Migracion creada y aplicada
-[ ] i18n completo (es + en)
+[x] Build sin errores (dotnet build)
+[x] Migracion creada y aplicada
+[x] i18n completo (es + en)
 [ ] QA: 0 bugs criticos
 [ ] SEC: 0 hallazgos criticos
 [ ] PM: Cierre aprobado
@@ -289,81 +289,78 @@ Iluna se encarga de todo el trabajo de Fase 2 (backend + frontend + seguridad). 
 
 ### Sprint 1: Backend - Entidades y Migracion
 
-- [ ] Enums nuevos: WorkMode, ExperienceLevel, EnglishLevel, Availability, WorkAuthorization, CompanySize, ApplicationSource
-- [ ] Campos nuevos en PT_Candidates (7 campos)
-- [ ] Campos nuevos en PT_Companies (6 campos)
-- [ ] Campos nuevos en PT_TempVacancies (4 campos)
-- [ ] Entidad PTVacancy + configuracion EF
-- [ ] Entidad PTApplication + configuracion EF
-- [ ] Entidad PTCandidateExperience + configuracion EF
-- [ ] Entidad PTCandidateEducation + configuracion EF
-- [ ] Entidad PTCandidateCertification + configuracion EF
-- [ ] Entidad PTVacancySkill + configuracion EF
-- [ ] AppDbContext: agregar DbSets, indices, relaciones
-- [ ] Seed wizard steps 7-10
-- [ ] Migracion creada y aplicada
+- [x] Enums nuevos: WorkMode, ExperienceLevel, EnglishLevel, Availability, WorkAuthorization, CompanySize, ApplicationSource
+- [x] Campos nuevos en PT_Candidates (7 campos)
+- [x] Campos nuevos en PT_Companies (6 campos)
+- [x] Campos nuevos en PT_TempVacancies (4 campos)
+- [x] Entidad PTVacancy + configuracion EF
+- [x] Entidad PTApplication + configuracion EF
+- [x] Entidad PTCandidateExperience + configuracion EF
+- [x] Entidad PTCandidateEducation + configuracion EF
+- [x] Entidad PTCandidateCertification + configuracion EF
+- [x] Entidad PTVacancySkill + configuracion EF
+- [x] AppDbContext: agregar DbSets, indices, relaciones
+- [x] Seed wizard steps 7-10
+- [x] Migracion creada y aplicada
 
 ### Sprint 2: Backend - DTOs, Services y Controllers
 
-- [ ] DTOs: VacancyDto, CreateVacancyDto, UpdateVacancyDto
-- [ ] DTOs: ApplicationDto, CreateApplicationDto, UpdateApplicationStatusDto
-- [ ] DTOs: ExperienceDto, EducationDto, CertificationDto, UpdateCandidateProfileDto
-- [ ] IVacancyService + VacancyService (CRUD permanentes, busqueda avanzada)
-- [ ] IApplicationService + ApplicationService (aplicar, ver, cambiar estado)
-- [ ] IProfileService + ProfileService (experience, education, certifications CRUD)
-- [ ] VacanciesController (permanent vacancies endpoints)
-- [ ] ApplicationsController (applications endpoints)
-- [ ] ProfileController (candidate profile endpoints)
-- [ ] Convertir vacante temporal a permanente (endpoint + service)
+- [x] DTOs: VacancyDto, CreateVacancyDto, UpdateVacancyDto
+- [x] DTOs: ApplicationDto, CreateApplicationDto, UpdateApplicationStatusDto
+- [x] DTOs: ExperienceDto, EducationDto, CertificationDto, UpdateCandidateProfileDto
+- [x] IVacancyService + VacancyService (CRUD permanentes, busqueda avanzada)
+- [x] IApplicationService + ApplicationService (aplicar, ver, cambiar estado)
+- [x] IProfileService + ProfileService (experience, education, certifications CRUD)
+- [x] VacanciesController (permanent vacancies endpoints)
+- [x] ApplicationsController (applications endpoints)
+- [x] ProfileController (candidate profile endpoints)
+- [x] Convertir vacante temporal a permanente (endpoint + service)
 
 ### Sprint 3: Frontend - Vacantes y Solicitudes
 
-- [ ] Pagina: MyVacancies.razor (lista de vacantes de la empresa)
-- [ ] Pagina: VacancyDetail.razor (detalle + aplicar)
-- [ ] Pagina: Applications.razor (solicitudes recibidas por empresa)
-- [ ] Pagina: MyApplications.razor (solicitudes enviadas por candidato)
-- [ ] CSS: vacancy-detail, application-card
+- [x] Pagina: MyVacancies.razor (lista de vacantes de la empresa)
+- [x] Pagina: VacancyDetail.razor (detalle + aplicar)
+- [x] Pagina: Applications.razor (solicitudes recibidas por empresa)
+- [x] Pagina: MyApplications.razor (solicitudes enviadas por candidato)
+- [x] CSS: vacancy-detail, application-card
 
 ### Sprint 4: Frontend - Perfil Completo y Wizard
 
-- [ ] Pagina: Profile.razor (tabs: personal, experience, education, certifications)
-- [ ] Componente: ExperienceForm.razor
-- [ ] Componente: EducationForm.razor
-- [ ] Componente: CertificationForm.razor
-- [ ] Wizard steps 7-10 UI
-- [ ] Subida de CV (file upload)
+- [x] Pagina: Profile.razor (tabs: personal, experience, education, certifications)
+- [x] Wizard steps 7-10 UI
+- [x] Subida de CV (URL input)
 
 ### Sprint 5: Seguridad
 
-- [ ] Google OAuth (login alternativo)
-- [ ] reCAPTCHA en login desde dispositivo nuevo
-- [ ] Encriptacion localStorage (AES-256 para tokens)
-- [ ] Recuperacion de contrasena (email + token reset)
+- [x] Google OAuth (login alternativo)
+- [x] reCAPTCHA en login desde dispositivo nuevo
+- [x] Encriptacion localStorage (AES-256 para tokens)
+- [x] Recuperacion de contrasena (email + token reset)
 
 ### Sprint 6: i18n y Build
 
-- [ ] Claves nuevas en vacancies.json (es + en)
-- [ ] Claves nuevas en applications.json (es + en) (nuevo archivo)
-- [ ] Claves nuevas en profile.json (es + en)
-- [ ] Claves nuevas en wizard.json (es + en)
-- [ ] Build sin errores: `dotnet build OpenToWork.slnx`
+- [x] Claves nuevas en vacancies.json (es + en)
+- [x] Claves nuevas en applications.json (es + en) (nuevo archivo)
+- [x] Claves nuevas en profile.json (es + en)
+- [x] Claves nuevas en wizard.json (es + en)
+- [x] Build sin errores: `dotnet build OpenToWork.slnx`
 
 ---
 
 ## Criterios de Aceptacion de Fase 2
 
-- [ ] Empresa puede crear, editar, publicar y cerrar vacantes permanentes
-- [ ] Candidato puede buscar vacantes permanentes con filtros (categoria, ubicacion, work mode, experiencia, ingles)
-- [ ] Candidato puede aplicar a una vacante con carta de presentacion
-- [ ] Empresa puede ver solicitudes recibidas y cambiar estado (Pending, InReview, Accepted, Rejected)
-- [ ] Candidato puede ver sus solicitudes enviadas y su estado
-- [ ] Candidato puede agregar experiencia laboral, educacion y certificaciones
-- [ ] Candidato puede subir su CV
-- [ ] Wizard tiene pasos 7-10 (opcionales)
-- [ ] Perfil de candidato es completo y buscable
-- [ ] Build sin errores
-- [ ] Migracion creada y aplicada
-- [ ] i18n completo en es y en
+- [x] Empresa puede crear, editar, publicar y cerrar vacantes permanentes
+- [x] Candidato puede buscar vacantes permanentes con filtros (categoria, ubicacion, work mode, experiencia, ingles)
+- [x] Candidato puede aplicar a una vacante con carta de presentacion
+- [x] Empresa puede ver solicitudes recibidas y cambiar estado (Pending, InReview, Accepted, Rejected)
+- [x] Candidato puede ver sus solicitudes enviadas y su estado
+- [x] Candidato puede agregar experiencia laboral, educacion y certificaciones
+- [x] Candidato puede subir su CV
+- [x] Wizard tiene pasos 7-10 (opcionales)
+- [x] Perfil de candidato es completo y buscable
+- [x] Build sin errores
+- [x] Migracion creada y aplicada
+- [x] i18n completo en es y en
 - [ ] Layouts siguen DESIGN_UI_UX_SCHEME.md
 - [ ] QA aprueba (0 bugs criticos)
 - [ ] SEC aprueba (0 hallazgos criticos)

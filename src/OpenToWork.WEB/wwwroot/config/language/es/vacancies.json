@@ -8,5 +8,46 @@
     "salaryRange": "Rango salarial",
     "expiresIn": "Expira en",
     "days": "días",
-    "apply": "Aplicar"
+    "apply": "Aplicar",
+    "myTitle": "Mis Vacantes",
+    "create": "Nueva Vacante",
+    "createTitle": "Crear Nueva Vacante",
+    "noVacancies": "No tienes vacantes publicadas",
+    "publish": "Publicar",
+    "close": "Cerrar",
+    "verified": "Verificada",
+    "detail": "Detalle de Vacante",
+    "status": {
+        "draft": "Borrador",
+        "active": "Activa",
+        "closed": "Cerrada"
+    },
+    "workMode": {
+        "onSite": "Presencial",
+        "hybrid": "Híbrido",
+        "remote": "Remoto"
+    },
+    "experience": {
+        "entry": "Entry",
+        "junior": "Junior",
+        "mid": "Mid",
+        "senior": "Senior",
+        "lead": "Lead"
+    },
+    "english": {
+        "none": "Ninguno",
+        "basic": "Básico",
+        "intermediate": "Intermedio",
+        "advanced": "Avanzado",
+        "native": "Nativo"
+    },
+    "fields": {
+        "title": "Título",
+        "description": "Descripción",
+        "requirements": "Requisitos",
+        "salaryMin": "Salario mínimo",
+        "salaryMax": "Salario máximo",
+        "location": "Ubicación",
+        "category": "Categoría"
+    }
 }

@@ -1,0 +1,17 @@
+{
+    "title": "Applications",
+    "myTitle": "My Applications",
+    "noApplications": "No applications received",
+    "noMyApplications": "You haven't applied to any vacancy",
+    "applyTitle": "Apply to this vacancy",
+    "apply": "Submit application",
+    "coverLetter": "Cover letter",
+    "expectedSalary": "Expected salary",
+    "availableFrom": "Available from",
+    "status": {
+        "pending": "Pending",
+        "inReview": "In review",
+        "accepted": "Accepted",
+        "rejected": "Rejected"
+    }
+}

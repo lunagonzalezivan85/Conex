@@ -10,4 +10,8 @@ public interface IAuthService
     Task<bool> RevokeTokenAsync(string refreshToken);
     Task<bool> RegisterDeviceAsync(Guid userId, string deviceHash, string? deviceName);
     Task<bool> IsDeviceKnownAsync(Guid userId, string deviceHash);
+    Task<bool> RequestPasswordResetAsync(string email);
+    Task<bool> ResetPasswordAsync(string token, string newPassword);
+    Task<AuthResponseDto?> GoogleLoginAsync(string googleToken);
+    Task<bool> VerifyRecaptchaAsync(string recaptchaResponse);
 }

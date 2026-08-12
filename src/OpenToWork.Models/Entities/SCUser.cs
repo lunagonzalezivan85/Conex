@@ -28,6 +28,11 @@ public class SCUser : BaseEntity
 
     public DateTime? LastLoginAt { get; set; }
 
+    [MaxLength(256)]
+    public string? PasswordResetToken { get; set; }
+
+    public DateTime? PasswordResetExpiresAt { get; set; }
+
     public virtual ICollection<SCUserRole> UserRoles { get; set; } = new List<SCUserRole>();
     public virtual ICollection<SCRefreshToken> RefreshTokens { get; set; } = new List<SCRefreshToken>();
     public virtual ICollection<SCUserDevice> UserDevices { get; set; } = new List<SCUserDevice>();

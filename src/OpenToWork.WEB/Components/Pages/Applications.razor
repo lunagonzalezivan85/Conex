@@ -1,0 +1,93 @@
+@page "/applications"
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.WEB.Services
+@inject ApiAuthService AuthApi
+@inject LanguageService Lang
+
+<PageTitle>@Lang.T("applications.title")</PageTitle>
+
+<div class="page-container">
+    <h1 class="mb-lg">@Lang.T("applications.title")</h1>
+
+    @if (IsLoading)
+    {
+        <p>@Lang.T("common.labels.loading")</p>
+    }
+    else if (!ApplicationList.Any())
+    {
+        <div class="ot-card text-center">
+            <p class="auth-subtitle">@Lang.T("applications.noApplications")</p>
+        </div>
+    }
+    else
+    {
+        <div class="bento-grid">
+            @foreach (var app in ApplicationList)
+            {
+                <div class="vacancy-card">
+                    <div class="vacancy-card-title">@app.CandidateName</div>
+                    <div class="vacancy-card-location">@(app.CandidateTitle ?? "")</div>
+                    <div class="vacancy-card-description">@(app.VacancyTitle)</div>
+                    @if (app.ExpectedSalary.HasValue)
+                    {
+                        <div class="vacancy-card-salary">$@app.ExpectedSalary.Value.ToString("N0")</div>
+                    }
+                    <div class="vacancy-card-footer">
+                        <span class="vacancy-card-badge @GetStatusClass(app.Status)">@GetStatusLabel(app.Status)</span>
+                    </div>
+                    <div class="flex-center gap-sm mt-md">
+                        <select class="ot-input ot-btn--small" @onchange="@(e => UpdateStatus(app.Id, int.Parse(e.Value?.ToString() ?? "0")))">
+                            <option value="0">@Lang.T("applications.status.pending")</option>
+                            <option value="1">@Lang.T("applications.status.inReview")</option>
+                            <option value="2">@Lang.T("applications.status.accepted")</option>
+                            <option value="3">@Lang.T("applications.status.rejected")</option>
+                        </select>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<ApplicationDto> ApplicationList { get; set; } = new();
+    private bool IsLoading { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+        await LoadApplications();
+    }
+
+    private async Task LoadApplications()
+    {
+        IsLoading = true;
+        ApplicationList = await AuthApi.GetMyApplicationsAsync();
+        IsLoading = false;
+    }
+
+    private async Task UpdateStatus(Guid id, int status)
+    {
+        await AuthApi.UpdateApplicationStatusAsync(id, status);
+        await LoadApplications();
+    }
+
+    private string GetStatusLabel(int status) => status switch
+    {
+        0 => Lang.T("applications.status.pending"),
+        1 => Lang.T("applications.status.inReview"),
+        2 => Lang.T("applications.status.accepted"),
+        3 => Lang.T("applications.status.rejected"),
+        _ => ""
+    };
+
+    private string GetStatusClass(int status) => status switch
+    {
+        0 => "badge-draft",
+        1 => "badge-active",
+        2 => "badge-active",
+        3 => "badge-closed",
+        _ => ""
+    };
+}

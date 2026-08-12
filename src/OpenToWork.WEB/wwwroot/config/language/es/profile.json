@@ -4,5 +4,58 @@
     "professionalInfo": "Información profesional",
     "skills": "Habilidades",
     "save": "Guardar cambios",
-    "saved": "Cambios guardados"
+    "saved": "Cambios guardados",
+    "tabs": {
+        "personal": "Personal",
+        "experience": "Experiencia",
+        "education": "Educación",
+        "certifications": "Certificaciones"
+    },
+    "fields": {
+        "title": "Título profesional",
+        "yearsExperience": "Años de experiencia",
+        "linkedin": "LinkedIn URL",
+        "portfolio": "Portfolio URL",
+        "availability": "Disponibilidad",
+        "workAuthorization": "Autorización de trabajo",
+        "summary": "Resumen profesional",
+        "cvUrl": "URL del CV",
+        "isPublic": "Perfil público"
+    },
+    "availability": {
+        "immediate": "Inmediata",
+        "twoWeeks": "2 semanas",
+        "oneMonth": "1 mes",
+        "notAvailable": "No disponible"
+    },
+    "workAuth": {
+        "citizen": "Ciudadano",
+        "workVisa": "Visa de trabajo",
+        "studentVisa": "Visa de estudiante",
+        "none": "Sin autorización"
+    },
+    "experience": {
+        "add": "Agregar experiencia",
+        "company": "Empresa",
+        "jobTitle": "Puesto",
+        "location": "Ubicación",
+        "description": "Descripción",
+        "current": "Trabajo actual",
+        "present": "Presente"
+    },
+    "education": {
+        "add": "Agregar educación",
+        "institution": "Institución",
+        "degree": "Título",
+        "fieldOfStudy": "Campo de estudio",
+        "inProgress": "En progreso"
+    },
+    "certification": {
+        "add": "Agregar certificación",
+        "name": "Nombre",
+        "issuer": "Entidad emisora",
+        "credentialId": "ID de credencial",
+        "credentialUrl": "URL de credencial",
+        "verify": "Verificar"
+    }
 }
