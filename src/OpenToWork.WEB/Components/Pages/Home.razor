@@ -5,59 +5,84 @@
 
 <PageTitle>OpenToWork</PageTitle>
 
-<div class="home-hero">
-    <div class="home-hero-content">
-        <h1 class="home-hero-title">@Lang.T("common.home.heroTitle")</h1>
-        <p class="home-hero-subtitle">@Lang.T("common.home.heroSubtitle")</p>
+<div class="hero-section">
+    <div class="hero-container">
+        <h1 class="hero-title">@Lang.T("common.home.heroTitle")</h1>
+        <p class="hero-subtitle">@Lang.T("common.home.heroSubtitle")</p>
 
-        <div class="home-search-bar">
-            <div class="home-search-field home-search-field--keyword">
-                <span class="home-search-icon">🔍</span>
-                <input type="text" @bind="SearchKeyword" placeholder="@Lang.T("common.search.placeholder")" class="home-search-input" />
+        <div class="hero-search-capsule">
+            <div class="hero-search-segment hero-search-segment--keyword">
+                <span class="hero-search-segment-icon">🔍</span>
+                <div class="hero-search-segment-content">
+                    <label class="hero-search-segment-label">@Lang.T("common.search.placeholder")</label>
+                    <input type="text" @bind="SearchKeyword" placeholder="Developer, Designer..." class="hero-search-segment-input" />
+                </div>
             </div>
-            <div class="home-search-field home-search-field--location">
-                <span class="home-search-icon">📍</span>
-                <input type="text" @bind="SearchLocation" placeholder="@Lang.T("common.search.locationPlaceholder")" class="home-search-input" />
+            <div class="hero-search-divider"></div>
+            <div class="hero-search-segment hero-search-segment--location">
+                <span class="hero-search-segment-icon">📍</span>
+                <div class="hero-search-segment-content">
+                    <label class="hero-search-segment-label">@Lang.T("common.search.location")</label>
+                    <input type="text" @bind="SearchLocation" placeholder="@Lang.T("common.search.locationPlaceholder")" class="hero-search-segment-input" />
+                </div>
             </div>
-            <div class="home-search-field home-search-field--category">
-                <select @bind="SearchCategory" class="home-search-select">
-                    <option value="">@Lang.T("common.search.allCategories")</option>
-                    <option value="it">@Lang.T("common.nav.categoryIT")</option>
-                    <option value="finance">@Lang.T("common.nav.categoryFinance")</option>
-                    <option value="health">@Lang.T("common.nav.categoryHealth")</option>
-                    <option value="education">@Lang.T("common.nav.categoryEducation")</option>
-                    <option value="marketing">@Lang.T("common.nav.categoryMarketing")</option>
-                    <option value="engineering">@Lang.T("common.nav.categoryEngineering")</option>
-                    <option value="sales">@Lang.T("common.nav.categorySales")</option>
-                    <option value="design">@Lang.T("common.nav.categoryDesign")</option>
-                </select>
+            <div class="hero-search-divider"></div>
+            <div class="hero-search-segment hero-search-segment--category">
+                <span class="hero-search-segment-icon">📂</span>
+                <div class="hero-search-segment-content">
+                    <label class="hero-search-segment-label">@Lang.T("common.search.category")</label>
+                    <select @bind="SearchCategory" class="hero-search-segment-select">
+                        <option value="">@Lang.T("common.search.allCategories")</option>
+                        <option value="it">@Lang.T("common.nav.categoryIT")</option>
+                        <option value="finance">@Lang.T("common.nav.categoryFinance")</option>
+                        <option value="health">@Lang.T("common.nav.categoryHealth")</option>
+                        <option value="education">@Lang.T("common.nav.categoryEducation")</option>
+                        <option value="marketing">@Lang.T("common.nav.categoryMarketing")</option>
+                        <option value="engineering">@Lang.T("common.nav.categoryEngineering")</option>
+                        <option value="sales">@Lang.T("common.nav.categorySales")</option>
+                        <option value="design">@Lang.T("common.nav.categoryDesign")</option>
+                    </select>
+                </div>
             </div>
-            <button class="ot-btn ot-btn--primary ot-btn--large" @onclick="HandleSearch">
-                @Lang.T("common.search.button")
+            <button class="hero-search-btn" @onclick="HandleSearch">
+                <span>@Lang.T("common.search.button")</span>
+                <span class="hero-search-btn-icon">→</span>
             </button>
         </div>
 
-        <div class="home-search-popular">
-            <span class="home-search-popular-label">@Lang.T("common.search.popular"):</span>
-            <a href="/vacancies?keyword=developer" class="home-search-tag">Developer</a>
-            <a href="/vacancies?keyword=designer" class="home-search-tag">Designer</a>
-            <a href="/vacancies?keyword=manager" class="home-search-tag">Manager</a>
-            <a href="/vacancies?keyword=analyst" class="home-search-tag">Analyst</a>
+        <div class="hero-pills">
+            <span class="hero-pills-label">@Lang.T("common.search.popular")</span>
+            <a href="/vacancies?keyword=developer" class="hero-pill">Developer</a>
+            <a href="/vacancies?keyword=designer" class="hero-pill">Designer</a>
+            <a href="/vacancies?keyword=manager" class="hero-pill">Manager</a>
+            <a href="/vacancies?keyword=remote" class="hero-pill">Remote</a>
         </div>
     </div>
 </div>
 
-<div class="page-container">
-    <div class="role-selector">
-        <div class="role-card" @onclick="() => GoToRegister(0)">
-            <div class="role-card-icon">🔍</div>
-            <div class="role-card-title">@Lang.T("common.roles.searchJob")</div>
-            <div class="role-card-desc">@Lang.T("common.roles.searchJobDesc")</div>
+<div class="hero-bento-section">
+    <div class="hero-bento-container">
+        <div class="hero-bento-card" @onclick="() => GoToRegister(0)">
+            <div class="hero-bento-card-icon hero-bento-card-icon--candidate">🔍</div>
+            <div class="hero-bento-card-body">
+                <h3 class="hero-bento-card-title">@Lang.T("common.roles.searchJob")</h3>
+                <p class="hero-bento-card-desc">@Lang.T("common.roles.searchJobDesc")</p>
+            </div>
+            <div class="hero-bento-card-actions">
+                <span class="hero-bento-card-action">@Lang.T("common.buttons.login")</span>
+                <span class="hero-bento-card-arrow">→</span>
+            </div>
         </div>
-        <div class="role-card" @onclick="() => GoToRegister(1)">
-            <div class="role-card-icon">💼</div>
-            <div class="role-card-title">@Lang.T("common.roles.createVacancy")</div>
-            <div class="role-card-desc">@Lang.T("common.roles.createVacancyDesc")</div>
+        <div class="hero-bento-card" @onclick="() => GoToRegister(1)">
+            <div class="hero-bento-card-icon hero-bento-card-icon--company">💼</div>
+            <div class="hero-bento-card-body">
+                <h3 class="hero-bento-card-title">@Lang.T("common.roles.createVacancy")</h3>
+                <p class="hero-bento-card-desc">@Lang.T("common.roles.createVacancyDesc")</p>
+            </div>
+            <div class="hero-bento-card-actions">
+                <span class="hero-bento-card-action">@Lang.T("common.buttons.register")</span>
+                <span class="hero-bento-card-arrow">→</span>
+            </div>
         </div>
     </div>
 </div>
