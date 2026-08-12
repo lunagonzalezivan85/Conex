@@ -16,4 +16,4 @@
 |---|---|---|---|
 | Fase 1 | - | - | - |
 | Fase 2 | - | Pendiente | - |
-| Fase 3 | - | Pendiente | - |
+| Fase 3 | PM | En planificacion | `docs/dsiezar/fase-3.md` |
