@@ -22,6 +22,18 @@ builder.Services.AddHttpClient<ApiAuthService>(client =>
     client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5000/");
 });
 
+builder.Services.AddScoped(sp =>
+{
+    var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
+    var request = httpContextAccessor.HttpContext?.Request;
+    var baseUri = request != null
+        ? $"{request.Scheme}://{request.Host}/"
+        : builder.Configuration["ApiSettings:WebBaseUrl"] ?? "http://localhost:5100/";
+    return new HttpClient { BaseAddress = new Uri(baseUri) };
+});
+
+builder.Services.AddHttpContextAccessor();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
