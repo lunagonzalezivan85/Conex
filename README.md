@@ -202,3 +202,63 @@ Swagger disponible en: `http://localhost:5000/swagger`
 - **Soft delete:** No se usa `DELETE` fisico, solo `IsDeleted = true`
 - **i18n:** Prohibido texto hardcoded en `.razor`. Usar `Lang.T("section.key")`
 - **Nombres:** Tablas y columnas en ingles
+
+---
+
+## NOTA
+
+> **Importante para cualquier IA o desarrollador que trabaje en este proyecto.**
+
+### 1. Usa los agentes predefinidos
+
+Este proyecto tiene 4 agentes definidos en `.agents/`. Antes de empezar a trabajar, revisa y sigue el rol que te corresponda:
+
+| Agente | Archivo | Rol |
+|---|---|---|
+| **PM** | `.agents/pm.md` | Administrador del proyecto, controla el flujo |
+| **QA** | `.agents/qa.md` | Tester: valida diseno, funcionalidad, calidad |
+| **FS** | `.agents/fs.md` | Full Stack: implementa frontend y backend |
+| **SEC** | `.agents/sec.md` | Seguridad: audita vulnerabilidades |
+
+Lee `.agents/WORKFLOW.md` para entender el flujo de 8 etapas (0 a 7) por fase.
+
+### 2. Declara tu identidad
+
+Al iniciar una sesion, declara quien eres: **"Soy Iluna"** o **"Soy Dsiezar"**. Documenta todos tus cambios en:
+
+- `docs/iluna/fase-N.md` si eres Iluna
+- `docs/dsiezar/fase-N.md` si eres Dsiezar
+
+Usa `docs/iluna/PLANTILLA.md` o `docs/dsiezar/PLANTILLA.md` como base.
+
+### 3. Documenta la fase en la que estas
+
+Siempre documenta en tu bitacora que fase estas trabajando, en que etapa del flujo estas, y que cambios realizaste. Sin documentacion, el trabajo no cuenta como completado.
+
+### 4. Revisa dependencias antes de empezar
+
+Antes de iniciar una fase, **revisa si esa fase depende de la otra persona**. Si tu fase necesita algo que la otra persona aun no ha terminado, comunicalo para no atascarte.
+
+- **Minimiza dependencias** entre tu fase y la del otro.
+- Si puedes trabajar de forma independiente, mejor.
+- Si hay una dependencia critica, acuerden un punto de integracion antes de empezar.
+
+### 5. Cada fase es una rama
+
+**Nunca trabajes directamente en `main`.** Cada fase tiene su propia rama con el formato:
+
+```
+{ia}-{fase}
+```
+
+Ejemplos:
+- `iluna-fase-2` - Iluna trabajando en Fase 2
+- `dsiezar-fase-2` - Dsiezar trabajando en Fase 2
+
+Solo se hace merge a `main` cuando la fase esta 100% completada y aprobada por PM, QA y SEC.
+
+Ver `docs/GIT_BRANCHES.md` para mas detalles.
+
+### 6. Tratemos de no usar muchas dependencias entre fases
+
+Si ambos estan trabajando en paralelo, cada uno debe poder avanzar sin bloquear al otro. Diseñen las tareas de manera que las dependencias cruzadas sean minimas. Si una dependencia es inevitable, definan un contrato (interface, DTO, endpoint) antes de empezar para que ambos puedan trabajar contra el contrato.
