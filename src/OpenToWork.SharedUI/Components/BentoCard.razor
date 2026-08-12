@@ -1,0 +1,23 @@
+<div class="bento-card @SizeClass @CustomClass" @onclick="OnClick">
+    @if (!string.IsNullOrEmpty(Title))
+    {
+        <div class="bento-card-header">
+            @if (!string.IsNullOrEmpty(Icon))
+            {
+                <span class="bento-card-icon">@Icon</span>
+            }
+            <span class="bento-card-title">@Title</span>
+        </div>
+    }
+    <div class="bento-card-body">
+        @if (!string.IsNullOrEmpty(Description))
+        {
+            <p>@Description</p>
+        }
+        @ChildContent
+    </div>
+    @if (!string.IsNullOrEmpty(FooterText))
+    {
+        <div class="bento-card-footer">@FooterText</div>
+    }
+</div>

@@ -1,0 +1,8 @@
+{
+    "required": "Este campo es obligatorio",
+    "email": "Ingresa un email válido",
+    "minLength": "Debe tener al menos {0} caracteres",
+    "maxLength": "No puede exceder {0} caracteres",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "phone": "Ingresa un teléfono válido"
+}

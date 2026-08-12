@@ -1,0 +1,60 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using OpenToWork.Core.Interfaces;
+using OpenToWork.Shared.DTOs;
+
+namespace OpenToWork.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[Authorize]
+public class CandidatesController : ControllerBase
+{
+    private readonly ICandidateService _candidateService;
+
+    public CandidatesController(ICandidateService candidateService)
+    {
+        _candidateService = candidateService;
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyProfile()
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var candidate = await _candidateService.GetCandidateByUserIdAsync(userId.Value);
+        if (candidate == null)
+        {
+            candidate = await _candidateService.CreateCandidateAsync(userId.Value, userId.Value.ToString());
+        }
+
+        return Ok(candidate);
+    }
+
+    [HttpGet("wizard-status")]
+    public async Task<IActionResult> GetWizardStatus()
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var isComplete = await _candidateService.IsWizardCompleteAsync(userId.Value);
+        return Ok(new { wizardCompleted = isComplete });
+    }
+
+    [HttpPut("wizard")]
+    public async Task<IActionResult> UpdateWizard([FromBody] UpdateCandidateWizardDto dto)
+    {
+        var userId = GetUserId();
+        if (userId == null) return Unauthorized();
+
+        var result = await _candidateService.UpdateWizardStepAsync(userId.Value, dto);
+        return Ok(result);
+    }
+
+    private Guid? GetUserId()
+    {
+        var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        return Guid.TryParse(userIdClaim, out var userId) ? userId : null;
+    }
+}

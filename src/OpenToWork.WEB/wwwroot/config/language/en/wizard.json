@@ -1,0 +1,40 @@
+{
+    "title": "Complete your profile",
+    "steps": {
+        "personalData": {
+            "title": "Personal Data",
+            "description": "Tell us about yourself"
+        },
+        "location": {
+            "title": "Location",
+            "description": "Where are you located?"
+        },
+        "professionalProfile": {
+            "title": "Professional Profile",
+            "description": "Your professional information"
+        },
+        "skills": {
+            "title": "Skills",
+            "description": "Select your skills"
+        },
+        "preferences": {
+            "title": "What do you want to do?",
+            "description": "Choose your preference"
+        },
+        "confirmation": {
+            "title": "Review and Confirm",
+            "description": "Verify your data is correct",
+            "confirm": "Confirm and continue"
+        }
+    },
+    "buttons": {
+        "next": "Next",
+        "previous": "Previous",
+        "skip": "Skip",
+        "complete": "Finish"
+    },
+    "complete": {
+        "title": "Profile completed!",
+        "message": "Your profile has been saved successfully"
+    }
+}

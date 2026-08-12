@@ -1,0 +1,30 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using OpenToWork.Core.Interfaces;
+using OpenToWork.Core.Services;
+using OpenToWork.Models.Context;
+
+namespace OpenToWork.Core.Extensions;
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddCoreServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ICandidateService, CandidateService>();
+        services.AddScoped<IVacancyService, VacancyService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddDatabaseContext(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionString = configuration.GetConnectionString("DefaultConnection");
+
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+
+        return services;
+    }
+}

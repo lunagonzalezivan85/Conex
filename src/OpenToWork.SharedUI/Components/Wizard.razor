@@ -1,0 +1,35 @@
+<div class="wizard-container">
+    <div class="wizard-progress">
+        <div class="wizard-progress-bar" style="width: @GetProgressPercent()%"></div>
+    </div>
+
+    <div class="wizard-step-indicator">
+        @for (int i = 0; i < Steps.Count; i++)
+        {
+            var stepNum = i + 1;
+            <div class="wizard-step-dot @(stepNum == CurrentStep ? "active" : "") @(stepNum < CurrentStep ? "completed" : "")">
+                @(stepNum < CurrentStep ? "OK" : stepNum.ToString())
+            </div>
+        }
+    </div>
+
+    @StepContent
+
+    <div class="wizard-actions">
+        <button class="ot-btn ot-btn--secondary ot-btn--medium" disabled="@(IsFirstStep || IsLoading)" @onclick="PreviousAsync">
+            @(PreviousButtonText ?? "Previous")
+        </button>
+        @if (IsLastStep)
+        {
+            <button class="ot-btn ot-btn--primary ot-btn--medium" disabled="@IsLoading" @onclick="NextAsync">
+                @(CompleteButtonText ?? "Complete")
+            </button>
+        }
+        else
+        {
+            <button class="ot-btn ot-btn--primary ot-btn--medium" disabled="@(!CanProceed || IsLoading)" @onclick="NextAsync">
+                @(NextButtonText ?? "Next")
+            </button>
+        }
+    </div>
+</div>

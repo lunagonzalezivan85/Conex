@@ -1,0 +1,461 @@
+.ot-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-family);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+}
+
+.ot-btn--primary {
+    background-color: var(--accent-primary);
+    color: #FFFFFF;
+}
+
+.ot-btn--primary:hover {
+    background-color: var(--accent-hover);
+}
+
+.ot-btn--secondary {
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.ot-btn--secondary:hover {
+    background-color: var(--border-color);
+}
+
+.ot-btn--outline {
+    background-color: transparent;
+    border: 2px solid var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+.ot-btn--outline:hover {
+    background-color: var(--accent-light);
+}
+
+.ot-btn--danger {
+    background-color: var(--danger);
+    color: #FFFFFF;
+}
+
+.ot-btn--ghost {
+    background-color: transparent;
+    color: var(--text-secondary);
+}
+
+.ot-btn--ghost:hover {
+    background-color: var(--bg-tertiary);
+}
+
+.ot-btn--small { padding: 0.4rem 0.9rem; font-size: 0.85rem; }
+.ot-btn--medium { padding: 0.6rem 1.2rem; font-size: 0.95rem; }
+.ot-btn--large { padding: 0.8rem 1.6rem; font-size: 1.05rem; }
+
+.ot-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ot-btn--full-width {
+    width: 100%;
+}
+
+.ot-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.ot-input-label {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.ot-input-field {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 2px solid var(--input-border);
+    border-radius: var(--radius-md);
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color var(--transition);
+}
+
+.ot-input-field:focus {
+    outline: none;
+    border-color: var(--input-focus);
+}
+
+.ot-input-field:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.ot-input-error {
+    font-size: 0.85rem;
+    color: var(--danger);
+}
+
+.ot-card {
+    background-color: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition);
+}
+
+.ot-card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--bg-tertiary);
+    padding: 1rem;
+}
+
+.auth-card {
+    background-color: var(--card-bg);
+    border-radius: var(--radius-xl);
+    padding: 2.5rem;
+    box-shadow: var(--shadow-lg);
+    width: 100%;
+    max-width: 440px;
+}
+
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.auth-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.alert {
+    padding: 0.8rem 1rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.alert-error {
+    background-color: var(--danger-light);
+    color: var(--danger);
+}
+
+.alert-success {
+    background-color: var(--success-light);
+    color: var(--success);
+}
+
+.role-selector {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+}
+
+.role-card {
+    padding: 2rem 1.5rem;
+    border: 3px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition);
+    background-color: var(--card-bg);
+}
+
+.role-card:hover {
+    border-color: var(--accent-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.role-card.selected {
+    border-color: var(--accent-primary);
+    background-color: var(--accent-light);
+}
+
+.role-card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.role-card-title {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.3rem;
+}
+
+.role-card-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.app-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    height: 56px;
+    background-color: var(--nav-bg);
+    color: var(--nav-text);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-brand a {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--nav-text);
+}
+
+.nav-links {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.nav-link {
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
+    color: var(--nav-text);
+    font-size: 0.9rem;
+    transition: background-color var(--transition);
+}
+
+.nav-link:hover {
+    background-color: var(--nav-hover);
+    color: var(--nav-text);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-select {
+    padding: 0.35rem 0.6rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--nav-hover);
+    background-color: var(--nav-hover);
+    color: var(--nav-text);
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.main-content {
+    flex: 1;
+    background-color: var(--bg-primary);
+}
+
+.auth-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-tertiary);
+}
+
+.auth-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1.5rem;
+    height: 56px;
+    background-color: var(--nav-bg);
+}
+
+.auth-top-bar .nav-brand a {
+    color: var(--nav-text);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.wizard-container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+.wizard-progress {
+    height: 6px;
+    background-color: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.wizard-progress-bar {
+    height: 100%;
+    background-color: var(--accent-primary);
+    border-radius: var(--radius-sm);
+    transition: width var(--transition);
+}
+
+.wizard-step-indicator {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+}
+
+.wizard-step-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background-color: var(--bg-tertiary);
+    color: var(--text-muted);
+    transition: all var(--transition);
+}
+
+.wizard-step-dot.active {
+    background-color: var(--accent-primary);
+    color: #FFFFFF;
+}
+
+.wizard-step-dot.completed {
+    background-color: var(--success);
+    color: #FFFFFF;
+}
+
+.wizard-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+}
+
+.wizard-prompt {
+    background-color: var(--accent-light);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.wizard-prompt-text h3 {
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.wizard-prompt-text p {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.vacancy-card {
+    background-color: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition);
+}
+
+.vacancy-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.vacancy-card-title {
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.vacancy-card-location {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.vacancy-card-description {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.vacancy-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.vacancy-card-salary {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--success);
+}
+
+.vacancy-card-badge {
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: var(--accent-light);
+    color: var(--accent-primary);
+}
+
+.search-bar {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border: 2px solid var(--input-border);
+    border-radius: var(--radius-md);
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--input-focus);
+}

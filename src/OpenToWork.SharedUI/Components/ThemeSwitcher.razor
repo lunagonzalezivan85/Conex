@@ -1,0 +1,8 @@
+<div class="theme-switcher">
+    @foreach (var theme in Themes)
+    {
+        <button class="theme-btn @(theme == CurrentTheme ? "active" : "")" @onclick="() => SelectThemeAsync(theme)">
+            @theme
+        </button>
+    }
+</div>

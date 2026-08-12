@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/OpenToWork.AdminAPI/OpenToWork.AdminAPI.csproj" />
+    <Project Path="src/OpenToWork.AdminWEB/OpenToWork.AdminWEB.csproj" />
+    <Project Path="src/OpenToWork.API/OpenToWork.API.csproj" />
+    <Project Path="src/OpenToWork.Core/OpenToWork.Core.csproj" />
+    <Project Path="src/OpenToWork.Models/OpenToWork.Models.csproj" />
+    <Project Path="src/OpenToWork.Shared/OpenToWork.Shared.csproj" />
+    <Project Path="src/OpenToWork.SharedUI/OpenToWork.SharedUI.csproj" />
+    <Project Path="src/OpenToWork.WEB/OpenToWork.WEB.csproj" />
+  </Folder>
+</Solution>

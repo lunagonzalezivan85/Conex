@@ -1,0 +1,76 @@
+{
+    "buttons": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "edit": "Edit",
+        "search": "Search",
+        "close": "Close",
+        "accept": "Accept",
+        "decline": "Decline",
+        "login": "Log In",
+        "register": "Sign Up",
+        "logout": "Log Out",
+        "next": "Next",
+        "previous": "Previous",
+        "skip": "Skip",
+        "complete": "Finish",
+        "create": "Create",
+        "viewAll": "View all",
+        "apply": "Apply"
+    },
+    "labels": {
+        "welcome": "Welcome",
+        "loading": "Loading...",
+        "noResults": "No results found",
+        "actions": "Actions",
+        "email": "Email",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "rememberMe": "Remember me",
+        "forgotPassword": "Forgot your password?",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "identification": "Identification",
+        "phone": "Phone",
+        "birthDate": "Date of birth",
+        "gender": "Gender",
+        "country": "Country",
+        "city": "City",
+        "address": "Address",
+        "title": "Professional title",
+        "summary": "Professional summary",
+        "location": "Location",
+        "salary": "Salary",
+        "contractType": "Contract type"
+    },
+    "nav": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "profile": "My Profile",
+        "vacancies": "Vacancies",
+        "applications": "My Applications",
+        "settings": "Settings",
+        "logout": "Log Out"
+    },
+    "roles": {
+        "candidate": "Candidate",
+        "company": "Company",
+        "searchJob": "Search for jobs",
+        "createVacancy": "Post vacancies",
+        "searchJobDesc": "Find your next job",
+        "createVacancyDesc": "Hire talent for your company"
+    },
+    "gender": {
+        "male": "Male",
+        "female": "Female",
+        "other": "Other",
+        "preferNotToSay": "Prefer not to say"
+    },
+    "contract": {
+        "fullTime": "Full time",
+        "partTime": "Part time",
+        "contract": "Contract",
+        "remote": "Remote"
+    }
+}

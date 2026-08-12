@@ -1,0 +1,148 @@
+@page "/register"
+@layout OpenToWork.WEB.Components.Layout.AuthLayout
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.WEB.Services
+@inject ApiAuthService AuthApi
+@inject AppAuthStateProvider AuthProvider
+@inject LanguageService Lang
+@inject NavigationManager Nav
+
+<PageTitle>@Lang.T("auth.register.title")</PageTitle>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">@Lang.T("auth.register.title")</h1>
+        <p class="auth-subtitle">@Lang.T("auth.register.subtitle")</p>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-error">@ErrorMessage</div>
+        }
+
+        <div class="mb-md">
+            <label class="ot-input-label mb-md">@Lang.T("auth.register.selectRole")</label>
+            <div class="role-selector">
+                <div class="role-card @(SelectedRole == 0 ? "selected" : "")" @onclick="() => SelectRole(0)">
+                    <div class="role-card-icon">🔍</div>
+                    <div class="role-card-title">@Lang.T("common.roles.searchJob")</div>
+                </div>
+                <div class="role-card @(SelectedRole == 1 ? "selected" : "")" @onclick="() => SelectRole(1)">
+                    <div class="role-card-icon">💼</div>
+                    <div class="role-card-title">@Lang.T("common.roles.createVacancy")</div>
+                </div>
+            </div>
+        </div>
+
+        <EditForm Model="RegisterModel" OnValidSubmit="HandleRegister">
+            <div class="ot-input-group mb-md">
+                <label class="ot-input-label">@Lang.T("common.labels.email")</label>
+                <InputText class="ot-input-field" @bind-Value="RegisterModel.Email" placeholder="@Lang.T("auth.login.emailPlaceholder")" />
+                <ValidationMessage For="@(() => RegisterModel.Email)" class="ot-input-error" />
+            </div>
+
+            <div class="ot-input-group mb-md">
+                <label class="ot-input-label">@Lang.T("common.labels.password")</label>
+                <InputText type="password" class="ot-input-field" @bind-Value="RegisterModel.Password" placeholder="@Lang.T("auth.login.passwordPlaceholder")" />
+                <ValidationMessage For="@(() => RegisterModel.Password)" class="ot-input-error" />
+            </div>
+
+            <div class="ot-input-group mb-md">
+                <label class="ot-input-label">@Lang.T("common.labels.identification")</label>
+                <InputText class="ot-input-field" @bind-Value="RegisterModel.Identification" />
+            </div>
+
+            <div class="ot-input-group mb-md">
+                <label class="ot-input-label">@Lang.T("common.labels.phone")</label>
+                <InputText class="ot-input-field" @bind-Value="RegisterModel.Phone" />
+            </div>
+
+            <button type="submit" class="ot-btn ot-btn--primary ot-btn--medium ot-btn--full-width" disabled="@IsLoading">
+                @(IsLoading ? Lang.T("common.labels.loading") : Lang.T("common.buttons.register"))
+            </button>
+        </EditForm>
+
+        <p class="auth-link">
+            @Lang.T("auth.register.haveAccount")
+            <a href="/login">@Lang.T("auth.register.loginHere")</a>
+        </p>
+    </div>
+</div>
+
+@code {
+    private RegisterFormData RegisterModel { get; set; } = new();
+    private int SelectedRole { get; set; } = 0;
+    private bool IsLoading { get; set; }
+    private string? ErrorMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+
+        var uri = Nav.ToAbsoluteUri(Nav.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var roleStr = query["role"];
+        if (int.TryParse(roleStr, out var role) && role == 1)
+            SelectedRole = 1;
+    }
+
+    private void SelectRole(int role)
+    {
+        SelectedRole = role;
+    }
+
+    private async Task HandleRegister()
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+
+        try
+        {
+            var dto = new RegisterDto
+            {
+                Email = RegisterModel.Email,
+                Password = RegisterModel.Password,
+                PrimaryRole = SelectedRole,
+                Identification = RegisterModel.Identification,
+                Phone = RegisterModel.Phone
+            };
+
+            var result = await AuthApi.RegisterAsync(dto);
+
+            if (result != null)
+            {
+                AuthProvider.NotifyAuthenticationStateChanged();
+                if (SelectedRole == 0 && !result.User.WizardCompleted)
+                    Nav.NavigateTo("/wizard");
+                else
+                    Nav.NavigateTo("/dashboard");
+            }
+            else
+            {
+                ErrorMessage = Lang.T("auth.register.errorGeneric");
+            }
+        }
+        catch
+        {
+            ErrorMessage = Lang.T("auth.register.errorGeneric");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    public class RegisterFormData
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.MinLength(6)]
+        public string Password { get; set; } = string.Empty;
+
+        public string? Identification { get; set; }
+        public string? Phone { get; set; }
+    }
+}

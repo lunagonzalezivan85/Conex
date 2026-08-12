@@ -1,0 +1,12 @@
+{
+    "title": "Search Vacancies",
+    "searchPlaceholder": "Search by title, description or requirements...",
+    "locationPlaceholder": "Location",
+    "filters": "Filters",
+    "noResults": "No vacancies found",
+    "results": "vacancies found",
+    "salaryRange": "Salary range",
+    "expiresIn": "Expires in",
+    "days": "days",
+    "apply": "Apply"
+}

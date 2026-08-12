@@ -1,0 +1,76 @@
+{
+    "buttons": {
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "delete": "Eliminar",
+        "edit": "Editar",
+        "search": "Buscar",
+        "close": "Cerrar",
+        "accept": "Aceptar",
+        "decline": "Rechazar",
+        "login": "Iniciar Sesión",
+        "register": "Registrarse",
+        "logout": "Cerrar Sesión",
+        "next": "Siguiente",
+        "previous": "Anterior",
+        "skip": "Omitir",
+        "complete": "Finalizar",
+        "create": "Crear",
+        "viewAll": "Ver todas",
+        "apply": "Aplicar"
+    },
+    "labels": {
+        "welcome": "Bienvenido",
+        "loading": "Cargando...",
+        "noResults": "No se encontraron resultados",
+        "actions": "Acciones",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "confirmPassword": "Confirmar contraseña",
+        "rememberMe": "Recordarme",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "firstName": "Nombre",
+        "lastName": "Apellido",
+        "identification": "Identificación",
+        "phone": "Teléfono",
+        "birthDate": "Fecha de nacimiento",
+        "gender": "Género",
+        "country": "País",
+        "city": "Ciudad",
+        "address": "Dirección",
+        "title": "Título profesional",
+        "summary": "Resumen profesional",
+        "location": "Ubicación",
+        "salary": "Salario",
+        "contractType": "Tipo de contrato"
+    },
+    "nav": {
+        "home": "Inicio",
+        "dashboard": "Dashboard",
+        "profile": "Mi Perfil",
+        "vacancies": "Vacantes",
+        "applications": "Mis Solicitudes",
+        "settings": "Configuración",
+        "logout": "Cerrar Sesión"
+    },
+    "roles": {
+        "candidate": "Candidato",
+        "company": "Empresa",
+        "searchJob": "Buscar Empleo",
+        "createVacancy": "Publicar Vacantes",
+        "searchJobDesc": "Encuentra tu próximo trabajo",
+        "createVacancyDesc": "Contrata talento para tu empresa"
+    },
+    "gender": {
+        "male": "Masculino",
+        "female": "Femenino",
+        "other": "Otro",
+        "preferNotToSay": "Prefiero no decir"
+    },
+    "contract": {
+        "fullTime": "Tiempo completo",
+        "partTime": "Medio tiempo",
+        "contract": "Contrato",
+        "remote": "Remoto"
+    }
+}

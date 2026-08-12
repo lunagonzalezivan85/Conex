@@ -1,0 +1,26 @@
+{
+    "title": "Dashboard",
+    "welcome": "Hello",
+    "stats": {
+        "profileCompletion": "Profile completion",
+        "activeVacancies": "Active vacancies",
+        "applications": "Applications",
+        "profileViews": "Profile views"
+    },
+    "sections": {
+        "myProfile": "My Profile",
+        "recommendedVacancies": "Recommended vacancies",
+        "myApplications": "My applications",
+        "quickActions": "Quick actions"
+    },
+    "actions": {
+        "completeProfile": "Complete profile",
+        "searchVacancies": "Search vacancies",
+        "createVacancy": "Create vacancy"
+    },
+    "wizardPrompt": {
+        "title": "Complete your profile",
+        "message": "To improve your experience, complete your professional profile",
+        "button": "Complete now"
+    }
+}

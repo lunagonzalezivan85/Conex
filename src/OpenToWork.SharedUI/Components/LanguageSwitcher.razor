@@ -1,0 +1,8 @@
+<div class="language-switcher">
+    @foreach (var lang in Languages)
+    {
+        <button class="lang-btn @(lang.Code == CurrentLanguage ? "active" : "")" @onclick="() => SelectLanguageAsync(lang.Code)">
+            <span>@lang.Flag</span> @lang.Label
+        </button>
+    }
+</div>

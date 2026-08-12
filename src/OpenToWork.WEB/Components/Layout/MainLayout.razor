@@ -1,0 +1,57 @@
+﻿@inherits LayoutComponentBase
+@using OpenToWork.WEB.Services
+@inject LanguageService Lang
+@inject Microsoft.JSInterop.IJSRuntime JS
+
+<div class="app-layout">
+    <nav class="nav-bar">
+        <div class="nav-brand">
+            <a href="/">OpenToWork</a>
+        </div>
+        <div class="nav-links">
+            <a href="/dashboard" class="nav-link">@Lang.T("common.nav.dashboard")</a>
+            <a href="/vacancies" class="nav-link">@Lang.T("common.nav.vacancies")</a>
+            <a href="/profile" class="nav-link">@Lang.T("common.nav.profile")</a>
+        </div>
+        <div class="nav-actions">
+            <select @onchange="OnThemeChanged" class="nav-select">
+                <option value="navy">Navy</option>
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+            </select>
+            <select @onchange="OnLanguageChanged" class="nav-select">
+                <option value="es">ES</option>
+                <option value="en">EN</option>
+            </select>
+            <a href="/logout" class="nav-link">@Lang.T("common.nav.logout")</a>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        @Body
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">X</span>
+</div>
+
+@code {
+    private async Task OnThemeChanged(ChangeEventArgs e)
+    {
+        if (e.Value is string theme)
+        {
+            await JS.InvokeVoidAsync("themeSwitcher.set", theme);
+        }
+    }
+
+    private async Task OnLanguageChanged(ChangeEventArgs e)
+    {
+        if (e.Value is string lang)
+        {
+            await Lang.SetLanguageAsync(lang);
+        }
+    }
+}

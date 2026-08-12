@@ -1,0 +1,151 @@
+@page "/dashboard"
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.WEB.Services
+@inject ApiAuthService AuthApi
+@inject LanguageService Lang
+@inject NavigationManager Nav
+
+<PageTitle>@Lang.T("dashboard.title")</PageTitle>
+
+<div class="page-container">
+    <h1 class="mb-lg">@Lang.T("dashboard.title")</h1>
+
+    @if (ShowWizardPrompt)
+    {
+        <div class="wizard-prompt">
+            <div class="wizard-prompt-text">
+                <h3>@Lang.T("dashboard.wizardPrompt.title")</h3>
+                <p>@Lang.T("dashboard.wizardPrompt.message")</p>
+            </div>
+            <button class="ot-btn ot-btn--primary ot-btn--medium" @onclick="GoToWizard">
+                @Lang.T("dashboard.wizardPrompt.button")
+            </button>
+        </div>
+    }
+
+    <div class="bento-grid">
+        <div class="bento-card stat-card">
+            <div class="stat-value">@ProfileCompletion%</div>
+            <div class="stat-label">@Lang.T("dashboard.stats.profileCompletion")</div>
+        </div>
+        <div class="bento-card stat-card">
+            <div class="stat-value">@VacanciesCount</div>
+            <div class="stat-label">@Lang.T("dashboard.stats.activeVacancies")</div>
+        </div>
+        <div class="bento-card stat-card">
+            <div class="stat-value">0</div>
+            <div class="stat-label">@Lang.T("dashboard.stats.applications")</div>
+        </div>
+        <div class="bento-card stat-card">
+            <div class="stat-value">0</div>
+            <div class="stat-label">@Lang.T("dashboard.stats.profileViews")</div>
+        </div>
+    </div>
+
+    <h2 class="mt-lg mb-md">@Lang.T("dashboard.sections.quickActions")</h2>
+    <div class="bento-grid">
+        <div class="bento-card" @onclick="GoToWizard" style="cursor: pointer;">
+            <div class="bento-card-header">
+                <span class="bento-card-icon">📝</span>
+                <span class="bento-card-title">@Lang.T("dashboard.actions.completeProfile")</span>
+            </div>
+            <div class="bento-card-body">Completa tu información profesional</div>
+        </div>
+        <div class="bento-card" @onclick="GoToVacancies" style="cursor: pointer;">
+            <div class="bento-card-header">
+                <span class="bento-card-icon">🔍</span>
+                <span class="bento-card-title">@Lang.T("dashboard.actions.searchVacancies")</span>
+            </div>
+            <div class="bento-card-body">Explora vacantes disponibles</div>
+        </div>
+        <div class="bento-card" @onclick="GoToCreateVacancy" style="cursor: pointer;">
+            <div class="bento-card-header">
+                <span class="bento-card-icon">➕</span>
+                <span class="bento-card-title">@Lang.T("dashboard.actions.createVacancy")</span>
+            </div>
+            <div class="bento-card-body">Publica una nueva vacante</div>
+        </div>
+    </div>
+
+    @if (RecommendedVacancies.Any())
+    {
+        <h2 class="mt-lg mb-md">@Lang.T("dashboard.sections.recommendedVacancies")</h2>
+        <div class="bento-grid">
+            @foreach (var vacancy in RecommendedVacancies.Take(3))
+            {
+                <div class="vacancy-card">
+                    <div class="vacancy-card-title">@vacancy.Title</div>
+                    <div class="vacancy-card-location">📍 @vacancy.Location</div>
+                    <div class="vacancy-card-description">@vacancy.Description</div>
+                    <div class="vacancy-card-footer">
+                        <span class="vacancy-card-salary">
+                            @(vacancy.SalaryMin.HasValue ? $"${vacancy.SalaryMin:N0}" : "")
+                        </span>
+                        <span class="vacancy-card-badge">@GetContractTypeLabel(vacancy.ContractType)</span>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private CandidateDto? CandidateProfile { get; set; }
+    private List<TempVacancyDto> RecommendedVacancies { get; set; } = new();
+    private bool ShowWizardPrompt { get; set; }
+    private int ProfileCompletion { get; set; }
+    private int VacanciesCount { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+
+        CandidateProfile = await AuthApi.GetCandidateProfileAsync();
+
+        if (CandidateProfile != null)
+        {
+            ShowWizardPrompt = !CandidateProfile.WizardCompleted;
+            ProfileCompletion = CalculateProfileCompletion(CandidateProfile);
+        }
+        else
+        {
+            ShowWizardPrompt = true;
+            ProfileCompletion = 0;
+        }
+
+        var (vacancies, total) = await AuthApi.SearchVacanciesAsync(new SearchVacancyDto { Page = 1, PageSize = 3 });
+        RecommendedVacancies = vacancies;
+        VacanciesCount = total;
+    }
+
+    private static int CalculateProfileCompletion(CandidateDto c)
+    {
+        int filled = 0;
+        int total = 10;
+        if (!string.IsNullOrEmpty(c.FirstName)) filled++;
+        if (!string.IsNullOrEmpty(c.LastName)) filled++;
+        if (!string.IsNullOrEmpty(c.Identification)) filled++;
+        if (!string.IsNullOrEmpty(c.Phone)) filled++;
+        if (c.BirthDate.HasValue) filled++;
+        if (!string.IsNullOrEmpty(c.Title)) filled++;
+        if (!string.IsNullOrEmpty(c.Summary)) filled++;
+        if (!string.IsNullOrEmpty(c.Country)) filled++;
+        if (!string.IsNullOrEmpty(c.City)) filled++;
+        if (c.WizardCompleted) filled++;
+        return (int)((double)filled / total * 100);
+    }
+
+    private string GetContractTypeLabel(int type) => type switch
+    {
+        0 => Lang.T("common.contract.fullTime"),
+        1 => Lang.T("common.contract.partTime"),
+        2 => Lang.T("common.contract.contract"),
+        3 => Lang.T("common.contract.remote"),
+        _ => ""
+    };
+
+    private void GoToWizard() => Nav.NavigateTo("/wizard");
+    private void GoToVacancies() => Nav.NavigateTo("/vacancies");
+    private void GoToCreateVacancy() => Nav.NavigateTo("/vacancies/create");
+}

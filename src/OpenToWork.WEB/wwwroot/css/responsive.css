@@ -1,0 +1,51 @@
+@media (max-width: 768px) {
+    .bento-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bento-card--large,
+    .bento-card--wide,
+    .bento-card--tall {
+        grid-column: span 1;
+        grid-row: span 1;
+    }
+
+    .role-selector {
+        grid-template-columns: 1fr;
+    }
+
+    .page-container {
+        padding: 1rem 0.75rem;
+    }
+
+    .auth-card {
+        padding: 1.5rem;
+    }
+
+    h1 { font-size: 1.4rem; }
+    h2 { font-size: 1.2rem; }
+
+    .nav-desktop {
+        display: none;
+    }
+
+    .nav-mobile {
+        display: flex;
+    }
+}
+
+@media (min-width: 769px) {
+    .nav-mobile {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .bento-grid {
+        gap: 0.75rem;
+    }
+
+    .bento-card {
+        padding: 1rem;
+    }
+}

@@ -1,0 +1,18 @@
+<button type="@Type" class="ot-btn @VariantClass @SizeClass @(IsFullWidth ? "ot-btn--full-width" : "")" disabled="@IsDisabled" @onclick="OnClick">
+    @if (IsLoading)
+    {
+        <span>...</span>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(Icon))
+        {
+            <span>@Icon</span>
+        }
+        @if (!string.IsNullOrEmpty(Text))
+        {
+            <span>@Text</span>
+        }
+        @ChildContent
+    }
+</button>

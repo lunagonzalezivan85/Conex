@@ -1,0 +1,40 @@
+{
+    "title": "Completa tu perfil",
+    "steps": {
+        "personalData": {
+            "title": "Datos Personales",
+            "description": "Cuéntanos sobre ti"
+        },
+        "location": {
+            "title": "Ubicación",
+            "description": "¿Dónde te encuentras?"
+        },
+        "professionalProfile": {
+            "title": "Perfil Profesional",
+            "description": "Tu información profesional"
+        },
+        "skills": {
+            "title": "Habilidades",
+            "description": "Selecciona tus habilidades"
+        },
+        "preferences": {
+            "title": "¿Qué deseas hacer?",
+            "description": "Elige tu preferencia"
+        },
+        "confirmation": {
+            "title": "Revisar y Confirmar",
+            "description": "Verifica que tus datos sean correctos",
+            "confirm": "Confirmar y continuar"
+        }
+    },
+    "buttons": {
+        "next": "Siguiente",
+        "previous": "Anterior",
+        "skip": "Omitir",
+        "complete": "Finalizar"
+    },
+    "complete": {
+        "title": "¡Perfil completado!",
+        "message": "Tu perfil ha sido guardado correctamente"
+    }
+}

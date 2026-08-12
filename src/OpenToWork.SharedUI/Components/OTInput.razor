@@ -1,0 +1,11 @@
+<div class="ot-input-group">
+    @if (!string.IsNullOrEmpty(Label))
+    {
+        <label class="ot-input-label" for="@Id">@Label</label>
+    }
+    <input id="@Id" type="@Type" class="ot-input-field" placeholder="@Placeholder" value="@Value" @oninput="OnInputAsync" disabled="@IsDisabled" />
+    @if (!string.IsNullOrEmpty(ErrorMessage))
+    {
+        <span class="ot-input-error">@ErrorMessage</span>
+    }
+</div>

@@ -1,0 +1,120 @@
+@page "/login"
+@layout OpenToWork.WEB.Components.Layout.AuthLayout
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.WEB.Services
+@inject ApiAuthService AuthApi
+@inject AppAuthStateProvider AuthProvider
+@inject LanguageService Lang
+@inject NavigationManager Nav
+
+<PageTitle>@Lang.T("auth.login.title")</PageTitle>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">@Lang.T("auth.login.title")</h1>
+        <p class="auth-subtitle">@Lang.T("auth.login.subtitle")</p>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-error">@ErrorMessage</div>
+        }
+
+        <EditForm Model="LoginModel" OnValidSubmit="HandleLogin">
+            <div class="ot-input-group mb-md">
+                <label class="ot-input-label">@Lang.T("common.labels.email")</label>
+                <InputText class="ot-input-field" @bind-Value="LoginModel.Email" placeholder="@Lang.T("auth.login.emailPlaceholder")" />
+                <ValidationMessage For="@(() => LoginModel.Email)" class="ot-input-error" />
+            </div>
+
+            <div class="ot-input-group mb-md">
+                <label class="ot-input-label">@Lang.T("common.labels.password")</label>
+                <InputText type="password" class="ot-input-field" @bind-Value="LoginModel.Password" placeholder="@Lang.T("auth.login.passwordPlaceholder")" />
+                <ValidationMessage For="@(() => LoginModel.Password)" class="ot-input-error" />
+            </div>
+
+            <div class="flex-center" style="justify-content: space-between; margin-bottom: 1.5rem;">
+                <label class="ot-input-label">
+                    <InputCheckbox @bind-Value="LoginModel.RememberMe" /> @Lang.T("common.labels.rememberMe")
+                </label>
+                <a href="#" class="ot-input-label">@Lang.T("common.labels.forgotPassword")</a>
+            </div>
+
+            <button type="submit" class="ot-btn ot-btn--primary ot-btn--medium ot-btn--full-width" disabled="@IsLoading">
+                @(IsLoading ? Lang.T("common.labels.loading") : Lang.T("common.buttons.login"))
+            </button>
+        </EditForm>
+
+        <div style="text-align: center; margin: 1.5rem 0; color: var(--text-muted); font-size: 0.85rem;">
+            @Lang.T("auth.login.orDivider")
+        </div>
+
+        <button class="ot-btn ot-btn--outline ot-btn--medium ot-btn--full-width" disabled="@IsLoading">
+            @Lang.T("auth.login.googleButton")
+        </button>
+
+        <p class="auth-link">
+            @Lang.T("auth.login.noAccount")
+            <a href="/register">@Lang.T("auth.login.registerHere")</a>
+        </p>
+    </div>
+</div>
+
+@code {
+    private LoginFormData LoginModel { get; set; } = new();
+    private bool IsLoading { get; set; }
+    private string? ErrorMessage { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+    }
+
+    private async Task HandleLogin()
+    {
+        IsLoading = true;
+        ErrorMessage = null;
+
+        try
+        {
+            var dto = new LoginDto
+            {
+                Email = LoginModel.Email,
+                Password = LoginModel.Password,
+                RememberMe = LoginModel.RememberMe
+            };
+
+            var result = await AuthApi.LoginAsync(dto);
+
+            if (result != null)
+            {
+                AuthProvider.NotifyAuthenticationStateChanged();
+                Nav.NavigateTo("/dashboard");
+            }
+            else
+            {
+                ErrorMessage = Lang.T("auth.login.errorInvalid");
+            }
+        }
+        catch
+        {
+            ErrorMessage = Lang.T("auth.login.errorGeneric");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    public class LoginFormData
+    {
+        [System.ComponentModel.DataAnnotations.Required]
+        [System.ComponentModel.DataAnnotations.EmailAddress]
+        public string Email { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Required]
+        public string Password { get; set; } = string.Empty;
+
+        public bool RememberMe { get; set; }
+    }
+}

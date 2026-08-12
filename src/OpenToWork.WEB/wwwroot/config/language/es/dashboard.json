@@ -1,0 +1,26 @@
+{
+    "title": "Dashboard",
+    "welcome": "Hola",
+    "stats": {
+        "profileCompletion": "Perfil completado",
+        "activeVacancies": "Vacantes activas",
+        "applications": "Solicitudes",
+        "profileViews": "Vistas del perfil"
+    },
+    "sections": {
+        "myProfile": "Mi Perfil",
+        "recommendedVacancies": "Vacantes recomendadas",
+        "myApplications": "Mis solicitudes",
+        "quickActions": "Acciones rápidas"
+    },
+    "actions": {
+        "completeProfile": "Completar perfil",
+        "searchVacancies": "Buscar vacantes",
+        "createVacancy": "Crear vacante"
+    },
+    "wizardPrompt": {
+        "title": "Completa tu perfil",
+        "message": "Para mejorar tu experiencia, completa tu perfil profesional",
+        "button": "Completar ahora"
+    }
+}
