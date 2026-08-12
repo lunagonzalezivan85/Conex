@@ -20,6 +20,15 @@
     .page-container {
         padding: var(--space-xl) var(--space-md);
     }
+
+    .footer-container {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: var(--space-lg);
+    }
+
+    .footer-col--brand {
+        grid-column: span 3;
+    }
 }
 
 @media (max-width: 768px) {
@@ -143,6 +152,15 @@
     .hero-bento-container {
         grid-template-columns: 1fr;
     }
+
+    .footer-container {
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-lg);
+    }
+
+    .footer-col--brand {
+        grid-column: span 2;
+    }
 }
 
 @media (max-width: 480px) {
@@ -173,4 +191,13 @@
     }
 
     h1 { font-size: 1.3rem; }
+
+    .footer-container {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+    }
+
+    .footer-col--brand {
+        grid-column: span 1;
+    }
 }

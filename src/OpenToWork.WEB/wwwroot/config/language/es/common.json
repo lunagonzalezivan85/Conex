@@ -86,6 +86,16 @@
         "featuredVacancies": "Vacantes destacadas",
         "viewAllVacancies": "Ver todas las vacantes"
     },
+    "footer": {
+        "menu": "Menú",
+        "about": "Quiénes somos",
+        "contact": "Contáctanos",
+        "followUs": "Síguenos",
+        "rights": "Todos los derechos reservados.",
+        "terms": "Términos",
+        "privacy": "Privacidad",
+        "faq": "Preguntas frecuentes"
+    },
     "roles": {
         "candidate": "Candidato",
         "company": "Empresa",

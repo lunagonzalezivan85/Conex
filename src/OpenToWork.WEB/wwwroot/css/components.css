@@ -515,7 +515,7 @@
 /* ===== Hero Section (Command-Driven + One UI + Bento) ===== */
 
 .hero-section {
-    background: linear-gradient(180deg, var(--nav-bg) 0%, var(--bg-primary) 100%);
+    background: var(--bg-secondary);
     padding: var(--space-3xl) var(--space-lg) var(--space-2xl);
     text-align: center;
 }
@@ -528,7 +528,7 @@
 .hero-title {
     font-size: 2.75rem;
     font-weight: 800;
-    color: var(--nav-text);
+    color: var(--text-primary);
     margin-bottom: var(--space-sm);
     letter-spacing: -0.04em;
     line-height: 1.15;
@@ -536,8 +536,7 @@
 
 .hero-subtitle {
     font-size: 1.15rem;
-    color: var(--nav-text);
-    opacity: 0.65;
+    color: var(--text-secondary);
     margin-bottom: var(--space-2xl);
     font-weight: 400;
 }
@@ -636,7 +635,7 @@
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    background: var(--gradient-accent);
+    background: var(--accent-primary);
     color: #FFFFFF;
     border: none;
     border-radius: 9999px;
@@ -652,6 +651,7 @@
 }
 
 .hero-search-btn:hover {
+    background: var(--accent-hover);
     box-shadow: var(--shadow-md);
     transform: translateY(-1px);
 }
@@ -677,8 +677,7 @@
 }
 
 .hero-pills-label {
-    color: var(--nav-text);
-    opacity: 0.5;
+    color: var(--text-secondary);
     font-size: 0.82rem;
     font-weight: 500;
     margin-right: var(--space-xs);
@@ -687,18 +686,17 @@
 .hero-pill {
     padding: 0.35rem 1rem;
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    color: var(--nav-text);
+    background: var(--text-muted);
+    color: #FFFFFF;
     font-size: 0.82rem;
     font-weight: 600;
     transition: all var(--transition-fast);
+    border: none;
 }
 
 .hero-pill:hover {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.25);
-    color: var(--nav-text);
+    background: var(--text-secondary);
+    color: #FFFFFF;
     transform: translateY(-1px);
 }
 
@@ -1092,4 +1090,119 @@
     padding: var(--space-md) var(--space-lg);
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-lg);
+}
+
+/* ===== Footer ===== */
+
+.site-footer {
+    background: var(--nav-bg);
+    color: var(--nav-text);
+    padding: var(--space-2xl) var(--space-lg) var(--space-lg);
+}
+
+.footer-container {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: var(--space-xl);
+}
+
+.footer-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.footer-col--brand {
+    gap: var(--space-md);
+}
+
+.footer-brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.footer-brand-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--accent-primary);
+    color: #FFFFFF;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.footer-brand-text {
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.footer-brand-desc {
+    font-size: 0.88rem;
+    color: var(--nav-text);
+    opacity: 0.6;
+    line-height: 1.5;
+    max-width: 280px;
+}
+
+.footer-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--nav-text);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: var(--space-xs);
+}
+
+.footer-link {
+    font-size: 0.88rem;
+    color: var(--nav-text);
+    opacity: 0.65;
+    transition: all var(--transition-fast);
+}
+
+.footer-link:hover {
+    opacity: 1;
+    color: var(--nav-text);
+}
+
+.footer-social {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.footer-social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--nav-hover);
+    color: var(--nav-text);
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: all var(--transition-fast);
+}
+
+.footer-social-link:hover {
+    background: var(--accent-primary);
+    color: #FFFFFF;
+}
+
+.footer-bottom {
+    max-width: var(--content-max-width);
+    margin: var(--space-xl) auto 0;
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--nav-hover);
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--nav-text);
+    opacity: 0.5;
 }
