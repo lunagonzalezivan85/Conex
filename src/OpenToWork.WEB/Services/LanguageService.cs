@@ -6,16 +6,16 @@ namespace OpenToWork.WEB.Services;
 public class LanguageService
 {
     private readonly IJSRuntime _jsRuntime;
-    private readonly HttpClient _httpClient;
+    private readonly IWebHostEnvironment _env;
     private string _currentLanguage = "es";
     public Dictionary<string, string> _translations = new();
 
     public event Action? OnLanguageChanged;
 
-    public LanguageService(IJSRuntime jsRuntime, HttpClient httpClient)
+    public LanguageService(IJSRuntime jsRuntime, IWebHostEnvironment env)
     {
         _jsRuntime = jsRuntime;
-        _httpClient = httpClient;
+        _env = env;
     }
 
     public string CurrentLanguage => _currentLanguage;
@@ -50,12 +50,16 @@ public class LanguageService
     {
         var sections = new[] { "common", "auth", "wizard", "dashboard", "vacancies", "profile", "validation", "errors", "applications" };
         _translations.Clear();
+        var basePath = Path.Combine(_env.WebRootPath, "config", "language", lang);
         foreach (var section in sections)
         {
             try
             {
-                var json = await _httpClient.GetFromJsonAsync<Dictionary<string, object>>($"config/language/{lang}/{section}.json");
-                if (json != null) FlattenDictionary(json, section, _translations);
+                var filePath = Path.Combine(basePath, $"{section}.json");
+                if (!File.Exists(filePath)) continue;
+                var json = await File.ReadAllTextAsync(filePath);
+                var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+                if (dict != null) FlattenDictionary(dict, section, _translations);
             }
             catch { }
         }
