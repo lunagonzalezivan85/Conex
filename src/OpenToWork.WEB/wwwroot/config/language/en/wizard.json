@@ -25,6 +25,23 @@
             "title": "Review and Confirm",
             "description": "Verify your data is correct",
             "confirm": "Confirm and continue"
+        },
+        "workExperience": {
+            "title": "Work Experience",
+            "description": "Add your work experience"
+        },
+        "education": {
+            "title": "Education",
+            "description": "Add your education"
+        },
+        "certifications": {
+            "title": "Certifications",
+            "description": "Add your certifications"
+        },
+        "uploadCv": {
+            "title": "Upload CV",
+            "description": "Upload your CV or resume",
+            "optional": "This step is optional"
         }
     },
     "buttons": {

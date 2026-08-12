@@ -8,5 +8,46 @@
     "salaryRange": "Salary range",
     "expiresIn": "Expires in",
     "days": "days",
-    "apply": "Apply"
+    "apply": "Apply",
+    "myTitle": "My Vacancies",
+    "create": "New Vacancy",
+    "createTitle": "Create New Vacancy",
+    "noVacancies": "You have no published vacancies",
+    "publish": "Publish",
+    "close": "Close",
+    "verified": "Verified",
+    "detail": "Vacancy Detail",
+    "status": {
+        "draft": "Draft",
+        "active": "Active",
+        "closed": "Closed"
+    },
+    "workMode": {
+        "onSite": "On-site",
+        "hybrid": "Hybrid",
+        "remote": "Remote"
+    },
+    "experience": {
+        "entry": "Entry",
+        "junior": "Junior",
+        "mid": "Mid",
+        "senior": "Senior",
+        "lead": "Lead"
+    },
+    "english": {
+        "none": "None",
+        "basic": "Basic",
+        "intermediate": "Intermediate",
+        "advanced": "Advanced",
+        "native": "Native"
+    },
+    "fields": {
+        "title": "Title",
+        "description": "Description",
+        "requirements": "Requirements",
+        "salaryMin": "Minimum salary",
+        "salaryMax": "Maximum salary",
+        "location": "Location",
+        "category": "Category"
+    }
 }

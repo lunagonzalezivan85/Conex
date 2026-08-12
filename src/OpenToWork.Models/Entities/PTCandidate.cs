@@ -53,5 +53,25 @@ public class PTCandidate : BaseEntity
 
     public int WizardStep { get; set; } = 0;
 
+    public int? YearsOfExperience { get; set; }
+
+    [MaxLength(500)]
+    public string? LinkedInUrl { get; set; }
+
+    [MaxLength(500)]
+    public string? PortfolioUrl { get; set; }
+
+    public int? Availability { get; set; }
+
+    public int? WorkAuthorization { get; set; }
+
+    public bool IsProfilePublic { get; set; } = true;
+
+    public DateTime? CompletedAt { get; set; }
+
     public virtual ICollection<PTCandidateSkill> CandidateSkills { get; set; } = new List<PTCandidateSkill>();
+    public virtual ICollection<PTCandidateExperience> Experiences { get; set; } = new List<PTCandidateExperience>();
+    public virtual ICollection<PTCandidateEducation> Educations { get; set; } = new List<PTCandidateEducation>();
+    public virtual ICollection<PTCandidateCertification> Certifications { get; set; } = new List<PTCandidateCertification>();
+    public virtual ICollection<PTApplication> Applications { get; set; } = new List<PTApplication>();
 }

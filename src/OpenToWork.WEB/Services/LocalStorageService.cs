@@ -13,16 +13,37 @@ public class LocalStorageService
 
     public async Task<string?> GetItemAsync(string key)
     {
-        return await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", key);
+        try
+        {
+            return await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", key);
+        }
+        catch (JSDisconnectedException)
+        {
+            return null;
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
     }
 
     public async Task SetItemAsync(string key, string value)
     {
-        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", key, value);
+        try
+        {
+            await _jsRuntime.InvokeVoidAsync("localStorage.setItem", key, value);
+        }
+        catch (JSDisconnectedException) { }
+        catch (InvalidOperationException) { }
     }
 
     public async Task RemoveItemAsync(string key)
     {
-        await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+        try
+        {
+            await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", key);
+        }
+        catch (JSDisconnectedException) { }
+        catch (InvalidOperationException) { }
     }
 }

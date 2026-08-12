@@ -4,32 +4,89 @@
 @inject Microsoft.JSInterop.IJSRuntime JS
 
 <div class="app-layout">
-    <nav class="nav-bar">
-        <div class="nav-brand">
-            <a href="/">OpenToWork</a>
-        </div>
-        <div class="nav-links">
-            <a href="/dashboard" class="nav-link">@Lang.T("common.nav.dashboard")</a>
-            <a href="/vacancies" class="nav-link">@Lang.T("common.nav.vacancies")</a>
-            <a href="/profile" class="nav-link">@Lang.T("common.nav.profile")</a>
-        </div>
-        <div class="nav-actions">
-            <select @onchange="OnThemeChanged" class="nav-select">
-                <option value="navy">Navy</option>
-                <option value="dark">Dark</option>
-                <option value="light">Light</option>
-            </select>
-            <select @onchange="OnLanguageChanged" class="nav-select">
-                <option value="es">ES</option>
-                <option value="en">EN</option>
-            </select>
-            <a href="/logout" class="nav-link">@Lang.T("common.nav.logout")</a>
-        </div>
-    </nav>
+    <header class="nav-header">
+        <nav class="nav-bar">
+            <div class="nav-brand">
+                <a href="/">
+                    <span class="nav-brand-logo">OTW</span>
+                    <span class="nav-brand-text">OpenToWork</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">@Lang.T("common.nav.home")</a>
+                <a href="/about" class="nav-link">@Lang.T("common.nav.about")</a>
+            </div>
+            <div class="nav-actions">
+                <select @onchange="OnThemeChanged" class="nav-select">
+                    <option value="navy">Navy</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                </select>
+                <select @onchange="OnLanguageChanged" class="nav-select">
+                    <option value="es">ES</option>
+                    <option value="en">EN</option>
+                </select>
+                <a href="/login" class="ot-btn ot-btn--ghost ot-btn--small">@Lang.T("common.buttons.login")</a>
+                <a href="/register" class="ot-btn ot-btn--primary ot-btn--small">@Lang.T("common.buttons.register")</a>
+            </div>
+        </nav>
+        <nav class="nav-categories">
+            <a href="/vacancies?category=it" class="nav-category-link">@Lang.T("common.nav.categoryIT")</a>
+            <a href="/vacancies?category=finance" class="nav-category-link">@Lang.T("common.nav.categoryFinance")</a>
+            <a href="/vacancies?category=health" class="nav-category-link">@Lang.T("common.nav.categoryHealth")</a>
+            <a href="/vacancies?category=education" class="nav-category-link">@Lang.T("common.nav.categoryEducation")</a>
+            <a href="/vacancies?category=marketing" class="nav-category-link">@Lang.T("common.nav.categoryMarketing")</a>
+            <a href="/vacancies?category=engineering" class="nav-category-link">@Lang.T("common.nav.categoryEngineering")</a>
+            <a href="/vacancies?category=sales" class="nav-category-link">@Lang.T("common.nav.categorySales")</a>
+            <a href="/vacancies?category=design" class="nav-category-link">@Lang.T("common.nav.categoryDesign")</a>
+        </nav>
+    </header>
 
     <main class="main-content">
         @Body
     </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-col footer-col--brand">
+                <div class="footer-brand">
+                    <span class="footer-brand-logo">OTW</span>
+                    <span class="footer-brand-text">OpenToWork</span>
+                </div>
+                <p class="footer-brand-desc">@Lang.T("common.home.heroSubtitle")</p>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">@Lang.T("common.footer.menu")</h4>
+                <a href="/" class="footer-link">@Lang.T("common.nav.home")</a>
+                <a href="/vacancies" class="footer-link">@Lang.T("common.nav.vacancies")</a>
+                <a href="/dashboard" class="footer-link">@Lang.T("common.nav.dashboard")</a>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">@Lang.T("common.footer.about")</h4>
+                <a href="/about" class="footer-link">@Lang.T("common.nav.about")</a>
+                <a href="/faq" class="footer-link">@Lang.T("common.footer.faq")</a>
+                <a href="/terms" class="footer-link">@Lang.T("common.footer.terms")</a>
+                <a href="/privacy" class="footer-link">@Lang.T("common.footer.privacy")</a>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">@Lang.T("common.footer.contact")</h4>
+                <a href="mailto:contacto@opentowork.com" class="footer-link">contacto@opentowork.com</a>
+                <a href="tel:+5712345678" class="footer-link">+57 123 456 78</a>
+            </div>
+            <div class="footer-col">
+                <h4 class="footer-title">@Lang.T("common.footer.followUs")</h4>
+                <div class="footer-social">
+                    <a href="#" class="footer-social-link" aria-label="LinkedIn">in</a>
+                    <a href="#" class="footer-social-link" aria-label="Twitter">X</a>
+                    <a href="#" class="footer-social-link" aria-label="Instagram">IG</a>
+                    <a href="#" class="footer-social-link" aria-label="Facebook">f</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>&copy; @DateTime.Now.Year OpenToWork. @Lang.T("common.footer.rights")</span>
+        </div>
+    </footer>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
@@ -39,6 +96,12 @@
 </div>
 
 @code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+    }
+
     private async Task OnThemeChanged(ChangeEventArgs e)
     {
         if (e.Value is string theme)

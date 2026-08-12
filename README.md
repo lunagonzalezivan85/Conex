@@ -67,49 +67,136 @@ WEB / AdminWEB  ->  SharedUI
 
 ### Requisitos previos
 
-- .NET 8 SDK
+- .NET 10 SDK
 - MySQL 8.0+ corriendo en localhost:3306
 - (Opcional) Visual Studio 2022 o VS Code
+- Google OAuth credentials (opcional, para login con Google)
+- reCAPTCHA keys (opcional, para proteccion anti-bot)
 
-### 1. Base de datos
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/lunagonzalezivan85/OpenToWork.git
+cd OpenToWork
+```
+
+### 2. Base de datos
+
+Crear la base de datos en MySQL:
 
 ```sql
 CREATE DATABASE OpenToWorkDb CHARACTER SET utf8mb4;
 ```
 
-Luego ejecuta el script SQL:
-
-```bash
-mysql -u root OpenToWorkDb < docs/OpenToWork_InitialCreate.sql
-```
-
-O aplica la migracion con EF Core:
+Aplicar todas las migraciones con EF Core (incluye Fase 1 y Fase 2):
 
 ```bash
 dotnet ef database update --project src/OpenToWork.Models --startup-project src/OpenToWork.Models
 ```
 
-### 2. Configurar connection string
+### 3. Configurar connection string y claves
 
-Edita `src/OpenToWork.API/appsettings.json`:
+Editar `src/OpenToWork.API/appsettings.json`:
 
 ```json
-"ConnectionStrings": {
+{
+  "ConnectionStrings": {
     "DefaultConnection": "Server=localhost;Port=3306;Database=OpenToWorkDb;User=root;Password=TU_PASSWORD;CharSet=utf8mb4;"
+  },
+  "Jwt": {
+    "Key": "TU_JWT_KEY_DE_AL_MENOS_32_CARACTERES",
+    "Issuer": "OpenToWork.API",
+    "Audience": "OpenToWork.WEB"
+  },
+  "Google": {
+    "ClientId": "TU_GOOGLE_CLIENT_ID",
+    "ClientSecret": "TU_GOOGLE_CLIENT_SECRET"
+  },
+  "Recaptcha": {
+    "SiteKey": "TU_RECAPTCHA_SITE_KEY",
+    "SecretKey": "TU_RECAPTCHA_SECRET_KEY"
+  }
 }
 ```
 
-### 3. Ejecutar
+Editar `src/OpenToWork.WEB/appsettings.json`:
+
+```json
+{
+  "ApiSettings": {
+    "BaseUrl": "http://localhost:5000/"
+  },
+  "Security": {
+    "AesKey": "TU_AES_KEY_PARA_ENCRYPTAR_TOKENS"
+  },
+  "Recaptcha": {
+    "SiteKey": "TU_RECAPTCHA_SITE_KEY"
+  }
+}
+```
+
+### 4. Build
+
+Compilar toda la solucion:
 
 ```bash
-# API (puerto 5000)
-dotnet run --project src/OpenToWork.API
+dotnet build OpenToWork.slnx
+```
 
-# WEB (puerto 5100)
+### 5. Ejecutar
+
+Necesitas dos terminales abiertas:
+
+**Terminal 1 - API (puerto 5000):**
+
+```bash
+dotnet run --project src/OpenToWork.API
+```
+
+- Swagger: `http://localhost:5000/swagger`
+- Endpoints de auth: `http://localhost:5000/api/auth/*`
+- Endpoints de vacantes: `http://localhost:5000/api/permanentvacancies/*`
+- Endpoints de solicitudes: `http://localhost:5000/api/applications/*`
+- Endpoints de perfil: `http://localhost:5000/api/profile/*`
+
+**Terminal 2 - WEB Blazor Server (puerto 5100):**
+
+```bash
 dotnet run --project src/OpenToWork.WEB
 ```
 
-Swagger disponible en: `http://localhost:5000/swagger`
+- Portal principal: `http://localhost:5100`
+- Login: `http://localhost:5100/login`
+- Registro: `http://localhost:5100/register`
+- Recuperar contrasena: `http://localhost:5100/forgot-password`
+- Dashboard: `http://localhost:5100/dashboard`
+- Vacantes: `http://localhost:5100/vacancies`
+- Mis Vacantes: `http://localhost:5100/myvacancies`
+- Perfil: `http://localhost:5100/profile`
+- Wizard (10 pasos): `http://localhost:5100/wizard`
+
+### 6. Migraciones (solo si se modifican entidades)
+
+Crear nueva migracion:
+
+```bash
+dotnet ef migrations add NombreMigracion --project src/OpenToWork.Models --startup-project src/OpenToWork.Models
+```
+
+Aplicar migracion:
+
+```bash
+dotnet ef database update --project src/OpenToWork.Models --startup-project src/OpenToWork.Models
+```
+
+### 7. Estructura de puertos
+
+| Proyecto | Puerto | Descripcion |
+|---|---|---|
+| OpenToWork.API | 5000 | API REST del portal principal |
+| OpenToWork.WEB | 5100 | Blazor Server del portal principal |
+| OpenToWork.AdminAPI | 5001 | API REST del portal admin (Fase 3) |
+| OpenToWork.AdminWEB | 5101 | Blazor Server del portal admin (Fase 3) |
 
 ---
 
@@ -130,17 +217,20 @@ Swagger disponible en: `http://localhost:5000/swagger`
 - [x] Migracion inicial aplicada a MySQL
 - [x] Script SQL exportado en `docs/OpenToWork_InitialCreate.sql`
 
-### Fase 2 - Pendiente
+### Fase 2 - Completada
 
-- [ ] Vacantes permanentes (empresas)
-- [ ] Sistema de solicitudes (aplicar a vacantes)
-- [ ] Gestion de estados de solicitud (Pendiente, En revision, Aceptada, Rechazada)
-- [ ] Perfil completo del candidato (skills, experiencia, educacion)
-- [ ] Subida de CV y foto de perfil
-- [ ] Login con Google OAuth
-- [ ] reCAPTCHA en login desde dispositivo desconocido
-- [ ] Encriptacion de datos de sesion en localStorage (AES-256)
-- [ ] Recuperacion de contrasena
+- [x] Vacantes permanentes (empresas)
+- [x] Sistema de solicitudes (aplicar a vacantes)
+- [x] Gestion de estados de solicitud (Pendiente, En revision, Aceptada, Rechazada)
+- [x] Perfil completo del candidato (skills, experiencia, educacion, certificaciones)
+- [x] Subida de CV (URL)
+- [x] Login con Google OAuth
+- [x] reCAPTCHA en login desde dispositivo desconocido
+- [x] Encriptacion de datos de sesion en localStorage (AES-256)
+- [x] Recuperacion de contrasena
+- [x] Wizard pasos 7-10 (experiencia, educacion, certificaciones, CV)
+- [x] Migracion Phase2 + Phase2Security aplicada
+- [x] i18n completo (es + en) con claves nuevas
 
 ### Fase 3 - Pendiente
 
@@ -156,27 +246,21 @@ Swagger disponible en: `http://localhost:5000/swagger`
 
 ## Como debe continuar el proyecto
 
-1. **Fase 2 - Vacantes permanentes y solicitudes:**
-   - Crear entidades `PT_Vacancies` (permanent) y `PT_Applications`
-   - Implementar `VacancyService` para vacantes permanentes
-   - Crear `ApplicationsController` y flujo de aplicacion
-   - Agregar pagina de "Mis Solicitudes" en WEB
+1. **Fase 2 - Completada:**
+   - Entidades `PT_Vacancies`, `PT_Applications`, `PT_CandidateExperience`, `PT_CandidateEducation`, `PT_CandidateCertification`, `PT_VacancySkills`
+   - Services: `PermanentVacancyService`, `ApplicationService`, `ProfileService`
+   - Controllers: `PermanentVacanciesController`, `ApplicationsController`, `ProfileController`
+   - Frontend: `MyVacancies`, `VacancyDetail`, `Applications`, `MyApplications`, `Profile`, `ForgotPassword`
+   - Wizard extendido a 10 pasos (7-10: experiencia, educacion, certificaciones, CV)
+   - Seguridad: Google OAuth, reCAPTCHA, AES-256, recuperacion de contrasena
+   - i18n: 10 archivos JSON actualizados (es + en)
 
-2. **Fase 2 - Perfil completo del candidato:**
-   - Crear entidades `PT_CandidateExperience`, `PT_CandidateEducation`
-   - Implementar CRUD de experiencia y educacion
-   - Subida de archivos (CV, foto) con almacenamiento
-
-3. **Fase 2 - Seguridad avanzada:**
-   - Integrar Google OAuth (`GoogleOAuth` en appsettings ya configurado)
-   - Implementar reCAPTCHA (`Recaptcha` en appsettings ya configurado)
-   - Encriptar tokens en localStorage con AES-256
-
-4. **Fase 3 - Portal Admin:**
+2. **Fase 3 - Portal Admin:**
    - Configurar `OpenToWork.AdminAPI` con JWT independiente
    - Crear controllers de gestion (Users, Vacancies, Applications, Categories)
    - Construir `OpenToWork.AdminWEB` con Blazor
    - Dashboard admin con metricas
+   - Log de auditoria admin (`AD_AuditLog`)
 
 ---
 

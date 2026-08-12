@@ -1,0 +1,285 @@
+@page "/profile"
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.WEB.Services
+@inject ApiAuthService AuthApi
+@inject LanguageService Lang
+
+<PageTitle>@Lang.T("profile.title")</PageTitle>
+
+<div class="page-container">
+    <h1 class="mb-lg">@Lang.T("profile.title")</h1>
+
+    @if (ProfileData == null)
+    {
+        <p>@Lang.T("common.labels.loading")</p>
+    }
+    else
+    {
+        <div class="profile-tabs mb-lg">
+            <button class="@(ActiveTab == "personal" ? "ot-btn ot-btn--primary ot-btn--small" : "ot-btn ot-btn--secondary ot-btn--small")" @onclick='() => ActiveTab = "personal"'>@Lang.T("profile.tabs.personal")</button>
+            <button class="@(ActiveTab == "experience" ? "ot-btn ot-btn--primary ot-btn--small" : "ot-btn ot-btn--secondary ot-btn--small")" @onclick='() => ActiveTab = "experience"'>@Lang.T("profile.tabs.experience")</button>
+            <button class="@(ActiveTab == "education" ? "ot-btn ot-btn--primary ot-btn--small" : "ot-btn ot-btn--secondary ot-btn--small")" @onclick='() => ActiveTab = "education"'>@Lang.T("profile.tabs.education")</button>
+            <button class="@(ActiveTab == "certifications" ? "ot-btn ot-btn--primary ot-btn--small" : "ot-btn ot-btn--secondary ot-btn--small")" @onclick='() => ActiveTab = "certifications"'>@Lang.T("profile.tabs.certifications")</button>
+        </div>
+
+        @if (ActiveTab == "personal")
+        {
+            <div class="ot-card">
+                <div class="form-grid">
+                    <div>
+                        <label class="ot-label">@Lang.T("profile.fields.title")</label>
+                        <input class="ot-input" @bind="ProfileData.Title" />
+                    </div>
+                    <div>
+                        <label class="ot-label">@Lang.T("profile.fields.yearsExperience")</label>
+                        <input class="ot-input" type="number" @bind="ProfileData.YearsOfExperience" />
+                    </div>
+                    <div>
+                        <label class="ot-label">@Lang.T("profile.fields.linkedin")</label>
+                        <input class="ot-input" @bind="ProfileData.LinkedInUrl" />
+                    </div>
+                    <div>
+                        <label class="ot-label">@Lang.T("profile.fields.portfolio")</label>
+                        <input class="ot-input" @bind="ProfileData.PortfolioUrl" />
+                    </div>
+                    <div>
+                        <label class="ot-label">@Lang.T("profile.fields.availability")</label>
+                        <select class="ot-input" @bind="ProfileData.Availability">
+                            <option value="">--</option>
+                            <option value="0">@Lang.T("profile.availability.immediate")</option>
+                            <option value="1">@Lang.T("profile.availability.twoWeeks")</option>
+                            <option value="2">@Lang.T("profile.availability.oneMonth")</option>
+                            <option value="3">@Lang.T("profile.availability.notAvailable")</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="ot-label">@Lang.T("profile.fields.workAuthorization")</label>
+                        <select class="ot-input" @bind="ProfileData.WorkAuthorization">
+                            <option value="">--</option>
+                            <option value="0">@Lang.T("profile.workAuth.citizen")</option>
+                            <option value="1">@Lang.T("profile.workAuth.workVisa")</option>
+                            <option value="2">@Lang.T("profile.workAuth.studentVisa")</option>
+                            <option value="3">@Lang.T("profile.workAuth.none")</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-md">
+                    <label class="ot-label">@Lang.T("profile.fields.summary")</label>
+                    <textarea class="ot-input" rows="3" @bind="ProfileData.Summary"></textarea>
+                </div>
+                <div class="mt-md">
+                    <label class="ot-label">@Lang.T("profile.fields.cvUrl")</label>
+                    <input class="ot-input" @bind="ProfileData.CvUrl" />
+                </div>
+                <div class="flex-center gap-sm mt-md">
+                    <label class="flex-center gap-sm">
+                        <input type="checkbox" @bind="ProfileData.IsProfilePublic" />
+                        @Lang.T("profile.fields.isPublic")
+                    </label>
+                    <button class="ot-btn ot-btn--primary" @onclick="SaveProfileData">@Lang.T("common.buttons.save")</button>
+                </div>
+            </div>
+        }
+
+        @if (ActiveTab == "experience")
+        {
+            <div class="ot-card mb-lg">
+                <h3 class="mb-md">@Lang.T("profile.experience.add")</h3>
+                <div class="form-grid">
+                    <input class="ot-input" placeholder="@Lang.T("profile.experience.company")" @bind="NewExp.CompanyName" />
+                    <input class="ot-input" placeholder="@Lang.T("profile.experience.jobTitle")" @bind="NewExp.JobTitle" />
+                    <input class="ot-input" placeholder="@Lang.T("profile.experience.location")" @bind="NewExp.Location" />
+                    <input class="ot-input" type="date" @bind="NewExp.StartDate" />
+                    <input class="ot-input" type="date" @bind="NewExp.EndDate" />
+                    <label class="flex-center gap-sm">
+                        <input type="checkbox" @bind="NewExp.IsCurrentJob" />
+                        @Lang.T("profile.experience.current")
+                    </label>
+                </div>
+                <textarea class="ot-input mt-md" rows="2" placeholder="@Lang.T("profile.experience.description")" @bind="NewExp.Description"></textarea>
+                <button class="ot-btn ot-btn--primary mt-md" @onclick="AddExperience">@Lang.T("common.buttons.add")</button>
+            </div>
+
+            @foreach (var exp in ProfileData.Experiences)
+            {
+                <div class="ot-card mb-sm">
+                    <div class="flex-between">
+                        <div>
+                            <strong>@exp.JobTitle</strong> - @exp.CompanyName
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                                @exp.StartDate.ToString("MMM yyyy") - @(exp.IsCurrentJob ? Lang.T("profile.experience.present") : exp.EndDate?.ToString("MMM yyyy"))
+                            </div>
+                            @if (!string.IsNullOrEmpty(exp.Description))
+                            {
+                                <p class="mt-sm">@exp.Description</p>
+                            }
+                        </div>
+                        <button class="ot-btn ot-btn--danger ot-btn--small" @onclick="() => DeleteExperience(exp.Id)">X</button>
+                    </div>
+                </div>
+            }
+        }
+
+        @if (ActiveTab == "education")
+        {
+            <div class="ot-card mb-lg">
+                <h3 class="mb-md">@Lang.T("profile.education.add")</h3>
+                <div class="form-grid">
+                    <input class="ot-input" placeholder="@Lang.T("profile.education.institution")" @bind="NewEdu.Institution" />
+                    <input class="ot-input" placeholder="@Lang.T("profile.education.degree")" @bind="NewEdu.Degree" />
+                    <input class="ot-input" placeholder="@Lang.T("profile.education.fieldOfStudy")" @bind="NewEdu.FieldOfStudy" />
+                    <input class="ot-input" type="date" @bind="NewEdu.StartDate" />
+                    <input class="ot-input" type="date" @bind="NewEdu.EndDate" />
+                    <label class="flex-center gap-sm">
+                        <input type="checkbox" @bind="NewEdu.IsInProgress" />
+                        @Lang.T("profile.education.inProgress")
+                    </label>
+                </div>
+                <button class="ot-btn ot-btn--primary mt-md" @onclick="AddEducation">@Lang.T("common.buttons.add")</button>
+            </div>
+
+            @foreach (var edu in ProfileData.Educations)
+            {
+                <div class="ot-card mb-sm">
+                    <div class="flex-between">
+                        <div>
+                            <strong>@edu.Degree</strong> - @edu.Institution
+                            @if (!string.IsNullOrEmpty(edu.FieldOfStudy))
+                            {
+                                <span style="color: var(--text-muted);"> | @edu.FieldOfStudy</span>
+                            }
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                                @(edu.StartDate?.ToString("MMM yyyy") ?? "") - @(edu.IsInProgress ? Lang.T("profile.education.inProgress") : edu.EndDate?.ToString("MMM yyyy"))
+                            </div>
+                        </div>
+                        <button class="ot-btn ot-btn--danger ot-btn--small" @onclick="() => DeleteEducation(edu.Id)">X</button>
+                    </div>
+                </div>
+            }
+        }
+
+        @if (ActiveTab == "certifications")
+        {
+            <div class="ot-card mb-lg">
+                <h3 class="mb-md">@Lang.T("profile.certification.add")</h3>
+                <div class="form-grid">
+                    <input class="ot-input" placeholder="@Lang.T("profile.certification.name")" @bind="NewCert.Name" />
+                    <input class="ot-input" placeholder="@Lang.T("profile.certification.issuer")" @bind="NewCert.Issuer" />
+                    <input class="ot-input" type="date" @bind="NewCert.IssueDate" />
+                    <input class="ot-input" type="date" @bind="NewCert.ExpiryDate" />
+                    <input class="ot-input" placeholder="@Lang.T("profile.certification.credentialId")" @bind="NewCert.CredentialId" />
+                    <input class="ot-input" placeholder="@Lang.T("profile.certification.credentialUrl")" @bind="NewCert.CredentialUrl" />
+                </div>
+                <button class="ot-btn ot-btn--primary mt-md" @onclick="AddCertification">@Lang.T("common.buttons.add")</button>
+            </div>
+
+            @foreach (var cert in ProfileData.Certifications)
+            {
+                <div class="ot-card mb-sm">
+                    <div class="flex-between">
+                        <div>
+                            <strong>@cert.Name</strong>
+                            @if (!string.IsNullOrEmpty(cert.Issuer))
+                            {
+                                <span style="color: var(--text-muted);"> | @cert.Issuer</span>
+                            }
+                            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                                @cert.IssueDate?.ToString("MMM yyyy")
+                                @if (cert.ExpiryDate.HasValue)
+                                {
+                                    @: - @cert.ExpiryDate?.ToString("MMM yyyy")
+                                }
+                            </div>
+                            @if (!string.IsNullOrEmpty(cert.CredentialUrl))
+                            {
+                                <a href="@cert.CredentialUrl" target="_blank" style="font-size: 0.85rem;">@Lang.T("profile.certification.verify")</a>
+                            }
+                        </div>
+                        <button class="ot-btn ot-btn--danger ot-btn--small" @onclick="() => DeleteCertification(cert.Id)">X</button>
+                    </div>
+                </div>
+            }
+        }
+    }
+</div>
+
+@code {
+    private CandidateProfileDto? ProfileData { get; set; }
+    private string ActiveTab { get; set; } = "personal";
+    private CreateExperienceDto NewExp { get; set; } = new();
+    private CreateEducationDto NewEdu { get; set; } = new();
+    private CreateCertificationDto NewCert { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+        ProfileData = await AuthApi.GetProfileAsync();
+    }
+
+    private async Task SaveProfileData()
+    {
+        if (ProfileData == null) return;
+        var dto = new UpdateCandidateProfileDto
+        {
+            Title = ProfileData.Title,
+            Summary = ProfileData.Summary,
+            YearsOfExperience = ProfileData.YearsOfExperience,
+            LinkedInUrl = ProfileData.LinkedInUrl,
+            PortfolioUrl = ProfileData.PortfolioUrl,
+            Availability = ProfileData.Availability,
+            WorkAuthorization = ProfileData.WorkAuthorization,
+            IsProfilePublic = ProfileData.IsProfilePublic,
+            CvUrl = ProfileData.CvUrl
+        };
+        ProfileData = await AuthApi.UpdateProfileAsync(dto);
+    }
+
+    private async Task AddExperience()
+    {
+        var result = await AuthApi.AddExperienceAsync(NewExp);
+        if (result != null)
+        {
+            NewExp = new CreateExperienceDto();
+            ProfileData = await AuthApi.GetProfileAsync();
+        }
+    }
+
+    private async Task DeleteExperience(Guid id)
+    {
+        await AuthApi.DeleteExperienceAsync(id);
+        ProfileData = await AuthApi.GetProfileAsync();
+    }
+
+    private async Task AddEducation()
+    {
+        var result = await AuthApi.AddEducationAsync(NewEdu);
+        if (result != null)
+        {
+            NewEdu = new CreateEducationDto();
+            ProfileData = await AuthApi.GetProfileAsync();
+        }
+    }
+
+    private async Task DeleteEducation(Guid id)
+    {
+        await AuthApi.DeleteEducationAsync(id);
+        ProfileData = await AuthApi.GetProfileAsync();
+    }
+
+    private async Task AddCertification()
+    {
+        var result = await AuthApi.AddCertificationAsync(NewCert);
+        if (result != null)
+        {
+            NewCert = new CreateCertificationDto();
+            ProfileData = await AuthApi.GetProfileAsync();
+        }
+    }
+
+    private async Task DeleteCertification(Guid id)
+    {
+        await AuthApi.DeleteCertificationAsync(id);
+        ProfileData = await AuthApi.GetProfileAsync();
+    }
+}

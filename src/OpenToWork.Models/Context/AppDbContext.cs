@@ -18,6 +18,12 @@ public class AppDbContext : DbContext
     public DbSet<PTCandidateSkill> PT_CandidateSkills => Set<PTCandidateSkill>();
     public DbSet<SYWizardStep> SY_WizardSteps => Set<SYWizardStep>();
     public DbSet<SYUserPreference> SY_UserPreferences => Set<SYUserPreference>();
+    public DbSet<PTVacancy> PT_Vacancies => Set<PTVacancy>();
+    public DbSet<PTApplication> PT_Applications => Set<PTApplication>();
+    public DbSet<PTCandidateExperience> PT_CandidateExperiences => Set<PTCandidateExperience>();
+    public DbSet<PTCandidateEducation> PT_CandidateEducations => Set<PTCandidateEducation>();
+    public DbSet<PTCandidateCertification> PT_CandidateCertifications => Set<PTCandidateCertification>();
+    public DbSet<PTVacancySkill> PT_VacancySkills => Set<PTVacancySkill>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -111,6 +117,71 @@ public class AppDbContext : DbContext
             e.Property(p => p.Language).HasDefaultValue("es");
         });
 
+        modelBuilder.Entity<PTCandidate>(e =>
+        {
+            e.Property(c => c.IsProfilePublic).HasDefaultValue(true);
+        });
+
+        modelBuilder.Entity<PTCompany>(e =>
+        {
+            e.Property(c => c.IsVerified).HasDefaultValue(false);
+        });
+
+        modelBuilder.Entity<PTTempVacancy>(e =>
+        {
+            e.Property(v => v.WorkMode).HasDefaultValue(0);
+        });
+
+        modelBuilder.Entity<PTVacancy>(e =>
+        {
+            e.ToTable("PT_Vacancies");
+            e.HasIndex(v => new { v.PT_CompanyId, v.IsDeleted });
+            e.HasIndex(v => new { v.Status, v.IsDeleted });
+            e.HasIndex(v => new { v.Location, v.Status, v.IsDeleted });
+            e.HasIndex(v => new { v.Category, v.Status, v.IsDeleted });
+            e.HasIndex(v => new { v.WorkMode, v.Status, v.IsDeleted });
+            e.Property(v => v.Status).HasDefaultValue(0);
+            e.Property(v => v.WorkMode).HasDefaultValue(0);
+            e.Property(v => v.ViewsCount).HasDefaultValue(0);
+        });
+
+        modelBuilder.Entity<PTApplication>(e =>
+        {
+            e.ToTable("PT_Applications");
+            e.HasIndex(a => new { a.PT_CandidateId, a.PT_VacancyId, a.IsDeleted }).IsUnique();
+            e.HasIndex(a => new { a.PT_VacancyId, a.Status, a.IsDeleted });
+            e.HasIndex(a => new { a.PT_CandidateId, a.Status, a.IsDeleted });
+            e.Property(a => a.Status).HasDefaultValue(0);
+            e.Property(a => a.ApplicationSource).HasDefaultValue(0);
+        });
+
+        modelBuilder.Entity<PTCandidateExperience>(e =>
+        {
+            e.ToTable("PT_CandidateExperiences");
+            e.HasIndex(exp => new { exp.PT_CandidateId, exp.IsDeleted });
+            e.HasIndex(exp => new { exp.CompanyName, exp.IsDeleted });
+        });
+
+        modelBuilder.Entity<PTCandidateEducation>(e =>
+        {
+            e.ToTable("PT_CandidateEducations");
+            e.HasIndex(edu => new { edu.PT_CandidateId, edu.IsDeleted });
+        });
+
+        modelBuilder.Entity<PTCandidateCertification>(e =>
+        {
+            e.ToTable("PT_CandidateCertifications");
+            e.HasIndex(cert => new { cert.PT_CandidateId, cert.IsDeleted });
+        });
+
+        modelBuilder.Entity<PTVacancySkill>(e =>
+        {
+            e.ToTable("PT_VacancySkills");
+            e.HasIndex(vs => new { vs.PT_VacancyId, vs.PT_SkillId, vs.IsDeleted }).IsUnique();
+            e.HasIndex(vs => new { vs.PT_SkillId, vs.IsDeleted });
+            e.Property(vs => vs.IsRequired).HasDefaultValue(true);
+        });
+
         SeedWizardSteps(modelBuilder);
     }
 
@@ -123,7 +194,11 @@ public class AppDbContext : DbContext
             new SYWizardStep { Id = Guid.NewGuid(), StepNumber = 3, StepName = "ProfessionalProfile", StepTitle = "Professional Profile", Description = "Your professional information", IsRequired = true, Order = 3, Phase = 1 },
             new SYWizardStep { Id = Guid.NewGuid(), StepNumber = 4, StepName = "Skills", StepTitle = "Skills", Description = "Select your skills", IsRequired = false, Order = 4, Phase = 1 },
             new SYWizardStep { Id = Guid.NewGuid(), StepNumber = 5, StepName = "Preferences", StepTitle = "What do you want to do?", Description = "Choose your preference", IsRequired = true, Order = 5, Phase = 1 },
-            new SYWizardStep { Id = Guid.NewGuid(), StepNumber = 6, StepName = "Confirmation", StepTitle = "Review and Confirm", Description = "Verify your data is correct", IsRequired = true, Order = 6, Phase = 1 }
+            new SYWizardStep { Id = Guid.NewGuid(), StepNumber = 6, StepName = "Confirmation", StepTitle = "Review and Confirm", Description = "Verify your data is correct", IsRequired = true, Order = 6, Phase = 1 },
+            new SYWizardStep { Id = Guid.NewGuid(), StepNumber = 7, StepName = "WorkExperience", StepTitle = "Work Experience", Description = "Add your work experience", IsRequired = false, Order = 7, Phase = 2 },
+            new SYWizardStep { Id = Guid.NewGuid(), StepNumber = 8, StepName = "Education", StepTitle = "Education", Description = "Add your education", IsRequired = false, Order = 8, Phase = 2 },
+            new SYWizardStep { Id = Guid.NewGuid(), StepNumber = 9, StepName = "Certifications", StepTitle = "Certifications", Description = "Add your certifications", IsRequired = false, Order = 9, Phase = 2 },
+            new SYWizardStep { Id = Guid.NewGuid(), StepNumber = 10, StepName = "UploadCV", StepTitle = "Upload CV", Description = "Upload your CV/resume", IsRequired = false, Order = 10, Phase = 2 }
         };
 
         modelBuilder.Entity<SYWizardStep>().HasData(steps);

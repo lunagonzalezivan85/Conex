@@ -17,7 +17,10 @@
         "complete": "Finalizar",
         "create": "Crear",
         "viewAll": "Ver todas",
-        "apply": "Aplicar"
+        "apply": "Aplicar",
+        "add": "Agregar",
+        "view": "Ver",
+        "backToLogin": "Volver a Iniciar Sesión"
     },
     "labels": {
         "welcome": "Bienvenido",
@@ -42,16 +45,56 @@
         "summary": "Resumen profesional",
         "location": "Ubicación",
         "salary": "Salario",
-        "contractType": "Tipo de contrato"
+        "contractType": "Tipo de contrato",
+        "startDate": "Fecha de inicio",
+        "endDate": "Fecha de fin",
+        "issueDate": "Fecha de emisión",
+        "expiryDate": "Fecha de expiración"
     },
     "nav": {
         "home": "Inicio",
+        "about": "Sobre Nosotros",
         "dashboard": "Dashboard",
         "profile": "Mi Perfil",
         "vacancies": "Vacantes",
         "applications": "Mis Solicitudes",
         "settings": "Configuración",
-        "logout": "Cerrar Sesión"
+        "logout": "Cerrar Sesión",
+        "categories": "Categorías",
+        "categoryIT": "Tecnología",
+        "categoryFinance": "Finanzas",
+        "categoryHealth": "Salud",
+        "categoryEducation": "Educación",
+        "categoryMarketing": "Marketing",
+        "categoryEngineering": "Ingeniería",
+        "categorySales": "Ventas",
+        "categoryDesign": "Diseño"
+    },
+    "search": {
+        "placeholder": "Buscar empleos, empresas, palabras clave...",
+        "button": "Buscar",
+        "location": "Ubicación",
+        "locationPlaceholder": "Ciudad o país",
+        "category": "Categoría",
+        "allCategories": "Todas las categorías",
+        "popular": "Búsquedas populares",
+        "noResults": "No se encontraron resultados"
+    },
+    "home": {
+        "heroTitle": "Encuentra tu próximo empleo",
+        "heroSubtitle": "Miles de vacantes esperándote. Conecta con las mejores empresas.",
+        "featuredVacancies": "Vacantes destacadas",
+        "viewAllVacancies": "Ver todas las vacantes"
+    },
+    "footer": {
+        "menu": "Menú",
+        "about": "Quiénes somos",
+        "contact": "Contáctanos",
+        "followUs": "Síguenos",
+        "rights": "Todos los derechos reservados.",
+        "terms": "Términos",
+        "privacy": "Privacidad",
+        "faq": "Preguntas frecuentes"
     },
     "roles": {
         "candidate": "Candidato",

@@ -22,6 +22,70 @@ namespace OpenToWork.Models.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTApplication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("ApplicationSource")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime?>("AvailableFromDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("CoverLetter")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal?>("ExpectedSalary")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("PT_CandidateId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("PT_VacancyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PT_CandidateId", "PT_VacancyId", "IsDeleted")
+                        .IsUnique();
+
+                    b.HasIndex("PT_CandidateId", "Status", "IsDeleted");
+
+                    b.HasIndex("PT_VacancyId", "Status", "IsDeleted");
+
+                    b.ToTable("PT_Applications", (string)null);
+                });
+
             modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -32,12 +96,18 @@ namespace OpenToWork.Models.Migrations
                         .HasMaxLength(300)
                         .HasColumnType("varchar(300)");
 
+                    b.Property<int?>("Availability")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("BirthDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("City")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Country")
                         .HasMaxLength(100)
@@ -74,14 +144,27 @@ namespace OpenToWork.Models.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
 
+                    b.Property<bool>("IsProfilePublic")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<string>("LinkedInUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
+
+                    b.Property<string>("PortfolioUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("ProfilePictureUrl")
                         .HasMaxLength(500)
@@ -113,6 +196,12 @@ namespace OpenToWork.Models.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<int?>("WorkAuthorization")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("YearsOfExperience")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Identification");
@@ -126,6 +215,191 @@ namespace OpenToWork.Models.Migrations
                     b.HasIndex("WizardCompleted", "IsDeleted");
 
                     b.ToTable("PT_Candidates", (string)null);
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidateCertification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("CredentialId")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("CredentialUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("ExpiryDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateTime?>("IssueDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Issuer")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<Guid>("PT_CandidateId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PT_CandidateId", "IsDeleted");
+
+                    b.ToTable("PT_CandidateCertifications", (string)null);
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidateEducation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Degree")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FieldOfStudy")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Institution")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsInProgress")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<Guid>("PT_CandidateId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PT_CandidateId", "IsDeleted");
+
+                    b.ToTable("PT_CandidateEducations", (string)null);
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidateExperience", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsCurrentJob")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<Guid>("PT_CandidateId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyName", "IsDeleted");
+
+                    b.HasIndex("PT_CandidateId", "IsDeleted");
+
+                    b.ToTable("PT_CandidateExperiences", (string)null);
                 });
 
             modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidateSkill", b =>
@@ -188,6 +462,17 @@ namespace OpenToWork.Models.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
+                    b.Property<int?>("CompanySize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ContactEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
+
+                    b.Property<string>("ContactPhone")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)");
+
                     b.Property<string>("Country")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
@@ -207,8 +492,21 @@ namespace OpenToWork.Models.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
 
+                    b.Property<string>("Industry")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsVerified")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("LinkedInUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
@@ -297,6 +595,10 @@ namespace OpenToWork.Models.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("char(36)");
 
+                    b.Property<string>("Category")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
                     b.Property<int>("ContractType")
                         .HasColumnType("int");
 
@@ -314,6 +616,12 @@ namespace OpenToWork.Models.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("longtext");
+
+                    b.Property<int?>("EnglishLevel")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ExperienceLevel")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime(6)");
@@ -351,6 +659,11 @@ namespace OpenToWork.Models.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("char(36)");
 
+                    b.Property<int>("WorkMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
 
                     b.HasIndex("ExpiresAt", "IsDeleted");
@@ -360,6 +673,157 @@ namespace OpenToWork.Models.Migrations
                     b.HasIndex("SCUserId", "IsDeleted");
 
                     b.ToTable("PT_TempVacancies", (string)null);
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTVacancy", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime?>("ClosedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("ContractType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("longtext");
+
+                    b.Property<int?>("EnglishLevel")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ExperienceLevel")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<Guid>("PT_CompanyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("PublishedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Requirements")
+                        .HasColumnType("longtext");
+
+                    b.Property<decimal?>("SalaryMax")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal?>("SalaryMin")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<int>("ViewsCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("WorkMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PT_CompanyId", "IsDeleted");
+
+                    b.HasIndex("Status", "IsDeleted");
+
+                    b.HasIndex("Category", "Status", "IsDeleted");
+
+                    b.HasIndex("Location", "Status", "IsDeleted");
+
+                    b.HasIndex("WorkMode", "Status", "IsDeleted");
+
+                    b.ToTable("PT_Vacancies", (string)null);
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTVacancySkill", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("CreatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("char(36)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("IsRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true);
+
+                    b.Property<int?>("MinProficiencyLevel")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PT_SkillId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<Guid>("PT_VacancyId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PT_SkillId", "IsDeleted");
+
+                    b.HasIndex("PT_VacancyId", "PT_SkillId", "IsDeleted")
+                        .IsUnique();
+
+                    b.ToTable("PT_VacancySkills", (string)null);
                 });
 
             modelBuilder.Entity("OpenToWork.Models.Entities.SCRefreshToken", b =>
@@ -466,6 +930,13 @@ namespace OpenToWork.Models.Migrations
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("longtext");
+
+                    b.Property<DateTime?>("PasswordResetExpiresAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("PasswordResetToken")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
@@ -726,8 +1197,8 @@ namespace OpenToWork.Models.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("73b9d550-e578-484d-a666-7517c55d33a1"),
-                            CreatedAt = new DateTime(2026, 8, 12, 3, 5, 30, 532, DateTimeKind.Utc).AddTicks(967),
+                            Id = new Guid("68d9758f-2843-4c18-be66-d643feb5f7e7"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9559),
                             Description = "Tell us about yourself",
                             IsDeleted = false,
                             IsRequired = true,
@@ -739,8 +1210,8 @@ namespace OpenToWork.Models.Migrations
                         },
                         new
                         {
-                            Id = new Guid("12dccc0e-4f0d-452c-bbd3-3c10d041646a"),
-                            CreatedAt = new DateTime(2026, 8, 12, 3, 5, 30, 532, DateTimeKind.Utc).AddTicks(976),
+                            Id = new Guid("38db2517-920a-4874-afe3-84f1467355e0"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9566),
                             Description = "Where are you located?",
                             IsDeleted = false,
                             IsRequired = true,
@@ -752,8 +1223,8 @@ namespace OpenToWork.Models.Migrations
                         },
                         new
                         {
-                            Id = new Guid("6ed148be-adbb-4d53-a652-3f220a79ebc6"),
-                            CreatedAt = new DateTime(2026, 8, 12, 3, 5, 30, 532, DateTimeKind.Utc).AddTicks(990),
+                            Id = new Guid("fa2827be-bb1e-453b-8295-d5daf2fd7616"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9580),
                             Description = "Your professional information",
                             IsDeleted = false,
                             IsRequired = true,
@@ -765,8 +1236,8 @@ namespace OpenToWork.Models.Migrations
                         },
                         new
                         {
-                            Id = new Guid("fb535ba9-4da7-44d3-b861-31b84cc7cbf2"),
-                            CreatedAt = new DateTime(2026, 8, 12, 3, 5, 30, 532, DateTimeKind.Utc).AddTicks(992),
+                            Id = new Guid("6f24c58a-7c99-4b02-84d6-6e7ba1cc7e11"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9583),
                             Description = "Select your skills",
                             IsDeleted = false,
                             IsRequired = false,
@@ -778,8 +1249,8 @@ namespace OpenToWork.Models.Migrations
                         },
                         new
                         {
-                            Id = new Guid("86419f0a-c00d-4404-85b1-59f0d68b4673"),
-                            CreatedAt = new DateTime(2026, 8, 12, 3, 5, 30, 532, DateTimeKind.Utc).AddTicks(994),
+                            Id = new Guid("e1afabde-4b4d-40ec-8459-5d2537f37319"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9586),
                             Description = "Choose your preference",
                             IsDeleted = false,
                             IsRequired = true,
@@ -791,8 +1262,8 @@ namespace OpenToWork.Models.Migrations
                         },
                         new
                         {
-                            Id = new Guid("e1b54569-71d6-430d-86e9-8f151f377777"),
-                            CreatedAt = new DateTime(2026, 8, 12, 3, 5, 30, 532, DateTimeKind.Utc).AddTicks(996),
+                            Id = new Guid("95666fd1-99a9-4dfe-9f7a-b04ca50da151"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9588),
                             Description = "Verify your data is correct",
                             IsDeleted = false,
                             IsRequired = true,
@@ -801,7 +1272,78 @@ namespace OpenToWork.Models.Migrations
                             StepName = "Confirmation",
                             StepNumber = 6,
                             StepTitle = "Review and Confirm"
+                        },
+                        new
+                        {
+                            Id = new Guid("abae0ed8-916e-424d-9106-99c81a13a280"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9593),
+                            Description = "Add your work experience",
+                            IsDeleted = false,
+                            IsRequired = false,
+                            Order = 7,
+                            Phase = 2,
+                            StepName = "WorkExperience",
+                            StepNumber = 7,
+                            StepTitle = "Work Experience"
+                        },
+                        new
+                        {
+                            Id = new Guid("01729bca-2f02-4456-9255-33096fc4ce7c"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9595),
+                            Description = "Add your education",
+                            IsDeleted = false,
+                            IsRequired = false,
+                            Order = 8,
+                            Phase = 2,
+                            StepName = "Education",
+                            StepNumber = 8,
+                            StepTitle = "Education"
+                        },
+                        new
+                        {
+                            Id = new Guid("d1889f95-9982-4b55-8856-6d866ebeeb78"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9597),
+                            Description = "Add your certifications",
+                            IsDeleted = false,
+                            IsRequired = false,
+                            Order = 9,
+                            Phase = 2,
+                            StepName = "Certifications",
+                            StepNumber = 9,
+                            StepTitle = "Certifications"
+                        },
+                        new
+                        {
+                            Id = new Guid("2a45a283-794a-4ee7-8d5d-529d9a2e1431"),
+                            CreatedAt = new DateTime(2026, 8, 12, 15, 48, 0, 827, DateTimeKind.Utc).AddTicks(9600),
+                            Description = "Upload your CV/resume",
+                            IsDeleted = false,
+                            IsRequired = false,
+                            Order = 10,
+                            Phase = 2,
+                            StepName = "UploadCV",
+                            StepNumber = 10,
+                            StepTitle = "Upload CV"
                         });
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTApplication", b =>
+                {
+                    b.HasOne("OpenToWork.Models.Entities.PTCandidate", "Candidate")
+                        .WithMany("Applications")
+                        .HasForeignKey("PT_CandidateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenToWork.Models.Entities.PTVacancy", "Vacancy")
+                        .WithMany("Applications")
+                        .HasForeignKey("PT_VacancyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Candidate");
+
+                    b.Navigation("Vacancy");
                 });
 
             modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidate", b =>
@@ -813,6 +1355,39 @@ namespace OpenToWork.Models.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidateCertification", b =>
+                {
+                    b.HasOne("OpenToWork.Models.Entities.PTCandidate", "Candidate")
+                        .WithMany("Certifications")
+                        .HasForeignKey("PT_CandidateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Candidate");
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidateEducation", b =>
+                {
+                    b.HasOne("OpenToWork.Models.Entities.PTCandidate", "Candidate")
+                        .WithMany("Educations")
+                        .HasForeignKey("PT_CandidateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Candidate");
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidateExperience", b =>
+                {
+                    b.HasOne("OpenToWork.Models.Entities.PTCandidate", "Candidate")
+                        .WithMany("Experiences")
+                        .HasForeignKey("PT_CandidateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Candidate");
                 });
 
             modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidateSkill", b =>
@@ -854,6 +1429,36 @@ namespace OpenToWork.Models.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTVacancy", b =>
+                {
+                    b.HasOne("OpenToWork.Models.Entities.PTCompany", "Company")
+                        .WithMany("Vacancies")
+                        .HasForeignKey("PT_CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTVacancySkill", b =>
+                {
+                    b.HasOne("OpenToWork.Models.Entities.PTSkill", "Skill")
+                        .WithMany()
+                        .HasForeignKey("PT_SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("OpenToWork.Models.Entities.PTVacancy", "Vacancy")
+                        .WithMany("VacancySkills")
+                        .HasForeignKey("PT_VacancyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Skill");
+
+                    b.Navigation("Vacancy");
                 });
 
             modelBuilder.Entity("OpenToWork.Models.Entities.SCRefreshToken", b =>
@@ -902,12 +1507,32 @@ namespace OpenToWork.Models.Migrations
 
             modelBuilder.Entity("OpenToWork.Models.Entities.PTCandidate", b =>
                 {
+                    b.Navigation("Applications");
+
                     b.Navigation("CandidateSkills");
+
+                    b.Navigation("Certifications");
+
+                    b.Navigation("Educations");
+
+                    b.Navigation("Experiences");
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTCompany", b =>
+                {
+                    b.Navigation("Vacancies");
                 });
 
             modelBuilder.Entity("OpenToWork.Models.Entities.PTSkill", b =>
                 {
                     b.Navigation("CandidateSkills");
+                });
+
+            modelBuilder.Entity("OpenToWork.Models.Entities.PTVacancy", b =>
+                {
+                    b.Navigation("Applications");
+
+                    b.Navigation("VacancySkills");
                 });
 
             modelBuilder.Entity("OpenToWork.Models.Entities.SCUser", b =>

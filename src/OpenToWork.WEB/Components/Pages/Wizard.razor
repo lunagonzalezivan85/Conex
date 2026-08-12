@@ -15,7 +15,7 @@
     </div>
 
     <div class="wizard-step-indicator">
-        @for (int i = 1; i <= 6; i++)
+        @for (int i = 1; i <= TotalSteps; i++)
         {
             <div class="wizard-step-dot @(i == CurrentStep ? "active" : "") @(i < CurrentStep ? "completed" : "")">
                 @(i < CurrentStep ? "✓" : i.ToString())
@@ -128,6 +128,141 @@
                     <p><strong>@Lang.T("common.labels.title"):</strong> @WizardData.Title</p>
                 </div>
                 break;
+
+            case 7:
+                <h3>@Lang.T("wizard.steps.workExperience.title")</h3>
+                <p class="auth-subtitle">@Lang.T("wizard.steps.workExperience.description")</p>
+                <div class="ot-input-group mb-md">
+                    <label class="ot-input-label">@Lang.T("profile.experience.company")</label>
+                    <input class="ot-input-field" @bind="NewExp.CompanyName" />
+                </div>
+                <div class="ot-input-group mb-md">
+                    <label class="ot-input-label">@Lang.T("profile.experience.jobTitle")</label>
+                    <input class="ot-input-field" @bind="NewExp.JobTitle" />
+                </div>
+                <div class="ot-input-group mb-md">
+                    <label class="ot-input-label">@Lang.T("profile.experience.location")</label>
+                    <input class="ot-input-field" @bind="NewExp.Location" />
+                </div>
+                <div class="flex gap-sm mb-md">
+                    <div class="ot-input-group">
+                        <label class="ot-input-label">@Lang.T("common.labels.startDate")</label>
+                        <input type="date" class="ot-input-field" @bind="NewExp.StartDate" />
+                    </div>
+                    <div class="ot-input-group">
+                        <label class="ot-input-label">@Lang.T("common.labels.endDate")</label>
+                        <input type="date" class="ot-input-field" @bind="NewExp.EndDate" />
+                    </div>
+                </div>
+                <div class="ot-input-group mb-md">
+                    <label class="flex-center gap-sm">
+                        <input type="checkbox" @bind="NewExp.IsCurrentJob" />
+                        @Lang.T("profile.experience.current")
+                    </label>
+                </div>
+                <button class="ot-btn ot-btn--secondary ot-btn--small" @onclick="AddExperienceToWizard">@Lang.T("common.buttons.add")</button>
+                @if (WizardExperiences.Any())
+                {
+                    <div class="mt-md">
+                        @foreach (var exp in WizardExperiences)
+                        {
+                            <div class="ot-card mb-sm" style="background: var(--bg-tertiary);">
+                                <strong>@exp.JobTitle</strong> - @exp.CompanyName
+                            </div>
+                        }
+                    </div>
+                }
+                break;
+
+            case 8:
+                <h3>@Lang.T("wizard.steps.education.title")</h3>
+                <p class="auth-subtitle">@Lang.T("wizard.steps.education.description")</p>
+                <div class="ot-input-group mb-md">
+                    <label class="ot-input-label">@Lang.T("profile.education.institution")</label>
+                    <input class="ot-input-field" @bind="NewEdu.Institution" />
+                </div>
+                <div class="ot-input-group mb-md">
+                    <label class="ot-input-label">@Lang.T("profile.education.degree")</label>
+                    <input class="ot-input-field" @bind="NewEdu.Degree" />
+                </div>
+                <div class="ot-input-group mb-md">
+                    <label class="ot-input-label">@Lang.T("profile.education.fieldOfStudy")</label>
+                    <input class="ot-input-field" @bind="NewEdu.FieldOfStudy" />
+                </div>
+                <div class="flex gap-sm mb-md">
+                    <div class="ot-input-group">
+                        <label class="ot-input-label">@Lang.T("common.labels.startDate")</label>
+                        <input type="date" class="ot-input-field" @bind="NewEdu.StartDate" />
+                    </div>
+                    <div class="ot-input-group">
+                        <label class="ot-input-label">@Lang.T("common.labels.endDate")</label>
+                        <input type="date" class="ot-input-field" @bind="NewEdu.EndDate" />
+                    </div>
+                </div>
+                <div class="ot-input-group mb-md">
+                    <label class="flex-center gap-sm">
+                        <input type="checkbox" @bind="NewEdu.IsInProgress" />
+                        @Lang.T("profile.education.inProgress")
+                    </label>
+                </div>
+                <button class="ot-btn ot-btn--secondary ot-btn--small" @onclick="AddEducationToWizard">@Lang.T("common.buttons.add")</button>
+                @if (WizardEducations.Any())
+                {
+                    <div class="mt-md">
+                        @foreach (var edu in WizardEducations)
+                        {
+                            <div class="ot-card mb-sm" style="background: var(--bg-tertiary);">
+                                <strong>@edu.Degree</strong> - @edu.Institution
+                            </div>
+                        }
+                    </div>
+                }
+                break;
+
+            case 9:
+                <h3>@Lang.T("wizard.steps.certifications.title")</h3>
+                <p class="auth-subtitle">@Lang.T("wizard.steps.certifications.description")</p>
+                <div class="ot-input-group mb-md">
+                    <label class="ot-input-label">@Lang.T("profile.certification.name")</label>
+                    <input class="ot-input-field" @bind="NewCert.Name" />
+                </div>
+                <div class="ot-input-group mb-md">
+                    <label class="ot-input-label">@Lang.T("profile.certification.issuer")</label>
+                    <input class="ot-input-field" @bind="NewCert.Issuer" />
+                </div>
+                <div class="flex gap-sm mb-md">
+                    <div class="ot-input-group">
+                        <label class="ot-input-label">@Lang.T("common.labels.issueDate")</label>
+                        <input type="date" class="ot-input-field" @bind="NewCert.IssueDate" />
+                    </div>
+                    <div class="ot-input-group">
+                        <label class="ot-input-label">@Lang.T("common.labels.expiryDate")</label>
+                        <input type="date" class="ot-input-field" @bind="NewCert.ExpiryDate" />
+                    </div>
+                </div>
+                <button class="ot-btn ot-btn--secondary ot-btn--small" @onclick="AddCertificationToWizard">@Lang.T("common.buttons.add")</button>
+                @if (WizardCertifications.Any())
+                {
+                    <div class="mt-md">
+                        @foreach (var cert in WizardCertifications)
+                        {
+                            <div class="ot-card mb-sm" style="background: var(--bg-tertiary);">
+                                <strong>@cert.Name</strong> @(cert.Issuer != null ? $" - {cert.Issuer}" : "")
+                            </div>
+                        }
+                    </div>
+                }
+                break;
+
+            case 10:
+                <h3>@Lang.T("wizard.steps.uploadCv.title")</h3>
+                <p class="auth-subtitle">@Lang.T("wizard.steps.uploadCv.description")</p>
+                <div class="ot-input-group mb-md">
+                    <label class="ot-input-label">@Lang.T("profile.fields.cvUrl")</label>
+                    <input class="ot-input-field" @bind="WizardData.CvUrl" placeholder="https://..." />
+                </div>
+                <p class="auth-subtitle">@Lang.T("wizard.steps.uploadCv.optional")</p>
+                break;
         }
     </div>
 
@@ -135,7 +270,7 @@
         <button class="ot-btn ot-btn--secondary ot-btn--medium" disabled="@(CurrentStep <= 1 || IsLoading)" @onclick="PreviousStep">
             @Lang.T("wizard.buttons.previous")
         </button>
-        @if (CurrentStep < 6)
+        @if (CurrentStep < TotalSteps)
         {
             <button class="ot-btn ot-btn--primary ot-btn--medium" disabled="@IsLoading" @onclick="NextStep">
                 @Lang.T("wizard.buttons.next")
@@ -147,14 +282,27 @@
                 @Lang.T("wizard.buttons.complete")
             </button>
         }
+        @if (CurrentStep > 6 && CurrentStep < TotalSteps)
+        {
+            <button class="ot-btn ot-btn--secondary ot-btn--medium" @onclick="SkipOptionalStep">
+                @Lang.T("wizard.buttons.skip")
+            </button>
+        }
     </div>
 </div>
 
 @code {
     private int CurrentStep { get; set; } = 1;
+    private const int TotalSteps = 10;
     private bool IsLoading { get; set; }
     private string? ErrorMessage { get; set; }
     private WizardFormData WizardData { get; set; } = new();
+    private CreateExperienceDto NewExp { get; set; } = new();
+    private CreateEducationDto NewEdu { get; set; } = new();
+    private CreateCertificationDto NewCert { get; set; } = new();
+    private List<CandidateExperienceDto> WizardExperiences { get; set; } = new();
+    private List<CandidateEducationDto> WizardEducations { get; set; } = new();
+    private List<CandidateCertificationDto> WizardCertifications { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -181,7 +329,7 @@
         }
     }
 
-    private int GetProgressPercent() => (int)((double)CurrentStep / 6 * 100);
+    private int GetProgressPercent() => (int)((double)CurrentStep / TotalSteps * 100);
 
     private async Task NextStep()
     {
@@ -211,7 +359,7 @@
         IsLoading = true;
         try
         {
-            await SaveWizardStep(6, true);
+            await SaveWizardStep(TotalSteps, true);
             Nav.NavigateTo("/dashboard");
         }
         catch
@@ -244,6 +392,46 @@
         };
 
         await AuthApi.UpdateWizardStepAsync(dto);
+
+        if (completed && !string.IsNullOrEmpty(WizardData.CvUrl))
+        {
+            await AuthApi.UpdateProfileAsync(new UpdateCandidateProfileDto { CvUrl = WizardData.CvUrl });
+        }
+    }
+
+    private async Task AddExperienceToWizard()
+    {
+        var result = await AuthApi.AddExperienceAsync(NewExp);
+        if (result != null)
+        {
+            WizardExperiences.Add(result);
+            NewExp = new CreateExperienceDto();
+        }
+    }
+
+    private async Task AddEducationToWizard()
+    {
+        var result = await AuthApi.AddEducationAsync(NewEdu);
+        if (result != null)
+        {
+            WizardEducations.Add(result);
+            NewEdu = new CreateEducationDto();
+        }
+    }
+
+    private async Task AddCertificationToWizard()
+    {
+        var result = await AuthApi.AddCertificationAsync(NewCert);
+        if (result != null)
+        {
+            WizardCertifications.Add(result);
+            NewCert = new CreateCertificationDto();
+        }
+    }
+
+    private async Task SkipOptionalStep()
+    {
+        await NextStep();
     }
 
     public class WizardFormData
@@ -260,5 +448,6 @@
         public string? Country { get; set; }
         public string? City { get; set; }
         public string? Address { get; set; }
+        public string? CvUrl { get; set; }
     }
 }

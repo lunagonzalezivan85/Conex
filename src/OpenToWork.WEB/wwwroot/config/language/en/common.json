@@ -17,7 +17,10 @@
         "complete": "Finish",
         "create": "Create",
         "viewAll": "View all",
-        "apply": "Apply"
+        "apply": "Apply",
+        "add": "Add",
+        "view": "View",
+        "backToLogin": "Back to Login"
     },
     "labels": {
         "welcome": "Welcome",
@@ -42,16 +45,56 @@
         "summary": "Professional summary",
         "location": "Location",
         "salary": "Salary",
-        "contractType": "Contract type"
+        "contractType": "Contract type",
+        "startDate": "Start date",
+        "endDate": "End date",
+        "issueDate": "Issue date",
+        "expiryDate": "Expiry date"
     },
     "nav": {
         "home": "Home",
+        "about": "About Us",
         "dashboard": "Dashboard",
         "profile": "My Profile",
         "vacancies": "Vacancies",
         "applications": "My Applications",
         "settings": "Settings",
-        "logout": "Log Out"
+        "logout": "Log Out",
+        "categories": "Categories",
+        "categoryIT": "Technology",
+        "categoryFinance": "Finance",
+        "categoryHealth": "Healthcare",
+        "categoryEducation": "Education",
+        "categoryMarketing": "Marketing",
+        "categoryEngineering": "Engineering",
+        "categorySales": "Sales",
+        "categoryDesign": "Design"
+    },
+    "search": {
+        "placeholder": "Search jobs, companies, keywords...",
+        "button": "Search",
+        "location": "Location",
+        "locationPlaceholder": "City or country",
+        "category": "Category",
+        "allCategories": "All categories",
+        "popular": "Popular searches",
+        "noResults": "No results found"
+    },
+    "home": {
+        "heroTitle": "Find your next job",
+        "heroSubtitle": "Thousands of vacancies waiting for you. Connect with the best companies.",
+        "featuredVacancies": "Featured vacancies",
+        "viewAllVacancies": "View all vacancies"
+    },
+    "footer": {
+        "menu": "Menu",
+        "about": "About Us",
+        "contact": "Contact Us",
+        "followUs": "Follow Us",
+        "rights": "All rights reserved.",
+        "terms": "Terms",
+        "privacy": "Privacy",
+        "faq": "FAQ"
     },
     "roles": {
         "candidate": "Candidate",
