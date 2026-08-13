@@ -296,8 +296,38 @@ Los 2 bugs preexistentes documentados arriba (encontrados durante la verificacio
 
 ---
 
+---
+
+## Etapa 4 + 5 (QA + SEC): Revision de codigo
+
+Revision de todo el diff de `dsiezar-fase-3` vs `main` (correctitud + seguridad + limpieza), 8 angulos de busqueda independientes + verificacion 1 a 1 de cada hallazgo contra el codigo real corriendo (no solo lectura de codigo). 10 hallazgos confirmados, 6 de correctitud/seguridad corregidos de inmediato, 4 de limpieza/arquitectura documentados como deuda tecnica.
+
+### Corregidos
+
+| # | Archivo | Bug | Fix |
+|---|---|---|---|
+| 1 | `AdminAuthService.cs:36` | El check de rol Admin corria **antes** de verificar la contrasena -> cualquiera podia confirmar si un email es una cuenta activa no-admin sin contrasena valida (enumeracion de cuentas, sin autenticacion) | Se movio el check de rol **despues** de `BCrypt.Verify`, y el mensaje de rol incorrecto ahora es el mismo "Invalid credentials" que el de password incorrecta |
+| 2 | `AdminUserService.cs`, `AdminVacancyService.cs`, `AuditLogService.cs` | `page<=0` generaba un `Skip()` negativo -> MySQL rechazaba el OFFSET negativo -> 500 con stack trace completo filtrado al cliente | `page = Math.Max(1, page); pageSize = Math.Clamp(pageSize, 1, 1_000_000);` al inicio de cada metodo |
+| 3 | `ExportService.cs` (CsvField) | CSV export no escapaba caracteres `=+-@` al inicio de un campo -> formula injection si el CSV se abre en Excel (candidato/empresa puede envenenar su propio Title/Location, sin necesitar acceso admin) | Prefijo `'` en campos que empiezan con esos caracteres (mitigacion estandar), mas quoting tambien en `\r` (antes solo `\n`) |
+| 4 | `AdminVacancyService.cs` (`ModerateAsync`) | Cerrar una vacante temporal solo ponia `IsPublished=false`, quedando identica a "nunca revisada" (Draft) -> un admin podia re-aprobar en silencio algo que ya habia cerrado | `PT_TempVacancy` no tiene campo para "Cerrada"; se trata como terminal: se hace soft-delete (`IsDeleted/DeletedAt/DeletedBy`) ademas de despublicar, asi desaparece del listado en vez de quedar ambigua |
+| 5 | `UsersController.cs` | Ningun admin podia ser bloqueado de desactivarse/eliminarse a si mismo -> riesgo de bloqueo total si es el unico admin | `if (id == AdminId) return Conflict(...)` en `/deactivate` y `DELETE` |
+| 6 | `AuditLog.razor:15` | Estado de carga usaba `admin.login.loading` ("Iniciando sesion...") en vez de `admin.common.loading` ("Cargando...") | Clave corregida |
+
+Los 6 fixes se verificaron corriendo contra el `AdminAPI` real (no solo lectura de codigo): `curl` confirmo que login con password incorrecta ahora siempre devuelve el mismo mensaje generico; `page=0`/`page=-5` devuelven 200 con datos en vez de 500; export de una vacante con titulo `=HYPERLINK(...)` sale como `'=HYPERLINK(...)` entre comillas; cerrar una vacante temporal la hace desaparecer del listado en vez de volver a "Borrador"; el propio admin recibe 409 al intentar desactivarse/eliminarse.
+
+### Documentado como deuda tecnica (no corregido en esta sesion)
+
+| # | Archivo | Hallazgo |
+|---|---|---|
+| 7 | `AdminAuthService.cs` | Genera JWT/refresh token con logica casi identica a `AuthService.cs` (portal principal), copiada en vez de compartida - riesgo de que ambas implementaciones diverjan si se endurece el hashing en una y no en la otra |
+| 8 | `AdminVacancyService.cs` | `GetVacanciesAsync` (y el export que lo reusa) carga las tablas `PT_Vacancies`/`PT_TempVacancies` **completas** en memoria antes de paginar - funciona bien con pocos datos, no escala |
+| 9 | `AdminWEB/Services/LocalStorageService.cs`, `LanguageService.cs` | Copias casi identicas de los servicios homonimos de `OpenToWork.WEB`, sin un proyecto compartido (tipo `SharedUI`) que las contenga una sola vez |
+| 10 | `AdminWEB/Components/Pages/*.razor` | El guard "leer token de localStorage, redirigir a /login si falta" esta copiado y pegado en las 5 paginas en vez de vivir una sola vez en `AdminLayout` - fragil si se agrega una pagina nueva y se olvida el guard |
+
+---
+
 ## Resumen de Cambios
 
-Fase 3 completa segun el diseno original de Etapa 2: Etapa 1 (Planificacion), Etapa 2 (Diseno Tecnico) y Etapa 3 (Implementacion completa - AdminAPI con 5 controllers: Auth, Users, Vacancies, Skills, Dashboard, AuditLog, Export; y AdminWEB con las 6 paginas correspondientes). Portal Admin funcional de punta a punta contra MySQL real, verificado en navegador en cada entrega, no solo compilado. Se encontraron y corrigieron 3 bugs de Blazor Server durante la verificacion en navegador. Adicionalmente, a peticion del usuario, se corrigieron 2 bugs preexistentes fuera de alcance en `OpenToWork.API` (Google OAuth) y `OpenToWork.WEB` (banner de error).
+Fase 3 completa segun el diseno original de Etapa 2: Etapa 1 (Planificacion), Etapa 2 (Diseno Tecnico), Etapa 3 (Implementacion completa - AdminAPI con 7 controllers: Auth, Users, Vacancies, Skills, Dashboard, AuditLog, Export; AdminWEB con las 6 paginas correspondientes), y una revision de codigo tipo QA+SEC que encontro y corrigio 6 bugs reales (incluyendo un problema de enumeracion de cuentas, un 500 con paginacion negativa, CSV injection, y perdida de estado en moderacion de vacantes temporales), dejando 4 items de deuda tecnica documentados. Portal Admin funcional de punta a punta contra MySQL real, verificado en navegador/curl en cada entrega y en cada fix, no solo compilado. Adicionalmente, a peticion del usuario, se corrigieron 2 bugs preexistentes fuera de alcance en `OpenToWork.API` (Google OAuth) y `OpenToWork.WEB` (banner de error).
 
-**Pendiente antes de poder cerrar formalmente la fase (Etapa 7):** aprobacion de QA y SEC (Etapas 4 y 5 del flujo), que no se han ejecutado como roles separados en esta sesion.
+**Pendiente antes de poder cerrar formalmente la fase (Etapa 7):** aprobacion formal de PM (mas alla de la revision de codigo ya hecha), y decidir si los 4 items de deuda tecnica de la Etapa 4+5 se abordan antes del merge o se dejan para una fase posterior.

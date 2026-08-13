@@ -66,7 +66,10 @@ public class ExportService : IExportService
 
     private static string CsvField(string value)
     {
-        if (value.Contains(',') || value.Contains('"') || value.Contains('\n'))
+        if (value.Length > 0 && (value[0] == '=' || value[0] == '+' || value[0] == '-' || value[0] == '@'))
+            value = "'" + value;
+
+        if (value.Contains(',') || value.Contains('"') || value.Contains('\n') || value.Contains('\r'))
             return $"\"{value.Replace("\"", "\"\"")}\"";
         return value;
     }

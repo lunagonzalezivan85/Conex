@@ -33,10 +33,10 @@ public class AdminAuthService : IAdminAuthService
         if (user == null || !user.IsActive)
             throw new UnauthorizedAccessException("Invalid credentials");
 
-        if (user.PrimaryRole != (int)UserRole.Admin)
-            throw new UnauthorizedAccessException("Account is not an administrator");
-
         if (string.IsNullOrEmpty(user.PasswordHash) || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            throw new UnauthorizedAccessException("Invalid credentials");
+
+        if (user.PrimaryRole != (int)UserRole.Admin)
             throw new UnauthorizedAccessException("Invalid credentials");
 
         user.LastLoginAt = DateTime.UtcNow;

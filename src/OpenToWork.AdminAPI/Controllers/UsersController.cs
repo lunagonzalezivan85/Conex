@@ -37,6 +37,8 @@ public class UsersController : AdminControllerBase
     [HttpPut("{id}/deactivate")]
     public async Task<IActionResult> Deactivate(Guid id)
     {
+        if (id == AdminId) return Conflict(new { message = "You cannot deactivate your own account." });
+
         var result = await _userService.DeactivateAsync(id, AdminId, ClientIp);
         return result ? NoContent() : NotFound();
     }
@@ -44,6 +46,8 @@ public class UsersController : AdminControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
+        if (id == AdminId) return Conflict(new { message = "You cannot delete your own account." });
+
         var result = await _userService.DeleteAsync(id, AdminId, ClientIp);
         return result ? NoContent() : NotFound();
     }

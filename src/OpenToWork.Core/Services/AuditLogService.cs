@@ -32,6 +32,9 @@ public class AuditLogService : IAuditLogService
 
     public async Task<List<AuditLogDto>> GetLogsAsync(int page, int pageSize)
     {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 1_000_000);
+
         return await _context.AD_AuditLogs
             .Include(a => a.User)
             .Where(a => !a.IsDeleted)

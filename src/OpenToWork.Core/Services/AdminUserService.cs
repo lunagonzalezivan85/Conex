@@ -18,6 +18,9 @@ public class AdminUserService : IAdminUserService
 
     public async Task<List<AdminUserDto>> GetUsersAsync(int page, int pageSize, int? role, bool? isActive)
     {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 1_000_000);
+
         var query = _context.SC_Users.Where(u => !u.IsDeleted);
 
         if (role.HasValue) query = query.Where(u => u.PrimaryRole == role.Value);

@@ -19,6 +19,9 @@ public class AdminVacancyService : IAdminVacancyService
 
     public async Task<List<AdminVacancyDto>> GetVacanciesAsync(int page, int pageSize, int? status)
     {
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 1_000_000);
+
         var permanentQuery = _context.PT_Vacancies
             .Include(v => v.Company)
             .Where(v => !v.IsDeleted);
@@ -89,9 +92,18 @@ public class AdminVacancyService : IAdminVacancyService
         var tempVacancy = await _context.PT_TempVacancies.FirstOrDefaultAsync(v => v.Id == id && !v.IsDeleted);
         if (tempVacancy != null)
         {
+            // PT_TempVacancy only has an IsPublished flag, with no field to represent "Closed" the way
+            // PT_Vacancy.Status does. Treat Closed as terminal: unpublish and soft-delete so it stops
+            // appearing (rather than falling back to a state indistinguishable from "never reviewed").
             tempVacancy.IsPublished = status == (int)VacancyStatus.Active;
             tempVacancy.UpdatedAt = DateTime.UtcNow;
             tempVacancy.UpdatedBy = adminId;
+            if (status == (int)VacancyStatus.Closed)
+            {
+                tempVacancy.IsDeleted = true;
+                tempVacancy.DeletedAt = DateTime.UtcNow;
+                tempVacancy.DeletedBy = adminId;
+            }
 
             await _context.SaveChangesAsync();
             await _auditLog.LogAsync(adminId, "ModerateVacancy", "PT_TempVacancies", id, $"{{\"status\":{status}}}", ipAddress);
