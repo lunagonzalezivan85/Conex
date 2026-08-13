@@ -32,6 +32,7 @@
   },
   "users": {
     "title": "User Management",
+    "exportCsv": "Export CSV",
     "empty": "No users.",
     "columnEmail": "Email",
     "columnRole": "Role",
@@ -46,6 +47,7 @@
   },
   "vacancies": {
     "title": "Vacancy Moderation",
+    "exportCsv": "Export CSV",
     "empty": "No vacancies.",
     "columnTitle": "Title",
     "columnCompany": "Company",

@@ -267,6 +267,37 @@ Los 2 bugs preexistentes documentados arriba (encontrados durante la verificacio
 
 ---
 
+## Etapa 3 (cierre del alcance original): ExportController
+
+**Alcance implementado:** exportacion CSV de usuarios y vacantes, ultima pieza pendiente del diseno de Etapa 2.
+
+**Archivos creados:**
+
+| Archivo | Descripcion |
+|---|---|
+| `Core/Interfaces/IExportService.cs` | Contrato: `ExportUsersCsvAsync`, `ExportVacanciesCsvAsync` |
+| `Core/Services/ExportService.cs` | Genera CSV reutilizando `IAdminUserService`/`IAdminVacancyService` (sin duplicar queries), con escape basico de comas/comillas |
+| `AdminAPI/Controllers/ExportController.cs` | `GET /api/admin/export/users`, `GET /api/admin/export/vacancies` - devuelven `text/csv` como archivo descargable; cada exportacion se registra en `AD_AuditLog` |
+| `AdminWEB/wwwroot/js/file-download.js` | Helper JS: crea un link con `data:` URI en base64 y dispara la descarga en el navegador (Blazor Server no puede hacer un `<a href>` directo autenticado, asi que el CSV se trae por HTTP server-side con el JWT y se entrega al navegador via JSInterop) |
+
+**Archivos modificados:**
+
+| Archivo | Cambio |
+|---|---|
+| `Core/Extensions/ServiceCollectionExtensions.cs` | Registra `IExportService` |
+| `AdminWEB/Services/AdminAuthApiService.cs` | `ExportUsersCsvAsync`/`ExportVacanciesCsvAsync` (devuelven `byte[]`) |
+| `AdminWEB/Components/App.razor` | Referencia a `file-download.js` |
+| `AdminWEB/Components/Pages/Users.razor`, `Vacancies.razor` | Boton "Exportar CSV" |
+| `wwwroot/config/language/{es,en}/admin.json` | Clave `exportCsv` en `users`/`vacancies` |
+
+**Build:** `dotnet build OpenToWork.slnx` -> 0 errores.
+
+**Verificacion end-to-end:** `curl` contra `AdminAPI` confirmo el CSV correcto para usuarios y vacantes. En el navegador, se hizo login, se fue a `/users`, se hizo clic en "Exportar CSV" sin errores de consola, y se confirmo en `/audit-log` una entrada nueva `ExportUsers` generada por ese clic (ademas de las que ya habian quedado de las pruebas por `curl`).
+
+---
+
 ## Resumen de Cambios
 
-Etapa 1, Etapa 2 y Etapa 3 completa (AdminAPI + AdminWEB, incluyendo los 4 controllers de gestion) de Fase 3. Portal Admin funcional de punta a punta contra MySQL real: login independiente, dashboard con metricas reales, gestion de usuarios, moderacion de vacantes, CRUD de skills, auditoria. Se encontraron y corrigieron 3 bugs de Blazor Server durante la verificacion en navegador. Adicionalmente, a peticion del usuario, se corrigieron 2 bugs preexistentes fuera de alcance en `OpenToWork.API` (Google OAuth) y `OpenToWork.WEB` (banner de error). Pendiente: `ExportController` (exportacion CSV) y su UI correspondiente.
+Fase 3 completa segun el diseno original de Etapa 2: Etapa 1 (Planificacion), Etapa 2 (Diseno Tecnico) y Etapa 3 (Implementacion completa - AdminAPI con 5 controllers: Auth, Users, Vacancies, Skills, Dashboard, AuditLog, Export; y AdminWEB con las 6 paginas correspondientes). Portal Admin funcional de punta a punta contra MySQL real, verificado en navegador en cada entrega, no solo compilado. Se encontraron y corrigieron 3 bugs de Blazor Server durante la verificacion en navegador. Adicionalmente, a peticion del usuario, se corrigieron 2 bugs preexistentes fuera de alcance en `OpenToWork.API` (Google OAuth) y `OpenToWork.WEB` (banner de error).
+
+**Pendiente antes de poder cerrar formalmente la fase (Etapa 7):** aprobacion de QA y SEC (Etapas 4 y 5 del flujo), que no se han ejecutado como roles separados en esta sesion.
