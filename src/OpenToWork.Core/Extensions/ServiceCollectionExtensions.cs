@@ -25,6 +25,10 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IAdminAuthService, AdminAuthService>();
         services.AddScoped<IAuditLogService, AuditLogService>();
+        services.AddScoped<IAdminUserService, AdminUserService>();
+        services.AddScoped<IAdminVacancyService, AdminVacancyService>();
+        services.AddScoped<IAdminSkillService, AdminSkillService>();
+        services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
         return services;
     }

@@ -4,7 +4,7 @@
 **Rol:** PM (Project Manager)
 **Fecha inicio:** 2026-08-12
 **Fecha fin:** Pendiente
-**Estado:** En planificacion (Etapa 1)
+**Estado:** En Etapa 3 (Implementacion) - AdminAPI y AdminWEB funcionales de punta a punta
 
 ---
 
@@ -213,6 +213,49 @@ Con el merge de `main`, la unica dependencia real que queda es de **datos**, no 
 
 ---
 
+## Etapa 3 (continuacion): Controllers de gestion
+
+**Alcance implementado:** `UsersController`, `VacanciesController` (moderacion), `SkillsController` (CRUD), `DashboardController` (metricas reales) en `AdminAPI`, y sus paginas correspondientes en `AdminWEB` (`/users`, `/vacancies`, `/skills`, dashboard con metricas reales en `/`).
+
+**Archivos creados:**
+
+| Archivo | Descripcion |
+|---|---|
+| `Shared/DTOs/AdminDtos.cs` | `AdminUserDto`, `AdminVacancyDto`, `ModerateVacancyDto`, `AdminSkillDto`, `CreateSkillDto`, `DashboardMetricsDto` |
+| `Core/Interfaces/IAdminUserService.cs`, `IAdminVacancyService.cs`, `IAdminSkillService.cs`, `IAdminDashboardService.cs` | Contratos |
+| `Core/Services/AdminUserService.cs` | Listar/activar/desactivar/eliminar (soft delete) usuarios, cada accion de escritura registra `AD_AuditLog` |
+| `Core/Services/AdminVacancyService.cs` | Lista combinada `PT_Vacancies` + `PT_TempVacancies`; moderar cambia `Status` (permanentes) o `IsPublished` (temporales) |
+| `Core/Services/AdminSkillService.cs` | CRUD de `PT_Skills` |
+| `Core/Services/AdminDashboardService.cs` | Conteos reales: usuarios, candidatos, empresas, vacantes por estado, solicitudes por estado, skills, entradas de auditoria |
+| `AdminAPI/Controllers/AdminControllerBase.cs` | Base con `[Authorize(Roles="Admin")]`, helpers `AdminId`/`ClientIp` para auditoria (refactor: `AuditLogController` tambien la usa ahora) |
+| `AdminAPI/Controllers/UsersController.cs`, `VacanciesController.cs`, `SkillsController.cs`, `DashboardController.cs` | Endpoints admin |
+| `AdminWEB/Components/Pages/Users.razor` | Tabla de usuarios con activar/desactivar/eliminar |
+| `AdminWEB/Components/Pages/Vacancies.razor` | Tabla de vacantes (permanentes + temporales) con aprobar/cerrar |
+| `AdminWEB/Components/Pages/Skills.razor` | Alta/baja de skills |
+
+**Archivos modificados:**
+
+| Archivo | Cambio |
+|---|---|
+| `Core/Extensions/ServiceCollectionExtensions.cs` | Registra los 4 servicios nuevos en `AddAdminCoreServices` |
+| `AdminWEB/Services/AdminAuthApiService.cs` | Metodos HTTP para users/vacancies/skills/dashboard |
+| `AdminWEB/Components/Layout/AdminLayout.razor` | Nav: Usuarios, Vacantes, Skills |
+| `AdminWEB/Components/Pages/Dashboard.razor` | Metricas reales (antes texto estatico) |
+| `wwwroot/config/language/{es,en}/admin.json` | Claves nuevas: `users.*`, `vacancies.*`, `skills.*`, `dashboard.*` ampliado |
+
+**Build:** `dotnet build OpenToWork.slnx` -> 0 errores (se encontraron y corrigieron 3 errores `CS0542` por nombrar campos privados igual que la clase del componente: `Users`/`Vacancies`/`Skills` -> `UsersList`/`VacanciesList`/`SkillsList`).
+
+**Verificacion end-to-end en navegador (datos reales, no mocks):** se sembraron un usuario candidato, un usuario+perfil de empresa y una vacante en borrador directamente via SQL para probar sin afectar la sesion admin propia. Se probo en `AdminWEB`:
+- Dashboard: metricas coincidieron exactamente con los datos sembrados (3 usuarios, 3 activos, 0 candidatos [sin perfil `PT_Candidate`], 1 empresa, 1 vacante permanente, 0 skills antes de la prueba).
+- `/users`: desactivar `testcandidate@opentowork.com` -> boton cambia a "Activar", estado a "Inactivo".
+- `/vacancies`: aprobar la vacante en "Borrador" -> pasa a "Activa", boton "Aprobar" desaparece.
+- `/skills`: crear skill "C#" / categoria "Backend" -> aparece en la tabla.
+- `/audit-log`: las 3 acciones anteriores quedaron registradas con el email del admin, accion, entidad y fecha correctos.
+
+**Nota:** los datos de prueba (`testcandidate@opentowork.com`, `testcompany@opentowork.com`, la vacante y el skill "C#") quedaron en la base de datos local para que sirvan de fixture al seguir probando manualmente.
+
+---
+
 ## Resumen de Cambios
 
-Etapa 1, Etapa 2 y Etapa 3 (AdminAPI + AdminWEB) de Fase 3. Portal Admin funcional de punta a punta contra MySQL real: login independiente, dashboard, auditoria. Se encontraron y corrigieron 3 bugs de Blazor Server durante la verificacion en navegador, y se documento 1 bug preexistente fuera de alcance en `OpenToWork.API`. Pendiente: `UsersController`, `VacanciesController` (moderacion), `SkillsController`, `DashboardController` (metricas reales), `ExportController` y sus paginas correspondientes en `AdminWEB`.
+Etapa 1, Etapa 2 y Etapa 3 completa (AdminAPI + AdminWEB, incluyendo los 4 controllers de gestion) de Fase 3. Portal Admin funcional de punta a punta contra MySQL real: login independiente, dashboard con metricas reales, gestion de usuarios, moderacion de vacantes, CRUD de skills, auditoria. Se encontraron y corrigieron 3 bugs de Blazor Server durante la verificacion en navegador, y se documento 1 bug preexistente fuera de alcance en `OpenToWork.API`. Pendiente: `ExportController` (exportacion CSV) y su UI correspondiente.

@@ -1,0 +1,60 @@
+namespace OpenToWork.Shared.DTOs;
+
+public class AdminUserDto
+{
+    public Guid Id { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public int PrimaryRole { get; set; }
+    public bool EmailVerified { get; set; }
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? LastLoginAt { get; set; }
+}
+
+public class AdminVacancyDto
+{
+    public Guid Id { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? CompanyName { get; set; }
+    public string? Location { get; set; }
+    public int ContractType { get; set; }
+    public int WorkMode { get; set; }
+    public int Status { get; set; }
+    public bool IsTemporary { get; set; }
+    public DateTime? PublishedAt { get; set; }
+    public DateTime? ClosedAt { get; set; }
+    public DateTime? ExpiresAt { get; set; }
+    public int ViewsCount { get; set; }
+}
+
+public class ModerateVacancyDto
+{
+    public int Status { get; set; }
+}
+
+public class AdminSkillDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string? Category { get; set; }
+}
+
+public class CreateSkillDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Category { get; set; }
+}
+
+public class DashboardMetricsDto
+{
+    public int TotalUsers { get; set; }
+    public int ActiveUsers { get; set; }
+    public int TotalCandidates { get; set; }
+    public int TotalCompanies { get; set; }
+    public int TotalPermanentVacancies { get; set; }
+    public int TotalTempVacancies { get; set; }
+    public Dictionary<string, int> VacanciesByStatus { get; set; } = new();
+    public Dictionary<string, int> ApplicationsByStatus { get; set; } = new();
+    public int TotalSkills { get; set; }
+    public int TotalAuditLogEntries { get; set; }
+}

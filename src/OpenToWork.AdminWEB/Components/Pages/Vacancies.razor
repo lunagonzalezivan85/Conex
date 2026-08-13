@@ -1,0 +1,94 @@
+@page "/vacancies"
+@using OpenToWork.AdminWEB.Services
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.Shared.Enums
+@inject LanguageService Lang
+@inject LocalStorageService LocalStorage
+@inject AdminAuthApiService AuthApi
+@inject NavigationManager Nav
+
+<PageTitle>@Lang.T("admin.vacancies.title")</PageTitle>
+
+<h1 class="mb-lg">@Lang.T("admin.vacancies.title")</h1>
+
+@if (VacanciesList == null)
+{
+    <p>@Lang.T("admin.common.loading")</p>
+}
+else if (VacanciesList.Count == 0)
+{
+    <p>@Lang.T("admin.vacancies.empty")</p>
+}
+else
+{
+    <table class="ot-table">
+        <thead>
+            <tr>
+                <th>@Lang.T("admin.vacancies.columnTitle")</th>
+                <th>@Lang.T("admin.vacancies.columnCompany")</th>
+                <th>@Lang.T("admin.vacancies.columnType")</th>
+                <th>@Lang.T("admin.vacancies.columnStatus")</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var v in VacanciesList)
+            {
+                <tr>
+                    <td>@v.Title</td>
+                    <td>@(v.CompanyName ?? "-")</td>
+                    <td>@(v.IsTemporary ? Lang.T("admin.vacancies.temporary") : Lang.T("admin.vacancies.permanent"))</td>
+                    <td>@StatusLabel(v.Status)</td>
+                    <td>
+                        @if (v.Status != (int)VacancyStatus.Active)
+                        {
+                            <button class="ot-btn ot-btn--outline ot-btn--small" @onclick="() => Moderate(v.Id, (int)VacancyStatus.Active)">@Lang.T("admin.vacancies.approve")</button>
+                        }
+                        @if (v.Status != (int)VacancyStatus.Closed)
+                        {
+                            <button class="ot-btn ot-btn--danger ot-btn--small" @onclick="() => Moderate(v.Id, (int)VacancyStatus.Closed)">@Lang.T("admin.vacancies.close")</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<AdminVacancyDto>? VacanciesList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+
+        var token = await LocalStorage.GetItemAsync("otwadmin-token");
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        await LoadVacancies();
+    }
+
+    private async Task LoadVacancies()
+    {
+        VacanciesList = await AuthApi.GetVacanciesAsync();
+    }
+
+    private async Task Moderate(Guid id, int status)
+    {
+        await AuthApi.ModerateVacancyAsync(id, status);
+        await LoadVacancies();
+    }
+
+    private string StatusLabel(int status) => (VacancyStatus)status switch
+    {
+        VacancyStatus.Draft => Lang.T("admin.vacancies.statusDraft"),
+        VacancyStatus.Active => Lang.T("admin.vacancies.statusActive"),
+        VacancyStatus.Closed => Lang.T("admin.vacancies.statusClosed"),
+        _ => status.ToString()
+    };
+}

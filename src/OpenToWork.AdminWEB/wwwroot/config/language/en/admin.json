@@ -2,6 +2,9 @@
   "brand": "OpenToWork Admin",
   "nav": {
     "dashboard": "Dashboard",
+    "users": "Users",
+    "vacancies": "Vacancies",
+    "skills": "Skills",
     "auditLog": "Audit Log",
     "logout": "Log out"
   },
@@ -18,8 +21,53 @@
   "dashboard": {
     "title": "Admin Dashboard",
     "welcome": "Welcome to the OpenToWork admin portal.",
-    "auditCard": "Audit Log",
-    "auditCardDesc": "Administrative action history."
+    "totalUsers": "Total Users",
+    "activeUsers": "Active Users",
+    "candidates": "Candidates",
+    "companies": "Companies",
+    "permanentVacancies": "Permanent Vacancies",
+    "tempVacancies": "Temporary Vacancies",
+    "skills": "Skills",
+    "auditEntries": "Audit Log Entries"
+  },
+  "users": {
+    "title": "User Management",
+    "empty": "No users.",
+    "columnEmail": "Email",
+    "columnRole": "Role",
+    "columnStatus": "Status",
+    "columnCreated": "Created",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete",
+    "confirmDelete": "Delete this user? This action cannot be undone."
+  },
+  "vacancies": {
+    "title": "Vacancy Moderation",
+    "empty": "No vacancies.",
+    "columnTitle": "Title",
+    "columnCompany": "Company",
+    "columnStatus": "Status",
+    "columnType": "Type",
+    "temporary": "Temporary",
+    "permanent": "Permanent",
+    "statusDraft": "Draft",
+    "statusActive": "Active",
+    "statusClosed": "Closed",
+    "approve": "Approve",
+    "close": "Close"
+  },
+  "skills": {
+    "title": "Skills Management",
+    "empty": "No skills registered.",
+    "namePlaceholder": "Skill name",
+    "categoryPlaceholder": "Category (optional)",
+    "add": "Add",
+    "delete": "Delete",
+    "columnName": "Name",
+    "columnCategory": "Category"
   },
   "auditLog": {
     "title": "Audit Log",
@@ -31,6 +79,9 @@
   },
   "common": {
     "email": "Email",
-    "password": "Password"
+    "password": "Password",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel"
   }
 }
