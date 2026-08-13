@@ -256,6 +256,17 @@ Con el merge de `main`, la unica dependencia real que queda es de **datos**, no 
 
 ---
 
+## Fix fuera de alcance de Fase 3 (a peticion del usuario, 2026-08-13)
+
+Los 2 bugs preexistentes documentados arriba (encontrados durante la verificacion de Fase 3, pero viviendo en codigo de Fase 1/2 de Iluna) se corrigieron a pedido explicito del usuario, en vez de solo reportarlos:
+
+1. **`src/OpenToWork.API/Program.cs`:** el authentication builder leia `Google:ClientId`/`Google:ClientSecret` pero `appsettings.json` define la seccion como `GoogleOAuth`. Se corrigio la clave de configuracion (`GoogleOAuth:ClientId`/`GoogleOAuth:ClientSecret`) y ademas se hizo que `.AddGoogle(...)` solo se registre si hay credenciales configuradas, para que el API no vuelva a romperse la proxima vez que `GoogleOAuth` este vacio (estado actual, ya que aun no se integra el flujo real). Verificado con `curl POST /api/auth/register` -> 200 (antes tiraba 500 en cualquier request).
+2. **`src/OpenToWork.WEB/wwwroot/css/components.css`:** mismo fix que en `AdminWEB` - se agrego `display: none` (+ `position: fixed` y estilos de `.dismiss`) a `#blazor-error-ui`, que antes quedaba siempre visible. Verificado en navegador: `getComputedStyle` confirma `display: none` por defecto.
+
+**Riesgo asumido:** ambos archivos siguen siendo activamente modificados por Iluna en su rama. Es posible que al mergear `dsiezar-fase-3` y `iluna-fase-2` a `main` haya un conflicto de merge en estas 2 lineas — es un conflicto trivial de resolver (no logica de negocio en disputa), pero se avisa aqui para que no sea sorpresa.
+
+---
+
 ## Resumen de Cambios
 
-Etapa 1, Etapa 2 y Etapa 3 completa (AdminAPI + AdminWEB, incluyendo los 4 controllers de gestion) de Fase 3. Portal Admin funcional de punta a punta contra MySQL real: login independiente, dashboard con metricas reales, gestion de usuarios, moderacion de vacantes, CRUD de skills, auditoria. Se encontraron y corrigieron 3 bugs de Blazor Server durante la verificacion en navegador, y se documento 1 bug preexistente fuera de alcance en `OpenToWork.API`. Pendiente: `ExportController` (exportacion CSV) y su UI correspondiente.
+Etapa 1, Etapa 2 y Etapa 3 completa (AdminAPI + AdminWEB, incluyendo los 4 controllers de gestion) de Fase 3. Portal Admin funcional de punta a punta contra MySQL real: login independiente, dashboard con metricas reales, gestion de usuarios, moderacion de vacantes, CRUD de skills, auditoria. Se encontraron y corrigieron 3 bugs de Blazor Server durante la verificacion en navegador. Adicionalmente, a peticion del usuario, se corrigieron 2 bugs preexistentes fuera de alcance en `OpenToWork.API` (Google OAuth) y `OpenToWork.WEB` (banner de error). Pendiente: `ExportController` (exportacion CSV) y su UI correspondiente.
