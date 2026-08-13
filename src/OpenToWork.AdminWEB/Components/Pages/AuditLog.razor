@@ -1,0 +1,63 @@
+@page "/audit-log"
+@using OpenToWork.AdminWEB.Services
+@using OpenToWork.Shared.DTOs
+@inject LanguageService Lang
+@inject AdminAuthApiService AuthApi
+@inject LocalStorageService LocalStorage
+@inject NavigationManager Nav
+
+<PageTitle>@Lang.T("admin.auditLog.title")</PageTitle>
+
+<h1>@Lang.T("admin.auditLog.title")</h1>
+
+@if (Logs == null)
+{
+    <p>@Lang.T("admin.login.loading")</p>
+}
+else if (Logs.Count == 0)
+{
+    <p>@Lang.T("admin.auditLog.empty")</p>
+}
+else
+{
+    <table class="ot-table">
+        <thead>
+            <tr>
+                <th>@Lang.T("admin.auditLog.columnAdmin")</th>
+                <th>@Lang.T("admin.auditLog.columnAction")</th>
+                <th>@Lang.T("admin.auditLog.columnEntity")</th>
+                <th>@Lang.T("admin.auditLog.columnDate")</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Logs)
+            {
+                <tr>
+                    <td>@log.AdminEmail</td>
+                    <td>@log.Action</td>
+                    <td>@log.EntityType</td>
+                    <td>@log.CreatedAt.ToLocalTime()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<AuditLogDto>? Logs;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+
+        var token = await LocalStorage.GetItemAsync("otwadmin-token");
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        Logs = await AuthApi.GetAuditLogAsync();
+    }
+}

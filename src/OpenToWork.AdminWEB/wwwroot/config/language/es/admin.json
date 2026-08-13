@@ -1,0 +1,36 @@
+{
+  "brand": "OpenToWork Admin",
+  "nav": {
+    "dashboard": "Panel",
+    "auditLog": "Auditoría",
+    "logout": "Cerrar sesión"
+  },
+  "login": {
+    "title": "Acceso Administrador",
+    "subtitle": "Ingresa con tu cuenta de administrador",
+    "emailPlaceholder": "admin@opentowork.com",
+    "passwordPlaceholder": "Tu contraseña",
+    "button": "Ingresar",
+    "loading": "Ingresando...",
+    "errorInvalid": "Credenciales invalidas o la cuenta no es de administrador.",
+    "errorGeneric": "Ocurrio un error. Intenta de nuevo."
+  },
+  "dashboard": {
+    "title": "Panel de administración",
+    "welcome": "Bienvenido al portal de administración de OpenToWork.",
+    "auditCard": "Auditoría",
+    "auditCardDesc": "Registro de acciones administrativas."
+  },
+  "auditLog": {
+    "title": "Registro de auditoría",
+    "empty": "No hay registros de auditoría todavía.",
+    "columnAdmin": "Administrador",
+    "columnAction": "Acción",
+    "columnEntity": "Entidad",
+    "columnDate": "Fecha"
+  },
+  "common": {
+    "email": "Correo",
+    "password": "Contraseña"
+  }
+}

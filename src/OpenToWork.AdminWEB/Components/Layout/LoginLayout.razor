@@ -1,0 +1,49 @@
+@inherits LayoutComponentBase
+@using OpenToWork.AdminWEB.Services
+@inject LanguageService Lang
+@inject Microsoft.JSInterop.IJSRuntime JS
+
+<div class="auth-layout">
+    <div class="auth-top-bar">
+        <div class="nav-brand">
+            <span>@Lang.T("admin.brand")</span>
+        </div>
+        <div class="nav-actions">
+            <select @onchange="OnThemeChanged" class="nav-select">
+                <option value="navy">Navy</option>
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+            </select>
+            <select @onchange="OnLanguageChanged" class="nav-select">
+                <option value="es">ES</option>
+                <option value="en">EN</option>
+            </select>
+        </div>
+    </div>
+
+    @Body
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+    }
+
+    private async Task OnThemeChanged(ChangeEventArgs e)
+    {
+        if (e.Value is string theme)
+        {
+            await JS.InvokeVoidAsync("themeSwitcher.set", theme);
+        }
+    }
+
+    private async Task OnLanguageChanged(ChangeEventArgs e)
+    {
+        if (e.Value is string lang)
+        {
+            await Lang.SetLanguageAsync(lang);
+        }
+    }
+}

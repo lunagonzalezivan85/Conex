@@ -1,0 +1,36 @@
+{
+  "brand": "OpenToWork Admin",
+  "nav": {
+    "dashboard": "Dashboard",
+    "auditLog": "Audit Log",
+    "logout": "Log out"
+  },
+  "login": {
+    "title": "Administrator Access",
+    "subtitle": "Sign in with your administrator account",
+    "emailPlaceholder": "admin@opentowork.com",
+    "passwordPlaceholder": "Your password",
+    "button": "Sign In",
+    "loading": "Signing in...",
+    "errorInvalid": "Invalid credentials or the account is not an administrator.",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "dashboard": {
+    "title": "Admin Dashboard",
+    "welcome": "Welcome to the OpenToWork admin portal.",
+    "auditCard": "Audit Log",
+    "auditCardDesc": "Administrative action history."
+  },
+  "auditLog": {
+    "title": "Audit Log",
+    "empty": "No audit log entries yet.",
+    "columnAdmin": "Admin",
+    "columnAction": "Action",
+    "columnEntity": "Entity",
+    "columnDate": "Date"
+  },
+  "common": {
+    "email": "Email",
+    "password": "Password"
+  }
+}

@@ -1,0 +1,36 @@
+@page "/"
+@using OpenToWork.AdminWEB.Services
+@using OpenToWork.SharedUI.Components
+@inject LanguageService Lang
+@inject LocalStorageService LocalStorage
+@inject NavigationManager Nav
+
+<PageTitle>@Lang.T("admin.dashboard.title")</PageTitle>
+
+@if (IsAuthenticated)
+{
+    <div class="bento-grid">
+        <BentoCard Title="@Lang.T("admin.dashboard.title")" Description="@Lang.T("admin.dashboard.welcome")" />
+        <BentoCard Title="@Lang.T("admin.dashboard.auditCard")" Description="@Lang.T("admin.dashboard.auditCardDesc")">
+            <a href="/audit-log" class="ot-btn ot-btn--outline ot-btn--small">@Lang.T("admin.nav.auditLog")</a>
+        </BentoCard>
+    </div>
+}
+
+@code {
+    private bool IsAuthenticated { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+
+        var token = await LocalStorage.GetItemAsync("otwadmin-token");
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+        IsAuthenticated = true;
+    }
+}

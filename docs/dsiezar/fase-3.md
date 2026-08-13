@@ -154,12 +154,65 @@ Con el merge de `main`, la unica dependencia real que queda es de **datos**, no 
 
 **Build:** `dotnet build OpenToWork.slnx` -> 0 errores, 20 advertencias (preexistentes: AutoMapper/Caching.Memory NU1903, paquetes Blazor NU1510/NU1603 - ninguna introducida por estos cambios).
 
-**Migracion:** `AdminAuditLog` creada. No aplicada a MySQL (no hay servidor MySQL disponible en este entorno de desarrollo).
+**Migracion:** `AdminAuditLog` creada y **aplicada**. MySQL corre via XAMPP (`C:\xampp\mysql`, root sin password, coincide con `appsettings.json`). Se creo la base `OpenToWorkDb` y se aplicaron las 4 migraciones pendientes con `dotnet-ef database update`: `InitialCreate`, `Phase2`, `Phase2Security` (Iluna) y `AdminAuditLog` (Dsiezar). Verificado: 19 tablas en `OpenToWorkDb`, incluida `ad_auditlogs`.
 
-**Nota de entorno:** este equipo no tenia el SDK de .NET instalado (solo runtimes) ni fuente de NuGet configurada. Se instalo `Microsoft.DotNet.SDK.10` via `winget` y se agrego el source `nuget.org` para poder compilar y generar la migracion.
+**Nota de entorno:** este equipo no tenia el SDK de .NET instalado (solo runtimes) ni fuente de NuGet configurada. Se instalo `Microsoft.DotNet.SDK.10` via `winget` y se agrego el source `nuget.org` para poder compilar y generar la migracion. MySQL se resolvio usando el XAMPP ya instalado en `C:\xampp` (mysqld corriendo en :3306).
+
+---
+
+## Etapa 3 (continuacion): OpenToWork.AdminWEB
+
+**Alcance implementado:** base completa de `AdminWEB` (antes scaffolding con Bootstrap/plantilla sin tocar) - login, layout, dashboard y pagina de auditoria, consumiendo el `AdminAPI` real.
+
+**Archivos creados:**
+
+| Archivo | Descripcion |
+|---|---|
+| `Services/LocalStorageService.cs` | Wrapper de `localStorage` via JSInterop (mismo patron que `OpenToWork.WEB`) |
+| `Services/AdminAuthApiService.cs` | Cliente HTTP hacia `AdminAPI`: login, audit-log, manejo de token (`otwadmin-token`, namespacing propio para no chocar con el portal principal) |
+| `Services/AdminAuthStateProvider.cs` | Parseo de claims del JWT (no se usa con `AuthorizeView`, ver nota de bug abajo) |
+| `Services/LanguageService.cs` | i18n simplificado a una sola seccion (`admin.json`) |
+| `wwwroot/config/language/{es,en}/admin.json` | Claves de traduccion del admin |
+| `Components/Layout/AdminLayout.razor` | Layout autenticado: nav (Panel, Auditoria), selector de tema/idioma, logout |
+| `Components/Layout/LoginLayout.razor` | Layout minimo para `/login` |
+| `Components/Pages/Login.razor` | Login contra `POST /api/admin/auth/login` |
+| `Components/Pages/Dashboard.razor` | Pagina `/`, BentoCards, guard manual de sesion |
+| `Components/Pages/AuditLog.razor` | Pagina `/audit-log`, consume `GET /api/admin/audit-log` |
+
+**Archivos modificados/eliminados:**
+
+| Archivo | Cambio |
+|---|---|
+| `wwwroot/css/`, `wwwroot/themes/`, `wwwroot/js/theme-switcher.js`, `wwwroot/js/language-switcher.js` | Copiados de `OpenToWork.WEB` para reusar el sistema de diseño (en vez de Bootstrap) |
+| `wwwroot/lib/bootstrap/*`, `wwwroot/app.css` | Eliminados (scaffolding no usado) |
+| `Components/Pages/Counter.razor`, `Weather.razor`, `Home.razor` | Eliminados (paginas de plantilla) |
+| `Components/Layout/MainLayout.razor(.css)`, `NavMenu.razor(.css)` | Eliminados, reemplazados por `AdminLayout`/`LoginLayout` |
+| `Components/App.razor` | Quita Bootstrap, referencia el CSS compartido y los temas; `Routes` con `prerender: false` (ver bug) |
+| `Components/Routes.razor` | Router simple (`RouteView`), sin `AuthorizeRouteView` (ver bug) |
+| `Components/Pages/NotFound.razor` | Layout actualizado a `AdminLayout` |
+| `Components/_Imports.razor` | Agrega usings de autorizacion (no usados activamente, ver bug) |
+| `Program.cs` | DI de servicios admin, `HttpClient` hacia `AdminAPI` (puerto 5001) |
+| `appsettings.json` | `ApiSettings.BaseUrl` |
+| `wwwroot/css/components.css` | Fix: `#blazor-error-ui` sin `display: none` (bug heredado de `OpenToWork.WEB`, ver abajo) |
+
+**Bugs encontrados y corregidos durante la verificacion en navegador:**
+
+1. **`[Authorize]` + `AuthorizeRouteView` con Blazor Server rompe todo el sitio.** Al usar `@attribute [Authorize]` en paginas (Dashboard, AuditLog) junto con `CascadingAuthenticationState`/`AuthorizeRouteView`, ASP.NET Core inserta automaticamente middleware de autenticacion (porque `AddAuthentication()`/`AddAuthorization()` estaban registrados) y falla con `InvalidOperationException: No authenticationScheme was specified` en **cualquier** request, porque no hay default challenge scheme configurado. Se reemplazo por un guard manual en `OnInitializedAsync` de cada pagina (leer token de `localStorage`, redirigir a `/login` si falta) - mismo patron ya usado (de forma mas laxa) en `OpenToWork.WEB`.
+2. **Prerendering + JSInterop causaba redirect-loop a `/login` aun autenticado.** El guard manual corre tambien durante el prerender (antes de que el circuito interactivo conecte), momento en el que `localStorage` no esta disponible via JSInterop (`InvalidOperationException` silenciosa) y el guard interpretaba "sin token" incorrectamente. Se soluciono deshabilitando el prerender del router: `<Routes @rendermode="new InteractiveServerRenderMode(prerender: false)" />`.
+3. **Banner rojo `#blazor-error-ui` siempre visible.** `components.css` (copiado de `OpenToWork.WEB`) define el estilo visual de `#blazor-error-ui` pero **nunca** con `display: none`, asi que el banner de error de Blazor aparece siempre, no solo cuando hay un error real. Se corrigio en la copia de `AdminWEB`. **Este mismo bug probablemente existe en `OpenToWork.WEB`** (Iluna) ya que comparte el mismo `components.css` y el mismo patron de layout - no se toco ese archivo por estar fuera del alcance de esta rama, pero vale la pena reportarlo.
+
+**Verificacion end-to-end (navegador + MySQL real, no mocks):**
+- Se instalo el SDK de .NET 10 (`winget`) y se configuro `nuget.org` como fuente (no habia ninguna).
+- Se detecto MySQL corriendo via XAMPP (`C:\xampp\mysql`, root sin password) y se aplicaron las 4 migraciones pendientes (`InitialCreate`, `Phase2`, `Phase2Security`, `AdminAuditLog`) con `dotnet-ef database update`.
+- Se creo un usuario admin de prueba (`admin@opentowork.com`) directamente en `SC_Users` (bcrypt hash generado con un proyecto de consola descartable, ya que `POST /api/auth/register` del portal principal esta roto - ver bug #4).
+- Probado con `curl` contra `AdminAPI` real: login correcto -> 200 + JWT (issuer `OpenToWork.Admin`); password incorrecta -> 401; cuenta no-admin con password correcta -> 401 ("Account is not an administrator"); `GET /api/admin/audit-log` sin token -> 401, con token -> 200 `[]`.
+- Probado en navegador contra `AdminWEB` real: login -> redirige a `/` con Dashboard renderizado: navegacion a `/audit-log` funciona; logout limpia el token y redirige a `/login`.
+- `dotnet build OpenToWork.slnx` -> 0 errores.
+
+**Bug #4 (fuera de alcance, no corregido):** `OpenToWork.API/Program.cs` lee `Google:ClientId` pero `appsettings.json` define la seccion como `GoogleOAuth`, entonces Google Auth se registra con `ClientId` vacio y **cualquier** request a `OpenToWork.API` (incluida `/api/auth/register`) lanza `ArgumentException`. Es codigo de Iluna (Fase 1), fuera del alcance de esta rama - se documenta aqui para que se corrija por separado.
 
 ---
 
 ## Resumen de Cambios
 
-Etapa 1, Etapa 2 y primera entrega de Etapa 3 de Fase 3. Se implemento la base de `OpenToWork.AdminAPI`: entidad y migracion de `AD_AuditLog`, JWT independiente del portal principal, login exclusivo para administradores, y servicio de auditoria. Build verificado sin errores. Pendiente: resto de controllers admin (usuarios, vacantes, skills, dashboard, export) y todo `OpenToWork.AdminWEB`.
+Etapa 1, Etapa 2 y Etapa 3 (AdminAPI + AdminWEB) de Fase 3. Portal Admin funcional de punta a punta contra MySQL real: login independiente, dashboard, auditoria. Se encontraron y corrigieron 3 bugs de Blazor Server durante la verificacion en navegador, y se documento 1 bug preexistente fuera de alcance en `OpenToWork.API`. Pendiente: `UsersController`, `VacanciesController` (moderacion), `SkillsController`, `DashboardController` (metricas reales), `ExportController` y sus paginas correspondientes en `AdminWEB`.

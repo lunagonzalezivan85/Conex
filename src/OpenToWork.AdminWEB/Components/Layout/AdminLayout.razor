@@ -1,0 +1,77 @@
+@inherits LayoutComponentBase
+@using OpenToWork.AdminWEB.Services
+@inject LanguageService Lang
+@inject AdminAuthApiService AuthApi
+@inject AdminAuthStateProvider AuthProvider
+@inject Microsoft.JSInterop.IJSRuntime JS
+@inject NavigationManager Nav
+
+<div class="app-layout">
+    <header class="nav-header">
+        <nav class="nav-bar">
+            <div class="nav-brand">
+                <a href="/">
+                    <span class="nav-brand-logo">OTW</span>
+                    <span class="nav-brand-text">@Lang.T("admin.brand")</span>
+                </a>
+            </div>
+            <div class="nav-links">
+                <a href="/" class="nav-link">@Lang.T("admin.nav.dashboard")</a>
+                <a href="/audit-log" class="nav-link">@Lang.T("admin.nav.auditLog")</a>
+            </div>
+            <div class="nav-actions">
+                <select @onchange="OnThemeChanged" class="nav-select">
+                    <option value="navy">Navy</option>
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                </select>
+                <select @onchange="OnLanguageChanged" class="nav-select">
+                    <option value="es">ES</option>
+                    <option value="en">EN</option>
+                </select>
+                <button class="ot-btn ot-btn--ghost ot-btn--small" @onclick="HandleLogout">@Lang.T("admin.nav.logout")</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        @Body
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">X</span>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+    }
+
+    private async Task OnThemeChanged(ChangeEventArgs e)
+    {
+        if (e.Value is string theme)
+        {
+            await JS.InvokeVoidAsync("themeSwitcher.set", theme);
+        }
+    }
+
+    private async Task OnLanguageChanged(ChangeEventArgs e)
+    {
+        if (e.Value is string lang)
+        {
+            await Lang.SetLanguageAsync(lang);
+        }
+    }
+
+    private async Task HandleLogout()
+    {
+        await AuthApi.LogoutAsync();
+        AuthProvider.NotifyAuthenticationStateChanged();
+        Nav.NavigateTo("/login", forceLoad: true);
+    }
+}
