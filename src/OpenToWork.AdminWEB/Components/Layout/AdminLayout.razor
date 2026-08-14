@@ -6,41 +6,72 @@
 @inject Microsoft.JSInterop.IJSRuntime JS
 @inject NavigationManager Nav
 
-<div class="app-layout">
-    <header class="nav-header">
-        <nav class="nav-bar">
-            <div class="nav-brand">
-                <a href="/">
-                    <span class="nav-brand-logo">OTW</span>
-                    <span class="nav-brand-text">@Lang.T("admin.brand")</span>
-                </a>
+<div class="admin-shell">
+    <aside class="admin-sidebar" id="adminSidebar">
+        <div class="admin-sidebar-brand">
+            <span class="admin-brand-badge">OTW</span>
+            <span class="admin-brand-text">@Lang.T("admin.brand")</span>
+        </div>
+        <nav class="admin-sidebar-nav">
+            <a href="/" class="admin-nav-item">
+                <span class="admin-nav-icon">&#9632;</span>
+                <span class="admin-nav-label">@Lang.T("admin.nav.dashboard")</span>
+            </a>
+            <a href="/users" class="admin-nav-item">
+                <span class="admin-nav-icon">&#9632;</span>
+                <span class="admin-nav-label">@Lang.T("admin.nav.users")</span>
+            </a>
+            <a href="/vacancies" class="admin-nav-item">
+                <span class="admin-nav-icon">&#9632;</span>
+                <span class="admin-nav-label">@Lang.T("admin.nav.vacancies")</span>
+            </a>
+            <a href="/skills" class="admin-nav-item">
+                <span class="admin-nav-icon">&#9632;</span>
+                <span class="admin-nav-label">@Lang.T("admin.nav.skills")</span>
+            </a>
+            <a href="/audit-log" class="admin-nav-item">
+                <span class="admin-nav-icon">&#9632;</span>
+                <span class="admin-nav-label">@Lang.T("admin.nav.auditLog")</span>
+            </a>
+        </nav>
+        <div class="admin-sidebar-footer">
+            <button class="admin-logout-btn" @onclick="HandleLogout">
+                <span class="admin-nav-icon">&#8634;</span>
+                <span class="admin-nav-label">@Lang.T("admin.nav.logout")</span>
+            </button>
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <button class="admin-sidebar-toggle" @onclick="ToggleSidebar">
+                <span>&#9776;</span>
+            </button>
+            <div class="admin-topbar-title">
+                <span class="admin-topbar-badge">Admin</span>
             </div>
-            <div class="nav-links">
-                <a href="/" class="nav-link">@Lang.T("admin.nav.dashboard")</a>
-                <a href="/users" class="nav-link">@Lang.T("admin.nav.users")</a>
-                <a href="/vacancies" class="nav-link">@Lang.T("admin.nav.vacancies")</a>
-                <a href="/skills" class="nav-link">@Lang.T("admin.nav.skills")</a>
-                <a href="/audit-log" class="nav-link">@Lang.T("admin.nav.auditLog")</a>
-            </div>
-            <div class="nav-actions">
-                <select @onchange="OnThemeChanged" class="nav-select">
+            <div class="admin-topbar-actions">
+                <select @onchange="OnThemeChanged" class="admin-select">
                     <option value="navy">Navy</option>
                     <option value="dark">Dark</option>
                     <option value="light">Light</option>
                 </select>
-                <select @onchange="OnLanguageChanged" class="nav-select">
+                <select @onchange="OnLanguageChanged" class="admin-select">
                     <option value="es">ES</option>
                     <option value="en">EN</option>
                 </select>
-                <button class="ot-btn ot-btn--ghost ot-btn--small" @onclick="HandleLogout">@Lang.T("admin.nav.logout")</button>
             </div>
-        </nav>
-    </header>
+        </header>
 
-    <main class="main-content">
-        @Body
-    </main>
+        <main class="admin-content">
+            <div class="admin-content-inner">
+                @Body
+            </div>
+        </main>
+    </div>
 </div>
+
+<div class="admin-sidebar-overlay" id="adminSidebarOverlay" @onclick="CloseSidebar"></div>
 
 <div id="blazor-error-ui" data-nosnippet>
     An unhandled error has occurred.
@@ -76,5 +107,15 @@
         await AuthApi.LogoutAsync();
         AuthProvider.NotifyAuthenticationStateChanged();
         Nav.NavigateTo("/login", forceLoad: true);
+    }
+
+    private async Task ToggleSidebar()
+    {
+        await JS.InvokeVoidAsync("adminLayout.toggleSidebar");
+    }
+
+    private async Task CloseSidebar()
+    {
+        await JS.InvokeVoidAsync("adminLayout.closeSidebar");
     }
 }

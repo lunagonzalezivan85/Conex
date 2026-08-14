@@ -533,6 +533,74 @@ Antes de marcar cualquier fase como completada, se debe validar:
 | 2026-08-14 | Iluna | Docs | README: notas de actualizacion, ruta de trabajo, fases paralelas, criterios de validacion |
 | 2026-08-14 | Iluna | Docs | DEPLOYMENT.md: guia de despliegue a Windows Server/IIS (Web Deploy, PSRemoting, GitHub Actions) |
 | 2026-08-14 | Iluna | Docs | README: instrucciones de ejecucion AdminAPI + AdminWEB, credenciales de prueba admin |
+| 2026-08-14 | Iluna | Fase 4 | AdminWEB: rediseno layout sidebar + topbar profesional, admin.css, tablas con status badges, empty/loading states |
+| 2026-08-14 | Iluna | Fase 4 | AdminWEB: pendiente - mejorar tablas con filtros, pulir diseno inspirado en Cazvid (pipeline visual, cards de aplicantes) |
+| 2026-08-14 | Iluna | Fase 4 | Seed data: 3 empresas, 10 vacantes permanentes, 3 vacantes temporales, 20 skills, 3 postulantes, 5 aplicaciones |
+| 2026-08-14 | Iluna | Docs | seed-data.sql: script de datos de prueba con credenciales para todos los roles |
+
+---
+
+## Datos de prueba (Seed Data)
+
+> **Importante:** Ejecutar `docs/seed-data.sql` despues de aplicar todas las migraciones. Los hashes BCrypt se deben generar registrando los usuarios via API y copiando el hash. Ver procedimiento en el script.
+
+### Credenciales de prueba
+
+#### Portal Admin (AdminWEB - puerto 5101)
+
+| Campo | Valor |
+|-------|-------|
+| URL | `http://localhost:5101` |
+| Email | `admin@opentowork.com` |
+| Password | `Admin123!` |
+
+#### Portal de Candidatos (WEB - puerto 5100)
+
+| Postulante | Email | Password |
+|------------|-------|----------|
+| Juan Perez | `juan.perez@gmail.com` | `Candidato123!` |
+| Maria Gonzalez | `maria.gonzalez@hotmail.com` | `Candidato123!` |
+| Carlos Rodriguez | `carlos.rodriguez@outlook.com` | `Candidato123!` |
+
+#### Empresas (para probar portal corporativo cuando este listo)
+
+| Empresa | Email | Password |
+|---------|-------|----------|
+| TechCorp Solutions | `empresa@techcorp.com` | `Empresa123!` |
+| Innovate Labs | `contacto@innovatelabs.com` | `Empresa123!` |
+| GlobalSoft Inc. | `rrhh@globalsoft.com` | `Empresa123!` |
+
+### Datos disponibles en la BD
+
+| Tabla | Cantidad | Detalle |
+|-------|----------|---------|
+| `SC_Users` | 7 | 1 admin, 3 empresas, 3 postulantes |
+| `PT_Companies` | 3 | TechCorp, Innovate Labs, GlobalSoft |
+| `PT_Vacancies` | 10 | 8 activas, 1 draft, 1 cerrada |
+| `PT_TempVacancies` | 3 | Freelance UX, contrato full stack, part-time CM |
+| `PT_Skills` | 20 | C#, .NET, React, Python, Docker, etc. |
+| `PT_Candidates` | 3 | 2 con wizard completo, 1 incompleto |
+| `PT_Applications` | 5 | 1 reviewing, 1 aceptada, 3 pendientes |
+
+---
+
+## Notas de diseno (referencia Cazvid)
+
+El panel administrativo debe inspirarse en **Cazvid** (cazvid.com/features/ats) para los flujos de gestion:
+
+- **Pipeline visual:** Aplicantes movidos entre estados (Applied, Screening, Interview, Offer, Hired) con drag-and-drop
+- **Card de aplicante:** Resume, skills, score, info de contacto en una sola vista
+- **Filtros rapidos:** Por rating, por estado, por score - un solo clic
+- **Notas y seguimiento:** Notas internas, log de llamadas, recordatorios
+- **Mensajeria integrada:** Conversaciones adjuntas al historial del aplicante
+
+### Pendiente de diseno en AdminWEB
+
+1. **Filtros en todas las tablas** - busqueda por texto, filtro por estado, filtro por fecha
+2. **Mejorar tablas** - columnas ordenables, paginacion visible, densidad configurable
+3. **Vista de aplicaciones** - pipeline visual estilo Kanban en vez de tabla
+4. **Card de usuario/detalle** - panel lateral con info completa al hacer clic
+5. **Dashboard avanzado** - graficos, tendencias, no solo numeros
 
 ---
 
