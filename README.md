@@ -15,8 +15,8 @@ El proyecto se compone de **3 portales independientes**:
 
 | Portal | Descripcion | Estado |
 |--------|-------------|--------|
-| **Portal de Candidatos** | Registro, perfil, wizard, busqueda de vacantes, postulaciones | Completado |
-| **Portal Administrativo** | Verificaciones manuales, moderacion, gestion de usuarios, auditoria | Pendiente |
+| **Portal de Candidatos** | Registro, perfil, wizard, busqueda de vacantes, postulaciones | 80% Completado |
+| **Portal Administrativo** | Verificaciones manuales, moderacion, gestion de usuarios, auditoria | 85% Completado |
 | **Portal Corporativo** | Suscripcion mensual, perfiles evaluados, ranking, filtros avanzados | Pendiente |
 
 ### Caracteristicas principales
@@ -262,39 +262,55 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 - [ ] Referencias laborales: CRUD en wizard y perfil
 - [ ] Pruebas de habilidades: `PTSkillTest`, `PTCandidateTestResult`
 
-### Fase 4: Portal Administrativo - Pendiente
+### Fase 4: Portal Administrativo - 85% COMPLETADA (por Dsiezar)
 
-- [ ] AdminAPI con JWT independiente (puerto 5001)
-- [ ] AdminWEB con login y layout (puerto 5101)
-- [ ] Gestion de usuarios (activar, desactivar, eliminar, roles)
-- [ ] Verificaciones manuales (aprobar/rechazar validaciones)
-- [ ] Moderacion de vacantes
-- [ ] Dashboard admin con metricas y estadisticas
-- [ ] Gestion de categorias y skills
-- [ ] Log de auditoria admin (`ADAuditLog`)
-- [ ] Exportacion de datos (CSV/Excel)
+- [x] AdminAPI con JWT independiente (puerto 5001)
+- [x] AdminWEB con login y layout (puerto 5101)
+- [x] Gestion de usuarios (activar, desactivar, eliminar)
+- [x] Moderacion de vacantes (permanentes + temporales)
+- [x] Dashboard admin con metricas y estadisticas reales
+- [x] Gestion de categorias y skills (CRUD)
+- [x] Log de auditoria admin (`ADAuditLog`)
+- [x] Exportacion de datos (CSV)
+- [x] i18n admin (es/en)
+- [x] QA+SEC: 6 bugs corregidos (enumeracion de cuentas, paginacion negativa, CSV injection, estado vacantes temporales, auto-bloqueo admin, clave i18n)
+- [ ] Verificaciones manuales (aprobar/rechazar `PTVerification`) — **bloqueado por Fase 3**
+- [ ] Revision de validaciones automaticas — **bloqueado por Fase 3**
+- [ ] Gestion de roles de usuario (cambiar rol, no solo activar/desactivar)
+
+**Deuda tecnica documentada (4 items):**
+- [ ] Unificar `AdminAuthService` con `AuthService` (logica duplicada)
+- [ ] Optimizar `AdminVacancyService` (carga tablas completas en memoria antes de paginar)
+- [ ] Mover `LocalStorageService`/`LanguageService` de AdminWEB a SharedUI
+- [ ] Centralizar guard de autenticacion en `AdminLayout` (copiado en 5 paginas)
 
 ### Fase 5: Portal Corporativo - Pendiente
 
-- [ ] CorporateAPI con JWT independiente (puerto 5002)
-- [ ] CorporateWEB con login y layout (puerto 5102)
-- [ ] Registro de empresas (`COCompany`)
-- [ ] Sistema de suscripciones (`COSubscription`, planes: Basic/Pro/Enterprise)
-- [ ] Busqueda avanzada con filtros por score
-- [ ] Perfiles evaluados con checkmarks de verificacion
+- [ ] Crear proyecto `OpenToWork.CorporateAPI` (puerto 5002, JWT independiente)
+- [ ] Crear proyecto `OpenToWork.CorporateWEB` (puerto 5102)
+- [ ] Entidad `COCompany` — Name, Industry, Size, Website, LogoUrl
+- [ ] Entidad `COSubscription` — CompanyId, Plan (Basic/Pro/Enterprise), Status, StartDate, EndDate, MonthlyFee
+- [ ] Entidad `COSearchHistory` — CompanyId, Filters, ResultCount, SearchedAt
+- [ ] Entidad `COCandidateView` — CompanyId, CandidateId, ScoreSnapshot, ViewedAt
+- [ ] Registro de empresas + wizard de empresa
+- [ ] Sistema de suscripciones (planes: Basic, Pro, Enterprise)
+- [ ] Busqueda avanzada con filtros por score, confiabilidad, estabilidad
+- [ ] Vista de perfiles evaluados con checkmarks de verificacion
 - [ ] Ranking automatico de candidatos por compatibilidad
 - [ ] Reportes avanzados
+- [ ] Migracion EF Core para entidades corporativas
 
 ### Fase 6: Servicios Premium - Pendiente
 
-- [ ] Verificacion manual de referencias (servicio premium)
+- [ ] Verificacion manual de referencias (servicio premium para empresas)
 - [ ] Evaluaciones especificas por industria
-- [ ] Integraciones con sistemas de RRHH
+- [ ] Integraciones con sistemas de RRHH (API endpoints externos)
+- [ ] Analytics avanzados de reclutamiento
 
 ### Fase 7: Integraciones Externas - Pendiente
 
 - [ ] LinkedIn API (validacion real de perfiles)
-- [ ] Pasarela de pagos (Stripe/PayPal)
+- [ ] Pasarela de pagos (Stripe/PayPal para suscripciones)
 - [ ] Notificaciones por email (SMTP)
 - [ ] Notificaciones push
 
@@ -307,32 +323,172 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 
 ---
 
-## Como debe continuar el proyecto
+## Tareas Pendientes Resumidas
 
-1. **Fase 3 - Motor de Evaluacion y Scoring (SIGUIENTE):**
+> **Total: ~45 tareas pendientes** | Prioridad: **Fase 3** (desbloquea verificaciones del portal admin)
+
+| Fase | Tareas pendientes | Bloquea a |
+|------|-------------------|-----------|
+| **Fase 3** | 15 tareas (entidades, servicios, API, UI) | Fase 4 (verificaciones), Fase 5 (perfiles evaluados) |
+| **Fase 4** | 3 tareas + 4 deuda tecnica | — |
+| **Fase 5** | 13 tareas (proyecto nuevo, entidades, suscripciones, busqueda) | Fase 6 |
+| **Fase 6** | 4 tareas (servicios premium) | — |
+| **Fase 7** | 4 tareas (integraciones externas) | — |
+| **Fase 8** | 4 tareas (pruebas, despliegue) | — |
+
+**Bugs resueltos en main (fixes de Dsiezar mergeados):**
+- [x] `#blazor-error-ui` siempre visible en `OpenToWork.WEB` — corregido con `display: none`
+- [x] Google OAuth config en `OpenToWork.API` — corregido: lee `GoogleOAuth:ClientId` y solo registra si hay credenciales
+
+---
+
+## Ruta de Trabajo
+
+### Fases independientes (pueden avanzar en paralelo)
+
+Las siguientes fases **no tienen dependencias entre si** y pueden trabajarse simultaneamente por desarrolladores diferentes:
+
+| Fase | Independiente de | Rama sugerida |
+|------|------------------|---------------|
+| **Fase 3** (Motor de Scoring) | No depende de ninguna otra fase | `iluna-fase-3` |
+| **Fase 5** (Portal Corporativo) | Solo depende de Fase 3 para los scores, pero la estructura base (proyecto, JWT, layout, registro de empresas, suscripciones) se puede construir en paralelo | `dsiezar-fase-5` |
+| **Fase 7** (Integraciones Externas) | LinkedIn API y pasarela de pagos son independientes del resto | cualquier rama |
+
+### Fases con dependencias (secuenciales)
+
+| Fase | Depende de | Motivo |
+|------|------------|--------|
+| **Fase 4** (completar 15%) | Fase 3 | Verificaciones manuales requieren `PTVerification` y `ValidationService` |
+| **Fase 5** (busqueda por score) | Fase 3 | Filtros por score requieren `PTCandidateScore` |
+| **Fase 6** (Servicios Premium) | Fase 5 | Servicios premium requieren portal corporativo funcional |
+| **Fase 8** (Pruebas) | Fases 3-7 | Pruebas integrales requieren todo funcional |
+
+### Orden recomendado de ejecucion
+
+```
+Fase 3 (Motor de Scoring) ──────────────────────────────────────┐
+  │                                                              │
+  ├── Fase 4 (completar verificaciones admin)                    │
+  │                                                              │
+  ├── Fase 5 (Portal Corporativo) ──── Fase 6 (Premium)          │
+  │                                                              │
+  └─────────────────────────────────────── Fase 7 (Integraciones)│
+                                                                 │
+  Fase 8 (Pruebas y Despliegue) ◄────────────────────────────────┘
+```
+
+### Plan de ejecucion detallado
+
+1. **Fase 3 - Motor de Evaluacion y Scoring (PRIORIDAD MAXIMA):**
    - Crear entidades: `PTCandidateScore`, `PTVerification`, `PTCandidateReference`, `PTSkillTest`, `PTCandidateTestResult`
-   - Implementar `ValidationService` (verificacion automatica de LinkedIn, portafolio, coherencia cronologica)
-   - Implementar `ScoringService` (indices de Estabilidad, Confiabilidad, Evidencia)
+   - Migracion EF Core
+   - Implementar `ValidationService` (verificacion automatica: LinkedIn, portafolio, coherencia cronologica)
+   - Implementar `ScoringService` (indices: Estabilidad, Confiabilidad, Evidencia)
    - Implementar `CompatibilityService` (match candidato-vacante)
-   - API endpoints para scores y verificaciones
-   - UI: mostrar scores y verificaciones en el perfil del candidato
-   - Referencias laborales: CRUD en wizard y perfil
+   - API endpoints: `/api/candidates/{id}/score`, `/api/candidates/{id}/verifications`
+   - UI: scores y verificaciones en el perfil del candidato (bento cards con los 4 indices)
+   - Referencias laborales: CRUD en wizard (nuevo paso) y perfil
+   - Pruebas de habilidades: UI basica
+   - i18n keys para scores, verificaciones, referencias (es/en)
+   - **Validacion: ejecutar API + WEB, verificar pantallas funcionen correctamente antes de avanzar**
+   - **Validacion: comprobar patron de diseno One UI (squircles, pill buttons, Bento Grid, temas)**
 
-2. **Fase 4 - Portal Administrativo:**
-   - Configurar `OpenToWork.AdminAPI` con JWT independiente (puerto 5001)
-   - Construir `OpenToWork.AdminWEB` con Blazor (puerto 5101)
-   - Verificaciones manuales (aprobar/rechazar)
-   - Gestion de usuarios, moderacion de vacantes
-   - Dashboard admin con metricas
-   - Log de auditoria admin (`ADAuditLog`)
+2. **Fase 4 - Portal Administrativo (completar 15% faltante):**
+   - Verificaciones manuales (aprobar/rechazar `PTVerification`) — requiere Fase 3
+   - Revision de validaciones automaticas — requiere Fase 3
+   - Gestion de roles de usuario (cambiar rol, no solo activar/desactivar)
+   - Resolver 4 items de deuda tecnica:
+     - Unificar `AdminAuthService` con `AuthService`
+     - Optimizar `AdminVacancyService` (paginacion en BD, no en memoria)
+     - Mover `LocalStorageService`/`LanguageService` a SharedUI
+     - Centralizar guard de autenticacion en `AdminLayout`
+   - **Validacion: ejecutar AdminAPI + AdminWEB, verificar pantallas funcionen correctamente**
+   - **Validacion: comprobar patron de diseno One UI consistente con portal principal**
 
-3. **Fase 5 - Portal Corporativo:**
-   - Configurar `OpenToWork.CorporateAPI` con JWT independiente (puerto 5002)
-   - Construir `OpenToWork.CorporateWEB` con Blazor (puerto 5102)
-   - Registro de empresas y sistema de suscripciones
-   - Busqueda avanzada con filtros por score
-   - Perfiles evaluados con checkmarks
-   - Ranking automatico de candidatos
+3. **Fase 5 - Portal Corporativo (puede iniciar estructura base en paralelo con Fase 3):**
+   - Crear `OpenToWork.CorporateAPI` (puerto 5002, JWT independiente)
+   - Crear `OpenToWork.CorporateWEB` (puerto 5102)
+   - Entidades: `COCompany`, `COSubscription`, `COSearchHistory`, `COCandidateView`
+   - Registro de empresas + wizard de empresa
+   - Sistema de suscripciones (planes: Basic, Pro, Enterprise)
+   - Busqueda avanzada con filtros por score (requiere Fase 3 terminada)
+   - Vista de perfiles evaluados con checkmarks
+   - Ranking automatico de candidatos por compatibilidad
+   - Reportes avanzados
+   - **Validacion: ejecutar CorporateAPI + CorporateWEB, verificar pantallas funcionen**
+   - **Validacion: comprobar patron de diseno One UI consistente**
+
+4. **Fase 6 - Servicios Premium:**
+   - Verificacion manual de referencias (premium)
+   - Evaluaciones por industria
+   - Integraciones RRHH
+
+5. **Fase 7 - Integraciones Externas (independiente, puede avanzar en paralelo):**
+   - LinkedIn API, pasarela de pagos, notificaciones
+
+6. **Fase 8 - Pruebas y Despliegue:**
+   - Cobertura > 70%, 3 APIs, despliegue produccion
+
+### Criterios de validacion por fase (obligatorios antes de avanzar)
+
+Antes de marcar cualquier fase como completada, se debe validar:
+
+1. **Build sin errores:** `dotnet build OpenToWork.slnx` -> 0 errores
+2. **API funcional:** ejecutar la API correspondiente y verificar endpoints con datos reales (no mocks)
+3. **WEB funcional:** ejecutar el frontend correspondiente y verificar pantallas en navegador
+4. **Patron de diseno:** comprobar que la UI cumple con One UI (squircles `border-radius: 20px`, pill buttons `border-radius: 9999px`, Bento Grid, temas navy/dark/light, espaciado consistente)
+5. **i18n:** sin texto hardcoded, todas las claves existen en es/en
+6. **Responsive:** verificar en tablet (1024px), mobile (768px) y small mobile (480px)
+7. **Sin regresiones:** las fases anteriores siguen funcionando
+
+---
+
+## Notas de Actualizacion
+
+> **Regla obligatoria:** Todo desarrollador debe agregar sus notas de cambios en esta seccion cada vez que haga un commit en `main`. El formato es: fecha, nombre del desarrollador, fase, resumen de cambios. Esto mantiene a ambos enterados del progreso sin necesidad de revisar commits uno por uno.
+
+### Estado actual del proyecto
+
+- **Fase 1 (Fundacion):** COMPLETADA
+- **Fase 2 (Portal de Candidatos):** 80% completada (Iluna) — funcional pero pendiente de pulido UI/UX y validacion de pantallas
+- **Fase 3 (Motor de Evaluacion y Scoring):** Pendiente — **PRIORIDAD MAXIMA**, es el corazon de la propuesta de negocio
+- **Fase 4 (Portal Administrativo):** 85% completada (Dsiezar) — faltan verificaciones manuales (bloqueadas por Fase 3), gestion de roles y 4 items de deuda tecnica
+- **Fase 5 (Portal Corporativo):** Pendiente — la estructura base puede iniciar en paralelo con Fase 3
+- **Fases 6-8:** Pendientes
+
+### Indicaciones para continuar
+
+1. **Culminar las fases pendientes en orden de prioridad.** Fase 3 primero, despues completar Fase 4, luego Fase 5.
+2. **No avanzar a la siguiente fase hasta validar que las pantallas funcionen correctamente.** Ejecutar API + WEB y verificar en navegador con datos reales.
+3. **Validar que se cumpla el patron de diseno solicitado** (Samsung One UI: squircles, pill buttons, Bento Grid, temas consistentes, espaciado uniforme).
+4. **Mejorar todo lo que sea posible para verse mas profesional.** Cada fase debe entregar una UI pulida, no solo funcional.
+5. **La Fase 5 (Portal Corporativo) puede avanzar en paralelo con la Fase 3** en su estructura base (proyecto, JWT, layout, registro de empresas, suscripciones). La busqueda por score si requiere que Fase 3 este terminada.
+6. **La Fase 7 (Integraciones Externas) es independiente** y puede avanzar en paralelo con cualquier otra fase.
+
+### Fases que pueden trabajarse en paralelo
+
+| Desarrollador | Fase | Rama | Independiente de |
+|---------------|------|------|------------------|
+| Desarrollador A | Fase 3 (Motor de Scoring) | `iluna-fase-3` | Sin dependencias |
+| Desarrollador B | Fase 5 (estructura base Portal Corporativo) | `dsiezar-fase-5` | Solo depende de Fase 3 para busqueda por score |
+| Cualquiera | Fase 7 (Integraciones Externas) | rama dedicada | LinkedIn API y pagos son independientes |
+
+### Bitacora de cambios en main
+
+| Fecha | Desarrollador | Fase | Cambios |
+|------|---------------|------|--------|
+| 2026-08-12 | Iluna | Fase 2 | Rediseno UI/UX Home: hero navy, capsule search bar, pill badges, Bento Grid role cards, footer corporativo, cinta de vacantes destacadas |
+| 2026-08-12 | Iluna | Fase 2 | Fix CSS loading: middleware order en Program.cs (UseStaticFiles antes de UseHttpsRedirection) |
+| 2026-08-12 | Iluna | Fase 2 | AuthLayout: unificar nav-brand con logo OTW + texto OpenToWork |
+| 2026-08-12 | Iluna | Fase 2 | Register: segmented control pill toggle (One UI) reemplazando role cards pesadas |
+| 2026-08-12 | Iluna | Docs | BUSINESS_PROPOSAL.md: propuesta de negocio completa |
+| 2026-08-12 | Iluna | Docs | PLAN_DE_PROYECTO.md v2.0: 3 portales, 8 fases, entidades nuevas |
+| 2026-08-12 | Iluna | Docs | README: alineado con 3 portales y propuesta de negocio |
+| 2026-08-13 | Dsiezar | Fase 4 | AdminAPI: JWT independiente, login admin, auditoria, controllers (users, vacancies, skills, dashboard, export) |
+| 2026-08-13 | Dsiezar | Fase 4 | AdminWEB: login, layout, dashboard, pages (users, vacancies, skills, audit-log) |
+| 2026-08-13 | Dsiezar | Fase 4 | QA+SEC: 6 bugs corregidos (enumeracion cuentas, paginacion, CSV injection, vacantes temporales, auto-bloqueo, i18n) |
+| 2026-08-13 | Dsiezar | Fase 4 | Fix fuera de alcance: Google OAuth config en API, #blazor-error-ui en WEB |
+| 2026-08-14 | Iluna | Docs | README: notas de actualizacion, ruta de trabajo, fases paralelas, criterios de validacion |
 
 ---
 

@@ -183,7 +183,7 @@ Ver `docs/BUSINESS_PROPOSAL.md` para el detalle completo de la propuesta de nego
 | Referencias laborales | CRUD de referencias en wizard y perfil | OpenToWork.WEB |
 | Pruebas de habilidades | `PTSkillTest`, `PTCandidateTestResult`, UI basica | OpenToWork.WEB |
 
-### Fase 4: Portal Administrativo - Pendiente
+### Fase 4: Portal Administrativo - 85% COMPLETADA (por Dsiezar)
 | Tarea | Descripcion | Entregable |
 |-------|-------------|------------|
 | Estructura AdminAPI | JWT independiente, controllers base | OpenToWork.AdminAPI |
