@@ -336,9 +336,9 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 | **Fase 7** | 4 tareas (integraciones externas) | — |
 | **Fase 8** | 4 tareas (pruebas, despliegue) | — |
 
-**Bugs pendientes de verificar en main:**
-- [ ] `#blazor-error-ui` siempre visible en `OpenToWork.WEB` (fix de Darwin en su rama)
-- [ ] Google OAuth config en `OpenToWork.API` (fix de Darwin en su rama)
+**Bugs resueltos en main (fixes de Dsiezar mergeados):**
+- [x] `#blazor-error-ui` siempre visible en `OpenToWork.WEB` — corregido con `display: none`
+- [x] Google OAuth config en `OpenToWork.API` — corregido: lee `GoogleOAuth:ClientId` y solo registra si hay credenciales
 
 ---
 
