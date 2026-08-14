@@ -16,7 +16,7 @@ El proyecto se compone de **3 portales independientes**:
 | Portal | Descripcion | Estado |
 |--------|-------------|--------|
 | **Portal de Candidatos** | Registro, perfil, wizard, busqueda de vacantes, postulaciones | Completado |
-| **Portal Administrativo** | Verificaciones manuales, moderacion, gestion de usuarios, auditoria | Pendiente |
+| **Portal Administrativo** | Verificaciones manuales, moderacion, gestion de usuarios, auditoria | 85% Completado |
 | **Portal Corporativo** | Suscripcion mensual, perfiles evaluados, ranking, filtros avanzados | Pendiente |
 
 ### Caracteristicas principales
@@ -342,42 +342,136 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 
 ---
 
-## Como debe continuar el proyecto
+## Ruta de Trabajo
 
-1. **Fase 3 - Motor de Evaluacion y Scoring (SIGUIENTE):**
+### Fases independientes (pueden avanzar en paralelo)
+
+Las siguientes fases **no tienen dependencias entre si** y pueden trabajarse simultaneamente por desarrolladores diferentes:
+
+| Fase | Independiente de | Rama sugerida |
+|------|------------------|---------------|
+| **Fase 3** (Motor de Scoring) | No depende de ninguna otra fase | `iluna-fase-3` |
+| **Fase 5** (Portal Corporativo) | Solo depende de Fase 3 para los scores, pero la estructura base (proyecto, JWT, layout, registro de empresas, suscripciones) se puede construir en paralelo | `dsiezar-fase-5` |
+| **Fase 7** (Integraciones Externas) | LinkedIn API y pasarela de pagos son independientes del resto | cualquier rama |
+
+### Fases con dependencias (secuenciales)
+
+| Fase | Depende de | Motivo |
+|------|------------|--------|
+| **Fase 4** (completar 15%) | Fase 3 | Verificaciones manuales requieren `PTVerification` y `ValidationService` |
+| **Fase 5** (busqueda por score) | Fase 3 | Filtros por score requieren `PTCandidateScore` |
+| **Fase 6** (Servicios Premium) | Fase 5 | Servicios premium requieren portal corporativo funcional |
+| **Fase 8** (Pruebas) | Fases 3-7 | Pruebas integrales requieren todo funcional |
+
+### Orden recomendado de ejecucion
+
+```
+Fase 3 (Motor de Scoring) ──────────────────────────────────────┐
+  │                                                              │
+  ├── Fase 4 (completar verificaciones admin)                    │
+  │                                                              │
+  ├── Fase 5 (Portal Corporativo) ──── Fase 6 (Premium)          │
+  │                                                              │
+  └─────────────────────────────────────── Fase 7 (Integraciones)│
+                                                                 │
+  Fase 8 (Pruebas y Despliegue) ◄────────────────────────────────┘
+```
+
+### Plan de ejecucion detallado
+
+1. **Fase 3 - Motor de Evaluacion y Scoring (PRIORIDAD MAXIMA):**
    - Crear entidades: `PTCandidateScore`, `PTVerification`, `PTCandidateReference`, `PTSkillTest`, `PTCandidateTestResult`
-   - Implementar `ValidationService` (verificacion automatica de LinkedIn, portafolio, coherencia cronologica)
-   - Implementar `ScoringService` (indices de Estabilidad, Confiabilidad, Evidencia)
+   - Migracion EF Core
+   - Implementar `ValidationService` (verificacion automatica: LinkedIn, portafolio, coherencia cronologica)
+   - Implementar `ScoringService` (indices: Estabilidad, Confiabilidad, Evidencia)
    - Implementar `CompatibilityService` (match candidato-vacante)
-   - API endpoints para scores y verificaciones
-   - UI: mostrar scores y verificaciones en el perfil del candidato
-   - Referencias laborales: CRUD en wizard y perfil
+   - API endpoints: `/api/candidates/{id}/score`, `/api/candidates/{id}/verifications`
+   - UI: scores y verificaciones en el perfil del candidato (bento cards con los 4 indices)
+   - Referencias laborales: CRUD en wizard (nuevo paso) y perfil
    - Pruebas de habilidades: UI basica
+   - i18n keys para scores, verificaciones, referencias (es/en)
+   - **Validacion: ejecutar API + WEB, verificar pantallas funcionen correctamente antes de avanzar**
+   - **Validacion: comprobar patron de diseno One UI (squircles, pill buttons, Bento Grid, temas)**
 
 2. **Fase 4 - Portal Administrativo (completar 15% faltante):**
    - Verificaciones manuales (aprobar/rechazar `PTVerification`) — requiere Fase 3
    - Revision de validaciones automaticas — requiere Fase 3
-   - Gestion de roles de usuario
-   - Resolver 4 items de deuda tecnica documentada
+   - Gestion de roles de usuario (cambiar rol, no solo activar/desactivar)
+   - Resolver 4 items de deuda tecnica:
+     - Unificar `AdminAuthService` con `AuthService`
+     - Optimizar `AdminVacancyService` (paginacion en BD, no en memoria)
+     - Mover `LocalStorageService`/`LanguageService` a SharedUI
+     - Centralizar guard de autenticacion en `AdminLayout`
+   - **Validacion: ejecutar AdminAPI + AdminWEB, verificar pantallas funcionen correctamente**
+   - **Validacion: comprobar patron de diseno One UI consistente con portal principal**
 
-3. **Fase 5 - Portal Corporativo:**
+3. **Fase 5 - Portal Corporativo (puede iniciar estructura base en paralelo con Fase 3):**
    - Crear `OpenToWork.CorporateAPI` (puerto 5002, JWT independiente)
    - Crear `OpenToWork.CorporateWEB` (puerto 5102)
-   - Registro de empresas y sistema de suscripciones
-   - Busqueda avanzada con filtros por score
-   - Perfiles evaluados con checkmarks
-   - Ranking automatico de candidatos
+   - Entidades: `COCompany`, `COSubscription`, `COSearchHistory`, `COCandidateView`
+   - Registro de empresas + wizard de empresa
+   - Sistema de suscripciones (planes: Basic, Pro, Enterprise)
+   - Busqueda avanzada con filtros por score (requiere Fase 3 terminada)
+   - Vista de perfiles evaluados con checkmarks
+   - Ranking automatico de candidatos por compatibilidad
+   - Reportes avanzados
+   - **Validacion: ejecutar CorporateAPI + CorporateWEB, verificar pantallas funcionen**
+   - **Validacion: comprobar patron de diseno One UI consistente**
 
 4. **Fase 6 - Servicios Premium:**
    - Verificacion manual de referencias (premium)
    - Evaluaciones por industria
    - Integraciones RRHH
 
-5. **Fase 7 - Integraciones Externas:**
+5. **Fase 7 - Integraciones Externas (independiente, puede avanzar en paralelo):**
    - LinkedIn API, pasarela de pagos, notificaciones
 
 6. **Fase 8 - Pruebas y Despliegue:**
    - Cobertura > 70%, 3 APIs, despliegue produccion
+
+### Criterios de validacion por fase (obligatorios antes de avanzar)
+
+Antes de marcar cualquier fase como completada, se debe validar:
+
+1. **Build sin errores:** `dotnet build OpenToWork.slnx` -> 0 errores
+2. **API funcional:** ejecutar la API correspondiente y verificar endpoints con datos reales (no mocks)
+3. **WEB funcional:** ejecutar el frontend correspondiente y verificar pantallas en navegador
+4. **Patron de diseno:** comprobar que la UI cumple con One UI (squircles `border-radius: 20px`, pill buttons `border-radius: 9999px`, Bento Grid, temas navy/dark/light, espaciado consistente)
+5. **i18n:** sin texto hardcoded, todas las claves existen en es/en
+6. **Responsive:** verificar en tablet (1024px), mobile (768px) y small mobile (480px)
+7. **Sin regresiones:** las fases anteriores siguen funcionando
+
+---
+
+## Notas de Actualizacion
+
+> **Ultima actualizacion:** 2026-08-14
+
+### Estado actual del proyecto
+
+- **Fase 1 (Fundacion):** COMPLETADA
+- **Fase 2 (Portal de Candidatos):** COMPLETADA
+- **Fase 3 (Motor de Evaluacion y Scoring):** Pendiente — **PRIORIDAD MAXIMA**, es el corazon de la propuesta de negocio
+- **Fase 4 (Portal Administrativo):** 85% completada — faltan verificaciones manuales (bloqueadas por Fase 3), gestion de roles y 4 items de deuda tecnica
+- **Fase 5 (Portal Corporativo):** Pendiente — la estructura base puede iniciar en paralelo con Fase 3
+- **Fases 6-8:** Pendientes
+
+### Indicaciones para continuar
+
+1. **Culminar las fases pendientes en orden de prioridad.** Fase 3 primero, despues completar Fase 4, luego Fase 5.
+2. **No avanzar a la siguiente fase hasta validar que las pantallas funcionen correctamente.** Ejecutar API + WEB y verificar en navegador con datos reales.
+3. **Validar que se cumpla el patron de diseno solicitado** (Samsung One UI: squircles, pill buttons, Bento Grid, temas consistentes, espaciado uniforme).
+4. **Mejorar todo lo que sea posible para verse mas profesional.** Cada fase debe entregar una UI pulida, no solo funcional.
+5. **La Fase 5 (Portal Corporativo) puede avanzar en paralelo con la Fase 3** en su estructura base (proyecto, JWT, layout, registro de empresas, suscripciones). La busqueda por score si requiere que Fase 3 este terminada.
+6. **La Fase 7 (Integraciones Externas) es independiente** y puede avanzar en paralelo con cualquier otra fase.
+
+### Fases que pueden trabajarse en paralelo
+
+| Desarrollador | Fase | Rama | Independiente de |
+|---------------|------|------|------------------|
+| Desarrollador A | Fase 3 (Motor de Scoring) | `iluna-fase-3` | Sin dependencias |
+| Desarrollador B | Fase 5 (estructura base Portal Corporativo) | `dsiezar-fase-5` | Solo depende de Fase 3 para busqueda por score |
+| Cualquiera | Fase 7 (Integraciones Externas) | rama dedicada | LinkedIn API y pagos son independientes |
 
 ---
 
