@@ -15,7 +15,7 @@ El proyecto se compone de **3 portales independientes**:
 
 | Portal | Descripcion | Estado |
 |--------|-------------|--------|
-| **Portal de Candidatos** | Registro, perfil, wizard, busqueda de vacantes, postulaciones | Completado |
+| **Portal de Candidatos** | Registro, perfil, wizard, busqueda de vacantes, postulaciones | 80% Completado |
 | **Portal Administrativo** | Verificaciones manuales, moderacion, gestion de usuarios, auditoria | 85% Completado |
 | **Portal Corporativo** | Suscripcion mensual, perfiles evaluados, ranking, filtros avanzados | Pendiente |
 
@@ -445,14 +445,14 @@ Antes de marcar cualquier fase como completada, se debe validar:
 
 ## Notas de Actualizacion
 
-> **Ultima actualizacion:** 2026-08-14
+> **Regla obligatoria:** Todo desarrollador debe agregar sus notas de cambios en esta seccion cada vez que haga un commit en `main`. El formato es: fecha, nombre del desarrollador, fase, resumen de cambios. Esto mantiene a ambos enterados del progreso sin necesidad de revisar commits uno por uno.
 
 ### Estado actual del proyecto
 
 - **Fase 1 (Fundacion):** COMPLETADA
-- **Fase 2 (Portal de Candidatos):** COMPLETADA
+- **Fase 2 (Portal de Candidatos):** 80% completada (Iluna) — funcional pero pendiente de pulido UI/UX y validacion de pantallas
 - **Fase 3 (Motor de Evaluacion y Scoring):** Pendiente — **PRIORIDAD MAXIMA**, es el corazon de la propuesta de negocio
-- **Fase 4 (Portal Administrativo):** 85% completada — faltan verificaciones manuales (bloqueadas por Fase 3), gestion de roles y 4 items de deuda tecnica
+- **Fase 4 (Portal Administrativo):** 85% completada (Dsiezar) — faltan verificaciones manuales (bloqueadas por Fase 3), gestion de roles y 4 items de deuda tecnica
 - **Fase 5 (Portal Corporativo):** Pendiente — la estructura base puede iniciar en paralelo con Fase 3
 - **Fases 6-8:** Pendientes
 
@@ -472,6 +472,23 @@ Antes de marcar cualquier fase como completada, se debe validar:
 | Desarrollador A | Fase 3 (Motor de Scoring) | `iluna-fase-3` | Sin dependencias |
 | Desarrollador B | Fase 5 (estructura base Portal Corporativo) | `dsiezar-fase-5` | Solo depende de Fase 3 para busqueda por score |
 | Cualquiera | Fase 7 (Integraciones Externas) | rama dedicada | LinkedIn API y pagos son independientes |
+
+### Bitacora de cambios en main
+
+| Fecha | Desarrollador | Fase | Cambios |
+|------|---------------|------|--------|
+| 2026-08-12 | Iluna | Fase 2 | Rediseno UI/UX Home: hero navy, capsule search bar, pill badges, Bento Grid role cards, footer corporativo, cinta de vacantes destacadas |
+| 2026-08-12 | Iluna | Fase 2 | Fix CSS loading: middleware order en Program.cs (UseStaticFiles antes de UseHttpsRedirection) |
+| 2026-08-12 | Iluna | Fase 2 | AuthLayout: unificar nav-brand con logo OTW + texto OpenToWork |
+| 2026-08-12 | Iluna | Fase 2 | Register: segmented control pill toggle (One UI) reemplazando role cards pesadas |
+| 2026-08-12 | Iluna | Docs | BUSINESS_PROPOSAL.md: propuesta de negocio completa |
+| 2026-08-12 | Iluna | Docs | PLAN_DE_PROYECTO.md v2.0: 3 portales, 8 fases, entidades nuevas |
+| 2026-08-12 | Iluna | Docs | README: alineado con 3 portales y propuesta de negocio |
+| 2026-08-13 | Dsiezar | Fase 4 | AdminAPI: JWT independiente, login admin, auditoria, controllers (users, vacancies, skills, dashboard, export) |
+| 2026-08-13 | Dsiezar | Fase 4 | AdminWEB: login, layout, dashboard, pages (users, vacancies, skills, audit-log) |
+| 2026-08-13 | Dsiezar | Fase 4 | QA+SEC: 6 bugs corregidos (enumeracion cuentas, paginacion, CSV injection, vacantes temporales, auto-bloqueo, i18n) |
+| 2026-08-13 | Dsiezar | Fase 4 | Fix fuera de alcance: Google OAuth config en API, #blazor-error-ui en WEB |
+| 2026-08-14 | Iluna | Docs | README: notas de actualizacion, ruta de trabajo, fases paralelas, criterios de validacion |
 
 ---
 
