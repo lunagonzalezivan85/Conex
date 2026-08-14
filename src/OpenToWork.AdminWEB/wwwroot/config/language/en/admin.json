@@ -1,0 +1,89 @@
+{
+  "brand": "OpenToWork Admin",
+  "nav": {
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "vacancies": "Vacancies",
+    "skills": "Skills",
+    "auditLog": "Audit Log",
+    "logout": "Log out"
+  },
+  "login": {
+    "title": "Administrator Access",
+    "subtitle": "Sign in with your administrator account",
+    "emailPlaceholder": "admin@opentowork.com",
+    "passwordPlaceholder": "Your password",
+    "button": "Sign In",
+    "loading": "Signing in...",
+    "errorInvalid": "Invalid credentials or the account is not an administrator.",
+    "errorGeneric": "Something went wrong. Please try again."
+  },
+  "dashboard": {
+    "title": "Admin Dashboard",
+    "welcome": "Welcome to the OpenToWork admin portal.",
+    "totalUsers": "Total Users",
+    "activeUsers": "Active Users",
+    "candidates": "Candidates",
+    "companies": "Companies",
+    "permanentVacancies": "Permanent Vacancies",
+    "tempVacancies": "Temporary Vacancies",
+    "skills": "Skills",
+    "auditEntries": "Audit Log Entries"
+  },
+  "users": {
+    "title": "User Management",
+    "exportCsv": "Export CSV",
+    "empty": "No users.",
+    "columnEmail": "Email",
+    "columnRole": "Role",
+    "columnStatus": "Status",
+    "columnCreated": "Created",
+    "active": "Active",
+    "inactive": "Inactive",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "delete": "Delete",
+    "confirmDelete": "Delete this user? This action cannot be undone."
+  },
+  "vacancies": {
+    "title": "Vacancy Moderation",
+    "exportCsv": "Export CSV",
+    "empty": "No vacancies.",
+    "columnTitle": "Title",
+    "columnCompany": "Company",
+    "columnStatus": "Status",
+    "columnType": "Type",
+    "temporary": "Temporary",
+    "permanent": "Permanent",
+    "statusDraft": "Draft",
+    "statusActive": "Active",
+    "statusClosed": "Closed",
+    "approve": "Approve",
+    "close": "Close"
+  },
+  "skills": {
+    "title": "Skills Management",
+    "empty": "No skills registered.",
+    "namePlaceholder": "Skill name",
+    "categoryPlaceholder": "Category (optional)",
+    "add": "Add",
+    "delete": "Delete",
+    "columnName": "Name",
+    "columnCategory": "Category"
+  },
+  "auditLog": {
+    "title": "Audit Log",
+    "empty": "No audit log entries yet.",
+    "columnAdmin": "Admin",
+    "columnAction": "Action",
+    "columnEntity": "Entity",
+    "columnDate": "Date"
+  },
+  "common": {
+    "email": "Email",
+    "password": "Password",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}

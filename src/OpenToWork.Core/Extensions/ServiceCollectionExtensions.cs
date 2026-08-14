@@ -21,6 +21,19 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddAdminCoreServices(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IAdminAuthService, AdminAuthService>();
+        services.AddScoped<IAuditLogService, AuditLogService>();
+        services.AddScoped<IAdminUserService, AdminUserService>();
+        services.AddScoped<IAdminVacancyService, AdminVacancyService>();
+        services.AddScoped<IAdminSkillService, AdminSkillService>();
+        services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+        services.AddScoped<IExportService, ExportService>();
+
+        return services;
+    }
+
     public static IServiceCollection AddDatabaseContext(this IServiceCollection services, IConfiguration configuration)
     {
         var connectionString = configuration.GetConnectionString("DefaultConnection");

@@ -1,0 +1,92 @@
+@page "/skills"
+@using OpenToWork.AdminWEB.Services
+@using OpenToWork.Shared.DTOs
+@inject LanguageService Lang
+@inject LocalStorageService LocalStorage
+@inject AdminAuthApiService AuthApi
+@inject NavigationManager Nav
+
+<PageTitle>@Lang.T("admin.skills.title")</PageTitle>
+
+<h1 class="mb-lg">@Lang.T("admin.skills.title")</h1>
+
+<EditForm Model="NewSkill" OnValidSubmit="AddSkill" class="mb-lg">
+    <div class="flex-center" style="gap: 0.5rem; justify-content: flex-start;">
+        <InputText class="ot-input-field" @bind-Value="NewSkill.Name" placeholder="@Lang.T("admin.skills.namePlaceholder")" />
+        <InputText class="ot-input-field" @bind-Value="NewSkill.Category" placeholder="@Lang.T("admin.skills.categoryPlaceholder")" />
+        <button type="submit" class="ot-btn ot-btn--primary ot-btn--small">@Lang.T("admin.skills.add")</button>
+    </div>
+</EditForm>
+
+@if (SkillsList == null)
+{
+    <p>@Lang.T("admin.common.loading")</p>
+}
+else if (SkillsList.Count == 0)
+{
+    <p>@Lang.T("admin.skills.empty")</p>
+}
+else
+{
+    <table class="ot-table">
+        <thead>
+            <tr>
+                <th>@Lang.T("admin.skills.columnName")</th>
+                <th>@Lang.T("admin.skills.columnCategory")</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var skill in SkillsList)
+            {
+                <tr>
+                    <td>@skill.Name</td>
+                    <td>@(skill.Category ?? "-")</td>
+                    <td>
+                        <button class="ot-btn ot-btn--danger ot-btn--small" @onclick="() => DeleteSkill(skill.Id)">@Lang.T("admin.skills.delete")</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<AdminSkillDto>? SkillsList;
+    private CreateSkillDto NewSkill { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+
+        var token = await LocalStorage.GetItemAsync("otwadmin-token");
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        await LoadSkills();
+    }
+
+    private async Task LoadSkills()
+    {
+        SkillsList = await AuthApi.GetSkillsAsync();
+    }
+
+    private async Task AddSkill()
+    {
+        if (string.IsNullOrWhiteSpace(NewSkill.Name)) return;
+
+        await AuthApi.CreateSkillAsync(NewSkill);
+        NewSkill = new CreateSkillDto();
+        await LoadSkills();
+    }
+
+    private async Task DeleteSkill(Guid id)
+    {
+        await AuthApi.DeleteSkillAsync(id);
+        await LoadSkills();
+    }
+}

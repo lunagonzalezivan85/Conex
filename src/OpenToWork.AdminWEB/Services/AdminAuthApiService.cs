@@ -1,0 +1,150 @@
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using OpenToWork.Shared.DTOs;
+
+namespace OpenToWork.AdminWEB.Services;
+
+public class AdminAuthApiService
+{
+    private readonly HttpClient _httpClient;
+    private readonly LocalStorageService _localStorage;
+
+    public AdminAuthApiService(HttpClient httpClient, LocalStorageService localStorage)
+    {
+        _httpClient = httpClient;
+        _localStorage = localStorage;
+    }
+
+    public async Task<AuthResponseDto?> LoginAsync(LoginDto dto)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/admin/auth/login", dto);
+        if (!response.IsSuccessStatusCode) return null;
+
+        var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
+        if (result != null) await PersistAuthAsync(result);
+        return result;
+    }
+
+    public async Task<List<AuditLogDto>> GetAuditLogAsync(int page = 1, int pageSize = 20)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync($"api/admin/audit-log?page={page}&pageSize={pageSize}");
+        if (!response.IsSuccessStatusCode) return new();
+        return await response.Content.ReadFromJsonAsync<List<AuditLogDto>>() ?? new();
+    }
+
+    public async Task<DashboardMetricsDto?> GetMetricsAsync()
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync("api/admin/dashboard/metrics");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<DashboardMetricsDto>();
+    }
+
+    public async Task<List<AdminUserDto>> GetUsersAsync(int page = 1, int pageSize = 20)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync($"api/admin/users?page={page}&pageSize={pageSize}");
+        if (!response.IsSuccessStatusCode) return new();
+        return await response.Content.ReadFromJsonAsync<List<AdminUserDto>>() ?? new();
+    }
+
+    public async Task<bool> ActivateUserAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PutAsync($"api/admin/users/{id}/activate", null);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeactivateUserAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PutAsync($"api/admin/users/{id}/deactivate", null);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteUserAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.DeleteAsync($"api/admin/users/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<List<AdminVacancyDto>> GetVacanciesAsync(int page = 1, int pageSize = 20, int? status = null)
+    {
+        await SetAuthHeaderAsync();
+        var query = $"api/admin/vacancies?page={page}&pageSize={pageSize}";
+        if (status.HasValue) query += $"&status={status}";
+        var response = await _httpClient.GetAsync(query);
+        if (!response.IsSuccessStatusCode) return new();
+        return await response.Content.ReadFromJsonAsync<List<AdminVacancyDto>>() ?? new();
+    }
+
+    public async Task<bool> ModerateVacancyAsync(Guid id, int status)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PutAsJsonAsync($"api/admin/vacancies/{id}/moderate", new ModerateVacancyDto { Status = status });
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<List<AdminSkillDto>> GetSkillsAsync()
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync("api/admin/skills");
+        if (!response.IsSuccessStatusCode) return new();
+        return await response.Content.ReadFromJsonAsync<List<AdminSkillDto>>() ?? new();
+    }
+
+    public async Task<AdminSkillDto?> CreateSkillAsync(CreateSkillDto dto)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.PostAsJsonAsync("api/admin/skills", dto);
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<AdminSkillDto>();
+    }
+
+    public async Task<bool> DeleteSkillAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.DeleteAsync($"api/admin/skills/{id}");
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<byte[]?> ExportUsersCsvAsync()
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync("api/admin/export/users");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadAsByteArrayAsync();
+    }
+
+    public async Task<byte[]?> ExportVacanciesCsvAsync()
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync("api/admin/export/vacancies");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadAsByteArrayAsync();
+    }
+
+    public async Task SetAuthHeaderAsync()
+    {
+        var token = await _localStorage.GetItemAsync("otwadmin-token");
+        if (!string.IsNullOrEmpty(token))
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
+
+    private async Task PersistAuthAsync(AuthResponseDto auth)
+    {
+        await _localStorage.SetItemAsync("otwadmin-token", auth.Token);
+        await _localStorage.SetItemAsync("otwadmin-refresh-token", auth.RefreshToken);
+        await _localStorage.SetItemAsync("otwadmin-user-id", auth.User.Id.ToString());
+    }
+
+    public async Task LogoutAsync()
+    {
+        await _localStorage.RemoveItemAsync("otwadmin-token");
+        await _localStorage.RemoveItemAsync("otwadmin-refresh-token");
+        await _localStorage.RemoveItemAsync("otwadmin-user-id");
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+    }
+}

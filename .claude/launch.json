@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "adminweb",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/OpenToWork.AdminWEB", "--urls", "http://localhost:5101"],
+      "port": 5101
+    },
+    {
+      "name": "adminapi",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/OpenToWork.AdminAPI", "--urls", "http://localhost:5001"],
+      "port": 5001
+    },
+    {
+      "name": "api",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/OpenToWork.API", "--urls", "http://localhost:5000"],
+      "port": 5000
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/OpenToWork.WEB", "--urls", "http://localhost:5100"],
+      "port": 5100
+    }
+  ]
+}

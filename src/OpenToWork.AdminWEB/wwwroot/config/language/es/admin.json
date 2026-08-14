@@ -1,0 +1,89 @@
+{
+  "brand": "OpenToWork Admin",
+  "nav": {
+    "dashboard": "Panel",
+    "users": "Usuarios",
+    "vacancies": "Vacantes",
+    "skills": "Skills",
+    "auditLog": "Auditoría",
+    "logout": "Cerrar sesión"
+  },
+  "login": {
+    "title": "Acceso Administrador",
+    "subtitle": "Ingresa con tu cuenta de administrador",
+    "emailPlaceholder": "admin@opentowork.com",
+    "passwordPlaceholder": "Tu contraseña",
+    "button": "Ingresar",
+    "loading": "Ingresando...",
+    "errorInvalid": "Credenciales invalidas o la cuenta no es de administrador.",
+    "errorGeneric": "Ocurrio un error. Intenta de nuevo."
+  },
+  "dashboard": {
+    "title": "Panel de administración",
+    "welcome": "Bienvenido al portal de administración de OpenToWork.",
+    "totalUsers": "Usuarios totales",
+    "activeUsers": "Usuarios activos",
+    "candidates": "Candidatos",
+    "companies": "Empresas",
+    "permanentVacancies": "Vacantes permanentes",
+    "tempVacancies": "Vacantes temporales",
+    "skills": "Skills",
+    "auditEntries": "Registros de auditoría"
+  },
+  "users": {
+    "title": "Gestión de usuarios",
+    "exportCsv": "Exportar CSV",
+    "empty": "No hay usuarios.",
+    "columnEmail": "Correo",
+    "columnRole": "Rol",
+    "columnStatus": "Estado",
+    "columnCreated": "Creado",
+    "active": "Activo",
+    "inactive": "Inactivo",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar este usuario? Esta acción no se puede deshacer."
+  },
+  "vacancies": {
+    "title": "Moderación de vacantes",
+    "exportCsv": "Exportar CSV",
+    "empty": "No hay vacantes.",
+    "columnTitle": "Título",
+    "columnCompany": "Empresa",
+    "columnStatus": "Estado",
+    "columnType": "Tipo",
+    "temporary": "Temporal",
+    "permanent": "Permanente",
+    "statusDraft": "Borrador",
+    "statusActive": "Activa",
+    "statusClosed": "Cerrada",
+    "approve": "Aprobar",
+    "close": "Cerrar"
+  },
+  "skills": {
+    "title": "Gestión de skills",
+    "empty": "No hay skills registrados.",
+    "namePlaceholder": "Nombre del skill",
+    "categoryPlaceholder": "Categoría (opcional)",
+    "add": "Agregar",
+    "delete": "Eliminar",
+    "columnName": "Nombre",
+    "columnCategory": "Categoría"
+  },
+  "auditLog": {
+    "title": "Registro de auditoría",
+    "empty": "No hay registros de auditoría todavía.",
+    "columnAdmin": "Administrador",
+    "columnAction": "Acción",
+    "columnEntity": "Entidad",
+    "columnDate": "Fecha"
+  },
+  "common": {
+    "email": "Correo",
+    "password": "Contraseña",
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar"
+  }
+}

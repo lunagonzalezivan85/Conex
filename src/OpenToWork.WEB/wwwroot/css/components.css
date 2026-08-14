@@ -1158,6 +1158,12 @@
 }
 
 #blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
     background: var(--danger);
     color: #FFFFFF;
     padding: var(--space-md) var(--space-lg);
@@ -1165,93 +1171,12 @@
     box-shadow: var(--shadow-lg);
 }
 
-/* ===== Footer Vacancies Strip ===== */
-
-.footer-vacancies-strip {
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
-    padding: var(--space-lg) var(--space-lg);
-}
-
-.footer-vacancies-strip-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    max-width: var(--content-max-width);
-    margin: 0 auto var(--space-md);
-}
-
-.footer-vacancies-strip-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-}
-
-.footer-vacancies-strip-link {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--accent-primary);
-    transition: color var(--transition-fast);
-}
-
-.footer-vacancies-strip-link:hover {
-    color: var(--accent-hover);
-}
-
-.footer-vacancies-strip-track {
-    display: flex;
-    gap: var(--space-md);
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: var(--space-xs);
-    max-width: var(--content-max-width);
-    margin: 0 auto;
-    scrollbar-width: thin;
-}
-
-.footer-vacancies-strip-track::-webkit-scrollbar {
-    height: 4px;
-}
-
-.footer-vacancies-strip-track::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: var(--radius-pill);
-}
-
-.footer-vacancy-chip {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    padding: var(--space-md) var(--space-lg);
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    min-width: 240px;
-    flex-shrink: 0;
+#blazor-error-ui .dismiss {
     cursor: pointer;
-    transition: all var(--transition);
-}
-
-.footer-vacancy-chip:hover {
-    border-color: var(--accent-soft);
-    box-shadow: var(--shadow-sm);
-    transform: translateY(-2px);
-}
-
-.footer-vacancy-chip-title {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-}
-
-.footer-vacancy-chip-meta {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    white-space: nowrap;
+    position: absolute;
+    right: var(--space-lg);
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 /* ===== Footer ===== */

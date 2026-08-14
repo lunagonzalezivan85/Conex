@@ -47,7 +47,7 @@ builder.Services.AddDatabaseContext(builder.Configuration);
 builder.Services.AddCoreServices(builder.Configuration);
 
 var jwtKey = builder.Configuration["Jwt:Key"]!;
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+var authBuilder = builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -61,12 +61,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
             ClockSkew = TimeSpan.Zero
         };
-    })
-    .AddGoogle(options =>
-    {
-        options.ClientId = builder.Configuration["Google:ClientId"] ?? "";
-        options.ClientSecret = builder.Configuration["Google:ClientSecret"] ?? "";
     });
+
+var googleClientId = builder.Configuration["GoogleOAuth:ClientId"];
+var googleClientSecret = builder.Configuration["GoogleOAuth:ClientSecret"];
+if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+{
+    authBuilder.AddGoogle(options =>
+    {
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+    });
+}
 
 builder.Services.AddAuthorization();
 

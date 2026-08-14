@@ -1,0 +1,75 @@
+@page "/"
+@using OpenToWork.AdminWEB.Services
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.SharedUI.Components
+@inject LanguageService Lang
+@inject LocalStorageService LocalStorage
+@inject AdminAuthApiService AuthApi
+@inject NavigationManager Nav
+
+<PageTitle>@Lang.T("admin.dashboard.title")</PageTitle>
+
+@if (IsAuthenticated)
+{
+    <h1 class="mb-lg">@Lang.T("admin.dashboard.title")</h1>
+    <p class="mb-lg">@Lang.T("admin.dashboard.welcome")</p>
+
+    @if (Metrics != null)
+    {
+        <div class="bento-grid">
+            <div class="bento-card stat-card">
+                <div class="stat-value">@Metrics.TotalUsers</div>
+                <div class="stat-label">@Lang.T("admin.dashboard.totalUsers")</div>
+            </div>
+            <div class="bento-card stat-card">
+                <div class="stat-value">@Metrics.ActiveUsers</div>
+                <div class="stat-label">@Lang.T("admin.dashboard.activeUsers")</div>
+            </div>
+            <div class="bento-card stat-card">
+                <div class="stat-value">@Metrics.TotalCandidates</div>
+                <div class="stat-label">@Lang.T("admin.dashboard.candidates")</div>
+            </div>
+            <div class="bento-card stat-card">
+                <div class="stat-value">@Metrics.TotalCompanies</div>
+                <div class="stat-label">@Lang.T("admin.dashboard.companies")</div>
+            </div>
+            <div class="bento-card stat-card">
+                <div class="stat-value">@Metrics.TotalPermanentVacancies</div>
+                <div class="stat-label">@Lang.T("admin.dashboard.permanentVacancies")</div>
+            </div>
+            <div class="bento-card stat-card">
+                <div class="stat-value">@Metrics.TotalTempVacancies</div>
+                <div class="stat-label">@Lang.T("admin.dashboard.tempVacancies")</div>
+            </div>
+            <div class="bento-card stat-card">
+                <div class="stat-value">@Metrics.TotalSkills</div>
+                <div class="stat-label">@Lang.T("admin.dashboard.skills")</div>
+            </div>
+            <div class="bento-card stat-card">
+                <div class="stat-value">@Metrics.TotalAuditLogEntries</div>
+                <div class="stat-label">@Lang.T("admin.dashboard.auditEntries")</div>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    private bool IsAuthenticated { get; set; }
+    private DashboardMetricsDto? Metrics { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+
+        var token = await LocalStorage.GetItemAsync("otwadmin-token");
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+        IsAuthenticated = true;
+
+        Metrics = await AuthApi.GetMetricsAsync();
+    }
+}
