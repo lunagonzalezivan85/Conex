@@ -1,4 +1,4 @@
-# Fase 3: Portal Admin (AdminAPI + AdminWEB)
+# Fase 4: Portal Admin (AdminAPI + AdminWEB)
 
 **IA:** Dsiezar
 **Rol:** PM (Project Manager)
@@ -8,11 +8,19 @@
 
 ---
 
+> **NOTA (2026-08-14, Dsiezar):** Este trabajo se inicio y documento como "Fase 3" (rama `dsiezar-fase-3`, commits `[Fase 3] ...`), siguiendo el roadmap de `README.md` vigente en ese momento (Fase 2 = Portal Candidatos, Fase 3 = Portal Admin).
+>
+> El 2026-08-14, Iluna reescribio `README.md` y `docs/PLAN_DE_PROYECTO.md` (commit `97cabed`, directo a `main`) agregando un tercer portal (Corporativo) y un motor de scoring/verificaciones, renumerando las fases: **Fase 3 ahora es el "Motor de Evaluacion y Scoring"** (no iniciado) y **el Portal Admin paso a ser Fase 4**. Este documento se renombro de `fase-3.md` a `fase-4.md` y el trabajo continua en la rama `dsiezar-fase-4` para coincidir con el roadmap vigente.
+>
+> Las menciones a `dsiezar-fase-3` y a mensajes de commit `[Fase 3] ...` mas abajo son historicas (asi se llamaba la rama y asi se numeraban los commits en el momento en que se hizo cada cosa) y no se reescribieron.
+
+---
+
 ## Resumen
 
-Fase 3 construye el portal de administracion completo: `OpenToWork.AdminAPI` y `OpenToWork.AdminWEB`. Permite gestionar usuarios, moderar vacantes y solicitudes, ver metricas del sistema, administrar categorias/skills, exportar datos y auditar acciones administrativas.
+Fase 4 construye el portal de administracion completo: `OpenToWork.AdminAPI` y `OpenToWork.AdminWEB`. Permite gestionar usuarios, moderar vacantes y solicitudes, ver metricas del sistema, administrar categorias/skills, exportar datos y auditar acciones administrativas.
 
-**Nota de secuencia:** Segun `.agents/WORKFLOW.md`, la Fase 3 no puede entrar en Etapa 3 (Implementacion) ni cerrarse hasta que la Fase 2 (Iluna, en `iluna-fase-2`) este en Etapa 7 (Cierre, aprobada por PM+QA+SEC). Esta planificacion avanza en paralelo sin bloquear a Iluna.
+**Nota de secuencia (historica, escrita cuando esto era "Fase 3"):** Segun `.agents/WORKFLOW.md`, esta fase no puede entrar en Etapa 3 (Implementacion) ni cerrarse hasta que la Fase 2 (Iluna, en `iluna-fase-2`) este en Etapa 7 (Cierre, aprobada por PM+QA+SEC). Esta planificacion avanzo en paralelo sin bloquear a Iluna.
 
 ---
 
