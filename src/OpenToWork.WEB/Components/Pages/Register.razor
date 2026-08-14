@@ -19,17 +19,18 @@
             <div class="alert alert-error">@ErrorMessage</div>
         }
 
-        <div class="mb-md">
-            <label class="ot-input-label mb-md">@Lang.T("auth.register.selectRole")</label>
-            <div class="role-selector">
-                <div class="role-card @(SelectedRole == 0 ? "selected" : "")" @onclick="() => SelectRole(0)">
-                    <div class="role-card-icon">🔍</div>
-                    <div class="role-card-title">@Lang.T("common.roles.searchJob")</div>
-                </div>
-                <div class="role-card @(SelectedRole == 1 ? "selected" : "")" @onclick="() => SelectRole(1)">
-                    <div class="role-card-icon">💼</div>
-                    <div class="role-card-title">@Lang.T("common.roles.createVacancy")</div>
-                </div>
+        <div class="ot-input-group mb-md">
+            <label class="ot-input-label">@Lang.T("auth.register.selectRole")</label>
+            <div class="segmented-control">
+                <div class="segmented-indicator @(SelectedRole == 0 ? "segmented-indicator--left" : "segmented-indicator--right")"></div>
+                <button type="button" class="segmented-option @(SelectedRole == 0 ? "active" : "")" @onclick="() => SelectRole(0)">
+                    <span class="segmented-option-icon">🔍</span>
+                    <span class="segmented-option-text">@Lang.T("common.roles.candidate")</span>
+                </button>
+                <button type="button" class="segmented-option @(SelectedRole == 1 ? "active" : "")" @onclick="() => SelectRole(1)">
+                    <span class="segmented-option-icon">💼</span>
+                    <span class="segmented-option-text">@Lang.T("common.roles.company")</span>
+                </button>
             </div>
         </div>
 
