@@ -16,4 +16,5 @@
 |---|---|---|---|
 | Fase 1 | - | - | - |
 | Fase 2 | - | Pendiente | - |
-| Fase 3 | PM | En planificacion | `docs/dsiezar/fase-3.md` |
+| Fase 3 (Motor de Scoring) | - | No iniciada | - |
+| Fase 4 (Portal Admin) | PM | En Etapa 3 (Implementacion), funcional de punta a punta | `docs/dsiezar/fase-4.md` |
