@@ -190,6 +190,48 @@ dotnet run --project src/OpenToWork.WEB
 - Perfil: `http://localhost:5100/profile`
 - Wizard (10 pasos): `http://localhost:5100/wizard`
 
+**Terminal 3 - AdminAPI (puerto 5001):**
+
+```bash
+dotnet run --project src/OpenToWork.AdminAPI
+```
+
+- Swagger: `http://localhost:5001/swagger`
+- Login admin: `POST http://localhost:5001/api/admin/auth/login`
+- Dashboard: `GET http://localhost:5001/api/admin/dashboard/metrics`
+- Usuarios: `GET http://localhost:5001/api/admin/users`
+- Vacantes: `GET http://localhost:5001/api/admin/vacancies`
+- Skills: `GET http://localhost:5001/api/admin/skills`
+- Auditoria: `GET http://localhost:5001/api/admin/audit-log`
+- Export CSV: `GET http://localhost:5001/api/admin/export/users`
+
+**Terminal 4 - AdminWEB Blazor Server (puerto 5101):**
+
+```bash
+dotnet run --project src/OpenToWork.AdminWEB
+```
+
+- Portal admin: `http://localhost:5101`
+- Login: `http://localhost:5101/login`
+- Dashboard: `http://localhost:5101/`
+- Usuarios: `http://localhost:5101/users`
+- Vacantes: `http://localhost:5101/vacancies`
+- Skills: `http://localhost:5101/skills`
+- Auditoria: `http://localhost:5101/audit-log`
+
+**Credenciales de prueba (Portal Admin):**
+
+| Campo | Valor |
+|-------|-------|
+| URL | `http://localhost:5101` |
+| Email | `admin@opentowork.com` |
+| Password | `Admin123!` |
+
+> **Nota:** El usuario admin debe tener `PrimaryRole = 2` (Admin) en `SC_Users`. Para crearlo, registra un usuario via la API principal y luego actualiza el rol en MySQL:
+> ```sql
+> UPDATE SC_Users SET PrimaryRole = 2 WHERE Email = 'admin@opentowork.com';
+> ```
+
 ### 6. Migraciones (solo si se modifican entidades)
 
 Crear nueva migracion:
@@ -490,6 +532,7 @@ Antes de marcar cualquier fase como completada, se debe validar:
 | 2026-08-13 | Dsiezar | Fase 4 | Fix fuera de alcance: Google OAuth config en API, #blazor-error-ui en WEB |
 | 2026-08-14 | Iluna | Docs | README: notas de actualizacion, ruta de trabajo, fases paralelas, criterios de validacion |
 | 2026-08-14 | Iluna | Docs | DEPLOYMENT.md: guia de despliegue a Windows Server/IIS (Web Deploy, PSRemoting, GitHub Actions) |
+| 2026-08-14 | Iluna | Docs | README: instrucciones de ejecucion AdminAPI + AdminWEB, credenciales de prueba admin |
 
 ---
 
