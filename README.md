@@ -489,6 +489,7 @@ Antes de marcar cualquier fase como completada, se debe validar:
 | 2026-08-13 | Dsiezar | Fase 4 | QA+SEC: 6 bugs corregidos (enumeracion cuentas, paginacion, CSV injection, vacantes temporales, auto-bloqueo, i18n) |
 | 2026-08-13 | Dsiezar | Fase 4 | Fix fuera de alcance: Google OAuth config en API, #blazor-error-ui en WEB |
 | 2026-08-14 | Iluna | Docs | README: notas de actualizacion, ruta de trabajo, fases paralelas, criterios de validacion |
+| 2026-08-14 | Iluna | Docs | DEPLOYMENT.md: guia de despliegue a Windows Server/IIS (Web Deploy, PSRemoting, GitHub Actions) |
 
 ---
 
@@ -505,6 +506,7 @@ Antes de marcar cualquier fase como completada, se debe validar:
 | `docs/DATABASE_DESIGN.md` | Diseno completo de la base de datos |
 | `docs/DESIGN_SYSTEM.md` | Sistema de diseno (UI/UX, temas, componentes) |
 | `docs/NEURAL_MAP.md` | Mapa neuronal del proyecto para IA |
+| `docs/DEPLOYMENT.md` | Guia de despliegue a Windows Server / IIS (Web Deploy, PSRemoting, CI/CD) |
 | `docs/OpenToWork_InitialCreate.sql` | Script SQL inicial de la base de datos |
 
 ---
