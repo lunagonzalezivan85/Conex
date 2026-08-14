@@ -544,6 +544,121 @@ Antes de marcar cualquier fase como completada, se debe validar:
 
 > **Importante:** Ejecutar `docs/seed-data.sql` despues de aplicar todas las migraciones. Los hashes BCrypt se deben generar registrando los usuarios via API y copiando el hash. Ver procedimiento en el script.
 
+### Pasos para cargar los datos de prueba (instrucciones para el equipo)
+
+> **Nota para Dsiezar:** Corre estos pasos en tu maquina local para tener los mismos datos de prueba. Ya el script `docs/seed-data.sql` esta en `main`.
+
+#### Paso 1: Hacer pull de main
+
+```bash
+git pull origin main
+```
+
+#### Paso 2: Aplicar migraciones (si faltan)
+
+```bash
+dotnet ef database update --project src/OpenToWork.Models --startup-project src/OpenToWork.API
+```
+
+Esto aplica las migraciones `InitialCreate`, `Phase2`, `Phase2Security` y `AdminAuditLog`.
+
+#### Paso 3: Ejecutar el script seed-data.sql en MySQL
+
+```powershell
+Get-Content docs\seed-data.sql -Raw | C:\xampp\mysql\bin\mysql.exe -u root OpenToWorkDb
+```
+
+> Si tienes MySQL en otra ruta, ajusta la ruta del ejecutable. En Linux/Mac: `mysql -u root OpenToWorkDb < docs/seed-data.sql`
+
+#### Paso 4: Generar hashes BCrypt validos
+
+El script inserta usuarios con un hash temporal que no es BCrypt valido. Para que el login funcione, hay que registrar usuarios temporales via la API y copiar el hash:
+
+1. **Iniciar la API principal:**
+   ```bash
+   dotnet run --project src/OpenToWork.API
+   ```
+
+2. **Registrar usuarios temporales (postulantes):**
+   ```powershell
+   $candidates = @(
+       @{email="juan.perez.test@gmail.com";firstName="Juan";lastName="Perez"},
+       @{email="maria.gonzalez.test@hotmail.com";firstName="Maria";lastName="Gonzalez"},
+       @{email="carlos.rodriguez.test@outlook.com";firstName="Carlos";lastName="Rodriguez"}
+   )
+   foreach ($c in $candidates) {
+       $body = @{email=$c.email;password="Candidato123!";firstName=$c.firstName;lastName=$c.lastName} | ConvertTo-Json
+       Invoke-RestMethod -Uri "http://localhost:5000/api/auth/register" -Method Post -Body $body -ContentType "application/json"
+   }
+   ```
+
+3. **Registrar usuarios temporales (empresas):**
+   ```powershell
+   $companies = @(
+       @{email="techcorp.test@gmail.com";firstName="Tech";lastName="Corp"},
+       @{email="innovate.test@gmail.com";firstName="Innovate";lastName="Labs"},
+       @{email="globalsoft.test@gmail.com";firstName="Global";lastName="Soft"}
+   )
+   foreach ($c in $companies) {
+       $body = @{email=$c.email;password="Empresa123!";firstName=$c.firstName;lastName=$c.lastName} | ConvertTo-Json
+       Invoke-RestMethod -Uri "http://localhost:5000/api/auth/register" -Method Post -Body $body -ContentType "application/json"
+   }
+   ```
+
+4. **Copiar los hashes a los usuarios reales y eliminar los temporales:**
+   ```sql
+   -- Ejecutar en MySQL
+   UPDATE SC_Users u1 JOIN SC_Users u2 ON u2.Email = 'juan.perez.test@gmail.com'
+       SET u1.PasswordHash = u2.PasswordHash WHERE u1.Email = 'juan.perez@gmail.com';
+   UPDATE SC_Users u1 JOIN SC_Users u2 ON u2.Email = 'maria.gonzalez.test@hotmail.com'
+       SET u1.PasswordHash = u2.PasswordHash WHERE u1.Email = 'maria.gonzalez@hotmail.com';
+   UPDATE SC_Users u1 JOIN SC_Users u2 ON u2.Email = 'carlos.rodriguez.test@outlook.com'
+       SET u1.PasswordHash = u2.PasswordHash WHERE u1.Email = 'carlos.rodriguez@outlook.com';
+   UPDATE SC_Users u1 JOIN SC_Users u2 ON u2.Email = 'techcorp.test@gmail.com'
+       SET u1.PasswordHash = u2.PasswordHash WHERE u1.Email = 'empresa@techcorp.com';
+   UPDATE SC_Users u1 JOIN SC_Users u2 ON u2.Email = 'innovate.test@gmail.com'
+       SET u1.PasswordHash = u2.PasswordHash WHERE u1.Email = 'contacto@innovatelabs.com';
+   UPDATE SC_Users u1 JOIN SC_Users u2 ON u2.Email = 'globalsoft.test@gmail.com'
+       SET u1.PasswordHash = u2.PasswordHash WHERE u1.Email = 'rrhh@globalsoft.com';
+
+   DELETE FROM SC_Users WHERE Email LIKE '%.test.%';
+   DELETE FROM PT_Candidates WHERE SCUserId NOT IN (SELECT Id FROM SC_Users);
+   ```
+
+5. **Crear usuario admin (si no existe):**
+   ```powershell
+   $body = @{email="admin@opentowork.com";password="Admin123!";firstName="Admin";lastName="System"} | ConvertTo-Json
+   Invoke-RestMethod -Uri "http://localhost:5000/api/auth/register" -Method Post -Body $body -ContentType "application/json"
+   ```
+   Luego en MySQL:
+   ```sql
+   UPDATE SC_Users SET PrimaryRole = 2 WHERE Email = 'admin@opentowork.com';
+   ```
+
+#### Paso 5: Verificar
+
+```powershell
+C:\xampp\mysql\bin\mysql.exe -u root -e "SELECT Email, PrimaryRole, IsActive FROM SC_Users WHERE IsDeleted=0 ORDER BY Email;" OpenToWorkDb
+```
+
+Deberias ver 7 usuarios: 1 admin, 3 empresas, 3 postulantes. Todos con `IsActive = 1`.
+
+#### Paso 6: Ejecutar los 4 proyectos y probar
+
+```bash
+# Terminal 1
+dotnet run --project src/OpenToWork.API
+# Terminal 2
+dotnet run --project src/OpenToWork.WEB
+# Terminal 3
+dotnet run --project src/OpenToWork.AdminAPI
+# Terminal 4
+dotnet run --project src/OpenToWork.AdminWEB
+```
+
+- Portal candidatos: `http://localhost:5100` (login con juan.perez@gmail.com / Candidato123!)
+- Portal admin: `http://localhost:5101` (login con admin@opentowork.com / Admin123!)
+
 ### Credenciales de prueba
 
 #### Portal Admin (AdminWEB - puerto 5101)
