@@ -262,39 +262,55 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 - [ ] Referencias laborales: CRUD en wizard y perfil
 - [ ] Pruebas de habilidades: `PTSkillTest`, `PTCandidateTestResult`
 
-### Fase 4: Portal Administrativo - Pendiente
+### Fase 4: Portal Administrativo - 85% COMPLETADA (por Dsiezar)
 
-- [ ] AdminAPI con JWT independiente (puerto 5001)
-- [ ] AdminWEB con login y layout (puerto 5101)
-- [ ] Gestion de usuarios (activar, desactivar, eliminar, roles)
-- [ ] Verificaciones manuales (aprobar/rechazar validaciones)
-- [ ] Moderacion de vacantes
-- [ ] Dashboard admin con metricas y estadisticas
-- [ ] Gestion de categorias y skills
-- [ ] Log de auditoria admin (`ADAuditLog`)
-- [ ] Exportacion de datos (CSV/Excel)
+- [x] AdminAPI con JWT independiente (puerto 5001)
+- [x] AdminWEB con login y layout (puerto 5101)
+- [x] Gestion de usuarios (activar, desactivar, eliminar)
+- [x] Moderacion de vacantes (permanentes + temporales)
+- [x] Dashboard admin con metricas y estadisticas reales
+- [x] Gestion de categorias y skills (CRUD)
+- [x] Log de auditoria admin (`ADAuditLog`)
+- [x] Exportacion de datos (CSV)
+- [x] i18n admin (es/en)
+- [x] QA+SEC: 6 bugs corregidos (enumeracion de cuentas, paginacion negativa, CSV injection, estado vacantes temporales, auto-bloqueo admin, clave i18n)
+- [ ] Verificaciones manuales (aprobar/rechazar `PTVerification`) — **bloqueado por Fase 3**
+- [ ] Revision de validaciones automaticas — **bloqueado por Fase 3**
+- [ ] Gestion de roles de usuario (cambiar rol, no solo activar/desactivar)
+
+**Deuda tecnica documentada (4 items):**
+- [ ] Unificar `AdminAuthService` con `AuthService` (logica duplicada)
+- [ ] Optimizar `AdminVacancyService` (carga tablas completas en memoria antes de paginar)
+- [ ] Mover `LocalStorageService`/`LanguageService` de AdminWEB a SharedUI
+- [ ] Centralizar guard de autenticacion en `AdminLayout` (copiado en 5 paginas)
 
 ### Fase 5: Portal Corporativo - Pendiente
 
-- [ ] CorporateAPI con JWT independiente (puerto 5002)
-- [ ] CorporateWEB con login y layout (puerto 5102)
-- [ ] Registro de empresas (`COCompany`)
-- [ ] Sistema de suscripciones (`COSubscription`, planes: Basic/Pro/Enterprise)
-- [ ] Busqueda avanzada con filtros por score
-- [ ] Perfiles evaluados con checkmarks de verificacion
+- [ ] Crear proyecto `OpenToWork.CorporateAPI` (puerto 5002, JWT independiente)
+- [ ] Crear proyecto `OpenToWork.CorporateWEB` (puerto 5102)
+- [ ] Entidad `COCompany` — Name, Industry, Size, Website, LogoUrl
+- [ ] Entidad `COSubscription` — CompanyId, Plan (Basic/Pro/Enterprise), Status, StartDate, EndDate, MonthlyFee
+- [ ] Entidad `COSearchHistory` — CompanyId, Filters, ResultCount, SearchedAt
+- [ ] Entidad `COCandidateView` — CompanyId, CandidateId, ScoreSnapshot, ViewedAt
+- [ ] Registro de empresas + wizard de empresa
+- [ ] Sistema de suscripciones (planes: Basic, Pro, Enterprise)
+- [ ] Busqueda avanzada con filtros por score, confiabilidad, estabilidad
+- [ ] Vista de perfiles evaluados con checkmarks de verificacion
 - [ ] Ranking automatico de candidatos por compatibilidad
 - [ ] Reportes avanzados
+- [ ] Migracion EF Core para entidades corporativas
 
 ### Fase 6: Servicios Premium - Pendiente
 
-- [ ] Verificacion manual de referencias (servicio premium)
+- [ ] Verificacion manual de referencias (servicio premium para empresas)
 - [ ] Evaluaciones especificas por industria
-- [ ] Integraciones con sistemas de RRHH
+- [ ] Integraciones con sistemas de RRHH (API endpoints externos)
+- [ ] Analytics avanzados de reclutamiento
 
 ### Fase 7: Integraciones Externas - Pendiente
 
 - [ ] LinkedIn API (validacion real de perfiles)
-- [ ] Pasarela de pagos (Stripe/PayPal)
+- [ ] Pasarela de pagos (Stripe/PayPal para suscripciones)
 - [ ] Notificaciones por email (SMTP)
 - [ ] Notificaciones push
 
@@ -304,6 +320,25 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
 - [ ] Pruebas de integracion (3 APIs)
 - [ ] Documentacion final
 - [ ] Despliegue en produccion
+
+---
+
+## Tareas Pendientes Resumidas
+
+> **Total: ~45 tareas pendientes** | Prioridad: **Fase 3** (desbloquea verificaciones del portal admin)
+
+| Fase | Tareas pendientes | Bloquea a |
+|------|-------------------|-----------|
+| **Fase 3** | 15 tareas (entidades, servicios, API, UI) | Fase 4 (verificaciones), Fase 5 (perfiles evaluados) |
+| **Fase 4** | 3 tareas + 4 deuda tecnica | — |
+| **Fase 5** | 13 tareas (proyecto nuevo, entidades, suscripciones, busqueda) | Fase 6 |
+| **Fase 6** | 4 tareas (servicios premium) | — |
+| **Fase 7** | 4 tareas (integraciones externas) | — |
+| **Fase 8** | 4 tareas (pruebas, despliegue) | — |
+
+**Bugs pendientes de verificar en main:**
+- [ ] `#blazor-error-ui` siempre visible en `OpenToWork.WEB` (fix de Darwin en su rama)
+- [ ] Google OAuth config en `OpenToWork.API` (fix de Darwin en su rama)
 
 ---
 
@@ -317,22 +352,32 @@ dotnet ef database update --project src/OpenToWork.Models --startup-project src/
    - API endpoints para scores y verificaciones
    - UI: mostrar scores y verificaciones en el perfil del candidato
    - Referencias laborales: CRUD en wizard y perfil
+   - Pruebas de habilidades: UI basica
 
-2. **Fase 4 - Portal Administrativo:**
-   - Configurar `OpenToWork.AdminAPI` con JWT independiente (puerto 5001)
-   - Construir `OpenToWork.AdminWEB` con Blazor (puerto 5101)
-   - Verificaciones manuales (aprobar/rechazar)
-   - Gestion de usuarios, moderacion de vacantes
-   - Dashboard admin con metricas
-   - Log de auditoria admin (`ADAuditLog`)
+2. **Fase 4 - Portal Administrativo (completar 15% faltante):**
+   - Verificaciones manuales (aprobar/rechazar `PTVerification`) — requiere Fase 3
+   - Revision de validaciones automaticas — requiere Fase 3
+   - Gestion de roles de usuario
+   - Resolver 4 items de deuda tecnica documentada
 
 3. **Fase 5 - Portal Corporativo:**
-   - Configurar `OpenToWork.CorporateAPI` con JWT independiente (puerto 5002)
-   - Construir `OpenToWork.CorporateWEB` con Blazor (puerto 5102)
+   - Crear `OpenToWork.CorporateAPI` (puerto 5002, JWT independiente)
+   - Crear `OpenToWork.CorporateWEB` (puerto 5102)
    - Registro de empresas y sistema de suscripciones
    - Busqueda avanzada con filtros por score
    - Perfiles evaluados con checkmarks
    - Ranking automatico de candidatos
+
+4. **Fase 6 - Servicios Premium:**
+   - Verificacion manual de referencias (premium)
+   - Evaluaciones por industria
+   - Integraciones RRHH
+
+5. **Fase 7 - Integraciones Externas:**
+   - LinkedIn API, pasarela de pagos, notificaciones
+
+6. **Fase 8 - Pruebas y Despliegue:**
+   - Cobertura > 70%, 3 APIs, despliegue produccion
 
 ---
 
