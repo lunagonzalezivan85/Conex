@@ -331,3 +331,26 @@ Los 6 fixes se verificaron corriendo contra el `AdminAPI` real (no solo lectura 
 Fase 3 completa segun el diseno original de Etapa 2: Etapa 1 (Planificacion), Etapa 2 (Diseno Tecnico), Etapa 3 (Implementacion completa - AdminAPI con 7 controllers: Auth, Users, Vacancies, Skills, Dashboard, AuditLog, Export; AdminWEB con las 6 paginas correspondientes), y una revision de codigo tipo QA+SEC que encontro y corrigio 6 bugs reales (incluyendo un problema de enumeracion de cuentas, un 500 con paginacion negativa, CSV injection, y perdida de estado en moderacion de vacantes temporales), dejando 4 items de deuda tecnica documentados. Portal Admin funcional de punta a punta contra MySQL real, verificado en navegador/curl en cada entrega y en cada fix, no solo compilado. Adicionalmente, a peticion del usuario, se corrigieron 2 bugs preexistentes fuera de alcance en `OpenToWork.API` (Google OAuth) y `OpenToWork.WEB` (banner de error).
 
 **Pendiente antes de poder cerrar formalmente la fase (Etapa 7):** aprobacion formal de PM (mas alla de la revision de codigo ya hecha), y decidir si los 4 items de deuda tecnica de la Etapa 4+5 se abordan antes del merge o se dejan para una fase posterior.
+
+---
+
+## Etapa 3 (extension): ApplicationsController - vista de solicitudes
+
+Feature disenada en Etapa 2 (`docs/dsiezar/fase-3.md` seccion de endpoints) pero no implementada en la primera pasada de Etapa 3. Se completa ahora: vista de solo lectura de `PT_Applications` para el admin (sin cambiar estado - eso sigue siendo del candidato/empresa).
+
+**Archivos creados:**
+
+| Archivo | Descripcion |
+|---|---|
+| `Shared/DTOs/AdminApplicationDto.cs` | Nombre/email del candidato, titulo de la vacante, estado, fecha |
+| `Core/Interfaces/IAdminApplicationService.cs`, `Core/Services/AdminApplicationService.cs` | Query con joins a `PT_Candidates`/`SC_Users`/`PT_Vacancies`, paginacion clamped desde el inicio (aplicando la leccion de la revision anterior) |
+| `AdminAPI/Controllers/ApplicationsController.cs` | `GET /api/admin/applications` (solo lectura) |
+| `AdminWEB/Components/Pages/Applications.razor` | Tabla de solicitudes en `/applications` |
+
+**Archivos modificados:** `ServiceCollectionExtensions.cs` (registro), `AdminAuthApiService.cs` (cliente HTTP), `AdminLayout.razor` (nav link), `admin.json` es/en (seccion `applications`).
+
+**Verificacion:** se sembro un candidato (`PT_Candidates`) y una solicitud (`PT_Applications`) via SQL. `curl` confirmo el join correcto (nombre completo, email, titulo de vacante). En navegador: login -> `/applications` muestra "Juan Perez (testcandidate@opentowork.com) / Desarrollador Backend Senior / Pendiente / 14/08/2026", y el link "Solicitudes" aparece en el nav junto a los demas.
+
+**Build:** `dotnet build OpenToWork.slnx` -> 0 errores.
+
+Con esto, `AdminAPI` queda con **8 controllers** (Auth, Users, Vacancies, Applications, Skills, Dashboard, AuditLog, Export) y `AdminWEB` con **7 paginas**.

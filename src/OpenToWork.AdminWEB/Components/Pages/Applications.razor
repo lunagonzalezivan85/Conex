@@ -1,0 +1,73 @@
+@page "/applications"
+@using OpenToWork.AdminWEB.Services
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.Shared.Enums
+@inject LanguageService Lang
+@inject LocalStorageService LocalStorage
+@inject AdminAuthApiService AuthApi
+@inject NavigationManager Nav
+
+<PageTitle>@Lang.T("admin.applications.title")</PageTitle>
+
+<h1 class="mb-lg">@Lang.T("admin.applications.title")</h1>
+
+@if (ApplicationsList == null)
+{
+    <p>@Lang.T("admin.common.loading")</p>
+}
+else if (ApplicationsList.Count == 0)
+{
+    <p>@Lang.T("admin.applications.empty")</p>
+}
+else
+{
+    <table class="ot-table">
+        <thead>
+            <tr>
+                <th>@Lang.T("admin.applications.columnCandidate")</th>
+                <th>@Lang.T("admin.applications.columnVacancy")</th>
+                <th>@Lang.T("admin.applications.columnStatus")</th>
+                <th>@Lang.T("admin.applications.columnDate")</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var app in ApplicationsList)
+            {
+                <tr>
+                    <td>@app.CandidateName (@app.CandidateEmail)</td>
+                    <td>@app.VacancyTitle</td>
+                    <td>@StatusLabel(app.Status)</td>
+                    <td>@app.CreatedAt.ToLocalTime().ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<AdminApplicationDto>? ApplicationsList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+
+        var token = await LocalStorage.GetItemAsync("otwadmin-token");
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        ApplicationsList = await AuthApi.GetApplicationsAsync();
+    }
+
+    private string StatusLabel(int status) => (ApplicationStatus)status switch
+    {
+        ApplicationStatus.Pending => Lang.T("admin.applications.statusPending"),
+        ApplicationStatus.InReview => Lang.T("admin.applications.statusInReview"),
+        ApplicationStatus.Accepted => Lang.T("admin.applications.statusAccepted"),
+        ApplicationStatus.Rejected => Lang.T("admin.applications.statusRejected"),
+        _ => status.ToString()
+    };
+}

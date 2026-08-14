@@ -4,6 +4,7 @@
     "dashboard": "Dashboard",
     "users": "Users",
     "vacancies": "Vacancies",
+    "applications": "Applications",
     "skills": "Skills",
     "auditLog": "Audit Log",
     "logout": "Log out"
@@ -60,6 +61,18 @@
     "statusClosed": "Closed",
     "approve": "Approve",
     "close": "Close"
+  },
+  "applications": {
+    "title": "Applications",
+    "empty": "No applications.",
+    "columnCandidate": "Candidate",
+    "columnVacancy": "Vacancy",
+    "columnStatus": "Status",
+    "columnDate": "Date",
+    "statusPending": "Pending",
+    "statusInReview": "In Review",
+    "statusAccepted": "Accepted",
+    "statusRejected": "Rejected"
   },
   "skills": {
     "title": "Skills Management",
