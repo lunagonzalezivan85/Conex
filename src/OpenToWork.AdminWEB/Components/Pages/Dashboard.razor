@@ -233,16 +233,22 @@
         Metrics = await AuthApi.GetMetricsAsync();
     }
 
-    private void GoToUsers(string role, string? filter = null) =>
-        Nav.NavigateTo(filter != null ? $"/users?role={role}&filter={filter}" : $"/users?role={role}");
+    private void GoToResults(string? role = null, string? filter = null, string? section = null)
+    {
+        var parts = new List<string>();
+        if (role != null) parts.Add($"role={role}");
+        if (filter != null) parts.Add($"filter={filter}");
+        if (section != null) parts.Add($"section={section}");
+        var query = parts.Count > 0 ? "?" + string.Join("&", parts) : "";
+        Nav.NavigateTo($"/dashboard/results{query}");
+    }
 
-    private void GoToVacancies() => Nav.NavigateTo("/vacancies");
-
-    private void GoEvaluated() => GoToUsers("candidate", "evaluated");
-    private void GoPending() => GoToUsers("candidate", "pending");
-    private void GoScores() => GoToUsers("candidate", "scores");
-    private void GoLinkedIn() => GoToUsers("candidate", "linkedin");
-    private void GoPortfolio() => GoToUsers("candidate", "portfolio");
-    private void GoCV() => GoToUsers("candidate", "cv");
-    private void GoCompanies() => GoToUsers("company");
+    private void GoEvaluated() => GoToResults("candidate", "evaluated");
+    private void GoPending() => GoToResults("candidate", "pending");
+    private void GoScores() => GoToResults("candidate", "scores");
+    private void GoLinkedIn() => GoToResults("candidate", "linkedin");
+    private void GoPortfolio() => GoToResults("candidate", "portfolio");
+    private void GoCV() => GoToResults("candidate", "cv");
+    private void GoCompanies() => GoToResults("company");
+    private void GoToVacancies() => GoToResults(section: "vacancies");
 }

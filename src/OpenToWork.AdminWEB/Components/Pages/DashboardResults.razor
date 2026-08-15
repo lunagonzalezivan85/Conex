@@ -1,0 +1,259 @@
+@page "/dashboard/results"
+@using OpenToWork.AdminWEB.Services
+@using OpenToWork.Shared.DTOs
+@using OpenToWork.Shared.Enums
+@using Microsoft.AspNetCore.WebUtilities
+@inject LanguageService Lang
+@inject LocalStorageService LocalStorage
+@inject AdminAuthApiService AuthApi
+@inject NavigationManager Nav
+
+<PageTitle>@ResultTitle</PageTitle>
+
+<div class="admin-page-header">
+    <div>
+        <h1>@ResultTitle</h1>
+        <p class="admin-page-header-subtitle">@ResultSummary</p>
+    </div>
+    <div class="admin-page-actions">
+        <button class="ot-btn ot-btn--outline ot-btn--small" @onclick="GoBack">@Lang.T("admin.dashboard.backToDashboard")</button>
+    </div>
+</div>
+
+@if (IsLoading)
+{
+    <div class="admin-loading">@Lang.T("admin.common.loading")</div>
+}
+else if (Results.Count == 0)
+{
+    <div class="admin-empty">
+        <div class="admin-empty-text">@Lang.T("admin.dashboard.noResults")</div>
+    </div>
+}
+else
+{
+    <div class="admin-results-grid">
+        @foreach (var item in Results)
+        {
+            <div class="admin-result-card">
+                <div class="admin-result-card-header">
+                    <div class="admin-result-avatar">
+                        @(item.Email.Substring(0, 2).ToUpper())
+                    </div>
+                    <div class="admin-result-info">
+                        <div class="admin-result-name">@(item.DisplayName ?? item.Email)</div>
+                        <div class="admin-result-email">@item.Email</div>
+                    </div>
+                    <div class="admin-result-status @item.StatusClass">
+                        @item.StatusLabel
+                    </div>
+                </div>
+                <div class="admin-result-card-body">
+                    @foreach (var badge in item.Badges)
+                    {
+                        <span class="admin-result-badge @badge.Class">@badge.Label</span>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private bool IsLoading = true;
+    private string ResultTitle = "";
+    private string ResultSummary = "";
+    private string? Section { get; set; }
+    private string? FilterType { get; set; }
+    private string? RoleFilter { get; set; }
+    private List<ResultItem> Results = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Lang._translations.Count == 0)
+            await Lang.InitializeAsync();
+
+        var token = await LocalStorage.GetItemAsync("otwadmin-token");
+        if (string.IsNullOrEmpty(token))
+        {
+            Nav.NavigateTo("/login", forceLoad: true);
+            return;
+        }
+
+        ParseQueryParams();
+        await LoadResults();
+    }
+
+    private void ParseQueryParams()
+    {
+        var query = QueryHelpers.ParseQuery(Nav.Uri);
+        if (query.TryGetValue("section", out var section)) Section = section;
+        if (query.TryGetValue("filter", out var filter)) FilterType = filter;
+        if (query.TryGetValue("role", out var role)) RoleFilter = role;
+    }
+
+    private async Task LoadResults()
+    {
+        var metrics = await AuthApi.GetMetricsAsync();
+        var users = await AuthApi.GetUsersAsync();
+
+        var roleInt = RoleFilter switch
+        {
+            "candidate" => (int)UserRole.Candidate,
+            "company" => (int)UserRole.Company,
+            _ => -1
+        };
+
+        if (roleInt >= 0)
+            users = users.Where(u => u.PrimaryRole == roleInt).ToList();
+
+        Results = BuildResults(users, metrics);
+        BuildTitle(metrics);
+        IsLoading = false;
+    }
+
+    private List<ResultItem> BuildResults(List<AdminUserDto> users, DashboardMetricsDto? metrics)
+    {
+        var items = new List<ResultItem>();
+
+        foreach (var u in users)
+        {
+            var item = new ResultItem
+            {
+                Email = u.Email,
+                DisplayName = u.CandidateName,
+                Badges = new()
+            };
+
+            if (u.WizardCompleted.HasValue)
+            {
+                item.Badges.Add(new BadgeItem
+                {
+                    Label = u.WizardCompleted.Value ? Lang.T("admin.dashboard.evaluated") : Lang.T("admin.dashboard.pending"),
+                    Class = u.WizardCompleted.Value ? "admin-result-badge--success" : "admin-result-badge--warning"
+                });
+            }
+
+            if (u.HasLinkedIn.HasValue)
+            {
+                item.Badges.Add(new BadgeItem
+                {
+                    Label = Lang.T("admin.dashboard.withLinkedIn"),
+                    Class = u.HasLinkedIn.Value ? "admin-result-badge--info" : "admin-result-badge--muted"
+                });
+            }
+
+            if (u.HasPortfolio.HasValue)
+            {
+                item.Badges.Add(new BadgeItem
+                {
+                    Label = Lang.T("admin.dashboard.withPortfolio"),
+                    Class = u.HasPortfolio.Value ? "admin-result-badge--info" : "admin-result-badge--muted"
+                });
+            }
+
+            if (u.HasCV.HasValue)
+            {
+                item.Badges.Add(new BadgeItem
+                {
+                    Label = Lang.T("admin.dashboard.withCV"),
+                    Class = u.HasCV.Value ? "admin-result-badge--success" : "admin-result-badge--muted"
+                });
+            }
+
+            if (u.HasScore.HasValue)
+            {
+                item.Badges.Add(new BadgeItem
+                {
+                    Label = Lang.T("admin.dashboard.profilesWithScores"),
+                    Class = u.HasScore.Value ? "admin-result-badge--info" : "admin-result-badge--muted"
+                });
+            }
+
+            if (u.PrimaryRole == (int)UserRole.Company)
+            {
+                item.Badges.Add(new BadgeItem
+                {
+                    Label = Lang.T("admin.dashboard.companiesWithVacancies"),
+                    Class = "admin-result-badge--info"
+                });
+            }
+
+            item.StatusLabel = u.IsActive ? Lang.T("admin.users.active") : Lang.T("admin.users.inactive");
+            item.StatusClass = u.IsActive ? "admin-result-status--active" : "admin-result-status--inactive";
+
+            items.Add(item);
+        }
+
+        return items;
+    }
+
+    private void BuildTitle(DashboardMetricsDto? m)
+    {
+        if (m == null) return;
+
+        if (FilterType == "evaluated")
+        {
+            ResultTitle = Lang.T("admin.dashboard.evaluatedProfiles");
+            ResultSummary = $"{m.EvaluatedProfiles} {Lang.T("admin.dashboard.evaluated")} / {m.TotalCandidates} {Lang.T("admin.dashboard.candidatesTotal")}";
+        }
+        else if (FilterType == "pending")
+        {
+            ResultTitle = Lang.T("admin.dashboard.pendingProfiles");
+            ResultSummary = $"{m.PendingProfiles} {Lang.T("admin.dashboard.pending")} / {m.TotalCandidates} {Lang.T("admin.dashboard.candidatesTotal")}";
+        }
+        else if (FilterType == "scores")
+        {
+            ResultTitle = Lang.T("admin.dashboard.profilesWithScores");
+            ResultSummary = $"{m.ProfilesWithScores} / {m.EvaluatedProfiles} {Lang.T("admin.dashboard.evaluated")}";
+        }
+        else if (FilterType == "linkedin")
+        {
+            ResultTitle = Lang.T("admin.dashboard.withLinkedIn");
+            ResultSummary = $"{m.CandidatesWithLinkedIn} / {m.TotalCandidates} {Lang.T("admin.dashboard.candidatesTotal")}";
+        }
+        else if (FilterType == "portfolio")
+        {
+            ResultTitle = Lang.T("admin.dashboard.withPortfolio");
+            ResultSummary = $"{m.CandidatesWithPortfolio} / {m.TotalCandidates} {Lang.T("admin.dashboard.candidatesTotal")}";
+        }
+        else if (FilterType == "cv")
+        {
+            ResultTitle = Lang.T("admin.dashboard.withCV");
+            ResultSummary = $"{m.CandidatesWithCV} / {m.TotalCandidates} {Lang.T("admin.dashboard.candidatesTotal")}";
+        }
+        else if (RoleFilter == "company")
+        {
+            ResultTitle = Lang.T("admin.dashboard.companiesVacancies");
+            ResultSummary = $"{m.CompaniesWithVacancies} {Lang.T("admin.dashboard.companiesWithVacancies")} / {m.CompaniesWithVacancies + m.CompaniesWithoutVacancies} {Lang.T("admin.dashboard.total")}";
+        }
+        else if (Section == "vacancies")
+        {
+            ResultTitle = Lang.T("admin.dashboard.vacanciesByStatus");
+            var total = m.OpenVacancies + m.ClosedVacancies + m.DraftVacancies;
+            ResultSummary = $"{total} {Lang.T("admin.dashboard.total")}: {m.OpenVacancies} {Lang.T("admin.dashboard.openVacancies")}, {m.ClosedVacancies} {Lang.T("admin.dashboard.closedVacancies")}, {m.DraftVacancies} {Lang.T("admin.dashboard.draftVacancies")}";
+        }
+        else
+        {
+            ResultTitle = Lang.T("admin.dashboard.title");
+            ResultSummary = "";
+        }
+    }
+
+    private void GoBack() => Nav.NavigateTo("/");
+
+    private class ResultItem
+    {
+        public string Email { get; set; } = "";
+        public string? DisplayName { get; set; }
+        public string StatusLabel { get; set; } = "";
+        public string StatusClass { get; set; } = "";
+        public List<BadgeItem> Badges { get; set; } = new();
+    }
+
+    private class BadgeItem
+    {
+        public string Label { get; set; } = "";
+        public string Class { get; set; } = "";
+    }
+}

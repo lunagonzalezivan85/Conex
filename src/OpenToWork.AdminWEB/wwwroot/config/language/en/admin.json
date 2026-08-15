@@ -46,7 +46,9 @@
     "withCV": "With CV attached",
     "profilesComplete": "Profile Complete",
     "profilesIncomplete": "Profile Incomplete",
-    "total": "Total"
+    "total": "Total",
+    "backToDashboard": "Back to dashboard",
+    "noResults": "No data to display"
   },
   "users": {
     "title": "User Management",
