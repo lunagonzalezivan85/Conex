@@ -22,14 +22,14 @@
   "dashboard": {
     "title": "Admin Dashboard",
     "welcome": "Welcome to the OpenToWork admin portal.",
-    "totalUsers": "Total Users",
-    "activeUsers": "Active Users",
-    "candidates": "Candidates",
-    "companies": "Companies",
-    "permanentVacancies": "Permanent Vacancies",
-    "tempVacancies": "Temporary Vacancies",
-    "skills": "Skills",
-    "auditEntries": "Audit Log Entries"
+    "evaluatedProfiles": "Evaluated Profiles",
+    "profilesWithScores": "Profiles with Scores",
+    "openVacancies": "Open Vacancies",
+    "closedVacancies": "Closed Vacancies",
+    "companiesWithVacancies": "Companies with Vacancies",
+    "nonAdminUsers": "Registered Users (excl. admin)",
+    "nonAdminCandidates": "Registered Candidates",
+    "nonAdminCompanies": "Registered Companies"
   },
   "users": {
     "title": "User Management",

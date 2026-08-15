@@ -57,4 +57,13 @@ public class DashboardMetricsDto
     public Dictionary<string, int> ApplicationsByStatus { get; set; } = new();
     public int TotalSkills { get; set; }
     public int TotalAuditLogEntries { get; set; }
+
+    public int EvaluatedProfiles { get; set; }
+    public int ProfilesWithScores { get; set; }
+    public int OpenVacancies { get; set; }
+    public int ClosedVacancies { get; set; }
+    public int CompaniesWithVacancies { get; set; }
+    public int NonAdminUsers { get; set; }
+    public int NonAdminCandidates { get; set; }
+    public int NonAdminCompanies { get; set; }
 }

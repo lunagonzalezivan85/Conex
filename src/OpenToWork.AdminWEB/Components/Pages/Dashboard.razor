@@ -21,37 +21,37 @@
     @if (Metrics != null)
     {
         <div class="admin-stat-grid">
-            <div class="admin-stat-card">
-                <div class="admin-stat-label">@Lang.T("admin.dashboard.totalUsers")</div>
-                <div class="admin-stat-value">@Metrics.TotalUsers</div>
-            </div>
             <div class="admin-stat-card admin-stat-card--success">
-                <div class="admin-stat-label">@Lang.T("admin.dashboard.activeUsers")</div>
-                <div class="admin-stat-value">@Metrics.ActiveUsers</div>
+                <div class="admin-stat-label">@Lang.T("admin.dashboard.evaluatedProfiles")</div>
+                <div class="admin-stat-value">@Metrics.EvaluatedProfiles</div>
             </div>
             <div class="admin-stat-card admin-stat-card--info">
-                <div class="admin-stat-label">@Lang.T("admin.dashboard.candidates")</div>
-                <div class="admin-stat-value">@Metrics.TotalCandidates</div>
-            </div>
-            <div class="admin-stat-card admin-stat-card--info">
-                <div class="admin-stat-label">@Lang.T("admin.dashboard.companies")</div>
-                <div class="admin-stat-value">@Metrics.TotalCompanies</div>
+                <div class="admin-stat-label">@Lang.T("admin.dashboard.profilesWithScores")</div>
+                <div class="admin-stat-value">@Metrics.ProfilesWithScores</div>
             </div>
             <div class="admin-stat-card">
-                <div class="admin-stat-label">@Lang.T("admin.dashboard.permanentVacancies")</div>
-                <div class="admin-stat-value">@Metrics.TotalPermanentVacancies</div>
+                <div class="admin-stat-label">@Lang.T("admin.dashboard.openVacancies")</div>
+                <div class="admin-stat-value">@Metrics.OpenVacancies</div>
             </div>
             <div class="admin-stat-card admin-stat-card--warning">
-                <div class="admin-stat-label">@Lang.T("admin.dashboard.tempVacancies")</div>
-                <div class="admin-stat-value">@Metrics.TotalTempVacancies</div>
+                <div class="admin-stat-label">@Lang.T("admin.dashboard.closedVacancies")</div>
+                <div class="admin-stat-value">@Metrics.ClosedVacancies</div>
+            </div>
+            <div class="admin-stat-card admin-stat-card--info">
+                <div class="admin-stat-label">@Lang.T("admin.dashboard.companiesWithVacancies")</div>
+                <div class="admin-stat-value">@Metrics.CompaniesWithVacancies</div>
             </div>
             <div class="admin-stat-card">
-                <div class="admin-stat-label">@Lang.T("admin.dashboard.skills")</div>
-                <div class="admin-stat-value">@Metrics.TotalSkills</div>
+                <div class="admin-stat-label">@Lang.T("admin.dashboard.nonAdminUsers")</div>
+                <div class="admin-stat-value">@Metrics.NonAdminUsers</div>
             </div>
-            <div class="admin-stat-card admin-stat-card--danger">
-                <div class="admin-stat-label">@Lang.T("admin.dashboard.auditEntries")</div>
-                <div class="admin-stat-value">@Metrics.TotalAuditLogEntries</div>
+            <div class="admin-stat-card admin-stat-card--success">
+                <div class="admin-stat-label">@Lang.T("admin.dashboard.nonAdminCandidates")</div>
+                <div class="admin-stat-value">@Metrics.NonAdminCandidates</div>
+            </div>
+            <div class="admin-stat-card admin-stat-card--info">
+                <div class="admin-stat-label">@Lang.T("admin.dashboard.nonAdminCompanies")</div>
+                <div class="admin-stat-value">@Metrics.NonAdminCompanies</div>
             </div>
         </div>
     }

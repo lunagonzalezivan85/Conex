@@ -22,14 +22,14 @@
   "dashboard": {
     "title": "Panel de administración",
     "welcome": "Bienvenido al portal de administración de OpenToWork.",
-    "totalUsers": "Usuarios totales",
-    "activeUsers": "Usuarios activos",
-    "candidates": "Candidatos",
-    "companies": "Empresas",
-    "permanentVacancies": "Vacantes permanentes",
-    "tempVacancies": "Vacantes temporales",
-    "skills": "Skills",
-    "auditEntries": "Registros de auditoría"
+    "evaluatedProfiles": "Perfiles evaluados",
+    "profilesWithScores": "Perfiles con scores",
+    "openVacancies": "Vacantes abiertas",
+    "closedVacancies": "Vacantes cerradas",
+    "companiesWithVacancies": "Empresas con vacantes",
+    "nonAdminUsers": "Usuarios registrados (sin admin)",
+    "nonAdminCandidates": "Candidatos registrados",
+    "nonAdminCompanies": "Empresas registradas"
   },
   "users": {
     "title": "Gestión de usuarios",
