@@ -1060,6 +1060,7 @@
     align-items: center;
     gap: 0.3rem;
     flex-shrink: 0;
+    margin-left: auto;
 }
 
 .admin-profile-donut svg {
@@ -1229,6 +1230,203 @@
 
     .admin-profile-donut {
         margin-top: 0.5rem;
+        margin-left: 0;
+    }
+}
+
+/* ============================================
+   Users Page - Card View
+   ============================================ */
+
+.admin-users-toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.admin-users-search input {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.9rem;
+    background: #FFFFFF;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.admin-users-search input:focus {
+    border-color: #0066FF;
+}
+
+.admin-users-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.admin-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #FFFFFF;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.admin-chip:hover {
+    border-color: #0066FF;
+    color: #0066FF;
+}
+
+.admin-chip--active {
+    background: #0066FF;
+    border-color: #0066FF;
+    color: #FFFFFF;
+}
+
+.admin-chip--active:hover {
+    color: #FFFFFF;
+}
+
+.admin-chip-count {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+    background: rgba(0, 102, 255, 0.1);
+    color: #0066FF;
+}
+
+.admin-chip--active .admin-chip-count {
+    background: rgba(255, 255, 255, 0.25);
+    color: #FFFFFF;
+}
+
+.admin-users-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+}
+
+.admin-user-card {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+    transition: box-shadow 0.2s;
+}
+
+.admin-user-card:hover {
+    box-shadow: 0 4px 16px rgba(11, 19, 43, 0.08);
+}
+
+.admin-user-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+}
+
+.admin-user-card-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #E8F1FF;
+    color: #0066FF;
+    font-size: 0.85rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.admin-user-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-user-card-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-user-card-email {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-user-card-status {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.admin-user-card-status--active {
+    background: #DCFCE7;
+    color: #166534;
+}
+
+.admin-user-card-status--inactive {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+.admin-user-card-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+    min-height: 1.5rem;
+}
+
+.admin-user-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+}
+
+.admin-user-card-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.admin-user-card-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+@media (max-width: 640px) {
+    .admin-users-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-user-card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
     }
 }
 
