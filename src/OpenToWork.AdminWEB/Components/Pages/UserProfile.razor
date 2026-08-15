@@ -65,6 +65,18 @@ else
                     }
                 </div>
             </div>
+            <div class="admin-profile-donut">
+                <svg width="64" height="64" viewBox="0 0 64 64">
+                    <circle cx="32" cy="32" r="26" fill="none" stroke="var(--bg-tertiary)" stroke-width="6" />
+                    <circle cx="32" cy="32" r="26" fill="none" stroke="#0066FF" stroke-width="6"
+                            stroke-dasharray="@Math.Round(DonutCircumference, 2)"
+                            stroke-dashoffset="@Math.Round(DonutDashOffset, 2)"
+                            stroke-linecap="round"
+                            transform="rotate(-90 32 32)" />
+                    <text x="32" y="36" text-anchor="middle" font-size="14" font-weight="800" fill="#0B132B">@ProfileCompletionPct%</text>
+                </svg>
+                <span class="admin-profile-donut-label">@ProfileCompletionLabel</span>
+            </div>
         </div>
 
         @* Contact info *@
@@ -298,6 +310,10 @@ else
 @code {
     [Parameter] public Guid UserId { get; set; }
     private AdminUserProfileDto? Profile { get; set; }
+    private int ProfileCompletionPct { get; set; }
+    private string ProfileCompletionLabel { get; set; } = "";
+    private double DonutCircumference => 2 * Math.PI * 26;
+    private double DonutDashOffset => DonutCircumference * (1 - ProfileCompletionPct / 100.0);
 
     private string AvatarText
     {
@@ -321,6 +337,53 @@ else
         }
 
         Profile = await AuthApi.GetUserProfileAsync(UserId);
+        CalculateProfileCompletion();
+    }
+
+    private void CalculateProfileCompletion()
+    {
+        if (Profile == null) return;
+
+        if (Profile.PrimaryRole == (int)UserRole.Company)
+        {
+            var checks = new List<bool>
+            {
+                !string.IsNullOrEmpty(Profile.CompanyName),
+                !string.IsNullOrEmpty(Profile.CompanyDescription),
+                !string.IsNullOrEmpty(Profile.Website),
+                !string.IsNullOrEmpty(Profile.Country),
+                !string.IsNullOrEmpty(Profile.City),
+                !string.IsNullOrEmpty(Profile.Industry),
+                !string.IsNullOrEmpty(Profile.ContactEmail),
+                !string.IsNullOrEmpty(Profile.ContactPhone),
+                Profile.IsVerified == true,
+                Profile.VacancyCount > 0
+            };
+            ProfileCompletionPct = checks.Count(c => c) * 100 / checks.Count;
+            ProfileCompletionLabel = Lang.T("admin.profile.companyCompletion");
+        }
+        else
+        {
+            var checks = new List<bool>
+            {
+                !string.IsNullOrEmpty(Profile.CandidateName),
+                !string.IsNullOrEmpty(Profile.Title),
+                !string.IsNullOrEmpty(Profile.Summary),
+                !string.IsNullOrEmpty(Profile.Phone),
+                !string.IsNullOrEmpty(Profile.Country),
+                !string.IsNullOrEmpty(Profile.City),
+                !string.IsNullOrEmpty(Profile.LinkedInUrl),
+                !string.IsNullOrEmpty(Profile.PortfolioUrl),
+                !string.IsNullOrEmpty(Profile.CvUrl),
+                Profile.WizardCompleted == true,
+                Profile.Skills.Count > 0,
+                Profile.Experiences.Count > 0,
+                Profile.Educations.Count > 0,
+                Profile.YearsOfExperience.HasValue
+            };
+            ProfileCompletionPct = checks.Count(c => c) * 100 / checks.Count;
+            ProfileCompletionLabel = Lang.T("admin.profile.profileCompletion");
+        }
     }
 
     private void GoBack() => Nav.NavigateTo("/dashboard/results");

@@ -76,7 +76,9 @@
     "companySize": "Tamano de empresa",
     "vacancyCount": "Vacantes activas",
     "present": "Actualidad",
-    "inProgress": "En curso"
+    "inProgress": "En curso",
+    "profileCompletion": "Completitud del perfil",
+    "companyCompletion": "Completitud de empresa"
   },
   "users": {
     "title": "Gestión de usuarios",

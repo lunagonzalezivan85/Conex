@@ -76,7 +76,9 @@
     "companySize": "Company size",
     "vacancyCount": "Active vacancies",
     "present": "Present",
-    "inProgress": "In progress"
+    "inProgress": "In progress",
+    "profileCompletion": "Profile completion",
+    "companyCompletion": "Company completion"
   },
   "users": {
     "title": "User Management",

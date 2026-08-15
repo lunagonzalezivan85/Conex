@@ -1054,6 +1054,27 @@
     gap: 0.4rem;
 }
 
+.admin-profile-donut {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+}
+
+.admin-profile-donut svg {
+    display: block;
+}
+
+.admin-profile-donut-label {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-align: center;
+    max-width: 80px;
+    line-height: 1.2;
+}
+
 .admin-profile-section {
     background: #FFFFFF;
     border: 1px solid var(--border);
@@ -1204,6 +1225,10 @@
 
     .admin-profile-header-badges {
         justify-content: center;
+    }
+
+    .admin-profile-donut {
+        margin-top: 0.5rem;
     }
 }
 
