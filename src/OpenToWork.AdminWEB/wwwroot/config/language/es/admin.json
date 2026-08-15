@@ -4,6 +4,7 @@
     "dashboard": "Panel",
     "users": "Usuarios",
     "vacancies": "Vacantes",
+    "applications": "Solicitudes",
     "skills": "Skills",
     "auditLog": "Auditoría",
     "logout": "Cerrar sesión"
@@ -60,6 +61,18 @@
     "statusClosed": "Cerrada",
     "approve": "Aprobar",
     "close": "Cerrar"
+  },
+  "applications": {
+    "title": "Solicitudes",
+    "empty": "No hay solicitudes.",
+    "columnCandidate": "Candidato",
+    "columnVacancy": "Vacante",
+    "columnStatus": "Estado",
+    "columnDate": "Fecha",
+    "statusPending": "Pendiente",
+    "statusInReview": "En revisión",
+    "statusAccepted": "Aceptada",
+    "statusRejected": "Rechazada"
   },
   "skills": {
     "title": "Gestión de skills",
