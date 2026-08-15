@@ -59,11 +59,17 @@ public class DashboardMetricsDto
     public int TotalAuditLogEntries { get; set; }
 
     public int EvaluatedProfiles { get; set; }
+    public int PendingProfiles { get; set; }
     public int ProfilesWithScores { get; set; }
     public int OpenVacancies { get; set; }
     public int ClosedVacancies { get; set; }
+    public int DraftVacancies { get; set; }
     public int CompaniesWithVacancies { get; set; }
+    public int CompaniesWithoutVacancies { get; set; }
     public int NonAdminUsers { get; set; }
     public int NonAdminCandidates { get; set; }
     public int NonAdminCompanies { get; set; }
+    public int CandidatesWithLinkedIn { get; set; }
+    public int CandidatesWithPortfolio { get; set; }
+    public int CandidatesWithCV { get; set; }
 }

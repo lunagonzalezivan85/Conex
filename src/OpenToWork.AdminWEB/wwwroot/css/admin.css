@@ -593,12 +593,256 @@
 .admin-stat-card--danger .admin-stat-value { color: var(--danger); }
 
 /* ============================================
+   Admin Charts — Donut, Progress, Bar
+   ============================================ */
+
+.admin-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.admin-chart-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.admin-chart-card-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+/* Donut chart */
+.admin-donut-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+}
+
+.admin-donut {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+}
+
+.admin-donut svg {
+    transform: rotate(-90deg);
+}
+
+.admin-donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.admin-donut-center-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1;
+}
+
+.admin-donut-center-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.admin-donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    flex: 1;
+    min-width: 140px;
+}
+
+.admin-legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: 0.85rem;
+}
+
+.admin-legend-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.admin-legend-label {
+    color: var(--text-secondary);
+    flex: 1;
+}
+
+.admin-legend-value {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Progress bar */
+.admin-progress-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: var(--space-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.admin-progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.admin-progress-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+}
+
+.admin-progress-numbers {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.admin-progress-numbers strong {
+    color: var(--text-primary);
+    font-weight: 800;
+    font-size: 1.1rem;
+}
+
+.admin-progress-bar {
+    width: 100%;
+    height: 12px;
+    background: var(--bg-tertiary);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.admin-progress-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.6s ease;
+}
+
+.admin-progress-fill--success { background: var(--success); }
+.admin-progress-fill--info { background: #0066FF; }
+.admin-progress-fill--warning { background: var(--warning); }
+
+.admin-progress-detail {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.admin-progress-detail span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.admin-progress-detail .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 3px;
+}
+
+/* Bar chart */
+.admin-bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.admin-bar-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.admin-bar-label {
+    width: 120px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.admin-bar-track {
+    flex: 1;
+    height: 28px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+}
+
+.admin-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    padding-left: var(--space-sm);
+    color: #FFFFFF;
+    font-size: 0.78rem;
+    font-weight: 700;
+    transition: width 0.6s ease;
+    min-width: 28px;
+}
+
+.admin-bar-fill--linkedin { background: #0077B5; }
+.admin-bar-fill--portfolio { background: #0066FF; }
+.admin-bar-fill--cv { background: var(--success); }
+.admin-bar-fill--pending { background: var(--warning); }
+.admin-bar-fill--evaluated { background: var(--success); }
+
+.admin-bar-value {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    width: 50px;
+    text-align: right;
+    flex-shrink: 0;
+}
+
+/* Section title */
+.admin-section-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: var(--space-xl) 0 var(--space-md);
+    letter-spacing: -0.02em;
+}
+
+/* ============================================
    Responsive
    ============================================ */
 
 @media (max-width: 1024px) {
     .admin-stat-grid {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    .admin-chart-grid {
+        grid-template-columns: 1fr;
     }
 }
 
