@@ -95,17 +95,15 @@ else
     private async Task LoadResults()
     {
         var metrics = await AuthApi.GetMetricsAsync();
-        var users = await AuthApi.GetUsersAsync();
 
-        var roleInt = RoleFilter switch
+        int? apiRole = RoleFilter switch
         {
             "candidate" => (int)UserRole.Candidate,
             "company" => (int)UserRole.Company,
-            _ => -1
+            _ => null
         };
 
-        if (roleInt >= 0)
-            users = users.Where(u => u.PrimaryRole == roleInt).ToList();
+        var users = await AuthApi.GetUsersAsync(role: apiRole);
 
         Results = BuildResults(users, metrics);
         BuildTitle(metrics);

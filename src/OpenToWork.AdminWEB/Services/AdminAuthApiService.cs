@@ -41,10 +41,13 @@ public class AdminAuthApiService
         return await response.Content.ReadFromJsonAsync<DashboardMetricsDto>();
     }
 
-    public async Task<List<AdminUserDto>> GetUsersAsync(int page = 1, int pageSize = 1000)
+    public async Task<List<AdminUserDto>> GetUsersAsync(int page = 1, int pageSize = 1000, int? role = null)
     {
         await SetAuthHeaderAsync();
-        var response = await _httpClient.GetAsync($"api/admin/users?page={page}&pageSize={pageSize}");
+        var url = role.HasValue
+            ? $"api/admin/users?page={page}&pageSize={pageSize}&role={role.Value}"
+            : $"api/admin/users?page={page}&pageSize={pageSize}";
+        var response = await _httpClient.GetAsync(url);
         if (!response.IsSuccessStatusCode) return new();
         return await response.Content.ReadFromJsonAsync<List<AdminUserDto>>() ?? new();
     }
