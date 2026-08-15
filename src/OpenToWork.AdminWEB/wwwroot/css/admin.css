@@ -1,5 +1,5 @@
 /* ============================================
-   Admin Layout - Sidebar + Topbar
+   Admin Layout - One UI Sidebar + Topbar
    ============================================ */
 
 .admin-shell {
@@ -31,19 +31,20 @@
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.admin-brand-badge {
+.admin-brand-squircle {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
-    background: var(--gradient-accent);
+    width: 40px;
+    height: 40px;
+    border-radius: 14px;
+    background: #0066FF;
     color: #FFFFFF;
     font-weight: 800;
     font-size: 0.82rem;
     letter-spacing: -0.02em;
     flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
 }
 
 .admin-brand-text {
@@ -58,7 +59,7 @@
     padding: var(--space-md) var(--space-sm);
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 4px;
     overflow-y: auto;
 }
 
@@ -66,31 +67,46 @@
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    padding: 0.7rem var(--space-md);
-    border-radius: var(--radius-sm);
-    color: rgba(245, 247, 250, 0.7);
+    padding: 0.65rem var(--space-md);
+    border-radius: 14px;
+    color: rgba(245, 247, 250, 0.65);
     font-size: 0.88rem;
     font-weight: 500;
     transition: all var(--transition-fast);
     text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .admin-nav-item:hover {
-    background: var(--nav-hover);
+    background: rgba(255, 255, 255, 0.06);
     color: var(--nav-text);
 }
 
 .admin-nav-item.active {
-    background: var(--nav-active);
-    color: #FFFFFF;
+    background: #E8F1FF;
+    color: #0066FF;
+    font-weight: 700;
 }
 
-.admin-nav-icon {
-    font-size: 0.7rem;
-    width: 20px;
-    text-align: center;
+.admin-nav-icon-squircle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
     flex-shrink: 0;
-    opacity: 0.8;
+    transition: all var(--transition-fast);
+}
+
+.admin-nav-item:hover .admin-nav-icon-squircle {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-nav-item.active .admin-nav-icon-squircle {
+    background: #0066FF;
+    color: #FFFFFF;
 }
 
 .admin-nav-label {
@@ -106,8 +122,8 @@
     display: flex;
     align-items: center;
     gap: var(--space-sm);
-    padding: 0.7rem var(--space-md);
-    border-radius: var(--radius-sm);
+    padding: 0.65rem var(--space-md);
+    border-radius: 14px;
     background: transparent;
     border: none;
     color: rgba(245, 247, 250, 0.6);
@@ -120,8 +136,12 @@
 }
 
 .admin-logout-btn:hover {
-    background: rgba(217, 45, 32, 0.15);
+    background: rgba(217, 45, 32, 0.12);
     color: #FEE4E2;
+}
+
+.admin-logout-btn:hover .admin-nav-icon-squircle {
+    background: rgba(217, 45, 32, 0.15);
 }
 
 /* Main area */
@@ -135,7 +155,7 @@
 
 /* Topbar */
 .admin-topbar {
-    height: 56px;
+    height: 60px;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-color);
     display: flex;
@@ -149,14 +169,17 @@
 
 .admin-sidebar-toggle {
     display: none;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
     background: transparent;
     border: none;
-    font-size: 1.2rem;
     cursor: pointer;
     color: var(--text-primary);
-    padding: 0.3rem;
-    border-radius: var(--radius-sm);
     transition: background var(--transition-fast);
+    -webkit-tap-highlight-color: transparent;
 }
 
 .admin-sidebar-toggle:hover {
@@ -173,10 +196,10 @@
 .admin-topbar-badge {
     display: inline-flex;
     align-items: center;
-    padding: 0.25rem 0.7rem;
-    border-radius: var(--radius-pill);
-    background: var(--accent-light);
-    color: var(--accent-primary);
+    padding: 0.3rem 0.8rem;
+    border-radius: 999px;
+    background: #E8F1FF;
+    color: #0066FF;
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -189,8 +212,8 @@
 }
 
 .admin-select {
-    padding: 0.35rem 0.6rem;
-    border-radius: var(--radius-sm);
+    padding: 0.4rem 0.7rem;
+    border-radius: 10px;
     border: 1px solid var(--border-color);
     background: var(--input-bg);
     color: var(--text-primary);
@@ -206,7 +229,7 @@
 
 .admin-select:focus {
     outline: none;
-    border-color: var(--input-focus);
+    border-color: #0066FF;
 }
 
 /* Content */
