@@ -711,15 +711,15 @@
 .wizard-summary-header-banner {
     height: 60px;
     width: 100%;
-    background: #F0F7FF;
-    border-bottom: 3px solid #E8F1FF;
+    background: #F0FDFA;
+    border-bottom: 3px solid #F0FDFA;
 }
 
 .wizard-summary-avatar {
     width: 72px;
     height: 72px;
     border-radius: 20px;
-    background: #0066FF;
+    background: #0D9488;
     color: #FFFFFF;
     font-size: 1.6rem;
     font-weight: 800;
@@ -847,8 +847,8 @@
     align-items: center;
     padding: 0.3rem 0.8rem;
     border-radius: 999px;
-    background: #E8F1FF;
-    color: #0066FF;
+    background: #F0FDFA;
+    color: #0D9488;
     font-size: 0.8rem;
     font-weight: 600;
 }

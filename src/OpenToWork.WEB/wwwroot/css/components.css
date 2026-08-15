@@ -1896,7 +1896,7 @@
 }
 
 .vacancy-detail-error svg {
-    color: #0066FF;
+    color: #0D9488;
     opacity: 0.3;
 }
 
@@ -1990,9 +1990,9 @@
 }
 
 .messages-filter-tab.active {
-    background: #E8F1FF;
-    color: #0066FF;
-    border-color: #E8F1FF;
+    background: #F0FDFA;
+    color: #0D9488;
+    border-color: #F0FDFA;
 }
 
 .messages-filter-badge {
@@ -2071,8 +2071,8 @@
 }
 
 .conversation-item.selected {
-    background: #F0F7FF;
-    border-left-color: #0066FF;
+    background: #F0FDFA;
+    border-left-color: #0D9488;
 }
 
 .conversation-item.unread {
@@ -2080,8 +2080,8 @@
 }
 
 .conversation-item.unread.selected {
-    background: #F0F7FF;
-    border-left-color: #0066FF;
+    background: #F0FDFA;
+    border-left-color: #0D9488;
 }
 
 .conversation-avatar {
@@ -2091,7 +2091,7 @@
     width: 42px;
     height: 42px;
     border-radius: 14px;
-    background: #0066FF;
+    background: #0D9488;
     color: #FFFFFF;
     font-size: 0.78rem;
     font-weight: 700;
@@ -2204,8 +2204,8 @@
     width: 80px;
     height: 80px;
     border-radius: 24px;
-    background: #F0F7FF;
-    color: #0066FF;
+    background: #F0FDFA;
+    color: #0D9488;
     margin-bottom: var(--space-sm);
 }
 
@@ -2239,7 +2239,7 @@
     width: 44px;
     height: 44px;
     border-radius: 14px;
-    background: #0066FF;
+    background: #0D9488;
     color: #FFFFFF;
     font-size: 0.82rem;
     font-weight: 700;
@@ -2317,7 +2317,7 @@
 }
 
 .chat-message.mine .chat-message-bubble {
-    background: #0066FF;
+    background: #0D9488;
     color: #FFFFFF;
     border-bottom-right-radius: 4px;
 }
@@ -2377,7 +2377,7 @@
     width: 40px;
     height: 40px;
     border-radius: 14px;
-    background: #0066FF;
+    background: #0D9488;
     color: #FFFFFF;
     border: none;
     cursor: pointer;
@@ -2386,7 +2386,7 @@
 }
 
 .chat-send-btn:hover:not(:disabled) {
-    background: #0052cc;
+    background: #0F766E;
     transform: scale(1.05);
 }
 

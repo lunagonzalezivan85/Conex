@@ -5,10 +5,10 @@
     --text-primary: #101828;
     --text-secondary: #475467;
     --text-muted: #98A2B3;
-    --accent-primary: #026AA2;
-    --accent-hover: #025A88;
-    --accent-light: #E0F2FE;
-    --accent-soft: #BAE6FD;
+    --accent-primary: #0D9488;
+    --accent-hover: #0F766E;
+    --accent-light: #F0FDFA;
+    --accent-soft: #CCFBF1;
     --border-color: #D0D5DD;
     --border-strong: #98A2B3;
     --success: #059669;
@@ -25,12 +25,12 @@
     --nav-bg: #101828;
     --nav-text: #F5F7FA;
     --nav-hover: #1D2939;
-    --nav-active: #026AA2;
+    --nav-active: #0D9488;
     --card-bg: #FFFFFF;
     --card-border: #EAECF0;
     --input-bg: #FFFFFF;
     --input-border: #D0D5DD;
-    --input-focus: #026AA2;
+    --input-focus: #0D9488;
     --skeleton: #F2F4F7;
     --overlay: rgba(16, 24, 40, 0.5);
 }
