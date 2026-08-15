@@ -64,7 +64,15 @@
     "confirmDelete": "Delete this user? This action cannot be undone.",
     "clearFilter": "Clear filter",
     "filterCandidates": "Candidates",
-    "filterCompanies": "Companies"
+    "filterCompanies": "Companies",
+    "columnName": "Name",
+    "columnEvaluated": "Evaluated",
+    "columnLinkedIn": "LinkedIn",
+    "columnPortfolio": "Portfolio",
+    "columnCV": "CV",
+    "columnScore": "Score",
+    "yes": "Yes",
+    "no": "No"
   },
   "vacancies": {
     "title": "Vacancy Moderation",

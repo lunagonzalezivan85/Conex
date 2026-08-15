@@ -64,7 +64,15 @@
     "confirmDelete": "¿Eliminar este usuario? Esta acción no se puede deshacer.",
     "clearFilter": "Quitar filtro",
     "filterCandidates": "Candidatos",
-    "filterCompanies": "Empresas"
+    "filterCompanies": "Empresas",
+    "columnName": "Nombre",
+    "columnEvaluated": "Evaluado",
+    "columnLinkedIn": "LinkedIn",
+    "columnPortfolio": "Portafolio",
+    "columnCV": "CV",
+    "columnScore": "Score",
+    "yes": "Sí",
+    "no": "No"
   },
   "vacancies": {
     "title": "Moderación de vacantes",

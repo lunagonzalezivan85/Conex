@@ -40,7 +40,31 @@ else
         <thead>
             <tr>
                 <th>@Lang.T("admin.users.columnEmail")</th>
+                @if (ShowCandidateColumns)
+                {
+                    <th>@Lang.T("admin.users.columnName")</th>
+                }
                 <th>@Lang.T("admin.users.columnRole")</th>
+                @if (FilterType == "evaluated" || FilterType == "pending")
+                {
+                    <th>@Lang.T("admin.users.columnEvaluated")</th>
+                }
+                @if (FilterType == "linkedin")
+                {
+                    <th>@Lang.T("admin.users.columnLinkedIn")</th>
+                }
+                @if (FilterType == "portfolio")
+                {
+                    <th>@Lang.T("admin.users.columnPortfolio")</th>
+                }
+                @if (FilterType == "cv")
+                {
+                    <th>@Lang.T("admin.users.columnCV")</th>
+                }
+                @if (FilterType == "scores")
+                {
+                    <th>@Lang.T("admin.users.columnScore")</th>
+                }
                 <th>@Lang.T("admin.users.columnStatus")</th>
                 <th>@Lang.T("admin.users.columnCreated")</th>
                 <th></th>
@@ -51,7 +75,76 @@ else
             {
                 <tr>
                     <td>@user.Email</td>
+                    @if (ShowCandidateColumns)
+                    {
+                        <td>@(user.CandidateName ?? "-")</td>
+                    }
                     <td>@((UserRole)user.PrimaryRole)</td>
+                    @if (FilterType == "evaluated" || FilterType == "pending")
+                    {
+                        <td>
+                            @if (user.WizardCompleted == true)
+                            {
+                                <span class="admin-status admin-status--active">@Lang.T("admin.users.yes")</span>
+                            }
+                            else
+                            {
+                                <span class="admin-status admin-status--inactive">@Lang.T("admin.users.no")</span>
+                            }
+                        </td>
+                    }
+                    @if (FilterType == "linkedin")
+                    {
+                        <td>
+                            @if (user.HasLinkedIn == true)
+                            {
+                                <span class="admin-status admin-status--active">@Lang.T("admin.users.yes")</span>
+                            }
+                            else
+                            {
+                                <span class="admin-status admin-status--inactive">@Lang.T("admin.users.no")</span>
+                            }
+                        </td>
+                    }
+                    @if (FilterType == "portfolio")
+                    {
+                        <td>
+                            @if (user.HasPortfolio == true)
+                            {
+                                <span class="admin-status admin-status--active">@Lang.T("admin.users.yes")</span>
+                            }
+                            else
+                            {
+                                <span class="admin-status admin-status--inactive">@Lang.T("admin.users.no")</span>
+                            }
+                        </td>
+                    }
+                    @if (FilterType == "cv")
+                    {
+                        <td>
+                            @if (user.HasCV == true)
+                            {
+                                <span class="admin-status admin-status--active">@Lang.T("admin.users.yes")</span>
+                            }
+                            else
+                            {
+                                <span class="admin-status admin-status--inactive">@Lang.T("admin.users.no")</span>
+                            }
+                        </td>
+                    }
+                    @if (FilterType == "scores")
+                    {
+                        <td>
+                            @if (user.HasScore == true)
+                            {
+                                <span class="admin-status admin-status--active">@Lang.T("admin.users.yes")</span>
+                            }
+                            else
+                            {
+                                <span class="admin-status admin-status--inactive">@Lang.T("admin.users.no")</span>
+                            }
+                        </td>
+                    }
                     <td>
                         @if (user.IsActive)
                         {
@@ -87,6 +180,7 @@ else
     private string? RoleFilter { get; set; }
     private string? FilterType { get; set; }
     private string? FilterLabel { get; set; }
+    private bool ShowCandidateColumns => RoleFilter == "candidate" || FilterType == "evaluated" || FilterType == "pending" || FilterType == "linkedin" || FilterType == "portfolio" || FilterType == "cv" || FilterType == "scores";
 
     protected override async Task OnInitializedAsync()
     {

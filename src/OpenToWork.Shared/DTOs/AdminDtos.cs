@@ -9,6 +9,12 @@ public class AdminUserDto
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? LastLoginAt { get; set; }
+    public string? CandidateName { get; set; }
+    public bool? WizardCompleted { get; set; }
+    public bool? HasLinkedIn { get; set; }
+    public bool? HasPortfolio { get; set; }
+    public bool? HasCV { get; set; }
+    public bool? HasScore { get; set; }
 }
 
 public class AdminVacancyDto

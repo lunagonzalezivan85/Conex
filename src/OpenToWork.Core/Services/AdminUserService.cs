@@ -30,7 +30,22 @@ public class AdminUserService : IAdminUserService
             .OrderByDescending(u => u.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(u => ToDto(u))
+            .Select(u => new AdminUserDto
+            {
+                Id = u.Id,
+                Email = u.Email,
+                PrimaryRole = u.PrimaryRole,
+                EmailVerified = u.EmailVerified,
+                IsActive = u.IsActive,
+                CreatedAt = u.CreatedAt,
+                LastLoginAt = u.LastLoginAt,
+                CandidateName = u.Candidate != null ? (u.Candidate.FirstName + " " + u.Candidate.LastName) : null,
+                WizardCompleted = u.Candidate != null ? u.Candidate.WizardCompleted : null,
+                HasLinkedIn = u.Candidate != null ? !string.IsNullOrEmpty(u.Candidate.LinkedInUrl) : null,
+                HasPortfolio = u.Candidate != null ? !string.IsNullOrEmpty(u.Candidate.PortfolioUrl) : null,
+                HasCV = u.Candidate != null ? !string.IsNullOrEmpty(u.Candidate.CvUrl) : null,
+                HasScore = false
+            })
             .ToListAsync();
     }
 
