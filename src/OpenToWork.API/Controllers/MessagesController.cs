@@ -118,6 +118,9 @@ public class MessagesController : ControllerBase
         var userId = GetUserId();
         if (userId == null) return Unauthorized();
 
+        if (string.IsNullOrWhiteSpace(dto.Content))
+            return BadRequest("Message content cannot be empty");
+
         var message = new MessageDto
         {
             Id = Guid.NewGuid(),

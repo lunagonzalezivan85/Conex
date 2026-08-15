@@ -891,3 +891,139 @@ Si ambos estan trabajando en paralelo, cada uno debe poder avanzar sin bloquear 
 - `src/OpenToWork.WEB/wwwroot/css/components.css`
 - `src/OpenToWork.WEB/wwwroot/config/language/es/common.json`
 - `src/OpenToWork.WEB/wwwroot/config/language/en/common.json`
+
+---
+
+### Sesión 14-Ago-2026 — Suite de Pruebas de Integración (OpenToWork.Tests)
+
+> **QA (Sr. Smith):** Pruebas automatizadas de integración contra la API real (localhost:5000) con xUnit.
+
+#### Proyecto creado
+- `src/OpenToWork.Tests/OpenToWork.Tests.csproj` — xUnit, .NET 10, referencia a `OpenToWork.Shared`.
+
+#### Arquitectura de pruebas
+- **`BaseTest.cs`** — Clase base abstracta que crea un `HttpClient` propio por test, hace login automático con `juan.perez@gmail.com` y setea el Bearer token. Cada test es independiente.
+- Cada clase de test hereda de `BaseTest` y tiene su propio `HttpClient` aislado.
+
+#### Pruebas de Auth (`AuthTests.cs`) — 10 pruebas
+| Test | Descripción | Resultado |
+|------|-------------|-----------|
+| `Login_ConCredencialesValidas_RetornaTokenYUsuario` | Login con juan.perez@gmail.com valida token, refresh y email | ✅ |
+| `Login_ConPasswordIncorrecta_RetornaUnauthorized` | Password incorrecta retorna 401 | ✅ |
+| `Login_ConEmailInexistente_RetornaUnauthorized` | Email inexistente retorna 401 | ✅ |
+| `Login_ConEmailVacio_RetornaUnauthorized` | Email vacío retorna 401 (ver bug #4) | ✅ |
+| `Login_ConPasswordVacia_RetornaUnauthorized` | Password vacía retorna 401 (ver bug #4) | ✅ |
+| `Refresh_ConTokenValido_RetornaNuevoToken` | Refresh token genera nuevo JWT | ✅ |
+| `CheckDevice_SinAutenticar_RetornaUnauthorized` | Endpoint protegido sin token retorna 401 | ✅ |
+| `Login_ConMariaGonzalez_RetornaTokenValido` | Login con segundo usuario de prueba | ✅ |
+| `Login_ConCarlosRodriguez_RetornaTokenValido` | Login con tercer usuario de prueba | ✅ |
+
+#### Pruebas de Profile (`ProfileTests.cs`) — 8 pruebas
+| Test | Descripción | Resultado |
+|------|-------------|-----------|
+| `GetProfile_ConTokenValido_RetornaPerfil` | GET /api/profile retorna datos del candidato | ✅ |
+| `GetProfile_SinToken_RetornaUnauthorized` | Sin token retorna 401 | ✅ |
+| `UpdateProfile_ConDatosValidos_RetornaPerfilActualizado` | PUT /api/profile actualiza título | ✅ |
+| `AddExperience_ConDatosValidos_RetornaExperienciaCreada` | POST experience crea y retorna | ✅ |
+| `AddExperience_ConCompanyNameVacio_LoCreaSinValidar` | CompanyName vacío aceptado (ver bug #2) | ✅ |
+| `AddEducation_ConDatosValidos_RetornaEducacionCreada` | POST education crea y retorna | ✅ |
+| `AddCertification_ConDatosValidos_RetornaCertificacionCreada` | POST certification crea y retorna | ✅ |
+| `DeleteExperience_ConIdInexistente_RetornaNotFound` | Delete con GUID inexistente retorna 404 | ✅ |
+| `DeleteEducation_ConIdInexistente_RetornaNotFound` | Delete con GUID inexistente retorna 404 | ✅ |
+
+#### Pruebas de Vacancies (`VacancyTests.cs`) — 9 pruebas
+| Test | Descripción | Resultado |
+|------|-------------|-----------|
+| `Search_Vacantes_RetornaListaYTotal` | GET /search retorna items y total | ✅ |
+| `Search_ConFiltroTexto_RetornaResultadosFiltrados` | Filtro por query=desarrollador | ✅ |
+| `Search_ConPaginaGrande_RetornaResultados` | PageSize=100 funciona | ✅ |
+| `GetById_ConIdInexistente_RetornaNotFound` | GUID inexistente retorna 404 | ✅ |
+| `GetById_ConIdValido_RetornaVacante` | Búsqueda + GET por ID real | ✅ |
+| `GetMyCompanyVacancies_SinToken_RetornaUnauthorized` | Sin token retorna 401 | ✅ |
+| `Create_SinToken_RetornaUnauthorized` | POST sin token retorna 401 | ✅ |
+| `Create_ConTokenValido_RetornaCreatedOBadRequest` | POST con token (Created si es empresa, BadRequest si candidato) | ✅ |
+| `Create_ConTituloVacio_RetornaBadRequest` | Título vacío retorna 400 | ✅ |
+
+#### Pruebas de Applications (`ApplicationTests.cs`) — 6 pruebas
+| Test | Descripción | Resultado |
+|------|-------------|-----------|
+| `GetMyApplications_ConTokenValido_RetornaLista` | GET /my retorna lista de postulaciones | ✅ |
+| `GetMyApplications_SinToken_RetornaUnauthorized` | Sin token retorna 401 | ✅ |
+| `Apply_ConVacancyIdInexistente_RetornaError` | Vacancy inexistente retorna 500 (ver bug #1) | ✅ |
+| `Apply_SinToken_RetornaUnauthorized` | POST sin token retorna 401 | ✅ |
+| `Apply_ConDatosValidos_RetornaCreatedOConflict` | Postulación real (Created o Conflict si ya aplicó) | ✅ |
+| `Apply_DosVecesALaMismaVacante_RetornaConflict` | Doble postulación retorna 409 | ✅ |
+| `UpdateStatus_ConIdInexistente_RetornaNotFound` | Update status con GUID inexistente retorna 404 | ✅ |
+
+#### Pruebas de Messages (`MessagesTests.cs`) — 11 pruebas
+| Test | Descripción | Resultado |
+|------|-------------|-----------|
+| `GetConversations_ConTokenValido_RetornaLista` | GET conversations retorna lista no vacía | ✅ |
+| `GetConversations_SinToken_RetornaUnauthorized` | Sin token retorna 401 | ✅ |
+| `GetConversations_RetornaDatosConEstructuraCorrecta` | Valida ParticipantName, Avatar, LastMessage | ✅ |
+| `GetMessages_ConConversationIdValido_RetornaMensajes` | GET messages por conversación retorna mensajes | ✅ |
+| `GetMessages_ConIdInexistente_RetornaListaVacia` | ID inexistente retorna lista vacía | ✅ |
+| `SendMessage_ConDatosValidos_RetornaMensajeCreado` | POST send crea mensaje con IsMine=true | ✅ |
+| `SendMessage_SinToken_RetornaUnauthorized` | Sin token retorna 401 | ✅ |
+| `SendMessage_ConContenidoVacio_LoAceptaSinValidar` | Content vacío aceptado (ver bug #3) | ✅ |
+| `MarkAsRead_ConConversationIdValido_RetornaOk` | PUT read marca conversación como leída | ✅ |
+| `MarkAsRead_SinToken_RetornaUnauthorized` | Sin token retorna 401 | ✅ |
+
+#### Bugs encontrados por QA (4 items)
+
+1. **`POST /api/applications` con VacancyId inexistente** — Retorna `500 InternalServerError` en lugar de `404 NotFound`. El `ApplicationService` no valida que la vacante exista antes de crear la postulación.
+   - **Fix:** Agregar validación `if (vacancy == null) return NotFound()` en `ApplicationsController.Apply` o en `ApplicationService.ApplyAsync`.
+
+2. **`POST /api/profile/experience` con CompanyName vacío** — La API no valida campos requeridos. Acepta experiencia sin empresa.
+   - **Fix:** Agregar `[Required]` en `CreateExperienceDto.CompanyName` y `JobTitle`, o validación manual en `ProfileService`.
+
+3. **`POST /api/messages/send` con Content vacío** — El controller mock no valida contenido vacío.
+   - **Fix:** Agregar validación `if (string.IsNullOrWhiteSpace(dto.Content)) return BadRequest()` en `MessagesController.Send`.
+
+4. **`POST /api/auth/login` con email/password vacío** — Retorna `401 Unauthorized` en lugar de `400 BadRequest`. No hay validación de modelo.
+   - **Fix:** Agregar `[Required]` en `LoginDto.Email` y `LoginDto.Password`, o validación manual en `AuthController.Login`.
+
+#### Cómo ejecutar las pruebas
+
+```bash
+# 1. Asegurar que la API esté corriendo en localhost:5000
+dotnet run --project src/OpenToWork.API
+
+# 2. Ejecutar todas las pruebas
+dotnet test src/OpenToWork.Tests/OpenToWork.Tests.csproj --verbosity normal
+
+# 3. Ejecutar solo una clase de tests
+dotnet test src/OpenToWork.Tests/OpenToWork.Tests.csproj --filter "FullyQualifiedName~AuthTests"
+```
+
+#### Resultado final
+```
+Pruebas totales: 44
+     Correcto: 44
+ Tiempo total: ~5s
+```
+
+---
+
+## Tareas Pendientes — Portal Administrativo
+
+> **Contexto:** El portal administrativo está al 85%. Lo que falta está bloqueado por la Fase 3 (Motor de Evaluación) o requiere desarrollo independiente.
+
+### Pendientes bloqueados por Fase 3 (Motor de Scoring)
+
+- [ ] **Verificaciones manuales** — Aprobar/rechazar `PTVerification` desde el panel admin. Requiere que existan entidades de verificación (Fase 3).
+- [ ] **Revisión de validaciones automáticas** — Ver el resultado de validaciones automáticas (LinkedIn, portafolio, coherencia cronológica) desde el admin. Requiere `ValidationService` (Fase 3).
+- [ ] **Gestión de scores de candidatos** — Ver y gestionar los índices de Estabilidad, Confiabilidad y Evidencia de cada candidato desde el admin.
+
+### Pendientes independientes (se pueden hacer ahora)
+
+- [ ] **Gestión de roles de usuario** — Actualmente el admin solo puede activar/desactivar usuarios. Falta poder cambiar el `PrimaryRole` (Candidato → Empresa → Admin) desde el panel.
+- [ ] **Pruebas unitarias para AdminAPI** — Crear `OpenToWork.AdminTests` con pruebas de integración contra `localhost:5001` (login admin, dashboard metrics, users CRUD, vacancies moderation, skills CRUD, audit log, export CSV).
+- [ ] **Pruebas de seguridad admin** — Verificar que un candidato no puede acceder a endpoints admin, que el auto-bloqueo funciona, que la paginación no acepta valores negativos.
+
+### Deuda técnica documentada (4 items)
+
+- [ ] Unificar `AdminAuthService` con `AuthService` (lógica duplicada)
+- [ ] Optimizar `AdminVacancyService` (carga tablas completas en memoria antes de paginar)
+- [ ] Mover `LocalStorageService`/`LanguageService` de AdminWEB a SharedUI
+- [ ] Centralizar guard de autenticación en `AdminLayout` (copiado en 5 páginas)
