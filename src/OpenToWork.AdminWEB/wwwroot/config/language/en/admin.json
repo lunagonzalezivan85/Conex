@@ -61,7 +61,10 @@
     "activate": "Activate",
     "deactivate": "Deactivate",
     "delete": "Delete",
-    "confirmDelete": "Delete this user? This action cannot be undone."
+    "confirmDelete": "Delete this user? This action cannot be undone.",
+    "clearFilter": "Clear filter",
+    "filterCandidates": "Candidates",
+    "filterCompanies": "Companies"
   },
   "vacancies": {
     "title": "Vacancy Moderation",

@@ -2,6 +2,7 @@
 @using OpenToWork.AdminWEB.Services
 @using OpenToWork.Shared.DTOs
 @using OpenToWork.Shared.Enums
+@using Microsoft.AspNetCore.WebUtilities
 @inject LanguageService Lang
 @inject LocalStorageService LocalStorage
 @inject AdminAuthApiService AuthApi
@@ -13,6 +14,11 @@
 <div class="admin-page-header">
     <h1>@Lang.T("admin.users.title")</h1>
     <div class="admin-page-actions">
+        @if (!string.IsNullOrEmpty(FilterLabel))
+        {
+            <span class="admin-filter-badge">@FilterLabel</span>
+            <button class="ot-btn ot-btn--outline ot-btn--small" @onclick="ClearFilter">@Lang.T("admin.users.clearFilter")</button>
+        }
         <button class="ot-btn ot-btn--outline ot-btn--small" @onclick="ExportCsv">@Lang.T("admin.users.exportCsv")</button>
     </div>
 </div>
@@ -78,6 +84,9 @@ else
 
 @code {
     private List<AdminUserDto>? UsersList;
+    private string? RoleFilter { get; set; }
+    private string? FilterType { get; set; }
+    private string? FilterLabel { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,12 +100,74 @@ else
             return;
         }
 
+        ParseQueryParams();
         await LoadUsers();
+    }
+
+    private void ParseQueryParams()
+    {
+        var uri = Nav.Uri;
+        var query = QueryHelpers.ParseQuery(uri);
+        
+        if (query.TryGetValue("role", out var role))
+            RoleFilter = role.ToString();
+        
+        if (query.TryGetValue("filter", out var filter))
+            FilterType = filter.ToString();
+
+        FilterLabel = BuildFilterLabel();
+    }
+
+    private string? BuildFilterLabel()
+    {
+        if (string.IsNullOrEmpty(RoleFilter) && string.IsNullOrEmpty(FilterType))
+            return null;
+
+        var parts = new List<string>();
+        
+        if (RoleFilter == "candidate")
+            parts.Add(Lang.T("admin.users.filterCandidates"));
+        else if (RoleFilter == "company")
+            parts.Add(Lang.T("admin.users.filterCompanies"));
+
+        if (FilterType == "evaluated")
+            parts.Add(Lang.T("admin.dashboard.evaluated"));
+        else if (FilterType == "pending")
+            parts.Add(Lang.T("admin.dashboard.pending"));
+        else if (FilterType == "linkedin")
+            parts.Add(Lang.T("admin.dashboard.withLinkedIn"));
+        else if (FilterType == "portfolio")
+            parts.Add(Lang.T("admin.dashboard.withPortfolio"));
+        else if (FilterType == "cv")
+            parts.Add(Lang.T("admin.dashboard.withCV"));
+        else if (FilterType == "scores")
+            parts.Add(Lang.T("admin.dashboard.profilesWithScores"));
+
+        return parts.Count > 0 ? string.Join(" · ", parts) : null;
     }
 
     private async Task LoadUsers()
     {
-        UsersList = await AuthApi.GetUsersAsync();
+        var allUsers = await AuthApi.GetUsersAsync();
+        
+        if (!string.IsNullOrEmpty(RoleFilter))
+        {
+            var roleInt = RoleFilter switch
+            {
+                "candidate" => (int)UserRole.Candidate,
+                "company" => (int)UserRole.Company,
+                "admin" => (int)UserRole.Admin,
+                _ => -1
+            };
+            allUsers = allUsers.Where(u => u.PrimaryRole == roleInt).ToList();
+        }
+
+        UsersList = allUsers;
+    }
+
+    private void ClearFilter()
+    {
+        Nav.NavigateTo("/users", forceLoad: true);
     }
 
     private async Task Activate(Guid id)

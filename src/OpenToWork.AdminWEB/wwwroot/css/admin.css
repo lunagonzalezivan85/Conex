@@ -832,6 +832,43 @@
     letter-spacing: -0.02em;
 }
 
+/* Clickable charts */
+.admin-clickable {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.admin-clickable:hover {
+    border-color: #0066FF !important;
+    box-shadow: 0 4px 16px rgba(0, 102, 255, 0.12);
+    transform: translateY(-2px);
+}
+
+.admin-bar-row.admin-clickable {
+    border-radius: 8px;
+    padding: 4px 8px;
+    margin: 0 -8px;
+}
+
+.admin-bar-row.admin-clickable:hover {
+    background: var(--bg-tertiary);
+    border-color: transparent !important;
+    box-shadow: none;
+    transform: none;
+}
+
+/* Filter badge */
+.admin-filter-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.35rem 0.8rem;
+    border-radius: 999px;
+    background: #E8F1FF;
+    color: #0066FF;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
 /* ============================================
    Responsive
    ============================================ */

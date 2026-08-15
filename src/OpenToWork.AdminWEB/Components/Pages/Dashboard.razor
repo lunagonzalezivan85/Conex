@@ -36,7 +36,7 @@
         <h2 class="admin-section-title">@Lang.T("admin.dashboard.sectionProfiles")</h2>
         <div class="admin-chart-grid">
             <!-- Progress: Perfiles evaluados -->
-            <div class="admin-progress-card">
+            <div class="admin-progress-card admin-clickable" @onclick="GoEvaluated">
                 <div class="admin-progress-header">
                     <span class="admin-progress-title">@Lang.T("admin.dashboard.evaluatedProfiles")</span>
                     <span class="admin-progress-numbers"><strong>@Metrics.EvaluatedProfiles</strong> / @totalCandidates</span>
@@ -52,7 +52,7 @@
             </div>
 
             <!-- Progress: Perfiles con scores -->
-            <div class="admin-progress-card">
+            <div class="admin-progress-card admin-clickable" @onclick="GoScores">
                 <div class="admin-progress-header">
                     <span class="admin-progress-title">@Lang.T("admin.dashboard.profilesWithScores")</span>
                     <span class="admin-progress-numbers"><strong>@Metrics.ProfilesWithScores</strong> / @Metrics.EvaluatedProfiles</span>
@@ -72,7 +72,7 @@
         <h2 class="admin-section-title">@Lang.T("admin.dashboard.sectionVacancies")</h2>
         <div class="admin-chart-grid">
             <!-- Donut: Vacantes por estado -->
-            <div class="admin-chart-card">
+            <div class="admin-chart-card admin-clickable" @onclick="GoToVacancies">
                 <span class="admin-chart-card-title">@Lang.T("admin.dashboard.vacanciesByStatus")</span>
                 <div class="admin-donut-wrapper">
                     <div class="admin-donut">
@@ -117,7 +117,7 @@
             </div>
 
             <!-- Donut: Empresas con/sin vacantes -->
-            <div class="admin-chart-card">
+            <div class="admin-chart-card admin-clickable" @onclick="GoCompanies">
                 <span class="admin-chart-card-title">@Lang.T("admin.dashboard.companiesVacancies")</span>
                 <div class="admin-donut-wrapper">
                     <div class="admin-donut">
@@ -159,7 +159,7 @@
         <div class="admin-chart-card">
             <span class="admin-chart-card-title">@Lang.T("admin.dashboard.candidateVerifications") (@totalCandidates @Lang.T("admin.dashboard.candidatesTotal"))</span>
             <div class="admin-bar-chart">
-                <div class="admin-bar-row">
+                <div class="admin-bar-row admin-clickable" @onclick="GoLinkedIn">
                     <span class="admin-bar-label">@Lang.T("admin.dashboard.withLinkedIn")</span>
                     <div class="admin-bar-track">
                         <div class="admin-bar-fill admin-bar-fill--linkedin" style="width: @(totalCandidates > 0 ? Metrics.CandidatesWithLinkedIn * 100 / totalCandidates : 0)%">
@@ -168,7 +168,7 @@
                     </div>
                     <span class="admin-bar-value">@Metrics.CandidatesWithLinkedIn</span>
                 </div>
-                <div class="admin-bar-row">
+                <div class="admin-bar-row admin-clickable" @onclick="GoPortfolio">
                     <span class="admin-bar-label">@Lang.T("admin.dashboard.withPortfolio")</span>
                     <div class="admin-bar-track">
                         <div class="admin-bar-fill admin-bar-fill--portfolio" style="width: @(totalCandidates > 0 ? Metrics.CandidatesWithPortfolio * 100 / totalCandidates : 0)%">
@@ -177,7 +177,7 @@
                     </div>
                     <span class="admin-bar-value">@Metrics.CandidatesWithPortfolio</span>
                 </div>
-                <div class="admin-bar-row">
+                <div class="admin-bar-row admin-clickable" @onclick="GoCV">
                     <span class="admin-bar-label">@Lang.T("admin.dashboard.withCV")</span>
                     <div class="admin-bar-track">
                         <div class="admin-bar-fill admin-bar-fill--cv" style="width: @(totalCandidates > 0 ? Metrics.CandidatesWithCV * 100 / totalCandidates : 0)%">
@@ -186,7 +186,7 @@
                     </div>
                     <span class="admin-bar-value">@Metrics.CandidatesWithCV</span>
                 </div>
-                <div class="admin-bar-row">
+                <div class="admin-bar-row admin-clickable" @onclick="GoEvaluated">
                     <span class="admin-bar-label">@Lang.T("admin.dashboard.profilesComplete")</span>
                     <div class="admin-bar-track">
                         <div class="admin-bar-fill admin-bar-fill--evaluated" style="width: @evaluatedPct%">
@@ -195,7 +195,7 @@
                     </div>
                     <span class="admin-bar-value">@Metrics.EvaluatedProfiles</span>
                 </div>
-                <div class="admin-bar-row">
+                <div class="admin-bar-row admin-clickable" @onclick="GoPending">
                     <span class="admin-bar-label">@Lang.T("admin.dashboard.profilesIncomplete")</span>
                     <div class="admin-bar-track">
                         <div class="admin-bar-fill admin-bar-fill--pending" style="width: @(totalCandidates > 0 ? Metrics.PendingProfiles * 100 / totalCandidates : 0)%">
@@ -232,4 +232,17 @@
 
         Metrics = await AuthApi.GetMetricsAsync();
     }
+
+    private void GoToUsers(string role, string? filter = null) =>
+        Nav.NavigateTo(filter != null ? $"/users?role={role}&filter={filter}" : $"/users?role={role}");
+
+    private void GoToVacancies() => Nav.NavigateTo("/vacancies");
+
+    private void GoEvaluated() => GoToUsers("candidate", "evaluated");
+    private void GoPending() => GoToUsers("candidate", "pending");
+    private void GoScores() => GoToUsers("candidate", "scores");
+    private void GoLinkedIn() => GoToUsers("candidate", "linkedin");
+    private void GoPortfolio() => GoToUsers("candidate", "portfolio");
+    private void GoCV() => GoToUsers("candidate", "cv");
+    private void GoCompanies() => GoToUsers("company");
 }
