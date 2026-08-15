@@ -804,3 +804,90 @@ Ver `docs/GIT_BRANCHES.md` para mas detalles.
 ### 6. Tratemos de no usar muchas dependencias entre fases
 
 Si ambos estan trabajando en paralelo, cada uno debe poder avanzar sin bloquear al otro. Diseñen las tareas de manera que las dependencias cruzadas sean minimas. Si una dependencia es inevitable, definan un contrato (interface, DTO, endpoint) antes de empezar para que ambos puedan trabajar contra el contrato.
+
+---
+
+## Bitacora de Cambios
+
+### Sesión 14-Ago-2026 — Rediseño de Dashboard, About, VacancyDetail, Navbar y Messages
+
+> **Nota:** Este Ivan se esmero. Dale el premio.
+
+#### Dashboard (`Dashboard.razor`)
+- Reemplazado el saludo suelto por **Bento Welcome Banner Card** con avatar de iniciales, rol del usuario, saludo y boton de acceso directo al perfil.
+- Agregado **grafico circular de completion de perfil** que ocupa 2 columnas del grid.
+- Agregado **card de indicadores** con 3 metricas: Solicitudes, Postulaciones, Publicaciones.
+- Agregadas **acciones rapidas** como cards con iconos y texto centrado: Subir CV, Grabar Video, Buscar Empleo, Completar Perfil.
+- Agregada seccion de **vacantes recomendadas**.
+- Corregido truncamiento de texto en "Completar perfil" (layout flex column, sin nowrap).
+
+#### About Page (`About.razor` — nuevo)
+- Creada pagina `/about` con hero header centrado.
+- **Fila 1**: Card izquierda con SVG transparente (personas conectadas) + Card derecha con texto "Nosotros".
+- **Fila 2**: Card izquierda con texto "Que hacemos" + Card derecha con SVG transparente (maletin, lupa, documento, video).
+- **Fila 3**: Dos cards de texto lado a lado — "Mision" (icono target) y "Valores" (icono capas).
+- Cards de imagen **sin fondo, sin borde, sin sombra**. SVGs con strokes transparentes/accent.
+- Layout responsive: a 768px las filas se apilan en una columna.
+- Traducciones agregadas en `common.json` (es + en) bajo seccion `about`.
+
+#### Vacancy Detail (`VacancyDetail.razor`)
+- **Eliminado el card dentro de card** (ot-card anidado).
+- Rediseño a layout plano con:
+  - Header con titulo grande + empresa + badge de verificacion (pill verde).
+  - Badges con iconos SVG: ubicacion, tipo de contrato, modalidad, salario (accent), categoria, nivel de experiencia, nivel de ingles.
+  - Secciones de descripcion y requisitos con separadores `border-top` sutiles.
+  - Formulario de postulacion separado con `border-top` accent (2px), sin card envolvente.
+- Corregido el uso de `ot-input` → `ot-input-field` (clase CSS correcta con estilos definidos).
+
+#### Navbar (`MainLayout.razor`)
+- Reorganizado en **3 bloques equilibrados con Flexbox**:
+  - **Izquierda**: Logo OTW + OpenToWork.
+  - **Centro**: 4 pestañas de navegacion con iconos SVG e indicador de estado activo:
+    - Panel (dashboard), Mis Postulaciones, Buscar Empleos, Mensajes.
+  - **Derecha**: Settings pill (boton compacto con engranaje + idioma, dropdown con tema e idioma agrupados) + User cluster (campana + avatar, separados por `border-left`).
+- Agregada deteccion de pagina activa (`CurrentPage`) basada en `NavigationManager.Uri`.
+- Eliminados los enlaces centrales anteriores (Inicio, Vacantes, Sobre Nosotros).
+
+#### Messages Page (`Messages.razor` — nuevo)
+- Creada pagina `/messages` con layout de 2 columnas (340px sidebar + 1fr chat).
+- **Sidebar**: Bandeja de conversaciones con:
+  - Filtros tipo pestaña: Todos | No leidos (con badge) | Leidos.
+  - Buscador de conversaciones por nombre.
+  - Lista con avatar, nombre, vacante asociada, preview, tiempo relativo, badge de no leidos.
+- **Panel de chat**: Header con avatar, nombre, vacante, indicador "En linea". Burbujas alternadas (mias accent derecha, suyas gris izquierda). Input redondo + boton circular de enviar. Enter para enviar.
+- Al seleccionar conversacion no leida, se marca como leida automaticamente.
+- Responsive: a 768px se apila en una columna.
+
+#### Backend — Messages
+- **`MessageDto.cs`** (Shared): DTOs `ConversationDto`, `MessageDto`, `SendMessageDto`.
+- **`MessagesController.cs`** (API): Endpoints `GET conversations`, `GET messages/{id}`, `POST send`, `PUT read`. Datos mock por ahora.
+- **`ApiAuthService.cs`** (WEB): Metodos `GetConversationsAsync`, `GetMessagesAsync`, `SendMessageAsync`, `MarkConversationReadAsync`.
+
+#### Traducciones (`common.json` es + en)
+- Seccion `about`: titulos, descripciones, mision, valores.
+- Seccion `nav`: `messages`, `searchJobs`, `panel`.
+- Seccion `messages`: title, all, unread, read, noConversations, noMessages, typeMessage, send, vacancy, online, offline, search.
+
+#### CSS (`components.css`)
+- Estilos `.dash-banner-card` y relacionados del dashboard.
+- Estilos `.about-*` para About page.
+- Estilos `.vacancy-detail-*` para VacancyDetail.
+- Estilos `.nav-settings-pill`, `.nav-settings-btn`, `.nav-settings-dropdown`, `.nav-user-cluster`, `.nav-link` con iconos.
+- Estilos `.messages-*` y `.chat-*` para Messages page.
+- Cache-buster actualizado a `v=11`.
+
+#### Archivos nuevos
+- `src/OpenToWork.WEB/Components/Pages/About.razor`
+- `src/OpenToWork.WEB/Components/Pages/Messages.razor`
+- `src/OpenToWork.Shared/DTOs/MessageDto.cs`
+- `src/OpenToWork.API/Controllers/MessagesController.cs`
+
+#### Archivos modificados
+- `src/OpenToWork.WEB/Components/Pages/Dashboard.razor`
+- `src/OpenToWork.WEB/Components/Pages/VacancyDetail.razor`
+- `src/OpenToWork.WEB/Components/Layout/MainLayout.razor`
+- `src/OpenToWork.WEB/Components/App.razor`
+- `src/OpenToWork.WEB/Services/ApiAuthService.cs`
+- `src/OpenToWork.WEB/wwwroot/css/components.css`
+- `src/OpenToWork.WEB/wwwroot/config/language/es/common.json`
+- `src/OpenToWork.WEB/wwwroot/config/language/en/common.json`
