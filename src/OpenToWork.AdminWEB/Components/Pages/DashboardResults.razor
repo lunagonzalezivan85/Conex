@@ -35,7 +35,7 @@ else
     <div class="admin-results-grid">
         @foreach (var item in Results)
         {
-            <div class="admin-result-card">
+            <div class="admin-result-card admin-clickable" @onclick="() => ViewProfile(item.UserId)">
                 <div class="admin-result-card-header">
                     <div class="admin-result-avatar">
                         @(item.AvatarText)
@@ -130,6 +130,7 @@ else
 
         Results = filtered.Select(u => new ResultItem
         {
+            UserId = u.Id,
             AvatarText = (u.CandidateName ?? u.Email).Substring(0, 2).ToUpper(),
             DisplayName = u.CandidateName ?? u.Email,
             SubText = u.Email,
@@ -169,6 +170,7 @@ else
 
         Results = users.Select(u => new ResultItem
         {
+            UserId = u.Id,
             AvatarText = u.Email.Substring(0, 2).ToUpper(),
             DisplayName = u.Email,
             SubText = Lang.T("admin.users.filterCompanies"),
@@ -263,8 +265,11 @@ else
 
     private void GoBack() => Nav.NavigateTo("/");
 
+    private void ViewProfile(Guid userId) => Nav.NavigateTo($"/user/{userId}");
+
     private class ResultItem
     {
+        public Guid UserId { get; set; }
         public string AvatarText { get; set; } = "";
         public string DisplayName { get; set; } = "";
         public string SubText { get; set; } = "";

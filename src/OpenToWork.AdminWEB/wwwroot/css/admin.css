@@ -995,6 +995,219 @@
 }
 
 /* ============================================
+   User Profile
+   ============================================ */
+
+.admin-profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.admin-profile-header-card {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 16px;
+    background: #E8F1FF;
+    color: #0066FF;
+    font-size: 1.3rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.admin-profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.admin-profile-header-info h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem;
+}
+
+.admin-profile-header-title {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0 0 0.5rem;
+}
+
+.admin-profile-header-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.admin-profile-section {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-profile-section-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+}
+
+.admin-profile-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.admin-profile-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.admin-profile-info-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.admin-profile-info-value {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.admin-profile-info-value a {
+    color: #0066FF;
+    text-decoration: none;
+}
+
+.admin-profile-info-value a:hover {
+    text-decoration: underline;
+}
+
+.admin-profile-summary {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.admin-profile-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.admin-profile-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.admin-profile-timeline-item {
+    display: flex;
+    gap: 0.85rem;
+}
+
+.admin-profile-timeline-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #0066FF;
+    margin-top: 4px;
+    flex-shrink: 0;
+}
+
+.admin-profile-timeline-content {
+    flex: 1;
+}
+
+.admin-profile-timeline-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.admin-profile-timeline-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.admin-profile-timeline-date {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+}
+
+.admin-profile-timeline-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin: 0.4rem 0 0;
+    line-height: 1.5;
+}
+
+.admin-profile-cert-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.75rem;
+}
+
+.admin-profile-cert-card {
+    background: #F1F5F9;
+    border-radius: 10px;
+    padding: 0.85rem;
+}
+
+.admin-profile-cert-name {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.admin-profile-cert-issuer {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.admin-profile-cert-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.2rem;
+}
+
+@media (max-width: 640px) {
+    .admin-profile-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-profile-header-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .admin-profile-header-badges {
+        justify-content: center;
+    }
+}
+
+/* ============================================
    Responsive
    ============================================ */
 

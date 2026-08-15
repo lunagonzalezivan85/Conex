@@ -73,6 +73,14 @@ public class AdminAuthApiService
         return response.IsSuccessStatusCode;
     }
 
+    public async Task<AdminUserProfileDto?> GetUserProfileAsync(Guid id)
+    {
+        await SetAuthHeaderAsync();
+        var response = await _httpClient.GetAsync($"api/admin/users/{id}/profile");
+        if (!response.IsSuccessStatusCode) return null;
+        return await response.Content.ReadFromJsonAsync<AdminUserProfileDto>();
+    }
+
     public async Task<List<AdminVacancyDto>> GetVacanciesAsync(int page = 1, int pageSize = 20, int? status = null)
     {
         await SetAuthHeaderAsync();
