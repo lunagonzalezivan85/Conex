@@ -38,13 +38,13 @@
     width: 52px;
     height: 40px;
     border-radius: 14px;
-    background: #0D9488;
+    background: #0B4F8A;
     color: #FFFFFF;
     font-weight: 800;
     font-size: 0.68rem;
     letter-spacing: -0.02em;
     flex-shrink: 0;
-    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+    box-shadow: 0 4px 12px rgba(11, 79, 138, 0.25);
 }
 
 .admin-brand-text {
@@ -83,8 +83,8 @@
 }
 
 .admin-nav-item.active {
-    background: #F0FDFA;
-    color: #0D9488;
+    background: #E8F0F7;
+    color: #0B4F8A;
     font-weight: 700;
 }
 
@@ -105,7 +105,7 @@
 }
 
 .admin-nav-item.active .admin-nav-icon-squircle {
-    background: #0D9488;
+    background: #0B4F8A;
     color: #FFFFFF;
 }
 
@@ -198,8 +198,8 @@
     align-items: center;
     padding: 0.3rem 0.8rem;
     border-radius: 999px;
-    background: #F0FDFA;
-    color: #0D9488;
+    background: #E8F0F7;
+    color: #0B4F8A;
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.02em;
@@ -229,7 +229,7 @@
 
 .admin-select:focus {
     outline: none;
-    border-color: #0D9488;
+    border-color: #0B4F8A;
 }
 
 /* Content */
@@ -744,7 +744,7 @@
 }
 
 .admin-progress-fill--success { background: var(--success); }
-.admin-progress-fill--info { background: #0D9488; }
+.admin-progress-fill--info { background: #0B4F8A; }
 .admin-progress-fill--warning { background: var(--warning); }
 
 .admin-progress-detail {
@@ -809,7 +809,7 @@
 }
 
 .admin-bar-fill--linkedin { background: #0077B5; }
-.admin-bar-fill--portfolio { background: #0D9488; }
+.admin-bar-fill--portfolio { background: #0B4F8A; }
 .admin-bar-fill--cv { background: var(--success); }
 .admin-bar-fill--pending { background: var(--warning); }
 .admin-bar-fill--evaluated { background: var(--success); }
@@ -839,8 +839,8 @@
 }
 
 .admin-clickable:hover {
-    border-color: #0D9488 !important;
-    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.12);
+    border-color: #0B4F8A !important;
+    box-shadow: 0 4px 16px rgba(11, 79, 138, 0.12);
     transform: translateY(-2px);
 }
 
@@ -863,8 +863,8 @@
     align-items: center;
     padding: 0.35rem 0.8rem;
     border-radius: 999px;
-    background: #F0FDFA;
-    color: #0D9488;
+    background: #E8F0F7;
+    color: #0B4F8A;
     font-size: 0.82rem;
     font-weight: 600;
 }
@@ -904,8 +904,8 @@
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: #F0FDFA;
-    color: #0D9488;
+    background: #E8F0F7;
+    color: #0B4F8A;
     font-size: 0.85rem;
     font-weight: 800;
     display: flex;
@@ -974,8 +974,8 @@
 }
 
 .admin-result-badge--info {
-    background: #F0FDFA;
-    color: #0D9488;
+    background: #E8F0F7;
+    color: #0B4F8A;
 }
 
 .admin-result-badge--warning {
@@ -1018,8 +1018,8 @@
     width: 72px;
     height: 72px;
     border-radius: 16px;
-    background: #F0FDFA;
-    color: #0D9488;
+    background: #E8F0F7;
+    color: #0B4F8A;
     font-size: 1.3rem;
     font-weight: 800;
     display: flex;
@@ -1116,7 +1116,7 @@
 }
 
 .admin-profile-info-value a {
-    color: #0D9488;
+    color: #0B4F8A;
     text-decoration: none;
 }
 
@@ -1152,7 +1152,7 @@
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: #0D9488;
+    background: #0B4F8A;
     margin-top: 4px;
     flex-shrink: 0;
 }
@@ -1258,7 +1258,7 @@
 }
 
 .admin-users-search input:focus {
-    border-color: #0D9488;
+    border-color: #0B4F8A;
 }
 
 .admin-users-chips {
@@ -1283,13 +1283,13 @@
 }
 
 .admin-chip:hover {
-    border-color: #0D9488;
-    color: #0D9488;
+    border-color: #0B4F8A;
+    color: #0B4F8A;
 }
 
 .admin-chip--active {
-    background: #0D9488;
-    border-color: #0D9488;
+    background: #0B4F8A;
+    border-color: #0B4F8A;
     color: #FFFFFF;
 }
 
@@ -1302,8 +1302,8 @@
     font-weight: 700;
     padding: 0.1rem 0.4rem;
     border-radius: 999px;
-    background: rgba(13, 148, 136, 0.1);
-    color: #0D9488;
+    background: rgba(11, 79, 138, 0.1);
+    color: #0B4F8A;
 }
 
 .admin-chip--active .admin-chip-count {
@@ -1340,8 +1340,8 @@
     width: 44px;
     height: 44px;
     border-radius: 12px;
-    background: #F0FDFA;
-    color: #0D9488;
+    background: #E8F0F7;
+    color: #0B4F8A;
     font-size: 0.85rem;
     font-weight: 800;
     display: flex;
