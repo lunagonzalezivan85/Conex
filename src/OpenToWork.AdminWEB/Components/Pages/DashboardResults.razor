@@ -38,11 +38,11 @@ else
             <div class="admin-result-card">
                 <div class="admin-result-card-header">
                     <div class="admin-result-avatar">
-                        @(item.Email.Substring(0, 2).ToUpper())
+                        @(item.AvatarText)
                     </div>
                     <div class="admin-result-info">
-                        <div class="admin-result-name">@(item.DisplayName ?? item.Email)</div>
-                        <div class="admin-result-email">@item.Email</div>
+                        <div class="admin-result-name">@item.DisplayName</div>
+                        <div class="admin-result-email">@item.SubText</div>
                     </div>
                     <div class="admin-result-status @item.StatusClass">
                         @item.StatusLabel
@@ -96,95 +96,118 @@ else
     {
         var metrics = await AuthApi.GetMetricsAsync();
 
-        int? apiRole = RoleFilter switch
+        if (Section == "vacancies")
         {
-            "candidate" => (int)UserRole.Candidate,
-            "company" => (int)UserRole.Company,
-            _ => null
-        };
+            await LoadVacancies(metrics);
+        }
+        else if (RoleFilter == "company")
+        {
+            await LoadCompanies(metrics);
+        }
+        else
+        {
+            await LoadCandidates(metrics);
+        }
 
-        var users = await AuthApi.GetUsersAsync(role: apiRole);
-
-        Results = BuildResults(users, metrics);
         BuildTitle(metrics);
         IsLoading = false;
     }
 
-    private List<ResultItem> BuildResults(List<AdminUserDto> users, DashboardMetricsDto? metrics)
+    private async Task LoadCandidates(DashboardMetricsDto? metrics)
     {
-        var items = new List<ResultItem>();
+        var users = await AuthApi.GetUsersAsync(role: (int)UserRole.Candidate);
 
-        foreach (var u in users)
+        var filtered = FilterType switch
         {
-            var item = new ResultItem
-            {
-                Email = u.Email,
-                DisplayName = u.CandidateName,
-                Badges = new()
-            };
+            "evaluated" => users.Where(u => u.WizardCompleted == true).ToList(),
+            "pending" => users.Where(u => u.WizardCompleted == false).ToList(),
+            "scores" => users.Where(u => u.HasScore == true).ToList(),
+            "linkedin" => users.Where(u => u.HasLinkedIn == true).ToList(),
+            "portfolio" => users.Where(u => u.HasPortfolio == true).ToList(),
+            "cv" => users.Where(u => u.HasCV == true).ToList(),
+            _ => users.ToList()
+        };
 
-            if (u.WizardCompleted.HasValue)
-            {
-                item.Badges.Add(new BadgeItem
-                {
-                    Label = u.WizardCompleted.Value ? Lang.T("admin.dashboard.evaluated") : Lang.T("admin.dashboard.pending"),
-                    Class = u.WizardCompleted.Value ? "admin-result-badge--success" : "admin-result-badge--warning"
-                });
-            }
-
-            if (u.HasLinkedIn.HasValue)
-            {
-                item.Badges.Add(new BadgeItem
-                {
-                    Label = Lang.T("admin.dashboard.withLinkedIn"),
-                    Class = u.HasLinkedIn.Value ? "admin-result-badge--info" : "admin-result-badge--muted"
-                });
-            }
-
-            if (u.HasPortfolio.HasValue)
-            {
-                item.Badges.Add(new BadgeItem
-                {
-                    Label = Lang.T("admin.dashboard.withPortfolio"),
-                    Class = u.HasPortfolio.Value ? "admin-result-badge--info" : "admin-result-badge--muted"
-                });
-            }
-
-            if (u.HasCV.HasValue)
-            {
-                item.Badges.Add(new BadgeItem
-                {
-                    Label = Lang.T("admin.dashboard.withCV"),
-                    Class = u.HasCV.Value ? "admin-result-badge--success" : "admin-result-badge--muted"
-                });
-            }
-
-            if (u.HasScore.HasValue)
-            {
-                item.Badges.Add(new BadgeItem
-                {
-                    Label = Lang.T("admin.dashboard.profilesWithScores"),
-                    Class = u.HasScore.Value ? "admin-result-badge--info" : "admin-result-badge--muted"
-                });
-            }
-
-            if (u.PrimaryRole == (int)UserRole.Company)
-            {
-                item.Badges.Add(new BadgeItem
-                {
-                    Label = Lang.T("admin.dashboard.companiesWithVacancies"),
-                    Class = "admin-result-badge--info"
-                });
-            }
-
-            item.StatusLabel = u.IsActive ? Lang.T("admin.users.active") : Lang.T("admin.users.inactive");
-            item.StatusClass = u.IsActive ? "admin-result-status--active" : "admin-result-status--inactive";
-
-            items.Add(item);
-        }
-
-        return items;
+        Results = filtered.Select(u => new ResultItem
+        {
+            AvatarText = (u.CandidateName ?? u.Email).Substring(0, 2).ToUpper(),
+            DisplayName = u.CandidateName ?? u.Email,
+            SubText = u.Email,
+            StatusLabel = u.IsActive ? Lang.T("admin.users.active") : Lang.T("admin.users.inactive"),
+            StatusClass = u.IsActive ? "admin-result-status--active" : "admin-result-status--inactive",
+            Badges = BuildCandidateBadges(u)
+        }).ToList();
     }
+
+    private List<BadgeItem> BuildCandidateBadges(AdminUserDto u)
+    {
+        var badges = new List<BadgeItem>();
+
+        if (u.WizardCompleted == true)
+            badges.Add(new() { Label = Lang.T("admin.dashboard.evaluated"), Class = "admin-result-badge--success" });
+        else if (u.WizardCompleted == false)
+            badges.Add(new() { Label = Lang.T("admin.dashboard.pending"), Class = "admin-result-badge--warning" });
+
+        if (u.HasLinkedIn == true)
+            badges.Add(new() { Label = Lang.T("admin.dashboard.withLinkedIn"), Class = "admin-result-badge--info" });
+
+        if (u.HasPortfolio == true)
+            badges.Add(new() { Label = Lang.T("admin.dashboard.withPortfolio"), Class = "admin-result-badge--info" });
+
+        if (u.HasCV == true)
+            badges.Add(new() { Label = Lang.T("admin.dashboard.withCV"), Class = "admin-result-badge--success" });
+
+        if (u.HasScore == true)
+            badges.Add(new() { Label = Lang.T("admin.dashboard.profilesWithScores"), Class = "admin-result-badge--info" });
+
+        return badges;
+    }
+
+    private async Task LoadCompanies(DashboardMetricsDto? metrics)
+    {
+        var users = await AuthApi.GetUsersAsync(role: (int)UserRole.Company);
+
+        Results = users.Select(u => new ResultItem
+        {
+            AvatarText = u.Email.Substring(0, 2).ToUpper(),
+            DisplayName = u.Email,
+            SubText = Lang.T("admin.users.filterCompanies"),
+            StatusLabel = u.IsActive ? Lang.T("admin.users.active") : Lang.T("admin.users.inactive"),
+            StatusClass = u.IsActive ? "admin-result-status--active" : "admin-result-status--inactive",
+            Badges = new()
+        }).ToList();
+    }
+
+    private async Task LoadVacancies(DashboardMetricsDto? metrics)
+    {
+        var vacancies = await AuthApi.GetVacanciesAsync(pageSize: 1000);
+
+        Results = vacancies.Select(v => new ResultItem
+        {
+            AvatarText = v.Title.Length >= 2 ? v.Title.Substring(0, 2).ToUpper() : v.Title.ToUpper(),
+            DisplayName = v.Title,
+            SubText = v.CompanyName ?? "-",
+            StatusLabel = VacancyStatusLabel(v.Status),
+            StatusClass = VacancyStatusClass(v.Status),
+            Badges = new()
+        }).ToList();
+    }
+
+    private string VacancyStatusLabel(int status) => (VacancyStatus)status switch
+    {
+        VacancyStatus.Draft => Lang.T("admin.dashboard.draftVacancies"),
+        VacancyStatus.Active => Lang.T("admin.dashboard.openVacancies"),
+        VacancyStatus.Closed => Lang.T("admin.dashboard.closedVacancies"),
+        _ => status.ToString()
+    };
+
+    private string VacancyStatusClass(int status) => (VacancyStatus)status switch
+    {
+        VacancyStatus.Active => "admin-result-status--active",
+        VacancyStatus.Draft => "admin-result-status--draft",
+        VacancyStatus.Closed => "admin-result-status--inactive",
+        _ => ""
+    };
 
     private void BuildTitle(DashboardMetricsDto? m)
     {
@@ -242,8 +265,9 @@ else
 
     private class ResultItem
     {
-        public string Email { get; set; } = "";
-        public string? DisplayName { get; set; }
+        public string AvatarText { get; set; } = "";
+        public string DisplayName { get; set; } = "";
+        public string SubText { get; set; } = "";
         public string StatusLabel { get; set; } = "";
         public string StatusClass { get; set; } = "";
         public List<BadgeItem> Badges { get; set; } = new();
