@@ -1027,3 +1027,76 @@ Pruebas totales: 44
 - [ ] Optimizar `AdminVacancyService` (carga tablas completas en memoria antes de paginar)
 - [ ] Mover `LocalStorageService`/`LanguageService` de AdminWEB a SharedUI
 - [ ] Centralizar guard de autenticación en `AdminLayout` (copiado en 5 páginas)
+
+---
+
+## Bitácora de Cambios
+
+### Sesión 2026-08-14 — Rediseño Samsung One UI + Bento Grid + PWA
+
+**Autorización de diseño:** Iluna (diseño visual) · Darwin (supervisión de procesos)
+
+#### Rediseño de Perfil (Profile Sidebar)
+- Eliminado el header azul sólido, reemplazado por tarjeta blanca `#FFFFFF` con banner suave `#F0F7FF`
+- Avatar rediseñado como squircle (`border-radius: 20px`) con fondo `#0066FF` y borde blanco
+- Nombre en `#0B132B` con `font-weight: 800`
+- Rol como pill badge con fondo `#F1F5F9` y texto `#3A506B`
+- Email con icono de sobre en `#778DA9`
+- Skills como chips grises (`#F1F5F9`), modalidad como pill azul tenue (`#E8F1FF` / `#0066FF`)
+
+#### Rediseño de Navegación Móvil (MainLayout)
+- **Top App Bar**: Logo oculto en móvil, título dinámico de pantalla alineado a la izquierda, campana + avatar a la derecha
+- **Título dinámico**: `GetScreenTitle()` con suscripción a `NavigationManager.LocationChanged` para actualizar al navegar
+- **Bottom Navigation Bar**: Barra fija de 64px con 4 pestañas (Panel, Vacantes, Postulaciones, Mensajes)
+- **Settings relocados**: Botón de idioma/tema movido del top bar al dropdown del avatar (solo móvil)
+- **Footer oculto** en móvil, padding inferior de 64px para bottom nav
+- `viewport-fit=cover` para soporte de notch con `env(safe-area-inset-bottom)`
+
+#### Rediseño de Messages (Bento Inbox)
+- Eliminado título duplicado "Mensajes" del sidebar (ya está en top bar)
+- Filtros rediseñados como pills sutiles: inactivos transparentes, activos con `#E8F1FF` / `#0066FF`
+- Avatares squircle (`border-radius: 14px`) en `#0066FF`
+- Conversación seleccionada: borde izquierdo azul 3px + fondo `#F0F7FF`
+- Estado vacío: icono en contenedor squircle 80px con fondo `#F0F7FF` y texto descriptivo
+- **Móvil**: Lista de conversaciones a pantalla completa → al seleccionar, chat full-screen con botón flecha ← para regresar
+- Bubbles: propias `#0066FF`, ajenas `#F1F5F9` con texto `#0B132B`
+- Botón enviar: squircle `14px` con hover `#0052CC`
+
+#### Componente VacancyCard Reutilizable
+- Creado `Components/Shared/VacancyCard.razor` para evitar duplicación de código
+- Usado en `MyVacancies.razor`, `Dashboard.razor`, `Home.razor`, `MyApplications.razor`
+- Props: `Vacancy`, `ShowActions`, `OnEdit`
+
+#### Página VacancyManage
+- Nueva página para gestión de vacantes (`/my-vacancies/{Id}`)
+- Hero banner con pills de estado, columnas asimétricas, lista de candidatos con filtros
+
+#### PWA (Progressive Web App)
+- **Icono SVG**: Maletín blanco con siglas "OTW" en azul royal sobre fondo `#0066FF`
+- **manifest.json**: `name: OpenToWork`, `short_name: OTW`, `display: standalone`, `theme_color: #0066FF`
+- **Service Worker** (`sw.js`): Cache de assets estáticos, cache-first para recursos, network-first para navegación
+- **Meta tags**: `apple-mobile-web-app-capable`, `theme-color`, `apple-touch-icon`
+- **Program.cs**: MIME types configurados para `.webmanifest`
+
+#### Bug Fixes
+- **`GetPermanentVacancyAsync`**: Faltaba `SetAuthHeaderAsync()` → la API devolvía 401 y la página se quedaba cargando indefinidamente
+- **VacancyDetail**: Agregado manejo de error con `LoadFailed` y estado visual centrado (icono grande + mensaje + botón volver)
+- **`MainLayout`**: Suscripción a `LocationChanged` para que el título dinámico se actualice al navegar entre páginas
+
+#### Traducciones (ES/EN)
+- `common.nav.myVacancies` — "Mis Vacantes" / "My Vacancies"
+- `common.messages.selectConversation` — "Selecciona una conversación de la lista para comenzar a chatear" / "Select a conversation from the list to start chatting"
+- `common.buttons.back` — "Volver" / "Back"
+- `vacancies.notFound` — "No se pudo cargar la vacante..." / "Could not load the vacancy..."
+- `vacancies.edit` / `vacancies.backToMyVacancies`
+
+#### Documentación
+- Creado `DESIGN-SYSTEM.md` con:
+  - Regla de autorización de diseño (Iluna autoriza, Darwin supervisa)
+  - Paleta de colores completa con tokens hex
+  - Especificaciones de tipografía, componentes UI, navegación móvil, PWA
+  - Reglas para nuevos componentes (reutilizar, no duplicar, usar tokens)
+
+#### Archivos modificados/creados
+- **Modificados**: `MainLayout.razor`, `App.razor`, `Program.cs`, `ApiAuthService.cs`, `Messages.razor`, `VacancyDetail.razor`, `Profile.razor`, `Dashboard.razor`, `Home.razor`, `MyApplications.razor`, `MyVacancies.razor`, `Vacancies.razor`, `_Imports.razor`, `components.css`, `portal-nav.css`, `wizard-profile.css`, traducciones ES/EN
+- **Creados**: `DESIGN-SYSTEM.md`, `VacancyManage.razor`, `VacancyCard.razor`, `icon.svg`, `manifest.json`, `sw.js`
