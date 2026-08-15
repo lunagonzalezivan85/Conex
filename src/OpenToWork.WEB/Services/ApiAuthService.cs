@@ -163,6 +163,7 @@ public class ApiAuthService
 
     public async Task<VacancyDto?> GetPermanentVacancyAsync(Guid id)
     {
+        await SetAuthHeaderAsync();
         var response = await _httpClient.GetAsync($"api/permanentvacancies/{id}");
         if (!response.IsSuccessStatusCode) return null;
         return await response.Content.ReadFromJsonAsync<VacancyDto>();

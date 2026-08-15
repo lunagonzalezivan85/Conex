@@ -98,52 +98,7 @@
             <div class="home-vacancies-grid">
                 @foreach (var vacancy in VacancyList)
                 {
-                    <div class="home-vacancy-card" @onclick="() => GoToVacancy(vacancy.Id)">
-                        <div class="home-vacancy-card-top">
-                            <div class="home-vacancy-card-company">
-                                <div class="home-vacancy-card-logo">@(GetInitials(vacancy.CompanyName))</div>
-                                <div class="home-vacancy-card-company-info">
-                                    <span class="home-vacancy-card-company-name">@(vacancy.CompanyName ?? "Empresa")</span>
-                                    @if (vacancy.CompanyIsVerified)
-                                    {
-                                        <span class="home-vacancy-card-verified" title="Verificada">
-                                            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-                                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
-                                        </span>
-                                    }
-                                </div>
-                            </div>
-                            <span class="home-vacancy-card-badge">@GetWorkModeLabel(vacancy.WorkMode)</span>
-                        </div>
-                        <h3 class="home-vacancy-card-title">@vacancy.Title</h3>
-                        <p class="home-vacancy-card-desc">@(TruncateText(vacancy.Description, 120))</p>
-                        <div class="home-vacancy-card-meta">
-                            <span class="home-vacancy-card-meta-item">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg>
-                                @(vacancy.Location ?? "N/A")
-                            </span>
-                            @if (vacancy.SalaryMin.HasValue || vacancy.SalaryMax.HasValue)
-                            {
-                                <span class="home-vacancy-card-meta-item home-vacancy-card-salary">
-                                    @FormatSalary(vacancy.SalaryMin, vacancy.SalaryMax)
-                                </span>
-                            }
-                        </div>
-                        <div class="home-vacancy-card-footer">
-                            <span class="home-vacancy-card-views">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                    <circle cx="12" cy="12" r="3" />
-                                </svg>
-                                @vacancy.ViewsCount
-                            </span>
-                            <span class="home-vacancy-card-action">@Lang.T("common.buttons.view") →</span>
-                        </div>
-                    </div>
+                    <VacancyCard Vacancy="vacancy" />
                 }
             </div>
         }

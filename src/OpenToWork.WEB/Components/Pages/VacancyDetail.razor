@@ -8,9 +8,21 @@
 <PageTitle>@(Vacancy?.Title ?? Lang.T("vacancies.detail"))</PageTitle>
 
 <div class="page-container">
-    @if (Vacancy == null)
+    @if (Vacancy == null && !LoadFailed)
     {
         <p>@Lang.T("common.labels.loading")</p>
+    }
+    else if (LoadFailed)
+    {
+        <div class="vacancy-detail-error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="80" height="80">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="15" y1="9" x2="9" y2="15" />
+                <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+            <h2 class="vacancy-detail-error-title">@Lang.T("vacancies.notFound")</h2>
+            <a href="/vacancies" class="ot-btn ot-btn--primary ot-btn--small">@Lang.T("common.buttons.back")</a>
+        </div>
     }
     else
     {
@@ -133,6 +145,7 @@
 @code {
     [Parameter] public Guid Id { get; set; }
     private VacancyDto? Vacancy { get; set; }
+    private bool LoadFailed { get; set; }
     private string CoverLetter { get; set; } = "";
     private decimal? ExpectedSalary { get; set; }
     private DateTime? AvailableFromDate { get; set; }
@@ -141,7 +154,15 @@
     {
         if (Lang._translations.Count == 0)
             await Lang.InitializeAsync();
-        Vacancy = await AuthApi.GetPermanentVacancyAsync(Id);
+        try
+        {
+            Vacancy = await AuthApi.GetPermanentVacancyAsync(Id);
+            if (Vacancy == null) LoadFailed = true;
+        }
+        catch
+        {
+            LoadFailed = true;
+        }
     }
 
     private async Task ApplyToVacancy()

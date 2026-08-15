@@ -527,21 +527,31 @@
             <!-- Right Sidebar: Summary -->
             <aside class="wizard-sidebar">
                 <div class="wizard-summary-card">
-                    <div class="wizard-summary-bg"></div>
-                    <div class="wizard-summary-avatar">
-                        @if (!string.IsNullOrEmpty(ProfileData.ProfilePictureUrl))
-                        {
-                            <img src="@ProfileData.ProfilePictureUrl" alt="avatar" class="wizard-summary-avatar-img" />
-                        }
-                        else
-                        {
-                            <span>@UserInitials</span>
-                        }
+                    <!-- One UI Header: soft banner + squircle avatar -->
+                    <div class="wizard-summary-header">
+                        <div class="wizard-summary-header-banner"></div>
+                        <div class="wizard-summary-avatar">
+                            @if (!string.IsNullOrEmpty(ProfileData.ProfilePictureUrl))
+                            {
+                                <img src="@ProfileData.ProfilePictureUrl" alt="avatar" class="wizard-summary-avatar-img" />
+                            }
+                            else
+                            {
+                                <span>@UserInitials</span>
+                            }
+                        </div>
+                        <h3 class="wizard-summary-name">@(ProfileData.FirstName) @(ProfileData.LastName)</h3>
+                        <span class="wizard-summary-role-pill">@(ProfileData.Title ?? "Sin título profesional")</span>
+                        <span class="wizard-summary-email">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                                <rect x="2" y="4" width="20" height="16" rx="2" />
+                                <path d="m22 7-10 5L2 7" />
+                            </svg>
+                            @(UserEmail)
+                        </span>
                     </div>
-                    <h3 class="wizard-summary-name">@(ProfileData.FirstName) @(ProfileData.LastName)</h3>
-                    <p class="wizard-summary-title">@(ProfileData.Title ?? "Sin título profesional")</p>
-                    <p class="wizard-summary-email">@(UserEmail)</p>
 
+                    <!-- Bento Tags: Looking For -->
                     <div class="wizard-summary-section">
                         <h4 class="wizard-summary-section-title">@Lang.T("common.wizard.lookingFor")</h4>
                         <div class="wizard-summary-tags">
@@ -559,9 +569,10 @@
                         </div>
                     </div>
 
+                    <!-- Bento Tags: Work Mode -->
                     <div class="wizard-summary-section">
                         <h4 class="wizard-summary-section-title">@Lang.T("common.wizard.workModeLabel")</h4>
-                        <span class="wizard-summary-badge">@GetWorkModeLabel(SelectedWorkMode)</span>
+                        <span class="wizard-summary-mode-pill">@GetWorkModeLabel(SelectedWorkMode)</span>
                         @if (SelectedWorkMode != 2 && !string.IsNullOrWhiteSpace(PreferredLocation))
                         {
                             <span class="wizard-summary-location">
@@ -574,6 +585,7 @@
                         }
                     </div>
 
+                    <!-- Bento Tags: Skills as chips -->
                     <div class="wizard-summary-section">
                         <h4 class="wizard-summary-section-title">@Lang.T("common.wizard.skills")</h4>
                         <div class="wizard-summary-tags">

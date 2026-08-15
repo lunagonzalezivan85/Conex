@@ -164,28 +164,12 @@
 
     <!-- Row 3: Recommended Vacancies -->
     <h2 class="dash-section-title">@Lang.T("dashboard.sections.recommended")</h2>
-    <div class="bento-grid">
+    <div class="home-vacancies-grid">
         @if (RecommendedVacancies.Any())
         {
             @foreach (var vacancy in RecommendedVacancies.Take(4))
             {
-                <div class="vacancy-card" @onclick="() => GoToVacancyDetail(vacancy.Id)" style="cursor: pointer;">
-                    <div class="vacancy-card-title">@vacancy.Title</div>
-                    <div class="vacancy-card-location">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
-                        @vacancy.Location
-                    </div>
-                    <div class="vacancy-card-description">@vacancy.Description</div>
-                    <div class="vacancy-card-footer">
-                        <span class="vacancy-card-salary">
-                            @(vacancy.SalaryMin.HasValue ? $"${vacancy.SalaryMin:N0}" : "")
-                        </span>
-                        <span class="vacancy-card-badge">@GetContractTypeLabel(vacancy.ContractType)</span>
-                    </div>
-                </div>
+                <VacancyCard Vacancy="MapToVacancyDto(vacancy)" />
             }
         }
         else
@@ -251,22 +235,28 @@
         return (int)((double)filled / total * 100);
     }
 
-    private string GetContractTypeLabel(int type) => type switch
-    {
-        0 => Lang.T("common.contract.fullTime"),
-        1 => Lang.T("common.contract.partTime"),
-        2 => Lang.T("common.contract.contract"),
-        3 => Lang.T("common.contract.remote"),
-        _ => ""
-    };
-
     private void GoToWizard() => Nav.NavigateTo("/profile");
     private void GoToProfile() => Nav.NavigateTo("/profile");
     private void GoToVacancies() => Nav.NavigateTo("/vacancies");
     private void GoToCreateVacancy() => Nav.NavigateTo("/vacancies/create");
     private void GoToUploadCv() => Nav.NavigateTo("/profile");
     private void GoToRecordVideo() => Nav.NavigateTo("/profile");
-    private void GoToVacancyDetail(Guid id) => Nav.NavigateTo($"/vacancies/{id}");
+
+    private static VacancyDto MapToVacancyDto(TempVacancyDto v)
+    {
+        return new VacancyDto
+        {
+            Id = v.Id,
+            Title = v.Title,
+            Description = v.Description,
+            Location = v.Location,
+            SalaryMin = v.SalaryMin,
+            SalaryMax = v.SalaryMax,
+            ContractType = v.ContractType,
+            CompanyName = "OpenToWork",
+            ViewsCount = 0
+        };
+    }
 
     private static string GetInitials(string name)
     {

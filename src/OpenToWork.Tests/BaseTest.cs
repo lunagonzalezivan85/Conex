@@ -11,7 +11,7 @@ public abstract class BaseTest : IDisposable
     protected HttpClient Client { get; }
     protected string Token { get; private set; } = "";
 
-    private const string BaseUrl = "http://localhost:5187";
+    private const string BaseUrl = "http://localhost:5100";
     private const string TestEmail = "juan.perez@gmail.com";
     private const string TestPassword = "Candidato123!";
 

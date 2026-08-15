@@ -20,11 +20,14 @@
         "apply": "Apply",
         "add": "Add",
         "view": "View",
-        "backToLogin": "Back to Login"
+        "backToLogin": "Back to Login",
+        "back": "Back"
     },
     "labels": {
         "welcome": "Welcome",
         "loading": "Loading...",
+        "saving": "Saving...",
+        "error": "Error",
         "noResults": "No results found",
         "actions": "Actions",
         "email": "Email",
@@ -70,6 +73,7 @@
         "categorySales": "Sales",
         "categoryDesign": "Design",
         "myApplications": "My Applications",
+        "myVacancies": "My Vacancies",
         "messages": "Messages",
         "searchJobs": "Search Jobs",
         "panel": "Dashboard"
@@ -81,6 +85,7 @@
         "read": "Read",
         "noConversations": "No conversations",
         "noMessages": "Select a conversation to view messages",
+        "selectConversation": "Select a conversation from the list to start chatting",
         "typeMessage": "Type a message...",
         "send": "Send",
         "vacancy": "Vacancy",

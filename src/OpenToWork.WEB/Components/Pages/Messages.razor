@@ -7,11 +7,10 @@
 <PageTitle>@Lang.T("common.messages.title")</PageTitle>
 
 <div class="page-container">
-    <div class="messages-layout">
+    <div class="messages-layout @(SelectedConversation != null ? "show-chat" : "")">
         <!-- Left: Conversations sidebar -->
         <div class="messages-sidebar">
             <div class="messages-sidebar-header">
-                <h2 class="messages-title">@Lang.T("common.messages.title")</h2>
                 <div class="messages-filter-tabs">
                     <button class="messages-filter-tab @(MessageFilter == "all" ? "active" : "")" @onclick='() => SetFilter("all")'>
                         @Lang.T("common.messages.all")
@@ -38,7 +37,12 @@
             <div class="messages-list">
                 @if (FilteredConversations.Count == 0)
                 {
-                    <div class="messages-empty">@Lang.T("common.messages.noConversations")</div>
+                    <div class="messages-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="40" height="40" opacity="0.3">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                        <p>@Lang.T("common.messages.noConversations")</p>
+                    </div>
                 }
                 else
                 {
@@ -74,21 +78,35 @@
             @if (SelectedConversation == null)
             {
                 <div class="messages-chat-empty">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="64" height="64" opacity="0.3">
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
-                    <p>@Lang.T("common.messages.noMessages")</p>
+                    <div class="messages-chat-empty-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                        </svg>
+                    </div>
+                    <h3 class="messages-chat-empty-title">@Lang.T("common.messages.title")</h3>
+                    <p class="messages-chat-empty-text">@Lang.T("common.messages.selectConversation")</p>
                 </div>
             }
             else
             {
                 <div class="chat-header">
+                    <button class="chat-back-btn" @onclick="BackToList">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                            <path d="M19 12H5M12 19l-7-7 7-7" />
+                        </svg>
+                    </button>
                     <div class="chat-header-avatar">@SelectedConversation.ParticipantAvatar</div>
                     <div class="chat-header-info">
                         <h3 class="chat-header-name">@SelectedConversation.ParticipantName</h3>
                         @if (!string.IsNullOrEmpty(SelectedConversation.VacancyTitle))
                         {
-                            <span class="chat-header-vacancy">@Lang.T("common.messages.vacancy"): @SelectedConversation.VacancyTitle</span>
+                            <span class="chat-header-vacancy">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                                </svg>
+                                @SelectedConversation.VacancyTitle
+                            </span>
                         }
                     </div>
                     <span class="chat-header-status">
@@ -164,6 +182,12 @@
     }
 
     private void SetFilter(string filter) => MessageFilter = filter;
+
+    private void BackToList()
+    {
+        SelectedConversation = null;
+        SelectedConversationId = null;
+    }
 
     private async Task SendMessage()
     {
