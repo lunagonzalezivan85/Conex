@@ -1,0 +1,50 @@
+/* Buscar empleo - estilos especificos */
+
+.buscar-empleo { padding: 32px 24px; }
+.buscar-empleo h1 { font-size: 28px; font-weight: 700; margin-bottom: 24px; }
+
+.buscar-layout {
+    display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;
+}
+
+/* Filtros sidebar */
+.filtros { position: sticky; top: 80px; }
+.filtros h3 { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+.filtros .btn-ghost { margin-top: 8px; }
+
+/* Resultados */
+.resultados-count { color: var(--text-secondary); margin-bottom: 20px; font-size: 14px; }
+.resultados-list { display: flex; flex-direction: column; gap: 16px; }
+
+/* Vacante item (lista) */
+.vacante-item {
+    display: flex; align-items: center; gap: 20px; color: inherit;
+    transition: box-shadow 0.2s;
+}
+.vacante-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+.vacante-item-icon {
+    width: 56px; height: 56px; background: var(--accent-light);
+    border-radius: 14px; display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+}
+.vacante-item-body { flex: 1; }
+.vacante-item-title { font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+.vacante-item-location { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+.vacante-item-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.vacante-item-date { text-align: right; flex-shrink: 0; }
+.vacante-item-date p { font-size: 12px; color: var(--text-muted); }
+
+/* Empty state en resultados */
+.resultados-empty { text-align: center; padding: 64px; }
+.resultados-empty .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+.resultados-empty h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.resultados-empty p { color: var(--text-secondary); margin-bottom: 24px; }
+
+/* Pagination */
+.pagination-wrapper { display: flex; justify-content: center; margin-top: 32px; }
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .buscar-layout { grid-template-columns: 1fr; }
+    .filtros { position: static; }
+}

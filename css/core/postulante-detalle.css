@@ -1,0 +1,436 @@
+.pd-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Estado card */
+.pd-estado-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    flex-wrap: wrap;
+}
+
+.pd-estado-left {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.pd-estado-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pd-estado-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pd-estado-badge {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.pd-entrevista-fecha {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #4361EE;
+}
+
+.pd-estado-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.pd-estado-locked {
+    font-size: 14px;
+    font-weight: 600;
+    color: #16a34a;
+    padding: 8px 16px;
+    background: #dcfce7;
+    border-radius: 8px;
+}
+
+.btn-estado {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: inherit;
+}
+
+.btn-estado:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-estado-proceso {
+    background: #eef2ff;
+    color: #4361EE;
+    border-color: #c7d2fe;
+}
+
+.btn-estado-proceso:hover:not(:disabled) {
+    background: #4361EE;
+    color: #fff;
+}
+
+.btn-estado-rechazar {
+    background: #fee2e2;
+    color: #ef4444;
+    border-color: #fecaca;
+}
+
+.btn-estado-rechazar:hover:not(:disabled) {
+    background: #ef4444;
+    color: #fff;
+}
+
+.btn-estado-contratar {
+    background: #dcfce7;
+    color: #16a34a;
+    border-color: #bbf7d0;
+}
+
+.btn-estado-contratar:hover:not(:disabled) {
+    background: #16a34a;
+    color: #fff;
+}
+
+/* Header card */
+.pd-header-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 24px;
+    flex-wrap: wrap;
+}
+
+.pd-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--accent-light, #e0e7ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent, #4361EE);
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.pd-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.pd-header-info {
+    flex: 1;
+    min-width: 200px;
+}
+
+.pd-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.pd-profesion {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 10px;
+}
+
+.pd-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.pd-contact-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.pd-header-extra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.pd-extra-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 14px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #f3f4f6;
+}
+
+.pd-extra-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pd-extra-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* Sections */
+.pd-section {
+    padding: 20px 24px;
+}
+
+.pd-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.pd-sobre-mi {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+}
+
+/* CV */
+.pd-cv-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pd-cv-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #f3f4f6;
+    text-decoration: none;
+    color: var(--text-primary);
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pd-cv-item:hover {
+    border-color: #4361EE;
+    background: #f0f4ff;
+}
+
+.pd-cv-info {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pd-cv-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pd-cv-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+/* Timeline */
+.pd-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding-left: 4px;
+}
+
+.pd-timeline-item {
+    display: flex;
+    gap: 16px;
+    padding-bottom: 20px;
+    position: relative;
+}
+
+.pd-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.pd-timeline-item:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 14px;
+    bottom: 0;
+    width: 2px;
+    background: #e5e7eb;
+}
+
+.pd-timeline-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #4361EE;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e0e7ff;
+    flex-shrink: 0;
+    margin-top: 4px;
+    z-index: 1;
+}
+
+.pd-timeline-content {
+    flex: 1;
+}
+
+.pd-timeline-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.pd-timeline-company {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.pd-timeline-date {
+    font-size: 12px;
+    color: var(--text-muted, #9ca3af);
+    margin-bottom: 6px;
+}
+
+.pd-timeline-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* Two column layout */
+.pd-two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .pd-two-col {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Skills */
+.pd-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pd-skill-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #eef2ff;
+    color: #4361EE;
+}
+
+.pd-skill-level {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 1px 6px;
+    border-radius: 8px;
+    background: rgba(67, 97, 238, 0.15);
+    text-transform: uppercase;
+}
+
+.pd-skill-basico { background: #fef3c7; color: #d97706; }
+.pd-skill-basico .pd-skill-level { background: rgba(217, 119, 6, 0.15); }
+
+.pd-skill-intermedio { background: #e0e7ff; color: #4361EE; }
+.pd-skill-intermedio .pd-skill-level { background: rgba(67, 97, 238, 0.15); }
+
+.pd-skill-avanzado { background: #dcfce7; color: #16a34a; }
+.pd-skill-avanzado .pd-skill-level { background: rgba(22, 163, 74, 0.15); }
+
+.pd-skill-experto { background: #f3e8ff; color: #9333ea; }
+.pd-skill-experto .pd-skill-level { background: rgba(147, 51, 234, 0.15); }
+
+.pd-skill-idioma { background: #ffedd5; color: #ea580c; }
+.pd-skill-idioma .pd-skill-level { background: rgba(234, 88, 12, 0.15); }
+
+.pd-skill-nativo { background: #dcfce7; color: #16a34a; }
+.pd-skill-nativo .pd-skill-level { background: rgba(22, 163, 74, 0.15); }
+
+/* Links */
+.pd-links {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pd-link-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #f3f4f6;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pd-link-item:hover {
+    border-color: #4361EE;
+    background: #f0f4ff;
+    color: #4361EE;
+}

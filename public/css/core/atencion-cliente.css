@@ -1,0 +1,233 @@
+/* Atencion al cliente - incidencias */
+.incidencia-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.incidencia-item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    background: #fff;
+    transition: border-color 0.2s;
+}
+
+.incidencia-item:hover {
+    border-color: #c7d2fe;
+}
+
+.incidencia-item-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.incidencia-item-titulo {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.incidencia-item-fecha {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.incidencia-item-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+}
+
+.incidencia-item-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex-wrap: wrap;
+}
+
+.incidencia-categoria {
+    font-weight: 500;
+}
+
+/* Badges de estado */
+.incidencia-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.inc-badge-abierta {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.inc-badge-en_proceso {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.inc-badge-resuelta {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.inc-badge-cerrada {
+    background: #e5e7eb;
+    color: #6b7280;
+}
+
+/* Badges de prioridad */
+.incidencia-prioridad {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.inc-prioridad-baja {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.inc-prioridad-media {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.inc-prioridad-alta {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Respuesta del soporte */
+.incidencia-respuesta {
+    margin-top: 16px;
+    padding: 16px;
+    background: #f0f4ff;
+    border-radius: 10px;
+    border-left: 4px solid #4361EE;
+}
+
+.incidencia-respuesta-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4361EE;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.incidencia-respuesta-fecha {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+}
+
+/* Modal */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-box {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    animation: modalIn 0.2s ease-out;
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: background 0.15s, color 0.15s;
+}
+
+.modal-close:hover {
+    background: #f3f4f6;
+    color: var(--text-primary);
+}
+
+.modal-close svg {
+    width: 20px;
+    height: 20px;
+}
+
+.modal-box form {
+    padding: 24px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+@media (max-width: 640px) {
+    .modal-box {
+        max-width: 100%;
+        border-radius: 12px;
+    }
+    .modal-header, .modal-box form {
+        padding: 16px;
+    }
+}

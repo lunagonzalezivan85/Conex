@@ -1,0 +1,97 @@
+/* Planes panel - inside layout */
+.planes-panel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+.plan-panel-card {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 28px 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 2px solid transparent;
+    transition: border-color 0.2s, transform 0.2s;
+}
+.plan-panel-card:hover {
+    transform: translateY(-2px);
+}
+.plan-panel-card.current {
+    border-color: var(--success);
+}
+.plan-panel-badge {
+    position: absolute;
+    top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--brand-orange);
+    color: #fff;
+    font-size: 11px; font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.plan-panel-header {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+.plan-panel-header h3 {
+    font-size: 20px; font-weight: 700;
+    margin-bottom: 8px;
+}
+.plan-panel-price {
+    font-size: 36px; font-weight: 700;
+    color: var(--brand-navy);
+    margin-bottom: 4px;
+}
+.plan-panel-price span {
+    font-size: 14px; font-weight: 500;
+    color: var(--text-secondary);
+}
+.plan-panel-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+.plan-panel-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    flex: 1;
+}
+.plan-panel-features li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    padding: 8px 0;
+    color: var(--text-primary);
+}
+.plan-panel-features li svg {
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+    color: var(--success);
+}
+.plan-panel-features li.disabled {
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+.plan-panel-features li.disabled svg {
+    color: var(--danger);
+}
+.btn-block {
+    width: 100%;
+    justify-content: center;
+}
+.btn-upgrade {
+    cursor: pointer;
+}
+@media (max-width: 768px) {
+    .planes-panel-grid {
+        grid-template-columns: 1fr;
+    }
+}

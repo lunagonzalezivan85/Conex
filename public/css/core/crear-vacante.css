@@ -1,0 +1,222 @@
+/* Crear vacante - estilos */
+
+/* Tag selector (buscador + chips) */
+.tag-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tag-input-wrap {
+    position: relative;
+}
+
+.tag-search-input {
+    width: 100%;
+    padding: 10px 14px 10px 38px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    background-size: 18px;
+}
+
+.tag-search-input:focus {
+    border-color: #4361EE;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.12);
+}
+
+.tag-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.tag-dropdown.open {
+    display: block;
+}
+
+.tag-dropdown-item {
+    padding: 10px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.tag-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.tag-dropdown-item:hover,
+.tag-dropdown-item.highlighted {
+    background: #f0f4ff;
+    color: #4361EE;
+}
+
+.tag-dropdown-item.already-selected {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+}
+
+.tag-dropdown-empty {
+    padding: 16px 14px;
+    font-size: 13px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+/* Chips seleccionados */
+.tag-selected {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 0;
+}
+
+.tag-selected:empty {
+    display: none;
+}
+
+.tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    animation: tagChipIn 0.2s ease;
+}
+
+@keyframes tagChipIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.tag-chip.req {
+    background: #eef2ff;
+    color: #4361EE;
+    border: 1px solid #c7d2fe;
+}
+
+.tag-chip.req.deseable {
+    background: #fef3c7;
+    color: #b45309;
+    border-color: #fde68a;
+}
+
+.tag-chip.hab {
+    background: #ecfdf5;
+    color: #059669;
+    border: 1px solid #a7f3d0;
+}
+
+.tag-chip.hab.deseable {
+    background: #fef3c7;
+    color: #b45309;
+    border-color: #fde68a;
+}
+
+.tag-chip-name {
+    font-weight: 600;
+}
+
+.tag-chip-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.7);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.tag-chip-meta select {
+    border: none;
+    background: transparent;
+    font-size: 11px;
+    font-weight: 600;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    outline: none;
+    text-transform: uppercase;
+}
+
+.tag-chip-remove {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.08);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: background 0.15s;
+}
+
+.tag-chip-remove:hover {
+    background: rgba(0,0,0,0.18);
+}
+
+/* Boton sugerir (IA) */
+.btn-sugerir {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-sugerir:hover {
+    border-color: #4361EE;
+    color: #4361EE;
+    background: #f0f4ff;
+}
+
+.btn-sugerir:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.btn-sugerir.loading {
+    border-color: #4361EE;
+    color: #4361EE;
+    background: #f0f4ff;
+}
+
+.btn-sugerir.loading svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
