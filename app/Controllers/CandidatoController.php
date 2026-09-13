@@ -226,6 +226,16 @@ class CandidatoController extends BaseController
                 ->orderBy('post_postulacion.created_at', 'DESC')
                 ->get()
                 ->getResultArray();
+
+            foreach ($postulaciones as &$p) {
+                $nuevoPuntaje = $this->calcularPuntajeMatch($candidato['id'], $p['vacante_id']);
+                if ($nuevoPuntaje !== (int)($p['puntaje_match'] ?? 0)) {
+                    $db->table('post_postulacion')
+                        ->where('id', $p['postulacion_id'])
+                        ->update(['puntaje_match' => $nuevoPuntaje, 'updated_at' => date('Y-m-d H:i:s')]);
+                    $p['puntaje_match'] = $nuevoPuntaje;
+                }
+            }
         }
 
         $sidebarSections = $this->getSidebarSections();
@@ -1166,29 +1176,7 @@ class CandidatoController extends BaseController
 
         $mensaje = $this->request->getPost('mensaje');
 
-        $puntaje = 0;
-        if (!empty($vacante['anios_experiencia']) && $vacante['anios_experiencia'] > 0) {
-            $experienciaModel = new ExperienciaModel();
-            $experiencias = $experienciaModel->where('candidato_id', $candidato['id'])->findAll();
-            $aniosTotales = 0;
-            foreach ($experiencias as $exp) {
-                if (!empty($exp['fecha_inicio'])) {
-                    $fin = !empty($exp['fecha_fin']) ? strtotime($exp['fecha_fin']) : time();
-                    $inicio = strtotime($exp['fecha_inicio']);
-                    if ($fin > $inicio) {
-                        $aniosTotales += ($fin - $inicio) / (365 * 24 * 60 * 60);
-                    }
-                }
-            }
-            if ($aniosTotales >= $vacante['anios_experiencia']) {
-                $puntaje = 100;
-            } else {
-                $puntaje = (int)(($aniosTotales / $vacante['anios_experiencia']) * 100);
-            }
-        }
-        if ($puntaje > 0) {
-            $puntaje = max(10, min(100, $puntaje));
-        }
+        $puntaje = $this->calcularPuntajeMatch($candidato['id'], $vacanteId);
 
         $db->table('post_postulacion')->insert([
             'vacante_id' => $vacanteId,
@@ -1436,5 +1424,94 @@ class CandidatoController extends BaseController
         $candidatoModel->update($candidatoId, ['porcentaje_perfil' => $porcentaje]);
 
         return $porcentaje;
+    }
+
+    private function calcularPuntajeMatch($candidatoId, $vacanteId)
+    {
+        $db = \Config\Database::connect();
+        $puntajeTotal = 0;
+
+        // 1. Experiencia (40%)
+        $vacante = $db->table('vac_vacante')->where('id', $vacanteId)->get()->getRowArray();
+        $aniosRequeridos = (int)($vacante['anios_experiencia'] ?? 0);
+
+        $experiencias = $db->table('cand_experiencia')->where('candidato_id', $candidatoId)->get()->getResultArray();
+        $aniosTotales = 0;
+        foreach ($experiencias as $exp) {
+            if (!empty($exp['fecha_inicio'])) {
+                $fin = !empty($exp['fecha_fin']) ? strtotime($exp['fecha_fin']) : time();
+                $inicio = strtotime($exp['fecha_inicio']);
+                if ($fin > $inicio) {
+                    $aniosTotales += ($fin - $inicio) / (365 * 24 * 60 * 60);
+                }
+            }
+        }
+
+        if ($aniosRequeridos > 0) {
+            if ($aniosTotales >= $aniosRequeridos) {
+                $puntajeExp = 100;
+            } else {
+                $puntajeExp = (int)(($aniosTotales / $aniosRequeridos) * 100);
+            }
+        } else {
+            $puntajeExp = $aniosTotales > 0 ? 100 : 0;
+        }
+        $puntajeTotal += $puntajeExp * 0.40;
+
+        // 2. Habilidades (35%)
+        $habilidadesRequeridas = $db->table('vac_requisito')
+            ->where('vacante_id', $vacanteId)
+            ->where('habilidad_id IS NOT NULL', null, false)
+            ->get()->getResultArray();
+
+        if (!empty($habilidadesRequeridas)) {
+            $habilidadesCandidato = $db->table('cand_habilidad')
+                ->where('candidato_id', $candidatoId)
+                ->get()->getResultArray();
+            $idsCandidato = array_column($habilidadesCandidato, 'habilidad_id');
+
+            $coincidencias = 0;
+            foreach ($habilidadesRequeridas as $hr) {
+                if (in_array($hr['habilidad_id'], $idsCandidato)) {
+                    $coincidencias++;
+                }
+            }
+            $puntajeHab = (int)(($coincidencias / count($habilidadesRequeridas)) * 100);
+        } else {
+            $puntajeHab = 50;
+        }
+        $puntajeTotal += $puntajeHab * 0.35;
+
+        // 3. Educacion (25%)
+        $reqEducacion = $db->table('vac_requisito')
+            ->where('vacante_id', $vacanteId)
+            ->where('nivel_educacion_id IS NOT NULL', null, false)
+            ->get()->getRowArray();
+
+        if ($reqEducacion) {
+            $nivelRequerido = (int)$reqEducacion['nivel_educacion_id'];
+            $educacionCandidato = $db->table('cand_educacion')
+                ->select('nivel_educacion_id')
+                ->where('candidato_id', $candidatoId)
+                ->orderBy('nivel_educacion_id', 'DESC')
+                ->get()->getRowArray();
+            $nivelCandidato = $educacionCandidato ? (int)$educacionCandidato['nivel_educacion_id'] : 0;
+
+            if ($nivelCandidato >= $nivelRequerido) {
+                $puntajeEdu = 100;
+            } elseif ($nivelCandidato > 0) {
+                $puntajeEdu = (int)(($nivelCandidato / $nivelRequerido) * 100);
+            } else {
+                $puntajeEdu = 0;
+            }
+        } else {
+            $tieneEducacion = $db->table('cand_educacion')
+                ->where('candidato_id', $candidatoId)
+                ->countAllResults();
+            $puntajeEdu = $tieneEducacion > 0 ? 100 : 0;
+        }
+        $puntajeTotal += $puntajeEdu * 0.25;
+
+        return max(0, min(100, (int)round($puntajeTotal)));
     }
 }

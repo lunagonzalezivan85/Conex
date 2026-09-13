@@ -38,7 +38,7 @@ $routes->post('/candidato/cv/aplicar', 'CandidatoController::aplicarAnalisis');
 $routes->get('/candidato/cv/analisis/(:num)', 'CandidatoController::obtenerAnalisis/$1');
 $routes->get('/candidato/postulaciones', 'CandidatoController::postulaciones');
 $routes->get('/candidato/buscar-empleo', 'CandidatoController::buscarEmpleo');
-$routes->get('/candidato/vacante/(:segment)', 'CandidatoController::verVacante/$1');
+$routes->get('/candidato/vacante/(:any)', 'CandidatoController::verVacante/$1');
 $routes->post('/candidato/postularse/(:num)', 'CandidatoController::postularse/$1');
 $routes->get('/candidato/info', 'CandidatoController::info');
 $routes->get('/candidato/planes', 'CandidatoController::planes');

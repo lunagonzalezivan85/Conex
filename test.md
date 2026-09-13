@@ -8,6 +8,13 @@
 
 ---
 
+## Usuario Candidato
+
+- **Usuario:** `iluna`
+- **Password:** `Conex123!`
+
+---
+
 ## Usuarios de Empresa
 
 **Contraseña para todos:** `empresa123`
