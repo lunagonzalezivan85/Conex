@@ -9,8 +9,8 @@ Options -Indexes
 	Options +FollowSymlinks
 	RewriteEngine On
 
-	# Set RewriteBase for subfolder deployment
-	RewriteBase /CONEX/
+	# RewriteBase - auto detect, uncomment and set for subfolder deployments
+	# RewriteBase /
 
 	# Redirect Trailing Slashes...
 	RewriteCond %{REQUEST_FILENAME} !-d

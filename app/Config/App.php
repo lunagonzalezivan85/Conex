@@ -16,7 +16,24 @@ class App extends BaseConfig
      *
      * E.g., http://example.com/
      */
-    public string $baseURL = 'http://localhost/CONEX/';
+    public string $baseURL = '';
+
+    /**
+     * Detecta dinamicamente la baseURL si esta vacia.
+     */
+    public function __construct()
+    {
+        if (empty($this->baseURL)) {
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $script = $_SERVER['SCRIPT_NAME'] ?? '/index.php';
+            $dir = str_replace('\\', '/', dirname($script));
+            $dir = ($dir === '/' || $dir === '.') ? '' : $dir;
+            $this->baseURL = $protocol . '://' . $host . $dir . '/';
+        }
+
+        parent::__construct();
+    }
 
     /**
      * Allowed Hostnames in the Site URL other than the hostname in the baseURL.
