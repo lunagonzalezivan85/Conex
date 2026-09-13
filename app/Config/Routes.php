@@ -87,3 +87,13 @@ $routes->post('/admin/noticias/guardar', 'NoticiaController::adminGuardar');
 $routes->get('/admin/noticias/editar/(:num)', 'NoticiaController::adminEditar/$1');
 $routes->post('/admin/noticias/actualizar/(:num)', 'NoticiaController::adminActualizar/$1');
 $routes->get('/admin/noticias/eliminar/(:num)', 'NoticiaController::adminEliminar/$1');
+
+// CRM
+$routes->get('/admin/crm', 'CrmController::pipeline');
+$routes->post('/admin/crm/crear', 'CrmController::crearLead');
+$routes->get('/admin/crm/lead/(:num)', 'CrmController::detalleLead/$1');
+$routes->post('/admin/crm/actualizar/(:num)', 'CrmController::actualizarLead/$1');
+$routes->post('/admin/crm/cambiar-estado/(:num)', 'CrmController::cambiarEstadoLead/$1');
+$routes->post('/admin/crm/seguimiento/(:num)', 'CrmController::agregarSeguimiento/$1');
+$routes->post('/admin/crm/servicio/(:num)', 'CrmController::agregarServicio/$1');
+$routes->post('/admin/crm/convertir/(:num)', 'CrmController::convertirLead/$1');
