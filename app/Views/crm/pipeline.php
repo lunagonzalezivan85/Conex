@@ -36,7 +36,7 @@
                                 <span class="crm-tag crm-tag-blue">Upsell</span>
                             <?php endif; ?>
                             <div class="crm-card-meta">
-                                <span class="crm-origen"><?= esc(LeadModel::ORIGENES[$lead['origen']] ?? $lead['origen']) ?></span>
+                                <span class="crm-origen"><?= esc($origenes[$lead['origen']] ?? $lead['origen']) ?></span>
                                 <?php if ($lead['asesor_nombre']): ?>
                                     <span class="crm-asesor"><?= esc($lead['asesor_nombre'] . ' ' . substr($lead['asesor_apellido'] ?? '', 0, 1)) ?></span>
                                 <?php endif; ?>
@@ -67,9 +67,22 @@
                         <option value="upsell">Upsell (empresa existente)</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>Empresa ID (para upsell)</label>
-                    <input type="number" name="empresa_id" id="empresaId" placeholder="Opcional">
+                <div class="form-group" id="grupoEmpresaExistente" style="display:none;">
+                    <label>Empresa existente *</label>
+                    <select name="empresa_id" id="empresaSelect">
+                        <option value="">Seleccionar empresa</option>
+                        <?php foreach ($empresas as $e): ?>
+                            <option value="<?= $e['id'] ?>"
+                                data-nombre="<?= esc($e['contacto_nombre'] . ' ' . $e['contacto_apellido']) ?>"
+                                data-email="<?= esc($e['email']) ?>"
+                                data-telefono="<?= esc($e['telefono']) ?>"
+                                data-empresa="<?= esc($e['razon_social']) ?>"
+                                data-rubro="<?= esc($e['rubro']) ?>"
+                                data-plan="<?= esc($e['plan_nombre'] ?? 'Gratis') ?>">
+                                <?= esc($e['razon_social']) ?> (<?= esc($e['plan_nombre'] ?? 'Sin plan') ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
             <div class="form-row">
@@ -113,7 +126,7 @@
                 <div class="form-group">
                     <label>Origen del contacto</label>
                     <select name="origen">
-                        <?php foreach (LeadModel::ORIGENES as $key => $label): ?>
+                        <?php foreach ($origenes as $key => $label): ?>
                             <option value="<?= $key ?>"><?= $label ?></option>
                         <?php endforeach; ?>
                     </select>

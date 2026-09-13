@@ -68,4 +68,34 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Toggle tipo de lead (nuevo vs upsell)
+    var tipoLead = document.getElementById('tipoLead');
+    var grupoEmpresa = document.getElementById('grupoEmpresaExistente');
+    var empresaSelect = document.getElementById('empresaSelect');
+
+    if (tipoLead) {
+        tipoLead.addEventListener('change', function() {
+            if (this.value === 'upsell') {
+                grupoEmpresa.style.display = '';
+            } else {
+                grupoEmpresa.style.display = 'none';
+                empresaSelect.value = '';
+            }
+        });
+    }
+
+    // Autocompletar datos al seleccionar empresa
+    if (empresaSelect) {
+        empresaSelect.addEventListener('change', function() {
+            var opt = this.options[this.selectedIndex];
+            if (this.value) {
+                document.querySelector('[name="nombre_contacto"]').value = opt.dataset.nombre || '';
+                document.querySelector('[name="email_contacto"]').value = opt.dataset.email || '';
+                document.querySelector('[name="telefono_contacto"]').value = opt.dataset.telefono || '';
+                document.querySelector('[name="empresa_nombre"]').value = opt.dataset.empresa || '';
+                document.querySelector('[name="rubro"]').value = opt.dataset.rubro || '';
+            }
+        });
+    }
 });

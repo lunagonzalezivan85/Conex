@@ -54,13 +54,28 @@ class CrmController extends BaseController
 
         $planes = $db->table('crm_plan')->where('estado', 'activo')->get()->getResultArray();
 
+        // Empresas existentes para upsell (con plan gratis o sin contrato)
+        $empresas = $db->table('emp_empresa')
+            ->select('emp_empresa.id, emp_empresa.razon_social, emp_empresa.rubro, emp_empresa.telefono,
+                auth_user.email, auth_user.nombre as contacto_nombre, auth_user.apellido as contacto_apellido,
+                crm_plan.nombre as plan_nombre, crm_plan.slug as plan_slug')
+            ->join('auth_user', 'auth_user.id = emp_empresa.user_id', 'left')
+            ->join('crm_contrato', 'crm_contrato.empresa_id = emp_empresa.id AND crm_contrato.estado = "activo"', 'left')
+            ->join('crm_plan', 'crm_plan.id = crm_contrato.plan_id', 'left')
+            ->where('emp_empresa.deleted_at', null)
+            ->orderBy('emp_empresa.razon_social', 'ASC')
+            ->get()
+            ->getResultArray();
+
         $sidebarSections = $this->getSidebarSections($roleSlug);
 
         $content = view('crm/pipeline', [
             'leadsPorEstado' => $leadsPorEstado,
             'estados' => $estados,
+            'origenes' => LeadModel::ORIGENES,
             'asesores' => $asesores,
             'planes' => $planes,
+            'empresas' => $empresas,
             'userId' => $userId,
         ]);
 
