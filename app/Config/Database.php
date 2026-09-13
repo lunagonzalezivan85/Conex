@@ -83,17 +83,6 @@ class Database extends Config
         ],
     ];
 
-    /**
-     * Selecciona el grupo de conexion segun el entorno.
-     */
-    public function __construct()
-    {
-        if (ENVIRONMENT === 'production') {
-            $this->defaultGroup = 'production';
-        }
-        parent::__construct();
-    }
-
     //    /**
     //     * Sample database connection for SQLite3.
     //     *
@@ -237,11 +226,10 @@ class Database extends Config
     {
         parent::__construct();
 
-        // Ensure that we always set the database group to 'tests' if
-        // we are currently running an automated test suite, so that
-        // we don't overwrite live data on accident.
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
+        } elseif (ENVIRONMENT === 'production') {
+            $this->defaultGroup = 'production';
         }
     }
 }
