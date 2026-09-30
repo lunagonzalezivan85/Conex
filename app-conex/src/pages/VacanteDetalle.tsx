@@ -136,6 +136,19 @@ const VacanteDetalle: React.FC = () => {
           <IonButtons slot="start">
             <IonBackButton defaultHref="/app/buscar" text="" />
           </IonButtons>
+          {user?.role === 'candidato' && (
+            <IonButtons slot="end">
+              <button
+                className={`vd-header-btn ${yaPostulado ? 'done' : ''}`}
+                aria-label="Postularme"
+                onClick={yaPostulado
+                  ? () => presentAlert({ header: 'Ya postulado', message: 'Ya te postulaste a esta vacante', buttons: ['OK'] })
+                  : abrirPostular}
+              >
+                <IonIcon icon={yaPostulado ? checkmarkCircle : sendOutline} />
+              </button>
+            </IonButtons>
+          )}
         </IonToolbar>
       </IonHeader>
 
@@ -232,23 +245,23 @@ const VacanteDetalle: React.FC = () => {
           </section>
         )}
 
-        <div style={{ height: 110 }} />
-      </IonContent>
+        {/* CTA postularse inline - solo candidato */}
+        {user?.role === 'candidato' && (
+          <div className="vd-cta-inline">
+            <button
+              className={`vd-apply ${yaPostulado ? 'done' : ''}`}
+              onClick={yaPostulado
+                ? () => presentAlert({ header: 'Ya postulado', message: 'Ya te postulaste a esta vacante', buttons: ['OK'] })
+                : abrirPostular}
+            >
+              <IonIcon icon={yaPostulado ? checkmarkCircle : sendOutline} />
+              {yaPostulado ? 'Postulacion enviada' : 'Postularme ahora'}
+            </button>
+          </div>
+        )}
 
-      {/* CTA postularse - solo candidato */}
-      {user?.role === 'candidato' && (
-        <div className="vd-cta">
-          <button
-            className={`vd-apply ${yaPostulado ? 'done' : ''}`}
-            onClick={yaPostulado
-              ? () => presentAlert({ header: 'Ya postulado', message: 'Ya te postulaste a esta vacante', buttons: ['OK'] })
-              : abrirPostular}
-          >
-            <IonIcon icon={yaPostulado ? checkmarkCircle : sendOutline} />
-            {yaPostulado ? 'Postulacion enviada' : 'Postularme ahora'}
-          </button>
-        </div>
-      )}
+        <div style={{ height: 40 }} />
+      </IonContent>
 
       {/* Modal postularse */}
       <IonModal isOpen={modalPostular} onDidDismiss={() => setModalPostular(false)} initialBreakpoint={0.7} breakpoints={[0, 0.7, 0.95]} className="filtros-modal">

@@ -426,14 +426,26 @@
   display: inline-flex; align-items: center; gap: 5px;
 }
 
-/* CTA postularse */
-.vd-cta {
-  position: fixed; bottom: 0; left: 0; right: 0;
-  padding: 12px 18px calc(14px + env(safe-area-inset-bottom));
-  background: var(--ion-background-color);
-  border-top: 1px solid rgba(128, 128, 128, 0.15);
-  z-index: 10;
+/* Boton apply en header (icono) */
+.vd-header-btn {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  color: #fff;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.35);
+  margin-right: 4px;
 }
+.vd-header-btn.done {
+  background: linear-gradient(135deg, #2eb85c, #3fc97e);
+  box-shadow: 0 4px 12px rgba(46, 184, 92, 0.3);
+}
+
+/* CTA inline dentro del contenido */
+.vd-cta-inline { padding: 26px 18px 8px; }
 .vd-apply {
   width: 100%;
   height: 52px;
