@@ -25,6 +25,25 @@ if (version_compare(PHP_VERSION, $minPhpVersion, '<')) {
 
 /*
  *---------------------------------------------------------------
+ * HTTPS DETRAS DE PROXY/LOAD BALANCER
+ *---------------------------------------------------------------
+ */
+
+// Cuando el servidor esta detras de un proxy que termina SSL (IIS/site4now),
+// $_SERVER['HTTPS'] viene vacio aunque la conexion del cliente sea HTTPS.
+// Normalizarlo aqui para que base_url() y current_url() generen https://.
+if (
+    strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https'
+    || ($_SERVER['HTTP_X_FORWARDED_SSL'] ?? '') === 'on'
+    || ($_SERVER['HTTP_FRONT_END_HTTPS'] ?? '') === 'on'
+) {
+    $_SERVER['HTTPS'] = 'on';
+    $_SERVER['REQUEST_SCHEME'] = 'https';
+    $_SERVER['SERVER_PORT'] = 443;
+}
+
+/*
+ *---------------------------------------------------------------
  * SET THE CURRENT DIRECTORY
  *---------------------------------------------------------------
  */

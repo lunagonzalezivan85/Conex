@@ -24,7 +24,12 @@ class App extends BaseConfig
     public function __construct()
     {
         if (empty($this->baseURL)) {
-            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                || (($_SERVER['REQUEST_SCHEME'] ?? '') === 'https')
+                || (strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https')
+                || (($_SERVER['HTTP_X_FORWARDED_SSL'] ?? '') === 'on')
+                || (($_SERVER['HTTP_FRONT_END_HTTPS'] ?? '') === 'on');
+            $protocol = $isHttps ? 'https' : 'http';
             $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
             $script = $_SERVER['SCRIPT_NAME'] ?? '/index.php';
             $dir = str_replace('\\', '/', dirname($script));
