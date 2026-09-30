@@ -17,8 +17,9 @@
   border-radius: 22px;
   background: linear-gradient(135deg, #4361EE, #3ABBF0);
   color: #fff;
-  font-size: 38px;
+  font-size: 30px;
   font-weight: 800;
+  letter-spacing: -0.02em;
   display: flex;
   align-items: center;
   justify-content: center;

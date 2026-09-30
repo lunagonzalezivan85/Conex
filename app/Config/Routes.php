@@ -65,6 +65,11 @@ $routes->post('/empresa/encuestas/guardar/(:num)', 'EmpresaController::guardarEn
 $routes->get('/empresa/info', 'EmpresaController::info');
 $routes->get('/empresa/planes', 'EmpresaController::planes');
 
+// Preflight CORS para la API (el WebView de Capacitor envia OPTIONS)
+$routes->options('api/(:any)', function () {
+    return service('response')->setStatusCode(204);
+});
+
 // ============================================
 // API REST v1 (app Ionic)
 // ============================================

@@ -50,7 +50,7 @@ const Login: React.FC = () => {
       <IonContent scrollY={false}>
         <div className="auth-wrap">
           <div className="auth-card">
-            <div className="auth-logo">C</div>
+            <div className="auth-logo">Cx</div>
             <h1 className="auth-title">Bienvenido a CONEX</h1>
             <p className="auth-sub">Inicia sesion para continuar</p>
 

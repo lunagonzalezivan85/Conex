@@ -34,7 +34,10 @@ class Cors extends BaseConfig
          *   - ['http://localhost:8080']
          *   - ['https://www.example.com']
          */
-        'allowedOrigins' => [],
+        'allowedOrigins' => [
+            'capacitor://localhost',
+            'ionic://localhost',
+        ],
 
         /**
          * Origin regex patterns for the `Access-Control-Allow-Origin` header.
@@ -48,8 +51,8 @@ class Cors extends BaseConfig
          *   - ['https://\w+\.example\.com']
          */
         'allowedOriginsPatterns' => [
-            'http://localhost:\d+',
-            'http://127\.0\.0\.1:\d+',
+            'https?://localhost(:\d+)?',
+            'https?://127\.0\.0\.1(:\d+)?',
         ],
 
         /**
