@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { IonContent, IonPage, IonButton } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
+import { IonContent, IonPage, IonButton, useIonRouter } from '@ionic/react';
 import { Preferences } from '@capacitor/preferences';
 import { authApi } from '../services/api';
 import '../theme/splash.css';
@@ -15,14 +14,14 @@ const MAX_WAIT_MS = 8000;   // nunca quedarse colgado: fallback a login
  * Si algo falla, muestra boton para continuar manualmente.
  */
 const Splash: React.FC = () => {
-  const history = useHistory();
+  const router = useIonRouter();
   const [error, setError] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
 
     const nav = (to: string) => {
-      if (!cancelled) history.replace(to);
+      if (!cancelled) router.push(to, 'root', 'replace');
     };
 
     // Red de seguridad: a los 8s forzar login pase lo que pase
@@ -59,7 +58,7 @@ const Splash: React.FC = () => {
     });
 
     return () => { cancelled = true; clearTimeout(fallback); };
-  }, [history]);
+  }, [router]);
 
   return (
     <IonPage>
@@ -77,7 +76,7 @@ const Splash: React.FC = () => {
             <IonButton
               className="splash-retry"
               fill="outline"
-              onClick={() => history.replace('/login')}
+              onClick={() => router.push('/login', 'root', 'replace')}
             >
               Continuar
             </IonButton>

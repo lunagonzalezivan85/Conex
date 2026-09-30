@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import {
   IonContent, IonPage, IonInput, IonButton, IonIcon,
-  IonText, IonSpinner, IonItem, IonInputPasswordToggle,
+  IonText, IonSpinner, IonItem, IonInputPasswordToggle, useIonRouter,
 } from '@ionic/react';
-import { useHistory } from 'react-router-dom';
 import { personOutline, lockClosedOutline } from 'ionicons/icons';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../services/api';
 import '../theme/auth.css';
 
 const Login: React.FC = () => {
-  const history = useHistory();
+  const router = useIonRouter();
   const { login } = useAuth();
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +29,7 @@ const Login: React.FC = () => {
     setBusy(true);
     try {
       await login(usuario.trim(), password);
-      history.replace('/app/dashboard');
+      router.push('/app/dashboard', 'root', 'replace');
     } catch (err) {
       const e = err as ApiError;
       if (e.status === 429) {

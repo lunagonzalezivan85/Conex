@@ -42,6 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await saveToken(res.token);
     const me = await authApi.me();
     setUser(me.user);
+    setLoading(false);
     return me.user;
   }, []);
 

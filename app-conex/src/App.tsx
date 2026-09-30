@@ -49,27 +49,28 @@ const AppTabs: React.FC = () => (
 );
 
 /**
- * Guard: solo deja entrar a /app si hay sesion valida.
+ * Guard inline: solo deja entrar a /app si hay sesion valida.
+ * Debe ser un Route directo del IonRouterOutlet (el outlet solo
+ * registra sus hijos Route, no componentes envoltura).
  */
-const PrivateRoute: React.FC<{ path: string; children: React.ReactNode }> = ({ path, children }) => {
+const AppRoutes: React.FC = () => {
   const { user, loading } = useAuth();
-  if (loading) return null; // Splash ya gestiono la espera inicial
   return (
-    <Route path={path} render={() => (user ? children : <Redirect to="/login" />)} />
+    <IonReactRouter>
+      <IonRouterOutlet>
+        <Route exact path="/" component={Splash} />
+        <Route exact path="/login" component={Login} />
+        <Route
+          path="/app"
+          render={() => {
+            if (loading) return null;
+            return user ? <AppTabs /> : <Redirect to="/login" />;
+          }}
+        />
+      </IonRouterOutlet>
+    </IonReactRouter>
   );
 };
-
-const AppRoutes: React.FC = () => (
-  <IonReactRouter>
-    <IonRouterOutlet>
-      <Route exact path="/" component={Splash} />
-      <Route exact path="/login" component={Login} />
-      <PrivateRoute path="/app">
-        <AppTabs />
-      </PrivateRoute>
-    </IonRouterOutlet>
-  </IonReactRouter>
-);
 
 const App: React.FC = () => (
   <IonApp>
