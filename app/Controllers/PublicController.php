@@ -91,6 +91,7 @@ class PublicController extends BaseController
                 'vacante' => $vacante,
             ]),
             'css' => ['vacante-detalle.css'],
+            'js' => ['vacante-mapa.js'],
         ]);
     }
 

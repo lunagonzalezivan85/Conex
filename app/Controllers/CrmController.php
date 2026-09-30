@@ -125,7 +125,8 @@ class CrmController extends BaseController
         if ($leadModel->insert($data)) {
             return redirect()->to('admin/crm')->with('success', 'Lead creado correctamente.');
         }
-        return redirect()->back()->with('error', 'Error al crear el lead.');
+        $errors = $leadModel->errors();
+        return redirect()->back()->with('error', 'Error al crear el lead: ' . json_encode($errors));
     }
 
     public function detalleLead($id)

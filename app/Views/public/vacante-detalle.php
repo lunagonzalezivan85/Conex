@@ -46,6 +46,18 @@
         </div>
     </div>
 
+    <?php if (!empty($vacante['latitud']) && !empty($vacante['longitud'])): ?>
+    <div class="card vd-section">
+        <h2 class="vd-section-title">Ubicacion</h2>
+        <div id="vacanteMapa"
+             data-lat="<?= esc($vacante['latitud']) ?>"
+             data-lng="<?= esc($vacante['longitud']) ?>"
+             data-titulo="<?= esc($vacante['ciudad'] ?? '') ?><?= !empty($vacante['region']) ? ', ' . esc($vacante['region']) : '' ?>"
+             style="height:320px;border-radius:10px;z-index:0;">
+        </div>
+    </div>
+    <?php endif; ?>
+
     <div class="card vd-section">
         <h2 class="vd-section-title">Descripcion</h2>
         <div class="vd-section-content"><?= nl2br(esc($vacante['descripcion'])) ?></div>

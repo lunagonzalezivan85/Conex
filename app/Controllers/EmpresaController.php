@@ -282,6 +282,7 @@ class EmpresaController extends BaseController
             'sidebarSections' => $sidebarSections,
             'activeSection' => 'vacantes',
             'css' => ['vacante-detalle.css'],
+            'js' => ['vacante-mapa.js'],
         ]);
     }
 
@@ -435,6 +436,8 @@ class EmpresaController extends BaseController
             'funciones' => $this->request->getPost('funciones'),
             'ciudad' => $this->request->getPost('ciudad'),
             'region' => $this->request->getPost('region'),
+            'latitud' => $this->request->getPost('latitud') ?: null,
+            'longitud' => $this->request->getPost('longitud') ?: null,
             'modalidad' => $this->request->getPost('modalidad'),
             'salario_min' => $this->request->getPost('salario_min') ?: null,
             'salario_max' => $this->request->getPost('salario_max') ?: null,

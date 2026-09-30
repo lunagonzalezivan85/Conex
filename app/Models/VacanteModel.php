@@ -15,6 +15,7 @@ class VacanteModel extends Model
     protected $allowedFields = [
         'empresa_id', 'categoria_id', 'tipo_contrato_id', 'nivel_experiencia_id',
         'titulo', 'slug', 'descripcion', 'funciones', 'ubicacion', 'ciudad', 'region',
+        'latitud', 'longitud',
         'modalidad', 'salario_min', 'salario_max', 'moneda', 'anios_experiencia',
         'vacantes_disponibles', 'max_postulantes', 'estado', 'destacada',
         'fecha_publicacion', 'fecha_cierre',

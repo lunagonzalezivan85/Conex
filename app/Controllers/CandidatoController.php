@@ -1133,6 +1133,7 @@ class CandidatoController extends BaseController
             'sidebarSections' => $sidebarSections,
             'activeSection' => 'buscar',
             'css' => ['vacante-detalle.css'],
+            'js' => ['vacante-mapa.js'],
         ]);
     }
 

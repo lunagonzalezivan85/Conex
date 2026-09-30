@@ -14,7 +14,10 @@
 - **Password:** `Conex123!`
 
 ---
-
+# Configuracion FTP
+Usuario=conexftp
+Password= @Conex2026.12
+Server=win8166.site4now.net
 ## Usuarios de Empresa
 
 **Contraseña para todos:** `empresa123`
