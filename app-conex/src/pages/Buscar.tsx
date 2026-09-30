@@ -1,15 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   IonContent, IonPage, IonHeader, IonToolbar, IonSearchbar,
-  IonButton, IonIcon, IonChip, IonLabel, IonModal, IonList,
-  IonItem, IonSelect, IonSelectOption, IonRange, IonToggle, IonInput,
+  IonButton, IonIcon, IonModal, IonRange,
   IonCard, IonCardContent, IonAvatar, IonBadge, IonSpinner,
   IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher,
   IonRefresherContent, useIonToast, RefresherEventDetail,
 } from '@ionic/react';
 import {
   optionsOutline, locationOutline, navigateOutline,
-  chevronForward, businessOutline, cashOutline,
+  chevronForward, businessOutline, cashOutline, closeOutline,
 } from 'ionicons/icons';
 import { Geolocation } from '@capacitor/geolocation';
 import { vacantesApi } from '../services/api';
@@ -130,11 +129,12 @@ const Buscar: React.FC = () => {
     filtros.geo ? `A ${filtros.radio} km` : null,
     filtros.orden !== 'reciente' ? ORDENES[filtros.orden] : null,
   ].filter(Boolean);
+  const numFiltros = filtrosActivos.length;
 
   return (
     <IonPage>
       <IonHeader translucent>
-        <IonToolbar>
+        <IonToolbar className="buscar-toolbar">
           <IonSearchbar
             ref={searchRef}
             placeholder="Buscar empleo, empresa..."
@@ -145,11 +145,12 @@ const Buscar: React.FC = () => {
           />
           <IonButton
             slot="end"
-            fill="clear"
+            className="buscar-filter-btn"
             onClick={() => setModalOpen(true)}
             aria-label="Filtros"
           >
             <IonIcon icon={optionsOutline} slot="icon-only" />
+            {numFiltros > 0 && <span className="filter-badge">{numFiltros}</span>}
           </IonButton>
         </IonToolbar>
       </IonHeader>
@@ -159,25 +160,21 @@ const Buscar: React.FC = () => {
           <IonRefresherContent />
         </IonRefresher>
 
-        {/* Chips de filtros activos */}
+        {/* Fila de filtros rapidos */}
         <div className="buscar-chips">
-          <IonChip
-            outline={!filtros.geo}
-            color={filtros.geo ? 'primary' : 'medium'}
+          <button
+            className={`filter-pill ${filtros.geo ? 'active' : ''}`}
             onClick={filtros.geo ? quitarGeo : activarGeo}
           >
             <IonIcon icon={navigateOutline} />
-            <IonLabel>
-              {geoLoading ? 'Ubicando...' : filtros.geo ? `Cerca de ti (${filtros.radio}km)` : 'Cerca de ti'}
-            </IonLabel>
-          </IonChip>
+            {geoLoading ? 'Ubicando...' : filtros.geo ? `Cerca de ti · ${filtros.radio} km` : 'Cerca de ti'}
+          </button>
           {filtrosActivos.filter((f): f is string => !!f && f !== `A ${filtros.radio} km`).map((f, i) => (
-            <IonChip key={i} color="primary" outline>{f}</IonChip>
+            <button key={i} className="filter-pill active" onClick={() => setModalOpen(true)}>
+              {f}
+            </button>
           ))}
-          <IonChip color="medium" outline onClick={() => setModalOpen(true)}>
-            <IonIcon icon={optionsOutline} />
-            <IonLabel>{meta.total} resultados</IonLabel>
-          </IonChip>
+          <span className="filter-count">{meta.total} resultados</span>
         </div>
 
         {loading ? (
@@ -232,95 +229,117 @@ const Buscar: React.FC = () => {
       </IonContent>
 
       {/* Modal de filtros */}
-      <IonModal isOpen={modalOpen} onDidDismiss={() => setModalOpen(false)} initialBreakpoint={0.75} breakpoints={[0, 0.75, 1]}>
-        <IonHeader>
-          <IonToolbar>
-            <IonButton slot="start" fill="clear" onClick={() => { setFiltros(f => ({ ...FILTROS_INIT, q: f.q })); quitarGeo(); }}>
+      <IonModal isOpen={modalOpen} onDidDismiss={() => setModalOpen(false)} initialBreakpoint={0.85} breakpoints={[0, 0.85, 1]} className="filtros-modal">
+        <IonContent>
+          <div className="fm-head">
+            <button className="fm-close" onClick={() => setModalOpen(false)} aria-label="Cerrar">
+              <IonIcon icon={closeOutline} />
+            </button>
+            <span className="fm-title">Filtros</span>
+            <button className="fm-clear" onClick={() => { setFiltros(f => ({ ...FILTROS_INIT, q: f.q })); quitarGeo(); }}>
               Limpiar
-            </IonButton>
-            <IonButton slot="end" fill="clear" strong onClick={() => setModalOpen(false)}>
-              Aplicar
-            </IonButton>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          <IonList inset>
-            <IonItem>
-              <IonSelect
-                label="Categoria"
-                labelPlacement="stacked"
-                value={filtros.categoria}
-                onIonChange={e => setFiltros(f => ({ ...f, categoria: e.detail.value }))}
-              >
-                <IonSelectOption value="">Todas</IonSelectOption>
-                {categorias.map((c: any) => (
-                  <IonSelectOption key={c.id} value={c.id}>{c.nombre}</IonSelectOption>
-                ))}
-              </IonSelect>
-            </IonItem>
+            </button>
+          </div>
 
-            <IonItem>
-              <IonSelect
-                label="Modalidad"
-                labelPlacement="stacked"
-                value={filtros.modalidad}
-                onIonChange={e => setFiltros(f => ({ ...f, modalidad: e.detail.value }))}
-              >
-                <IonSelectOption value="">Todas</IonSelectOption>
-                <IonSelectOption value="presencial">Presencial</IonSelectOption>
-                <IonSelectOption value="remoto">Remoto</IonSelectOption>
-                <IonSelectOption value="hibrido">Hibrido</IonSelectOption>
-              </IonSelect>
-            </IonItem>
+          {/* Ordenar */}
+          <section className="fm-section">
+            <h4>Ordenar por</h4>
+            <div className="fm-pills">
+              {Object.entries(ORDENES).map(([k, v]) => (
+                <button
+                  key={k}
+                  className={`fm-pill ${filtros.orden === k ? 'active' : ''}`}
+                  onClick={() => setFiltros(f => ({ ...f, orden: k }))}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+          </section>
 
-            <IonItem>
-              <IonSelect
-                label="Ordenar por"
-                labelPlacement="stacked"
-                value={filtros.orden}
-                onIonChange={e => setFiltros(f => ({ ...f, orden: e.detail.value }))}
-              >
-                {Object.entries(ORDENES).map(([k, v]) => (
-                  <IonSelectOption key={k} value={k}>{v}</IonSelectOption>
-                ))}
-              </IonSelect>
-            </IonItem>
-
-            <IonItem>
-              <IonInput
-                label="Ciudad"
-                labelPlacement="stacked"
-                placeholder="Ej: Managua"
-                value={filtros.ciudad}
-                onIonInput={e => setFiltros(f => ({ ...f, ciudad: e.detail.value ?? '' }))}
-              />
-            </IonItem>
-
-            <IonItem lines="none">
-              <IonToggle
-                checked={filtros.geo}
-                onIonChange={e => (e.detail.checked ? activarGeo() : quitarGeo())}
-              >
-                <IonLabel>
-                  <h3>Cerca de mi ubicacion</h3>
-                  <p>{coords ? 'Ubicacion obtenida' : 'Usa tu GPS'}</p>
-                </IonLabel>
-              </IonToggle>
-            </IonItem>
-
+          {/* Ubicacion */}
+          <section className="fm-section">
+            <h4>Ubicacion</h4>
+            <button
+              className={`fm-geo ${filtros.geo ? 'active' : ''}`}
+              onClick={filtros.geo ? quitarGeo : activarGeo}
+            >
+              <IonIcon icon={navigateOutline} />
+              <span className="fm-geo-text">
+                <strong>{geoLoading ? 'Obteniendo ubicacion...' : filtros.geo ? 'Usando mi ubicacion' : 'Cerca de mi'}</strong>
+                <small>{filtros.geo ? `${coords?.lat.toFixed(3)}, ${coords?.lng.toFixed(3)}` : 'GPS del dispositivo'}</small>
+              </span>
+              <span className={`fm-geo-dot ${filtros.geo ? 'on' : ''}`} />
+            </button>
             {filtros.geo && (
-              <IonItem>
+              <div className="fm-radio">
+                <span className="fm-radio-label">Radio: <strong>{filtros.radio} km</strong></span>
                 <IonRange
-                  label={`Radio: ${filtros.radio} km`}
-                  labelPlacement="stacked"
                   min={5} max={500} step={5}
                   value={filtros.radio}
                   onIonChange={e => setFiltros(f => ({ ...f, radio: e.detail.value as number }))}
+                  className="fm-range"
                 />
-              </IonItem>
+              </div>
             )}
-          </IonList>
+            <div className="fm-field">
+              <IonIcon icon={locationOutline} />
+              <input
+                type="text"
+                placeholder="Ciudad (ej: Managua)"
+                value={filtros.ciudad}
+                onChange={e => setFiltros(f => ({ ...f, ciudad: e.target.value }))}
+              />
+            </div>
+          </section>
+
+          {/* Categoria */}
+          <section className="fm-section">
+            <h4>Categoria</h4>
+            <div className="fm-pills">
+              <button
+                className={`fm-pill ${filtros.categoria === '' ? 'active' : ''}`}
+                onClick={() => setFiltros(f => ({ ...f, categoria: '' }))}
+              >
+                Todas
+              </button>
+              {categorias.map((c: any) => (
+                <button
+                  key={c.id}
+                  className={`fm-pill ${String(filtros.categoria) === String(c.id) ? 'active' : ''}`}
+                  onClick={() => setFiltros(f => ({ ...f, categoria: String(c.id) }))}
+                >
+                  {c.nombre}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* Modalidad */}
+          <section className="fm-section">
+            <h4>Modalidad</h4>
+            <div className="fm-pills">
+              {[['', 'Todas'], ['presencial', 'Presencial'], ['remoto', 'Remoto'], ['hibrido', 'Hibrido']].map(([v, l]) => (
+                <button
+                  key={v}
+                  className={`fm-pill ${filtros.modalidad === v ? 'active' : ''}`}
+                  onClick={() => setFiltros(f => ({ ...f, modalidad: v }))}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+          </section>
+
+          <div style={{ height: 90 }} />
         </IonContent>
+
+        {/* Footer CTA */}
+        <div className="fm-footer">
+          <button className="fm-apply" onClick={() => setModalOpen(false)}>
+            Ver {meta.total} resultado{meta.total === 1 ? '' : 's'}
+          </button>
+        </div>
       </IonModal>
     </IonPage>
   );
