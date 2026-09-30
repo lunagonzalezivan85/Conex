@@ -61,21 +61,23 @@ class PublicController extends BaseController
             $builder->like('vac_vacante.ciudad', $ciudad);
         }
 
+        // Datos de empresa para las cards
+        $builder->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left');
+        $select = 'vac_vacante.*, emp_empresa.razon_social as empresa_nombre, emp_empresa.logo as empresa_logo';
+
         // Filtro por geolocalizacion (Haversine, radio en km)
         $geoActivo = is_numeric($lat) && is_numeric($lng);
         if ($geoActivo) {
             $lat = (float)$lat;
             $lng = (float)$lng;
             $radio = max(1, min(500, $radio));
+            $distanciaExpr = "6371 * acos(LEAST(1, cos(radians({$lat})) * cos(radians(vac_vacante.latitud)) * cos(radians(vac_vacante.longitud) - radians({$lng})) + sin(radians({$lat})) * sin(radians(vac_vacante.latitud))))";
             $builder->where('vac_vacante.latitud IS NOT NULL')
                 ->where('vac_vacante.longitud IS NOT NULL')
-                ->where(
-                    "6371 * acos(LEAST(1, cos(radians({$lat})) * cos(radians(vac_vacante.latitud)) * cos(radians(vac_vacante.longitud) - radians({$lng})) + sin(radians({$lat})) * sin(radians(vac_vacante.latitud)))) <=",
-                    $radio,
-                    true
-                );
-            $builder->select("vac_vacante.*, 6371 * acos(LEAST(1, cos(radians({$lat})) * cos(radians(vac_vacante.latitud)) * cos(radians(vac_vacante.longitud) - radians({$lng})) + sin(radians({$lat})) * sin(radians(vac_vacante.latitud)))) AS distancia_km");
+                ->where("{$distanciaExpr} <=", $radio, true);
+            $select .= ", {$distanciaExpr} AS distancia_km";
         }
+        $builder->select($select);
 
         // Ordenamiento
         switch ($orden) {
