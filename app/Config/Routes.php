@@ -65,6 +65,47 @@ $routes->post('/empresa/encuestas/guardar/(:num)', 'EmpresaController::guardarEn
 $routes->get('/empresa/info', 'EmpresaController::info');
 $routes->get('/empresa/planes', 'EmpresaController::planes');
 
+// ============================================
+// API REST v1 (app Ionic)
+// ============================================
+// Auth publica (rate limit estricto anti fuerza bruta)
+$routes->post('api/login', 'Api\AuthController::login', ['filter' => 'apiRate:5,60']);
+$routes->post('api/register', 'Api\AuthController::register', ['filter' => 'apiRate:5,60']);
+
+// Rutas autenticadas con Bearer token (120 req/min por IP+endpoint)
+$routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($routes) {
+    $routes->post('logout', 'Api\AuthController::logout');
+    $routes->get('me', 'Api\AuthController::me');
+
+    // CV descarga (candidato dueno o empresa con postulacion)
+    $routes->get('cv/(:num)', 'Api\CvController::descargar/$1');
+
+    // Vacantes (ambos roles)
+    $routes->get('vacantes', 'Api\VacanteController::index');
+    $routes->get('vacantes/meta/filtros', 'Api\VacanteController::filtros');
+    $routes->get('vacantes/(:segment)', 'Api\VacanteController::show/$1');
+
+    // Candidato
+    $routes->get('candidato/perfil', 'Api\CandidatoController::perfil');
+    $routes->post('candidato/perfil', 'Api\CandidatoController::actualizarPerfil');
+    $routes->get('candidato/cvs', 'Api\CandidatoController::cvs');
+    $routes->post('candidato/cv', 'Api\CandidatoController::subirCv');
+    $routes->delete('candidato/cv/(:num)', 'Api\CandidatoController::eliminarCv/$1');
+    $routes->post('candidato/cv/(:num)/eliminar', 'Api\CandidatoController::eliminarCv/$1');
+    $routes->get('candidato/postulaciones', 'Api\CandidatoController::postulaciones');
+    $routes->post('candidato/postularse/(:num)', 'Api\CandidatoController::postularse/$1');
+
+    // Empresa
+    $routes->get('empresa/perfil', 'Api\EmpresaController::perfil');
+    $routes->post('empresa/perfil', 'Api\EmpresaController::actualizarPerfil');
+    $routes->get('empresa/vacantes', 'Api\EmpresaController::vacantes');
+    $routes->post('empresa/vacantes', 'Api\EmpresaController::crearVacante');
+    $routes->put('empresa/vacantes/(:num)', 'Api\EmpresaController::actualizarVacante/$1');
+    $routes->post('empresa/vacantes/(:num)', 'Api\EmpresaController::actualizarVacante/$1');
+    $routes->get('empresa/vacantes/(:num)/postulaciones', 'Api\EmpresaController::postulaciones/$1');
+    $routes->post('empresa/postulaciones/(:num)/estado', 'Api\EmpresaController::cambiarEstadoPostulacion/$1');
+});
+
 // Panel admin
 $routes->get('/admin', 'AdminController::index');
 $routes->get('/admin/usuarios', 'AdminController::usuarios');
