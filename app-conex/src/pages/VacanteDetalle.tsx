@@ -1,22 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import {
-  IonContent, IonPage, IonHeader, IonToolbar, IonTitle,
+  IonContent, IonPage, IonHeader, IonToolbar,
   IonButtons, IonBackButton, IonButton, IonIcon, IonSpinner,
-  IonBadge, IonAvatar, useIonAlert, useIonToast,
-  IonModal, IonList, IonItem, IonRadioGroup, IonRadio, IonTextarea,
+  useIonAlert, useIonToast,
+  IonModal, IonTextarea,
 } from '@ionic/react';
 import { useParams } from 'react-router-dom';
 import {
   locationOutline, cashOutline, briefcaseOutline, timeOutline,
   checkmarkCircle, businessOutline, globeOutline, sendOutline,
+  peopleOutline, closeOutline, documentTextOutline, checkmarkDoneOutline,
 } from 'ionicons/icons';
 import { useAuth } from '../context/AuthContext';
 import { candidatoApi, vacantesApi } from '../services/api';
 import '../theme/app.css';
+import '../theme/buscar.css';
 
 /**
- * Detalle de vacante: info completa + requisitos + habilidades.
- * Candidato puede postularse eligiendo CV + mensaje.
+ * Detalle de vacante con diseno de marca: hero, meta-cards,
+ * secciones con acento, CTA con gradiente y modal de postulacion.
  */
 const VacanteDetalle: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -37,7 +39,6 @@ const VacanteDetalle: React.FC = () => {
       try {
         const res = await vacantesApi.show(slug);
         setVacante(res.data);
-        // saber si ya postulo (candidato)
         if (user?.role === 'candidato') {
           const p = await candidatoApi.postulaciones().catch(() => ({ data: [] }));
           const ya = p.data.some((x: any) => String(x.vacante_id) === String(res.data.id));
@@ -56,7 +57,7 @@ const VacanteDetalle: React.FC = () => {
     try {
       const res = await candidatoApi.cvs();
       setCvs(res.data || []);
-      const principal = (res.data || []).find((c: any) => c.es_principal === '1' || c.es_principal === 1);
+      const principal = (res.data || []).find((c: any) => Number(c.es_principal) === 1);
       setCvSel(principal?.id ?? res.data?.[0]?.id ?? null);
       setModalPostular(true);
     } catch {
@@ -85,6 +86,31 @@ const VacanteDetalle: React.FC = () => {
     }
   };
 
+  const fmtFecha = (f?: string) => (f ? new Date(f).toLocaleDateString('es', { day: 'numeric', month: 'short' }) : null);
+
+  const metaCards = [
+    (vacante?.ciudad || vacante?.region) && {
+      icon: locationOutline, label: 'Ubicacion',
+      value: [vacante.ciudad, vacante.region].filter(Boolean).join(', '),
+    },
+    (vacante?.salario_min || vacante?.salario_max) && {
+      icon: cashOutline, label: 'Salario',
+      value: `$${vacante.salario_min} - $${vacante.salario_max}`,
+    },
+    vacante?.anios_experiencia !== undefined && vacante?.anios_experiencia !== null && {
+      icon: briefcaseOutline, label: 'Experiencia',
+      value: Number(vacante.anios_experiencia) === 0 ? 'No requerida' : `${vacante.anios_experiencia}+ anos`,
+    },
+    vacante?.fecha_cierre && {
+      icon: timeOutline, label: 'Cierre',
+      value: fmtFecha(vacante.fecha_cierre),
+    },
+    vacante?.vacantes_disponibles && {
+      icon: peopleOutline, label: 'Plazas',
+      value: `${vacante.vacantes_disponibles} disponible${Number(vacante.vacantes_disponibles) === 1 ? '' : 's'}`,
+    },
+  ].filter(Boolean) as { icon: string; label: string; value: string }[];
+
   if (loading) {
     return (
       <IonPage>
@@ -97,7 +123,7 @@ const VacanteDetalle: React.FC = () => {
   if (!vacante) {
     return (
       <IonPage>
-        <IonHeader><IonToolbar><IonButtons slot="start"><IonBackButton defaultHref="/app/buscar" /></IonButtons><IonTitle>Vacante</IonTitle></IonToolbar></IonHeader>
+        <IonHeader><IonToolbar><IonButtons slot="start"><IonBackButton defaultHref="/app/buscar" /></IonButtons></IonToolbar></IonHeader>
         <IonContent><div className="buscar-empty"><p>Vacante no encontrada</p></div></IonContent>
       </IonPage>
     );
@@ -106,164 +132,182 @@ const VacanteDetalle: React.FC = () => {
   return (
     <IonPage>
       <IonHeader translucent>
-        <IonToolbar>
+        <IonToolbar className="vd-toolbar">
           <IonButtons slot="start">
             <IonBackButton defaultHref="/app/buscar" text="" />
           </IonButtons>
-          <IonTitle>{vacante.titulo}</IonTitle>
         </IonToolbar>
       </IonHeader>
 
       <IonContent>
-        {/* Empresa */}
-        <div className="vd-head">
-          <IonAvatar className="vd-logo">
+        {/* Hero */}
+        <div className="vd-hero">
+          <div className="vd-logo-ring">
             {vacante.empresa_logo_url
               ? <img src={vacante.empresa_logo_url} alt={vacante.empresa_nombre} />
-              : <div className="job-logo-fallback">{(vacante.empresa_nombre || 'E')[0]}</div>}
-          </IonAvatar>
+              : <span className="vd-logo-letter">{(vacante.empresa_nombre || 'E')[0].toUpperCase()}</span>}
+          </div>
           <h1 className="vd-titulo">{vacante.titulo}</h1>
           <div className="vd-empresa">
-            <IonIcon icon={businessOutline} /> {vacante.empresa_nombre}
-            {vacante.empresa_verificada === '1' && <IonIcon icon={checkmarkCircle} color="success" />}
+            <IonIcon icon={businessOutline} />
+            <span>{vacante.empresa_nombre}</span>
+            {Number(vacante.empresa_verificada) === 1 && (
+              <IonIcon icon={checkmarkCircle} className="vd-verified" />
+            )}
           </div>
           <div className="vd-badges">
-            <IonBadge color="primary">{vacante.modalidad}</IonBadge>
-            {vacante.categoria_nombre && <IonBadge color="medium">{vacante.categoria_nombre}</IonBadge>}
+            <span className="vd-badge vd-badge-primary">{vacante.modalidad}</span>
+            {vacante.categoria_nombre && <span className="vd-badge">{vacante.categoria_nombre}</span>}
+            {vacante.tipo_contrato_nombre && <span className="vd-badge">{vacante.tipo_contrato_nombre}</span>}
+            {Number(vacante.destacada) === 1 && <span className="vd-badge vd-badge-star">Destacada</span>}
           </div>
         </div>
 
-        {/* Meta rapida */}
-        <IonList inset className="vd-meta">
-          {(vacante.ciudad || vacante.region) && (
-            <IonItem lines="none">
-              <IonIcon icon={locationOutline} slot="start" color="medium" />
-              <span>{[vacante.ciudad, vacante.region].filter(Boolean).join(', ')}</span>
-            </IonItem>
-          )}
-          {(vacante.salario_min || vacante.salario_max) && (
-            <IonItem lines="none">
-              <IonIcon icon={cashOutline} slot="start" color="medium" />
-              <span>{vacante.salario_min} - {vacante.salario_max} {vacante.moneda}</span>
-            </IonItem>
-          )}
-          {vacante.anios_experiencia && (
-            <IonItem lines="none">
-              <IonIcon icon={briefcaseOutline} slot="start" color="medium" />
-              <span>{vacante.anios_experiencia} anos de experiencia</span>
-            </IonItem>
-          )}
-          {vacante.fecha_cierre && (
-            <IonItem lines="none">
-              <IonIcon icon={timeOutline} slot="start" color="medium" />
-              <span>Cierra: {new Date(vacante.fecha_cierre).toLocaleDateString()}</span>
-            </IonItem>
-          )}
-          {vacante.empresa_sitio_web && (
-            <IonItem href={vacante.empresa_sitio_web} target="_blank" detail lines="none">
-              <IonIcon icon={globeOutline} slot="start" color="medium" />
-              <span>{vacante.empresa_sitio_web}</span>
-            </IonItem>
-          )}
-        </IonList>
+        {/* Meta cards grid */}
+        {metaCards.length > 0 && (
+          <div className="vd-grid">
+            {metaCards.map((m, i) => (
+              <div className="vd-meta-card" key={i}>
+                <IonIcon icon={m.icon} />
+                <span className="vd-meta-label">{m.label}</span>
+                <span className="vd-meta-value">{m.value}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Descripcion */}
-        <div className="vd-seccion">
-          <h3>Descripcion</h3>
+        <section className="vd-seccion">
+          <h3 className="vd-seccion-title">Descripcion</h3>
           <p className="vd-texto">{vacante.descripcion}</p>
-        </div>
+        </section>
 
         {vacante.funciones && (
-          <div className="vd-seccion">
-            <h3>Funciones</h3>
+          <section className="vd-seccion">
+            <h3 className="vd-seccion-title">Funciones</h3>
             <p className="vd-texto">{vacante.funciones}</p>
-          </div>
+          </section>
         )}
 
         {vacante.requisitos?.length > 0 && (
-          <div className="vd-seccion">
-            <h3>Requisitos</h3>
-            <div className="vd-tags">
+          <section className="vd-seccion">
+            <h3 className="vd-seccion-title">Requisitos</h3>
+            <ul className="vd-reqs">
               {vacante.requisitos.map((r: any, i: number) => (
-                <IonBadge key={i} color="light" className="vd-tag">{r.nombre}</IonBadge>
+                <li key={i}>
+                  <IonIcon icon={checkmarkDoneOutline} />
+                  {r.nombre}
+                </li>
               ))}
-            </div>
-          </div>
+            </ul>
+          </section>
         )}
 
         {vacante.habilidades?.length > 0 && (
-          <div className="vd-seccion">
-            <h3>Habilidades</h3>
+          <section className="vd-seccion">
+            <h3 className="vd-seccion-title">Habilidades</h3>
             <div className="vd-tags">
               {vacante.habilidades.map((h: any, i: number) => (
-                <IonBadge key={i} color="tertiary" className="vd-tag">{h.nombre}</IonBadge>
+                <span key={i} className="vd-skill">{h.nombre}</span>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        <div style={{ height: 90 }} />
+        {/* Acerca de la empresa */}
+        {(vacante.empresa_sitio_web || vacante.empresa_nombre) && (
+          <section className="vd-seccion">
+            <h3 className="vd-seccion-title">Acerca de la empresa</h3>
+            <div className="vd-empresa-card">
+              <IonIcon icon={businessOutline} />
+              <div className="vd-empresa-card-text">
+                <strong>{vacante.empresa_nombre}</strong>
+                {vacante.empresa_sitio_web && (
+                  <a href={vacante.empresa_sitio_web} target="_blank" rel="noreferrer">
+                    <IonIcon icon={globeOutline} /> {vacante.empresa_sitio_web}
+                  </a>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        <div style={{ height: 110 }} />
       </IonContent>
 
       {/* CTA postularse - solo candidato */}
       {user?.role === 'candidato' && (
         <div className="vd-cta">
-          <IonButton
-            expand="block"
-            disabled={yaPostulado}
+          <button
+            className={`vd-apply ${yaPostulado ? 'done' : ''}`}
             onClick={yaPostulado
               ? () => presentAlert({ header: 'Ya postulado', message: 'Ya te postulaste a esta vacante', buttons: ['OK'] })
               : abrirPostular}
           >
-            <IonIcon icon={sendOutline} slot="start" />
-            {yaPostulado ? 'Ya te postulaste' : 'Postularme'}
-          </IonButton>
+            <IonIcon icon={yaPostulado ? checkmarkCircle : sendOutline} />
+            {yaPostulado ? 'Postulacion enviada' : 'Postularme ahora'}
+          </button>
         </div>
       )}
 
       {/* Modal postularse */}
-      <IonModal isOpen={modalPostular} onDidDismiss={() => setModalPostular(false)} initialBreakpoint={0.6} breakpoints={[0, 0.6, 0.9]}>
-        <IonHeader>
-          <IonToolbar>
-            <IonTitle>Postularme</IonTitle>
-            <IonButtons slot="end">
-              <IonButton onClick={() => setModalPostular(false)}>Cancelar</IonButton>
-            </IonButtons>
-          </IonToolbar>
-        </IonHeader>
-        <IonContent className="ion-padding">
-          <h4 style={{ marginTop: 0 }}>Elige tu CV</h4>
-          {cvs.length === 0 ? (
-            <p style={{ color: 'var(--ion-color-medium)' }}>
-              No tienes CVs subidos. Ve a Perfil para subir uno primero.
-            </p>
-          ) : (
-            <IonRadioGroup value={cvSel} onIonChange={e => setCvSel(e.detail.value)}>
-              <IonList>
+      <IonModal isOpen={modalPostular} onDidDismiss={() => setModalPostular(false)} initialBreakpoint={0.7} breakpoints={[0, 0.7, 0.95]} className="filtros-modal">
+        <IonContent>
+          <div className="fm-head">
+            <button className="fm-close" onClick={() => setModalPostular(false)} aria-label="Cerrar">
+              <IonIcon icon={closeOutline} />
+            </button>
+            <span className="fm-title">Postularme</span>
+            <span style={{ width: 52 }} />
+          </div>
+
+          <section className="fm-section">
+            <h4>Elige tu CV</h4>
+            {cvs.length === 0 ? (
+              <div className="vd-empty-cv">
+                <IonIcon icon={documentTextOutline} />
+                <p>No tienes CVs subidos.<br />Ve a Perfil para subir uno primero.</p>
+              </div>
+            ) : (
+              <div className="vd-cv-list">
                 {cvs.map(c => (
-                  <IonItem key={c.id} lines="full">
-                    <IonRadio value={c.id} slot="start" />
-                    <span>{c.archivo_nombre}{Number(c.es_principal) === 1 ? ' (principal)' : ''}</span>
-                  </IonItem>
+                  <button
+                    key={c.id}
+                    className={`vd-cv-item ${cvSel === c.id ? 'active' : ''}`}
+                    onClick={() => setCvSel(c.id)}
+                  >
+                    <IonIcon icon={documentTextOutline} />
+                    <span className="vd-cv-name">
+                      {c.archivo_nombre}
+                      {Number(c.es_principal) === 1 && <small>Principal</small>}
+                    </span>
+                    <span className={`fm-geo-dot ${cvSel === c.id ? 'on' : ''}`} />
+                  </button>
                 ))}
-              </IonList>
-            </IonRadioGroup>
-          )}
+              </div>
+            )}
+          </section>
 
-          <IonTextarea
-            label="Mensaje (opcional)"
-            labelPlacement="stacked"
-            placeholder="Presentate brevemente..."
-            rows={3}
-            value={mensaje}
-            onIonInput={e => setMensaje(e.detail.value ?? '')}
-            className="vd-mensaje"
-          />
+          <section className="fm-section">
+            <h4>Mensaje (opcional)</h4>
+            <div className="fm-field vd-msg-field">
+              <textarea
+                placeholder="Presentate brevemente a la empresa..."
+                rows={3}
+                value={mensaje}
+                onChange={e => setMensaje(e.target.value)}
+              />
+            </div>
+          </section>
 
-          <IonButton expand="block" onClick={postular} disabled={enviando || cvs.length === 0}>
-            {enviando ? <IonSpinner name="crescent" /> : 'Enviar postulacion'}
-          </IonButton>
+          <div style={{ height: 100 }} />
         </IonContent>
+
+        <div className="fm-footer">
+          <button className="fm-apply" onClick={postular} disabled={enviando || cvs.length === 0}>
+            {enviando ? <IonSpinner name="crescent" /> : 'Enviar postulacion'}
+          </button>
+        </div>
       </IonModal>
     </IonPage>
   );
