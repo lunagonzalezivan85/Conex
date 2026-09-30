@@ -75,8 +75,9 @@ const Login: React.FC = () => {
                   onIonInput={e => setPassword(e.detail.value ?? '')}
                   autocomplete="current-password"
                   required
-                />
-                <IonInputPasswordToggle slot="end" />
+                >
+                  <IonInputPasswordToggle slot="end" />
+                </IonInput>
               </IonItem>
 
               {error && (
