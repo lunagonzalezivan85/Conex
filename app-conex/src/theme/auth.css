@@ -15,7 +15,7 @@
   height: 72px;
   margin: 0 auto 16px;
   border-radius: 22px;
-  background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  background: linear-gradient(135deg, #1B2A4A, #2a3d63);
   color: #fff;
   font-size: 30px;
   font-weight: 800;
@@ -23,8 +23,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10px 24px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 10px 24px rgba(27, 42, 74, 0.35);
 }
+.auth-logo span { color: #0FC6C2; }
 
 .auth-title { font-size: 22px; font-weight: 800; margin: 0 0 4px; color: var(--ion-text-color); }
 .auth-sub { font-size: 14px; color: var(--ion-color-medium, #6b7280); margin: 0 0 28px; }
@@ -40,4 +41,10 @@
 .auth-item ion-icon { color: var(--ion-color-medium, #6b7280); margin-right: 6px; }
 
 .auth-error { display: block; margin: 4px 0 12px; }
-.auth-btn { --border-radius: 12px; height: 48px; font-weight: 600; }
+.auth-btn {
+  --border-radius: 14px;
+  height: 50px;
+  font-weight: 700;
+  --background: linear-gradient(135deg, #F97316, #FB923C);
+  --box-shadow: 0 6px 18px rgba(249, 115, 22, 0.35);
+}

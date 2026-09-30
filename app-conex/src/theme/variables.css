@@ -1,20 +1,28 @@
-/* CONEX - Paleta de marca + soporte tema claro/oscuro del dispositivo */
+/* CONEX - Paleta de marca + soporte tema claro/oscuro del dispositivo
+   Azul marino #1B2A4A | Naranja #F97316 | Turquesa #0FC6C2 */
 
 :root {
   /* Marca CONEX */
-  --ion-color-primary: #4361EE;
-  --ion-color-primary-rgb: 67, 97, 238;
+  --ion-color-primary: #1B2A4A;
+  --ion-color-primary-rgb: 27, 42, 74;
   --ion-color-primary-contrast: #ffffff;
   --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #3b56d1;
-  --ion-color-primary-tint: #5671f0;
+  --ion-color-primary-shade: #182541;
+  --ion-color-primary-tint: #324f86;
 
-  --ion-color-secondary: #3ABBF0;
-  --ion-color-secondary-rgb: 58, 187, 240;
+  --ion-color-secondary: #F97316;
+  --ion-color-secondary-rgb: 249, 115, 22;
   --ion-color-secondary-contrast: #ffffff;
   --ion-color-secondary-contrast-rgb: 255, 255, 255;
-  --ion-color-secondary-shade: #33a5d3;
-  --ion-color-secondary-tint: #4ec2f2;
+  --ion-color-secondary-shade: #db6614;
+  --ion-color-secondary-tint: #fa8a2f;
+
+  --ion-color-tertiary: #0FC6C2;
+  --ion-color-tertiary-rgb: 15, 198, 194;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #0db0ac;
+  --ion-color-tertiary-tint: #27cbc8;
 
   --ion-color-success: #2DC978;
   --ion-color-success-rgb: 45, 201, 120;
@@ -28,6 +36,16 @@
   --ion-color-danger-shade: #d23c3c;
   --ion-color-danger-tint: #f15757;
 
+  /* Colores de marca accesibles como vars */
+  --cx-navy: #1B2A4A;
+  --cx-orange: #F97316;
+  --cx-turq: #0FC6C2;
+  --cx-grad: linear-gradient(135deg, #1B2A4A, #0FC6C2);
+  --cx-grad-cta: linear-gradient(135deg, #F97316, #FB923C);
+  --cx-surface: rgba(27, 42, 74, 0.04);
+  --cx-border: rgba(27, 42, 74, 0.12);
+  --cx-muted: #8a92a6;
+
   /* Tipografia y superficies */
   --ion-font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
@@ -35,33 +53,54 @@
 /* ============ TEMA OSCURO (sigue al dispositivo) ============ */
 @media (prefers-color-scheme: dark) {
   :root {
-    --ion-color-primary: #6B84FF;
-    --ion-color-primary-rgb: 107, 132, 255;
-    --ion-color-primary-contrast: #ffffff;
-    --ion-color-primary-contrast-rgb: 255, 255, 255;
-    --ion-color-primary-shade: #5e74e0;
-    --ion-color-primary-tint: #7a91ff;
+    --ion-color-primary: #4A6DB8;
+    --ion-color-primary-rgb: 74, 109, 184;
+    --ion-color-primary-shade: #4161a2;
+    --ion-color-primary-tint: #5c7bbc;
 
-    --ion-background-color: #0f1115;
-    --ion-background-color-rgb: 15, 17, 21;
+    --ion-background-color: #0d1526;
+    --ion-background-color-rgb: 13, 21, 38;
     --ion-text-color: #f3f4f6;
     --ion-text-color-rgb: 243, 244, 246;
 
-    --ion-item-background: #171a21;
-    --ion-card-background: #171a21;
-    --ion-toolbar-background: #14171d;
+    --ion-item-background: #16202f;
+    --ion-card-background: #16202f;
+    --ion-toolbar-background: #0d1526;
 
-    --ion-border-color: #2a2f3a;
+    --ion-border-color: #263350;
+
+    --cx-surface: rgba(255, 255, 255, 0.05);
+    --cx-border: rgba(255, 255, 255, 0.1);
+    --cx-muted: #7d8699;
+    --cx-grad: linear-gradient(135deg, #2a3d63, #0FC6C2);
   }
 }
 
-/* Card suave en ambos temas */
+/* ============ One UI: headers flat sin sombra ============ */
+ion-header {
+  box-shadow: none !important;
+}
+ion-toolbar {
+  --border-width: 0 !important;
+}
+ion-header ion-toolbar:first-of-type {
+  padding-top: 4px;
+}
+ion-title {
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+/* Card suave bento en ambos temas */
 ion-card {
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+  border-radius: 20px;
+  box-shadow: none;
+  border: 1px solid var(--cx-border);
+  background: var(--ion-card-background);
+  margin: 0;
 }
 @media (prefers-color-scheme: dark) {
   ion-card {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    border-color: var(--cx-border);
   }
 }

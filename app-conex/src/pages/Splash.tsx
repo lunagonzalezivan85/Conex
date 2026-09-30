@@ -43,7 +43,7 @@ const Splash: React.FC = () => {
       <IonContent scrollY={false}>
         <div className="splash-wrap">
           <div className="splash-glow" />
-          <div className="splash-logo">Cx</div>
+          <div className="splash-logo">C<span>x</span></div>
           <div className="splash-word" aria-label="CONEX">
             {'CONEX'.split('').map((l, i) => (
               <span key={i}>{l}</span>

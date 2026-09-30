@@ -1,6 +1,6 @@
 /* ============================================
    Buscar - sistema de marca CONEX
-   Primario #4361EE / Secundario #3ABBF0
+   Primario #1B2A4A / Secundario #0FC6C2
    ============================================ */
 
 .buscar-toolbar {
@@ -9,26 +9,36 @@
 }
 
 .buscar-searchbar {
-  --border-radius: 14px;
+  --border-radius: 16px;
   --box-shadow: none;
-  --icon-color: #4361EE;
-  --placeholder-color: #9aa0a6;
-  padding-top: 6px;
-  padding-bottom: 6px;
-  height: 48px;
+  --background: var(--cx-surface);
+  --icon-color: var(--cx-turq);
+  --color: var(--ion-text-color);
+  --placeholder-color: var(--cx-muted);
+  --cancel-button-color: var(--cx-orange);
+  --clear-button-color: var(--cx-muted);
+  padding-top: 4px;
+  padding-bottom: 4px;
+  height: 52px;
+  border: 1.5px solid var(--cx-border);
+  border-radius: 16px;
+}
+.buscar-searchbar:focus-within {
+  border-color: var(--cx-turq);
+  --background: transparent;
 }
 
 /* Boton de filtros con gradiente de marca + badge */
 .buscar-filter-btn {
   position: relative;
-  --background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  --background: linear-gradient(135deg, #F97316, #FB923C);
   --border-radius: 14px;
   --padding-start: 0;
   --padding-end: 0;
   width: 44px;
   height: 44px;
   margin: 0 4px 0 0;
-  box-shadow: 0 4px 14px rgba(67, 97, 238, 0.35);
+  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
 }
 .buscar-filter-btn ion-icon { color: #fff; font-size: 20px; }
 .filter-badge {
@@ -38,7 +48,7 @@
   min-width: 18px;
   height: 18px;
   border-radius: 9px;
-  background: #ff4d6d;
+  background: #F97316;
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -79,10 +89,10 @@
 .filter-pill ion-icon { font-size: 16px; }
 .filter-pill:active { transform: scale(0.96); }
 .filter-pill.active {
-  background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  background: linear-gradient(135deg, #1B2A4A, #0FC6C2);
   border-color: transparent;
   color: #fff;
-  box-shadow: 0 3px 10px rgba(67, 97, 238, 0.3);
+  box-shadow: 0 3px 10px rgba(27, 42, 74, 0.3);
 }
 
 .filter-count {
@@ -99,7 +109,7 @@
   padding: 60px 24px;
   color: var(--ion-color-medium, #6b7280);
 }
-.buscar-empty ion-icon { font-size: 56px; opacity: 0.35; margin-bottom: 12px; color: #4361EE; }
+.buscar-empty ion-icon { font-size: 56px; opacity: 0.35; margin-bottom: 12px; color: #1B2A4A; }
 .buscar-empty p { font-size: 15px; margin: 0 0 8px; }
 
 /* ---------- Modal de filtros ---------- */
@@ -140,7 +150,7 @@
   font-family: inherit;
   font-size: 14px;
   font-weight: 600;
-  color: #4361EE;
+  color: #1B2A4A;
   padding: 8px;
 }
 
@@ -168,10 +178,10 @@
 }
 .fm-pill:active { transform: scale(0.96); }
 .fm-pill.active {
-  background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  background: linear-gradient(135deg, #1B2A4A, #0FC6C2);
   border-color: transparent;
   color: #fff;
-  box-shadow: 0 3px 12px rgba(67, 97, 238, 0.35);
+  box-shadow: 0 3px 12px rgba(27, 42, 74, 0.35);
 }
 
 /* Card de geo */
@@ -188,13 +198,13 @@
   text-align: left;
   transition: all 0.2s ease;
 }
-.fm-geo ion-icon { font-size: 22px; color: #4361EE; flex-shrink: 0; }
+.fm-geo ion-icon { font-size: 22px; color: #1B2A4A; flex-shrink: 0; }
 .fm-geo-text { flex: 1; display: flex; flex-direction: column; }
 .fm-geo-text strong { font-size: 14px; color: var(--ion-text-color); font-weight: 600; }
 .fm-geo-text small { font-size: 12px; color: #9aa0a6; }
 .fm-geo.active {
-  border-color: #4361EE;
-  background: rgba(67, 97, 238, 0.06);
+  border-color: #1B2A4A;
+  background: rgba(27, 42, 74, 0.06);
 }
 .fm-geo-dot {
   width: 22px;
@@ -205,17 +215,17 @@
   transition: all 0.2s ease;
 }
 .fm-geo-dot.on {
-  border-color: #4361EE;
-  background: radial-gradient(circle, #3ABBF0 0 40%, #4361EE 45% 100%);
+  border-color: #1B2A4A;
+  background: radial-gradient(circle, #0FC6C2 0 40%, #1B2A4A 45% 100%);
 }
 
 .fm-radio { margin-top: 4px; padding: 4px 4px 0; }
 .fm-radio-label { font-size: 13px; color: var(--ion-text-color); }
-.fm-radio-label strong { color: #4361EE; }
+.fm-radio-label strong { color: #1B2A4A; }
 .fm-range {
   --bar-background: rgba(128, 128, 128, 0.2);
-  --bar-background-active: linear-gradient(90deg, #4361EE, #3ABBF0);
-  --knob-background: #4361EE;
+  --bar-background-active: linear-gradient(90deg, #1B2A4A, #0FC6C2);
+  --knob-background: #1B2A4A;
   --knob-size: 26px;
   padding-top: 4px;
 }
@@ -232,7 +242,7 @@
   background: rgba(128, 128, 128, 0.06);
   height: 46px;
 }
-.fm-field ion-icon { color: #4361EE; font-size: 18px; }
+.fm-field ion-icon { color: #1B2A4A; font-size: 18px; }
 .fm-field input {
   flex: 1;
   border: none;
@@ -244,8 +254,8 @@
 }
 .fm-field input::placeholder { color: #9aa0a6; }
 .fm-field:focus-within {
-  border-color: #4361EE;
-  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.12);
+  border-color: #1B2A4A;
+  box-shadow: 0 0 0 3px rgba(27, 42, 74, 0.12);
 }
 
 /* Footer del modal */
@@ -263,13 +273,13 @@
   height: 50px;
   border: none;
   border-radius: 14px;
-  background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  background: linear-gradient(135deg, #F97316, #FB923C);
   color: #fff;
   font-family: inherit;
   font-size: 15px;
   font-weight: 700;
   letter-spacing: 0.01em;
-  box-shadow: 0 6px 18px rgba(67, 97, 238, 0.4);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.4);
   transition: transform 0.15s ease;
 }
 .fm-apply:active { transform: scale(0.98); }
@@ -282,7 +292,7 @@
   text-align: center;
   padding: 24px 20px 18px;
   background:
-    radial-gradient(180% 120% at 50% 0%, rgba(67, 97, 238, 0.12), transparent 60%);
+    radial-gradient(180% 120% at 50% 0%, rgba(27, 42, 74, 0.12), transparent 60%);
 }
 .vd-logo-ring {
   width: 84px;
@@ -290,8 +300,8 @@
   margin: 0 auto 14px;
   border-radius: 26px;
   padding: 3px;
-  background: linear-gradient(135deg, #4361EE, #3ABBF0);
-  box-shadow: 0 8px 24px rgba(67, 97, 238, 0.35);
+  background: linear-gradient(135deg, #1B2A4A, #0FC6C2);
+  box-shadow: 0 8px 24px rgba(27, 42, 74, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -306,7 +316,7 @@
   width: 100%; height: 100%;
   border-radius: 23px;
   background: #fff;
-  color: #4361EE;
+  color: #1B2A4A;
   font-size: 34px;
   font-weight: 800;
   display: flex; align-items: center; justify-content: center;
@@ -334,7 +344,7 @@
   color: var(--ion-text-color);
 }
 .vd-badge-primary {
-  background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  background: linear-gradient(135deg, #1B2A4A, #0FC6C2);
   color: #fff;
 }
 .vd-badge-star {
@@ -357,7 +367,7 @@
   flex-direction: column;
   gap: 3px;
 }
-.vd-meta-card ion-icon { font-size: 20px; color: #4361EE; margin-bottom: 2px; }
+.vd-meta-card ion-icon { font-size: 20px; color: #1B2A4A; margin-bottom: 2px; }
 .vd-meta-label {
   font-size: 11px;
   font-weight: 600;
@@ -377,7 +387,7 @@
   color: #9aa0a6;
   margin: 0 0 10px;
   padding-left: 10px;
-  border-left: 3px solid #4361EE;
+  border-left: 3px solid #1B2A4A;
 }
 .vd-texto {
   font-size: 14px;
@@ -406,9 +416,9 @@
   border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
-  background: rgba(67, 97, 238, 0.1);
-  color: #4361EE;
-  border: 1px solid rgba(67, 97, 238, 0.25);
+  background: rgba(27, 42, 74, 0.1);
+  color: #1B2A4A;
+  border: 1px solid rgba(27, 42, 74, 0.25);
 }
 
 /* Card empresa */
@@ -418,11 +428,11 @@
   border-radius: 16px;
   border: 1.5px solid rgba(128, 128, 128, 0.18);
 }
-.vd-empresa-card > ion-icon { font-size: 24px; color: #4361EE; }
+.vd-empresa-card > ion-icon { font-size: 24px; color: #1B2A4A; }
 .vd-empresa-card-text { display: flex; flex-direction: column; gap: 2px; }
 .vd-empresa-card-text strong { font-size: 15px; color: var(--ion-text-color); }
 .vd-empresa-card-text a {
-  font-size: 13px; color: #3ABBF0; text-decoration: none;
+  font-size: 13px; color: #0FC6C2; text-decoration: none;
   display: inline-flex; align-items: center; gap: 5px;
 }
 
@@ -432,11 +442,11 @@
   height: 38px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  background: linear-gradient(135deg, #F97316, #FB923C);
   color: #fff;
   font-size: 18px;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 12px rgba(67, 97, 238, 0.35);
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.4);
   margin-right: 4px;
 }
 .vd-header-btn.done {
@@ -451,13 +461,13 @@
   height: 52px;
   border: none;
   border-radius: 14px;
-  background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  background: linear-gradient(135deg, #F97316, #FB923C);
   color: #fff;
   font-family: inherit;
   font-size: 15px;
   font-weight: 700;
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: 0 6px 18px rgba(67, 97, 238, 0.4);
+  box-shadow: 0 6px 18px rgba(249, 115, 22, 0.4);
   transition: transform 0.15s ease;
 }
 .vd-apply:active { transform: scale(0.98); }
@@ -478,10 +488,10 @@
   text-align: left;
   transition: all 0.2s ease;
 }
-.vd-cv-item > ion-icon { font-size: 22px; color: #4361EE; flex-shrink: 0; }
+.vd-cv-item > ion-icon { font-size: 22px; color: #1B2A4A; flex-shrink: 0; }
 .vd-cv-item.active {
-  border-color: #4361EE;
-  background: rgba(67, 97, 238, 0.06);
+  border-color: #1B2A4A;
+  background: rgba(27, 42, 74, 0.06);
 }
 .vd-cv-name {
   flex: 1;
