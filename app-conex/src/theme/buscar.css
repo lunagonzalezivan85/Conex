@@ -1,0 +1,52 @@
+/* Buscar - chips de filtros, empty state */
+.buscar-searchbar {
+  --border-radius: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.buscar-chips {
+  display: flex;
+  gap: 4px;
+  padding: 4px 12px 8px;
+  overflow-x: auto;
+  flex-wrap: nowrap;
+}
+.buscar-chips ion-chip { flex-shrink: 0; height: 30px; font-size: 12px; }
+.buscar-chips ion-icon { font-size: 15px; }
+
+.buscar-empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--ion-color-medium, #6b7280);
+}
+.buscar-empty ion-icon { font-size: 56px; opacity: 0.4; margin-bottom: 12px; }
+.buscar-empty p { font-size: 15px; margin: 0 0 8px; }
+
+/* ---------- Vacante detalle ---------- */
+.vd-head { text-align: center; padding: 20px 16px 8px; }
+.vd-logo { width: 72px; height: 72px; margin: 0 auto 12px; --border-radius: 18px; }
+.vd-titulo { font-size: 22px; font-weight: 800; margin: 0 0 4px; color: var(--ion-text-color); }
+.vd-empresa {
+  font-size: 14px; color: var(--ion-color-medium, #6b7280);
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.vd-badges { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+
+.vd-meta { margin-top: 12px; }
+.vd-meta ion-item { --padding-top: 4px; --padding-bottom: 4px; }
+
+.vd-seccion { padding: 8px 20px 0; }
+.vd-seccion h3 { font-size: 16px; font-weight: 700; margin: 8px 0 6px; color: var(--ion-text-color); }
+.vd-texto { font-size: 14px; line-height: 1.6; color: var(--ion-text-color); opacity: 0.85; margin: 0; white-space: pre-line; }
+.vd-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.vd-tag { padding: 5px 10px; font-size: 12px; font-weight: 500; }
+
+.vd-cta {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: var(--ion-background-color);
+  border-top: 1px solid var(--ion-color-light, #e5e7eb);
+  z-index: 10;
+}
+.vd-mensaje { margin-top: 12px; --border-radius: 12px; }

@@ -5,13 +5,15 @@ import {
   IonTabBar, IonTabButton, IonTabs, setupIonicReact,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeOutline, personOutline } from 'ionicons/icons';
+import { homeOutline, personOutline, searchOutline } from 'ionicons/icons';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Splash from './pages/Splash';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Perfil from './pages/Perfil';
+import Buscar from './pages/Buscar';
+import VacanteDetalle from './pages/VacanteDetalle';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -31,6 +33,8 @@ const AppTabs: React.FC = () => (
   <IonTabs>
     <IonRouterOutlet>
       <Route exact path="/app/dashboard" component={Dashboard} />
+      <Route exact path="/app/buscar" component={Buscar} />
+      <Route exact path="/app/vacante/:slug" component={VacanteDetalle} />
       <Route exact path="/app/perfil" component={Perfil} />
       <Route exact path="/app" render={() => <Redirect to="/app/dashboard" />} />
     </IonRouterOutlet>
@@ -39,6 +43,10 @@ const AppTabs: React.FC = () => (
       <IonTabButton tab="dashboard" href="/app/dashboard">
         <IonIcon icon={homeOutline} />
         <IonLabel>Inicio</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab="buscar" href="/app/buscar">
+        <IonIcon icon={searchOutline} />
+        <IonLabel>Buscar</IonLabel>
       </IonTabButton>
       <IonTabButton tab="perfil" href="/app/perfil">
         <IonIcon icon={personOutline} />
