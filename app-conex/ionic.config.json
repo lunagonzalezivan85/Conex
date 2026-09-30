@@ -1,0 +1,7 @@
+{
+  "name": "app-conex",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}

@@ -1,0 +1,105 @@
+/* Splash CONEX - animacion de entrada
+   El fondo usa --ion-background-color que ya cambia
+   automaticamente con prefers-color-scheme del dispositivo. */
+
+.splash-wrap {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--ion-background-color);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Resplandor de fondo */
+.splash-glow {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(67, 97, 238, 0.16) 0%, transparent 70%);
+  animation: splashGlow 2.4s ease-in-out infinite;
+}
+
+@keyframes splashGlow {
+  0%, 100% { transform: scale(0.9); opacity: 0.7; }
+  50%      { transform: scale(1.12); opacity: 1; }
+}
+
+/* Logo: circulo con C */
+.splash-logo {
+  width: 96px;
+  height: 96px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #4361EE 0%, #3ABBF0 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 52px;
+  font-weight: 800;
+  box-shadow: 0 12px 32px rgba(67, 97, 238, 0.35);
+  animation: splashZoom 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes splashZoom {
+  from { transform: scale(0.4); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* Texto CONEX letra por letra */
+.splash-word {
+  margin-top: 20px;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: 0.35em;
+  color: var(--ion-text-color);
+  display: flex;
+}
+.splash-word span {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: splashLetter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.splash-word span:nth-child(1) { animation-delay: 0.35s; }
+.splash-word span:nth-child(2) { animation-delay: 0.45s; }
+.splash-word span:nth-child(3) { animation-delay: 0.55s; }
+.splash-word span:nth-child(4) { animation-delay: 0.65s; }
+.splash-word span:nth-child(5) { animation-delay: 0.75s; }
+
+@keyframes splashLetter {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tagline */
+.splash-tag {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ion-color-medium, #6b7280);
+  opacity: 0;
+  animation: splashFade 0.6s ease 0.9s forwards;
+}
+@keyframes splashFade { to { opacity: 1; } }
+
+/* Barra de progreso */
+.splash-bar {
+  position: absolute;
+  bottom: 64px;
+  width: 180px;
+  height: 4px;
+  border-radius: 4px;
+  background: rgba(67, 97, 238, 0.15);
+  overflow: hidden;
+}
+.splash-bar-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #4361EE, #3ABBF0);
+  animation: splashProgress 1.8s ease-in-out 0.3s forwards;
+}
+@keyframes splashProgress {
+  to { width: 100%; }
+}

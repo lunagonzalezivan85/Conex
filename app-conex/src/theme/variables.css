@@ -1,0 +1,67 @@
+/* CONEX - Paleta de marca + soporte tema claro/oscuro del dispositivo */
+
+:root {
+  /* Marca CONEX */
+  --ion-color-primary: #4361EE;
+  --ion-color-primary-rgb: 67, 97, 238;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3b56d1;
+  --ion-color-primary-tint: #5671f0;
+
+  --ion-color-secondary: #3ABBF0;
+  --ion-color-secondary-rgb: 58, 187, 240;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #33a5d3;
+  --ion-color-secondary-tint: #4ec2f2;
+
+  --ion-color-success: #2DC978;
+  --ion-color-success-rgb: 45, 201, 120;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-shade: #28b16a;
+  --ion-color-success-tint: #42ce86;
+
+  --ion-color-danger: #EF4444;
+  --ion-color-danger-rgb: 239, 68, 68;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-shade: #d23c3c;
+  --ion-color-danger-tint: #f15757;
+
+  /* Tipografia y superficies */
+  --ion-font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ============ TEMA OSCURO (sigue al dispositivo) ============ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ion-color-primary: #6B84FF;
+    --ion-color-primary-rgb: 107, 132, 255;
+    --ion-color-primary-contrast: #ffffff;
+    --ion-color-primary-contrast-rgb: 255, 255, 255;
+    --ion-color-primary-shade: #5e74e0;
+    --ion-color-primary-tint: #7a91ff;
+
+    --ion-background-color: #0f1115;
+    --ion-background-color-rgb: 15, 17, 21;
+    --ion-text-color: #f3f4f6;
+    --ion-text-color-rgb: 243, 244, 246;
+
+    --ion-item-background: #171a21;
+    --ion-card-background: #171a21;
+    --ion-toolbar-background: #14171d;
+
+    --ion-border-color: #2a2f3a;
+  }
+}
+
+/* Card suave en ambos temas */
+ion-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+}
+@media (prefers-color-scheme: dark) {
+  ion-card {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+}

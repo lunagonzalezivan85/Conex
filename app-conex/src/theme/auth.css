@@ -1,0 +1,42 @@
+/* Pantalla de login */
+.auth-wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--ion-background-color);
+}
+
+.auth-card { width: 100%; max-width: 380px; text-align: center; }
+
+.auth-logo {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #4361EE, #3ABBF0);
+  color: #fff;
+  font-size: 38px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(67, 97, 238, 0.3);
+}
+
+.auth-title { font-size: 22px; font-weight: 800; margin: 0 0 4px; color: var(--ion-text-color); }
+.auth-sub { font-size: 14px; color: var(--ion-color-medium, #6b7280); margin: 0 0 28px; }
+
+.auth-form { text-align: left; }
+.auth-item {
+  --background: var(--ion-card-background, #fff);
+  --border-radius: 12px;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  border: 1px solid var(--ion-border-color, #e5e7eb);
+}
+.auth-item ion-icon { color: var(--ion-color-medium, #6b7280); margin-right: 6px; }
+
+.auth-error { display: block; margin: 4px 0 12px; }
+.auth-btn { --border-radius: 12px; height: 48px; font-weight: 600; }
