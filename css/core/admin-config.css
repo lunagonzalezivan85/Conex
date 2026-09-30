@@ -1,0 +1,54 @@
+/* Admin - Configuracion */
+
+/* Tabs */
+.cfg-tabs {
+    display: flex; gap: 8px; margin-bottom: 24px;
+    border-bottom: 2px solid var(--border, #e5e7eb); padding-bottom: 0;
+}
+.cfg-tab {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; font-size: 14px; font-weight: 500;
+    color: var(--text-secondary, #6b7280); text-decoration: none;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+    border-radius: 8px 8px 0 0;
+    transition: color 0.15s, background 0.15s;
+}
+.cfg-tab svg { width: 16px; height: 16px; }
+.cfg-tab:hover { color: var(--text-primary, #111827); background: var(--accent-light, #eef2ff); }
+.cfg-tab.active {
+    color: var(--accent, #4361EE); font-weight: 600;
+    border-bottom-color: var(--accent, #4361EE);
+}
+
+/* Grids de formulario */
+.cfg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.cfg-grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+/* Lista de modelos IA */
+.cfg-ia-list { display: flex; flex-direction: column; gap: 12px; }
+.cfg-ia-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 14px 16px; border: 1px solid var(--border, #e5e7eb);
+    border-radius: 12px; background: var(--card-bg, #fff);
+}
+.cfg-ia-item.inactivo { opacity: 0.55; }
+.cfg-ia-info { flex: 1; min-width: 0; }
+.cfg-ia-nombre { font-size: 15px; font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+.cfg-ia-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.cfg-ia-tag {
+    font-size: 11px; padding: 3px 10px; border-radius: 10px;
+    background: #e0e7ff; color: #4361EE; font-weight: 600;
+}
+.cfg-ia-tag-prop { background: #fef3c7; color: #d97706; }
+.cfg-ia-tag-off { background: #f3f4f6; color: #6b7280; }
+.cfg-ia-modelo { font-size: 12px; color: var(--text-secondary, #6b7280); font-family: monospace; }
+.cfg-ia-url { font-size: 12px; color: var(--text-muted, #9ca3af); word-break: break-all; }
+.cfg-ia-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.cfg-btn-danger { color: #dc2626; }
+.cfg-btn-danger:hover { background: #fee2e2; }
+
+@media (max-width: 768px) {
+    .cfg-grid, .cfg-grid-3 { grid-template-columns: 1fr; }
+    .cfg-ia-item { flex-direction: column; align-items: flex-start; }
+    .cfg-ia-actions { width: 100%; }
+}

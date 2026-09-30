@@ -6,6 +6,8 @@ use App\Models\UserModel;
 use App\Models\DocumentoPostulacionModel;
 use App\Models\VerificacionProcesoModel;
 use App\Models\EntrevistaEvaluacionModel;
+use App\Models\ConfiguracionModel;
+use App\Models\IaModeloModel;
 
 class AdminController extends BaseController
 {
@@ -870,6 +872,139 @@ class AdminController extends BaseController
             'activeSection' => 'info',
             'css' => [],
         ]);
+    }
+
+    public function config()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('login');
+        }
+
+        $userModel = new UserModel();
+        $roleSlug = $userModel->getRoleSlug(session()->get('role_id'));
+
+        if ($roleSlug !== 'admin') {
+            return redirect()->to('admin')->with('error', 'No tienes acceso a esta seccion.');
+        }
+
+        $configModel = new ConfiguracionModel();
+        $iaModeloModel = new IaModeloModel();
+
+        $config = $configModel->getAll();
+        $modelosIa = $iaModeloModel->orderBy('id', 'DESC')->findAll();
+        $tab = $this->request->getGet('tab') ?: 'empresa';
+
+        $modeloEditar = null;
+        $editarId = (int)$this->request->getGet('editar');
+        if ($editarId) {
+            $modeloEditar = $iaModeloModel->find($editarId);
+            if ($modeloEditar) {
+                $tab = 'ia';
+            }
+        }
+
+        $sidebarSections = $this->getSidebarSections($roleSlug);
+
+        $content = view('admin/config', [
+            'config' => $config,
+            'modelosIa' => $modelosIa,
+            'propositos' => IaModeloModel::PROPOSITOS,
+            'tab' => $tab,
+            'modeloEditar' => $modeloEditar,
+        ]);
+
+        return view('layouts/panel', [
+            'content' => $content,
+            'title' => 'Configuracion',
+            'pageTitle' => 'Configuracion',
+            'roleSlug' => $roleSlug,
+            'sidebarSections' => $sidebarSections,
+            'activeSection' => 'config',
+            'css' => ['admin-config.css'],
+        ]);
+    }
+
+    public function guardarConfigEmpresa()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('login');
+        }
+
+        $userModel = new UserModel();
+        $roleSlug = $userModel->getRoleSlug(session()->get('role_id'));
+        if ($roleSlug !== 'admin') {
+            return redirect()->to('admin')->with('error', 'No tienes acceso a esta seccion.');
+        }
+
+        $configModel = new ConfiguracionModel();
+
+        $campos = [
+            'empresa_nombre', 'empresa_ruc', 'empresa_telefono', 'empresa_email',
+            'empresa_direccion', 'empresa_ciudad', 'empresa_region', 'empresa_sitio_web',
+            'empresa_facebook', 'empresa_instagram', 'empresa_linkedin',
+        ];
+
+        foreach ($campos as $campo) {
+            $configModel->setValor($campo, $this->request->getPost($campo));
+        }
+
+        return redirect()->to('admin/config?tab=empresa')->with('info', 'Informacion de la empresa actualizada.');
+    }
+
+    public function guardarIaModelo()
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('login');
+        }
+
+        $userModel = new UserModel();
+        $roleSlug = $userModel->getRoleSlug(session()->get('role_id'));
+        if ($roleSlug !== 'admin') {
+            return redirect()->to('admin')->with('error', 'No tienes acceso a esta seccion.');
+        }
+
+        $iaModeloModel = new IaModeloModel();
+        $id = (int)$this->request->getPost('id');
+
+        $data = [
+            'nombre'    => $this->request->getPost('nombre'),
+            'proveedor' => $this->request->getPost('proveedor'),
+            'url'       => $this->request->getPost('url'),
+            'modelo'    => $this->request->getPost('modelo'),
+            'api_key'   => $this->request->getPost('api_key'),
+            'proposito' => $this->request->getPost('proposito') ?: 'general',
+            'activo'    => $this->request->getPost('activo') ? 1 : 0,
+        ];
+
+        if ($id) {
+            // Si el api_key viene vacio al editar, conservar el actual
+            if (empty($data['api_key'])) {
+                unset($data['api_key']);
+            }
+            $iaModeloModel->update($id, $data);
+        } else {
+            $iaModeloModel->insert($data);
+        }
+
+        return redirect()->to('admin/config?tab=ia')->with('info', 'Modelo IA guardado correctamente.');
+    }
+
+    public function eliminarIaModelo($id)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('login');
+        }
+
+        $userModel = new UserModel();
+        $roleSlug = $userModel->getRoleSlug(session()->get('role_id'));
+        if ($roleSlug !== 'admin') {
+            return redirect()->to('admin')->with('error', 'No tienes acceso a esta seccion.');
+        }
+
+        $iaModeloModel = new IaModeloModel();
+        $iaModeloModel->delete((int)$id);
+
+        return redirect()->to('admin/config?tab=ia')->with('info', 'Modelo IA eliminado.');
     }
 
     private function calcularEvaluacionAutomatica(?array $vacante, ?array $candidato, array $postulacion): array

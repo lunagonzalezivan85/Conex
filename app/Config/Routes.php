@@ -81,6 +81,10 @@ $routes->post('/admin/proceso/presentar', 'AdminController::asignarPresentacion'
 $routes->post('/admin/documentos/subir', 'AdminController::subirDocumento');
 $routes->post('/admin/documentos/verificar/(:num)', 'AdminController::verificarDocumento/$1');
 $routes->get('/admin/info', 'AdminController::info');
+$routes->get('/admin/config', 'AdminController::config');
+$routes->post('/admin/config/empresa', 'AdminController::guardarConfigEmpresa');
+$routes->post('/admin/config/ia', 'AdminController::guardarIaModelo');
+$routes->get('/admin/config/ia/eliminar/(:num)', 'AdminController::eliminarIaModelo/$1');
 $routes->get('/admin/noticias', 'NoticiaController::adminListar');
 $routes->get('/admin/noticias/crear', 'NoticiaController::adminCrear');
 $routes->post('/admin/noticias/guardar', 'NoticiaController::adminGuardar');
