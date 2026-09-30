@@ -104,3 +104,11 @@
 @keyframes splashProgress {
   to { width: 100%; }
 }
+
+/* Boton de fallback si el arranque tarda demasiado */
+.splash-retry {
+  position: absolute;
+  bottom: 56px;
+  --border-radius: 12px;
+  animation: splashFade 0.4s ease forwards;
+}

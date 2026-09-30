@@ -64,7 +64,24 @@ export async function api<T = any>(
     payload = JSON.stringify(body);
   }
 
-  const res = await fetch(`${API_URL}${path}`, { method, headers, body: payload });
+  // Timeout: ninguna request puede quedar colgada (ej. splash)
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 15000);
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method, headers, body: payload, signal: ctrl.signal,
+    });
+  } catch (e: any) {
+    clearTimeout(timer);
+    throw {
+      error: e?.name === 'AbortError' ? 'Tiempo de espera agotado' : 'Error de conexion',
+      status: 0,
+    } as ApiError;
+  } finally {
+    clearTimeout(timer);
+  }
 
   let json: any = null;
   try {
