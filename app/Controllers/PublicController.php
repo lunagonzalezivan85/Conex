@@ -38,6 +38,10 @@ class PublicController extends BaseController
         $modalidad = $this->request->getGet('modalidad');
         $tipoContrato = $this->request->getGet('tipo_contrato');
         $ciudad = $this->request->getGet('ciudad');
+        $orden = $this->request->getGet('orden') ?: 'reciente';
+        $lat = $this->request->getGet('lat');
+        $lng = $this->request->getGet('lng');
+        $radio = (float)($this->request->getGet('radio') ?: 50);
 
         $builder = $vacanteModel->where('vac_vacante.estado', 'publicada');
 
@@ -57,7 +61,42 @@ class PublicController extends BaseController
             $builder->like('vac_vacante.ciudad', $ciudad);
         }
 
-        $vacantes = $builder->orderBy('vac_vacante.fecha_publicacion', 'DESC')->paginate(12);
+        // Filtro por geolocalizacion (Haversine, radio en km)
+        $geoActivo = is_numeric($lat) && is_numeric($lng);
+        if ($geoActivo) {
+            $lat = (float)$lat;
+            $lng = (float)$lng;
+            $radio = max(1, min(500, $radio));
+            $builder->where('vac_vacante.latitud IS NOT NULL')
+                ->where('vac_vacante.longitud IS NOT NULL')
+                ->where(
+                    "6371 * acos(LEAST(1, cos(radians({$lat})) * cos(radians(vac_vacante.latitud)) * cos(radians(vac_vacante.longitud) - radians({$lng})) + sin(radians({$lat})) * sin(radians(vac_vacante.latitud)))) <=",
+                    $radio,
+                    true
+                );
+            $builder->select("vac_vacante.*, 6371 * acos(LEAST(1, cos(radians({$lat})) * cos(radians(vac_vacante.latitud)) * cos(radians(vac_vacante.longitud) - radians({$lng})) + sin(radians({$lat})) * sin(radians(vac_vacante.latitud)))) AS distancia_km");
+        }
+
+        // Ordenamiento
+        switch ($orden) {
+            case 'antigua':
+                $builder->orderBy('vac_vacante.fecha_publicacion', 'ASC');
+                break;
+            case 'salario':
+                $builder->orderBy('vac_vacante.salario_max', 'DESC');
+                break;
+            case 'distancia':
+                if ($geoActivo) {
+                    $builder->orderBy('distancia_km', 'ASC');
+                } else {
+                    $builder->orderBy('vac_vacante.fecha_publicacion', 'DESC');
+                }
+                break;
+            default: // reciente
+                $builder->orderBy('vac_vacante.fecha_publicacion', 'DESC');
+        }
+
+        $vacantes = $builder->paginate(12);
         $categorias = $categoriaModel->where('estado', 'activo')->findAll();
 
         return view('layouts/publico', [
@@ -71,9 +110,14 @@ class PublicController extends BaseController
                     'modalidad' => $modalidad,
                     'tipo_contrato' => $tipoContrato,
                     'ciudad' => $ciudad,
+                    'orden' => $orden,
+                    'lat' => $lat,
+                    'lng' => $lng,
+                    'radio' => $radio,
                 ],
             ]),
             'css' => ['buscar-empleo.css'],
+            'js' => ['buscar-empleo.js'],
         ]);
     }
 

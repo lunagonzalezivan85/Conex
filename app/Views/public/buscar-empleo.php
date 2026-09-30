@@ -1,5 +1,5 @@
 <?php
-$filtros = $filtros ?? ['q' => '', 'categoria' => '', 'modalidad' => '', 'tipo_contrato' => '', 'ciudad' => ''];
+$filtros = $filtros ?? ['q' => '', 'categoria' => '', 'modalidad' => '', 'tipo_contrato' => '', 'ciudad' => '', 'orden' => 'reciente', 'lat' => '', 'lng' => '', 'radio' => 50];
 ?>
 <div class="container buscar-empleo">
     <h1>Buscar Empleo</h1>
@@ -12,6 +12,15 @@ $filtros = $filtros ?? ['q' => '', 'categoria' => '', 'modalidad' => '', 'tipo_c
                 <div class="form-group">
                     <label class="form-label">Busqueda</label>
                     <input type="text" name="q" class="form-control" placeholder="Titulo, empresa..." value="<?= esc($filtros['q']) ?>">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ordenar por</label>
+                    <select name="orden" class="form-control">
+                        <option value="reciente" <?= ($filtros['orden'] ?? 'reciente') === 'reciente' ? 'selected' : '' ?>>Mas reciente</option>
+                        <option value="antigua" <?= ($filtros['orden'] ?? '') === 'antigua' ? 'selected' : '' ?>>Mas antigua</option>
+                        <option value="salario" <?= ($filtros['orden'] ?? '') === 'salario' ? 'selected' : '' ?>>Mayor salario</option>
+                        <option value="distancia" <?= ($filtros['orden'] ?? '') === 'distancia' ? 'selected' : '' ?>>Mas cercana</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Categoria</label>
@@ -37,6 +46,28 @@ $filtros = $filtros ?? ['q' => '', 'categoria' => '', 'modalidad' => '', 'tipo_c
                     <label class="form-label">Ciudad</label>
                     <input type="text" name="ciudad" class="form-control" placeholder="Ciudad..." value="<?= esc($filtros['ciudad']) ?>">
                 </div>
+
+                <!-- Filtro de geolocalizacion -->
+                <div class="geo-filter">
+                    <label class="form-label">Buscar cerca de</label>
+                    <button type="button" class="btn btn-outline btn-sm geo-my-location" id="btnMiUbicacion">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="9"/></svg>
+                        Mi ubicacion
+                    </button>
+                    <p class="geo-hint" id="geoLabel"><?= !empty($filtros['lat']) ? 'Ubicacion seleccionada' : 'o haz clic en el mapa' ?></p>
+                    <div id="geoMapa" class="geo-mapa"></div>
+                    <div class="geo-radio-row">
+                        <input type="range" id="geoRadio" min="5" max="200" step="5" value="<?= esc($filtros['radio'] ?? 50) ?>">
+                        <span class="geo-radio-value" id="geoRadioValue"><?= (int)($filtros['radio'] ?? 50) ?> km</span>
+                    </div>
+                    <input type="hidden" name="lat" id="geoLat" value="<?= esc($filtros['lat'] ?? '') ?>">
+                    <input type="hidden" name="lng" id="geoLng" value="<?= esc($filtros['lng'] ?? '') ?>">
+                    <input type="hidden" name="radio" id="geoRadioHidden" value="<?= esc($filtros['radio'] ?? 50) ?>">
+                    <?php if (!empty($filtros['lat'])): ?>
+                        <button type="button" class="btn btn-ghost btn-sm" id="btnGeoLimpiar">Quitar ubicacion</button>
+                    <?php endif; ?>
+                </div>
+
                 <button type="submit" class="btn btn-primary btn-block">Aplicar filtros</button>
                 <a href="<?= base_url('buscar-empleo') ?>" class="btn btn-ghost btn-block">Limpiar</a>
             </form>
@@ -53,7 +84,12 @@ $filtros = $filtros ?? ['q' => '', 'categoria' => '', 'modalidad' => '', 'tipo_c
                             <div class="vacante-item-icon"><?= strtoupper(substr($v['titulo'], 0, 1)) ?></div>
                             <div class="vacante-item-body">
                                 <h3 class="vacante-item-title"><?= esc($v['titulo']) ?></h3>
-                                <p class="vacante-item-location"><?= esc($v['ciudad'] ?? '') ?> <?= isset($v['ciudad']) && $v['region'] ? '· ' . esc($v['region']) : '' ?></p>
+                                <p class="vacante-item-location">
+                                    <?= esc($v['ciudad'] ?? '') ?> <?= isset($v['ciudad']) && $v['region'] ? '· ' . esc($v['region']) : '' ?>
+                                    <?php if (isset($v['distancia_km'])): ?>
+                                        <span class="badge badge-distance"><?= number_format($v['distancia_km'], 1) ?> km</span>
+                                    <?php endif; ?>
+                                </p>
                                 <div class="vacante-item-badges">
                                     <?php if (isset($v['modalidad'])): ?>
                                         <span class="badge badge-accent"><?= ucfirst($v['modalidad']) ?></span>

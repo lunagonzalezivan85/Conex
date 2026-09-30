@@ -1,5 +1,5 @@
 <?php
-$filtros = $filtros ?? ['q' => '', 'categoria' => '', 'modalidad' => '', 'tipo_contrato' => '', 'ciudad' => ''];
+$filtros = $filtros ?? ['q' => '', 'categoria' => '', 'modalidad' => '', 'tipo_contrato' => '', 'ciudad' => '', 'orden' => 'reciente', 'lat' => '', 'lng' => '', 'radio' => 50];
 ?>
 <div class="dash-card" style="margin-bottom: 24px;">
     <div class="section-header" style="margin-bottom: 20px;">
@@ -36,11 +36,47 @@ $filtros = $filtros ?? ['q' => '', 'categoria' => '', 'modalidad' => '', 'tipo_c
             <label class="form-label">Ciudad</label>
             <input type="text" name="ciudad" class="form-control" placeholder="Ciudad..." value="<?= esc($filtros['ciudad']) ?>">
         </div>
+        <div class="form-group" style="min-width:140px;margin-bottom:0;">
+            <label class="form-label">Ordenar por</label>
+            <select name="orden" class="form-control">
+                <option value="reciente" <?= ($filtros['orden'] ?? 'reciente') === 'reciente' ? 'selected' : '' ?>>Mas reciente</option>
+                <option value="antigua" <?= ($filtros['orden'] ?? '') === 'antigua' ? 'selected' : '' ?>>Mas antigua</option>
+                <option value="salario" <?= ($filtros['orden'] ?? '') === 'salario' ? 'selected' : '' ?>>Mayor salario</option>
+                <option value="distancia" <?= ($filtros['orden'] ?? '') === 'distancia' ? 'selected' : '' ?>>Mas cercana</option>
+            </select>
+        </div>
         <button type="submit" class="btn btn-primary">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;margin-right:4px;vertical-align:middle;"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             Buscar
         </button>
         <a href="<?= base_url('candidato/buscar-empleo') ?>" class="btn btn-ghost">Limpiar</a>
+
+        <!-- Filtro de geolocalizacion -->
+        <div class="geo-filter" style="width:100%;margin-top:8px;">
+            <label class="form-label">Buscar cerca de</label>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+                <div style="flex:1;min-width:260px;">
+                    <button type="button" class="btn btn-outline btn-sm geo-my-location" id="btnMiUbicacion" style="margin-bottom:8px;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="9"/></svg>
+                        Mi ubicacion
+                    </button>
+                    <p class="geo-hint" id="geoLabel"><?= !empty($filtros['lat']) ? 'Ubicacion seleccionada' : 'o haz clic en el mapa' ?></p>
+                    <div id="geoMapa" class="geo-mapa"></div>
+                </div>
+                <div style="min-width:220px;">
+                    <div class="geo-radio-row">
+                        <input type="range" id="geoRadio" min="5" max="200" step="5" value="<?= esc($filtros['radio'] ?? 50) ?>">
+                        <span class="geo-radio-value" id="geoRadioValue"><?= (int)($filtros['radio'] ?? 50) ?> km</span>
+                    </div>
+                    <input type="hidden" name="lat" id="geoLat" value="<?= esc($filtros['lat'] ?? '') ?>">
+                    <input type="hidden" name="lng" id="geoLng" value="<?= esc($filtros['lng'] ?? '') ?>">
+                    <input type="hidden" name="radio" id="geoRadioHidden" value="<?= esc($filtros['radio'] ?? 50) ?>">
+                    <?php if (!empty($filtros['lat'])): ?>
+                        <button type="button" class="btn btn-ghost btn-sm" id="btnGeoLimpiar">Quitar ubicacion</button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
     </form>
 </div>
 
@@ -58,6 +94,9 @@ $filtros = $filtros ?? ['q' => '', 'categoria' => '', 'modalidad' => '', 'tipo_c
                     <p style="font-size:13px;color:var(--text-secondary);margin-bottom:8px;">
                         <?= esc($v['ciudad'] ?? '') ?>
                         <?php if (!empty($v['region'])): ?> · <?= esc($v['region']) ?><?php endif; ?>
+                        <?php if (isset($v['distancia_km'])): ?>
+                            <span class="badge-distance"><?= number_format($v['distancia_km'], 1) ?> km</span>
+                        <?php endif; ?>
                     </p>
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         <?php if (isset($v['modalidad']) && $v['modalidad']): ?>

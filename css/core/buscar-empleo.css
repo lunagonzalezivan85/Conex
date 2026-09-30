@@ -43,6 +43,16 @@
 /* Pagination */
 .pagination-wrapper { display: flex; justify-content: center; margin-top: 32px; }
 
+/* Filtro de geolocalizacion */
+.geo-filter { border-top: 1px solid var(--border, #e5e7eb); padding-top: 16px; margin-top: 8px; }
+.geo-my-location { display: inline-flex; align-items: center; gap: 6px; }
+.geo-hint { font-size: 12px; color: var(--text-secondary, #6b7280); margin: 6px 0 8px; }
+.geo-mapa { height: 200px; border-radius: 10px; border: 1px solid var(--border, #e5e7eb); overflow: hidden; }
+.geo-radio-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.geo-radio-row input[type="range"] { flex: 1; accent-color: var(--accent, #4361EE); height: 4px; cursor: pointer; }
+.geo-radio-value { font-size: 13px; font-weight: 600; color: var(--accent, #4361EE); min-width: 46px; text-align: right; }
+.badge-distance { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: #ede9fe; color: #7c3aed; font-weight: 600; margin-left: 6px; vertical-align: middle; }
+
 /* Responsive */
 @media (max-width: 1024px) {
     .buscar-layout { grid-template-columns: 1fr; }
