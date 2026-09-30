@@ -1,64 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { IonContent, IonPage, IonButton, useIonRouter } from '@ionic/react';
-import { Preferences } from '@capacitor/preferences';
-import { authApi } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import '../theme/splash.css';
 
 const MIN_ANIM_MS = 2000;   // animacion minima visible
-const MAX_WAIT_MS = 8000;   // nunca quedarse colgado: fallback a login
+const MAX_WAIT_MS = 8000;   // fallback: mostrar boton para continuar
 
 /**
  * Splash animado. El fondo sigue el tema del dispositivo
  * (claro/oscuro) via --ion-background-color.
- * Siempre navega: con token valido -> dashboard, si no -> login.
- * Si algo falla, muestra boton para continuar manualmente.
+ * Espera la revalidacion de sesion de AuthContext (loading)
+ * y navega: user -> dashboard, sin user -> login.
+ * Si tarda demasiado muestra boton Continuar.
  */
 const Splash: React.FC = () => {
   const router = useIonRouter();
+  const { user, loading } = useAuth();
   const [error, setError] = useState(false);
+  const [navDone, setNavDone] = useState(false);
+
+  // Red de seguridad: a los 8s mostrar boton manual (fetch tarda max 15s)
+  useEffect(() => {
+    const fallback = setTimeout(() => setError(true), MAX_WAIT_MS);
+    return () => clearTimeout(fallback);
+  }, []);
 
   useEffect(() => {
+    if (navDone || loading) return;
     let cancelled = false;
-
-    const nav = (to: string) => {
-      if (!cancelled) router.push(to, 'root', 'replace');
-    };
-
-    // Red de seguridad: a los 8s forzar login pase lo que pase
-    const fallback = setTimeout(() => {
-      if (!cancelled) setError(true);
-    }, MAX_WAIT_MS);
-
-    const boot = async () => {
-      const minWait = new Promise(r => setTimeout(r, MIN_ANIM_MS));
-      let logged = false;
-
-      try {
-        const { value: token } = await Preferences.get({ key: 'conex_token' });
-        if (token) {
-          try {
-            await authApi.me();
-            logged = true;
-          } catch {
-            await Preferences.remove({ key: 'conex_token' }).catch(() => {});
-          }
-        }
-      } catch {
-        // Preferences no disponible o fallo -> ir a login
+    // esperar la animacion minima antes de navegar
+    const t = setTimeout(() => {
+      if (!cancelled) {
+        setNavDone(true);
+        router.push(user ? '/app/dashboard' : '/login', 'root', 'replace');
       }
-
-      await minWait;
-      if (cancelled) return;
-      clearTimeout(fallback);
-      nav(logged ? '/app/dashboard' : '/login');
-    };
-
-    boot().catch(() => {
-      if (!cancelled) { clearTimeout(fallback); nav('/login'); }
-    });
-
-    return () => { cancelled = true; clearTimeout(fallback); };
-  }, [router]);
+    }, MIN_ANIM_MS);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [loading, user, router, navDone]);
 
   return (
     <IonPage>

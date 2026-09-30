@@ -23,7 +23,7 @@ export interface ApiError {
   status: number;
 }
 
-async function getToken(): Promise<string | null> {
+export async function getToken(): Promise<string | null> {
   const { value } = await Preferences.get({ key: TOKEN_KEY });
   return value;
 }

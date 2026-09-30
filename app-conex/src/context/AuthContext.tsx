@@ -1,5 +1,5 @@
-import React, { createContext, useCallback, useContext, useState } from 'react';
-import { api, ApiUser, authApi, clearToken, saveToken } from '../services/api';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { api, ApiUser, authApi, clearToken, getToken, saveToken } from '../services/api';
 
 interface AuthState {
   user: ApiUser | null;
@@ -25,17 +25,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refresh = useCallback(async () => {
     try {
+      const token = await getToken();
+      if (!token) { setUser(null); return null; }
       const res = await authApi.me();
       setUser(res.user);
       return res.user;
-    } catch {
+    } catch (e: any) {
       setUser(null);
-      await clearToken();
+      // solo revocar la sesion local si el server dice que el token murio
+      if (e?.status === 401) await clearToken();
       return null;
     } finally {
       setLoading(false);
     }
   }, []);
+
+  // Sesion persistida: revalidar al abrir la app
+  useEffect(() => { refresh(); }, [refresh]);
 
   const login = useCallback(async (usuario: string, password: string) => {
     const res = await authApi.login(usuario, password);
