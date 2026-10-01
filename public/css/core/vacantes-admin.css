@@ -129,3 +129,33 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Captacion: poster + metricas + acciones */
+.vac-admin-poster {
+  width: 48px; height: 48px; border-radius: 12px;
+  object-fit: cover; flex-shrink: 0;
+  border: 1px solid var(--border-color, #e5e7eb);
+}
+.vac-admin-tag-externa {
+  display: inline-block; margin-left: 6px; padding: 1px 8px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  color: #f97316; background: rgba(249, 115, 22, 0.12); border-radius: 8px;
+  vertical-align: middle;
+}
+.vac-admin-origen {
+  display: inline-block; margin-top: 2px;
+  font-size: 11px; color: #0fc6c2; text-decoration: none;
+}
+.vac-admin-origen:hover { text-decoration: underline; }
+.vac-admin-metrics {
+  display: flex; gap: 14px; padding: 8px 0;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  margin: 10px 0;
+  font-size: 12px; color: var(--text-secondary, #6b7280);
+}
+.vac-admin-metrics span { display: inline-flex; align-items: center; gap: 4px; }
+.vac-admin-actions {
+  display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+}
+.btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 8px; }

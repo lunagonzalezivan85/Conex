@@ -92,9 +92,10 @@ class AdminController extends BaseController
 
         $db = \Config\Database::connect();
         $vacantes = $db->table('vac_vacante')
-            ->select('vac_vacante.*, emp_empresa.razon_social as empresa_nombre,
+            ->select('vac_vacante.*,
+                COALESCE(emp_empresa.razon_social, vac_vacante.empresa_externa) as empresa_nombre,
                 (SELECT COUNT(*) FROM post_postulacion WHERE post_postulacion.vacante_id = vac_vacante.id) as total_postulantes')
-            ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id')
+            ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left')
             ->orderBy('vac_vacante.created_at', 'DESC')
             ->get()
             ->getResultArray();
@@ -114,6 +115,274 @@ class AdminController extends BaseController
             'activeSection' => 'vacantes',
             'css' => ['vacantes-admin.css'],
         ]);
+    }
+
+    /* ================= Captacion de vacantes ================= */
+
+    /**
+     * GET /admin/vacantes/crear — form para captar vacante externa (FB) o interna.
+     */
+    public function crearVacante()
+    {
+        $guard = $this->guardAdminOrRedirect();
+        if ($guard['redirect']) {
+            return $guard['redirect'];
+        }
+        $roleSlug = $guard['roleSlug'];
+
+        $content = view('admin/vacante-form', array_merge($this->vacanteFormData(), [
+            'vacante' => null,
+        ]));
+
+        return view('layouts/panel', [
+            'content' => $content,
+            'title' => 'Captar Vacante',
+            'pageTitle' => 'Captar Vacante',
+            'roleSlug' => $roleSlug,
+            'sidebarSections' => $this->getSidebarSections($roleSlug),
+            'activeSection' => 'vacantes',
+            'css' => ['vacantes-admin.css'],
+        ]);
+    }
+
+    /**
+     * POST /admin/vacantes/guardar — inserta vacante (borrador por defecto).
+     */
+    public function guardarVacante()
+    {
+        $guard = $this->guardAdminOrRedirect();
+        if ($guard['redirect']) {
+            return $guard['redirect'];
+        }
+
+        $data = $this->vacantePostData();
+        if ($data instanceof \CodeIgniter\HTTP\RedirectResponse) {
+            return $data;
+        }
+
+        $data['slug'] = url_title($data['titulo'], '-', true) . '-' . substr(uniqid(), -6);
+        if ($data['estado'] === 'publicada') {
+            $data['fecha_publicacion'] = date('Y-m-d H:i:s');
+        }
+
+        $poster = $this->subirPoster();
+        if ($poster instanceof \CodeIgniter\HTTP\RedirectResponse) {
+            return $poster;
+        }
+        if ($poster) {
+            $data['poster'] = $poster;
+        }
+
+        (new \App\Models\VacanteModel())->insert($data);
+
+        return redirect()->to('admin/vacantes')->with('info', 'Vacante captada correctamente.');
+    }
+
+    /**
+     * GET /admin/vacantes/editar/{id} — mismo form con datos precargados.
+     */
+    public function editarVacante($id)
+    {
+        $guard = $this->guardAdminOrRedirect();
+        if ($guard['redirect']) {
+            return $guard['redirect'];
+        }
+        $roleSlug = $guard['roleSlug'];
+
+        $vacante = (new \App\Models\VacanteModel())->find((int)$id);
+        if (!$vacante) {
+            return redirect()->to('admin/vacantes')->with('error', 'Vacante no encontrada.');
+        }
+
+        $content = view('admin/vacante-form', array_merge($this->vacanteFormData(), [
+            'vacante' => $vacante,
+        ]));
+
+        return view('layouts/panel', [
+            'content' => $content,
+            'title' => 'Editar Vacante',
+            'pageTitle' => 'Editar Vacante',
+            'roleSlug' => $roleSlug,
+            'sidebarSections' => $this->getSidebarSections($roleSlug),
+            'activeSection' => 'vacantes',
+            'css' => ['vacantes-admin.css'],
+        ]);
+    }
+
+    /**
+     * POST /admin/vacantes/actualizar/{id} — edita vacante (permite asignar empresa luego).
+     */
+    public function actualizarVacante($id)
+    {
+        $guard = $this->guardAdminOrRedirect();
+        if ($guard['redirect']) {
+            return $guard['redirect'];
+        }
+
+        $vacanteModel = new \App\Models\VacanteModel();
+        $vacante = $vacanteModel->find((int)$id);
+        if (!$vacante) {
+            return redirect()->to('admin/vacantes')->with('error', 'Vacante no encontrada.');
+        }
+
+        $data = $this->vacantePostData();
+        if ($data instanceof \CodeIgniter\HTTP\RedirectResponse) {
+            return $data;
+        }
+
+        if ($data['estado'] === 'publicada' && empty($vacante['fecha_publicacion'])) {
+            $data['fecha_publicacion'] = date('Y-m-d H:i:s');
+        }
+
+        $poster = $this->subirPoster();
+        if ($poster instanceof \CodeIgniter\HTTP\RedirectResponse) {
+            return $poster;
+        }
+        if ($poster) {
+            if (!empty($vacante['poster']) && is_file(FCPATH . 'uploads/' . $vacante['poster'])) {
+                @unlink(FCPATH . 'uploads/' . $vacante['poster']);
+            }
+            $data['poster'] = $poster;
+        }
+
+        $vacanteModel->update((int)$id, $data);
+
+        return redirect()->to('admin/vacantes')->with('info', 'Vacante actualizada.');
+    }
+
+    /**
+     * POST /admin/vacantes/estado/{id} — publicar / cerrar / suspender rapido.
+     */
+    public function cambiarEstadoVacante($id)
+    {
+        $guard = $this->guardAdminOrRedirect();
+        if ($guard['redirect']) {
+            return $guard['redirect'];
+        }
+
+        $estado = $this->request->getPost('estado');
+        if (!in_array($estado, ['borrador', 'publicada', 'cerrada', 'suspendida'], true)) {
+            return redirect()->to('admin/vacantes')->with('error', 'Estado invalido.');
+        }
+
+        $vacanteModel = new \App\Models\VacanteModel();
+        $vacante = $vacanteModel->find((int)$id);
+        if (!$vacante) {
+            return redirect()->to('admin/vacantes')->with('error', 'Vacante no encontrada.');
+        }
+
+        $data = ['estado' => $estado];
+        if ($estado === 'publicada' && empty($vacante['fecha_publicacion'])) {
+            $data['fecha_publicacion'] = date('Y-m-d H:i:s');
+        }
+        $vacanteModel->update((int)$id, $data);
+
+        return redirect()->to('admin/vacantes')->with('info', 'Estado actualizado a ' . $estado . '.');
+    }
+
+    /**
+     * Guard compartido: sesion + rol admin/asesor.
+     * Retorna ['redirect' => Response] o ['roleSlug' => string].
+     */
+    private function guardAdminOrRedirect(): array
+    {
+        if (!session()->get('isLoggedIn')) {
+            return ['redirect' => redirect()->to('login'), 'roleSlug' => null];
+        }
+        $userModel = new UserModel();
+        $roleSlug = $userModel->getRoleSlug(session()->get('role_id'));
+        if (!in_array($roleSlug, ['admin', 'asesor'], true)) {
+            return ['redirect' => redirect()->to('')->with('error', 'No tienes acceso a esta seccion.'), 'roleSlug' => null];
+        }
+        return ['redirect' => null, 'roleSlug' => $roleSlug];
+    }
+
+    /**
+     * Datos para el form: categorias activas + empresas registradas.
+     */
+    private function vacanteFormData(): array
+    {
+        $db = \Config\Database::connect();
+        return [
+            'categorias' => $db->table('cat_categoria')->where('estado', 'activo')->orderBy('nombre')->get()->getResultArray(),
+            'empresas'   => $db->table('emp_empresa')->select('id, razon_social')->orderBy('razon_social')->get()->getResultArray(),
+        ];
+    }
+
+    /**
+     * Campos POST validados de la vacante. Devuelve array o RedirectResponse con error.
+     */
+    private function vacantePostData()
+    {
+        $titulo = trim((string)$this->request->getPost('titulo'));
+        $descripcion = trim((string)$this->request->getPost('descripcion'));
+        $empresaId = $this->request->getPost('empresa_id');
+        $empresaExterna = trim((string)$this->request->getPost('empresa_externa'));
+        $categoriaId = $this->request->getPost('categoria_id');
+        $modalidad = $this->request->getPost('modalidad') ?: 'presencial';
+        $estado = $this->request->getPost('estado') ?: 'borrador';
+
+        if ($titulo === '' || $descripcion === '' || empty($categoriaId)) {
+            return redirect()->back()->withInput()->with('error', 'Titulo, descripcion y categoria son obligatorios.');
+        }
+        if (empty($empresaId) && $empresaExterna === '') {
+            return redirect()->back()->withInput()->with('error', 'Indica la empresa registrada o el nombre externo.');
+        }
+        if (!in_array($modalidad, ['presencial', 'remoto', 'hibrido'], true)) {
+            $modalidad = 'presencial';
+        }
+        if (!in_array($estado, ['borrador', 'publicada', 'cerrada', 'suspendida'], true)) {
+            $estado = 'borrador';
+        }
+        $origen = $this->request->getPost('origen') ?: 'manual';
+
+        return [
+            'empresa_id'           => $empresaId ? (int)$empresaId : null,
+            'empresa_externa'      => $empresaId ? null : ($empresaExterna ?: null),
+            'contacto_externo'     => trim((string)$this->request->getPost('contacto_externo')) ?: null,
+            'origen'               => $origen,
+            'origen_url'           => trim((string)$this->request->getPost('origen_url')) ?: null,
+            'categoria_id'         => (int)$categoriaId,
+            'titulo'               => $titulo,
+            'descripcion'          => $descripcion,
+            'funciones'            => trim((string)$this->request->getPost('funciones')) ?: null,
+            'ciudad'               => trim((string)$this->request->getPost('ciudad')) ?: null,
+            'region'               => trim((string)$this->request->getPost('region')) ?: null,
+            'modalidad'            => $modalidad,
+            'salario_min'          => $this->request->getPost('salario_min') ?: null,
+            'salario_max'          => $this->request->getPost('salario_max') ?: null,
+            'moneda'               => in_array($this->request->getPost('moneda'), ['USD', 'NIO'], true) ? $this->request->getPost('moneda') : 'USD',
+            'anios_experiencia'    => (int)($this->request->getPost('anios_experiencia') ?: 0),
+            'vacantes_disponibles' => max(1, (int)($this->request->getPost('vacantes_disponibles') ?: 1)),
+            'estado'               => $estado,
+        ];
+    }
+
+    /**
+     * Sube el poster de la vacante a public/uploads/posters/.
+     * Devuelve nombre relativo, null si no hay archivo, o RedirectResponse con error.
+     */
+    private function subirPoster()
+    {
+        $archivo = $this->request->getFile('poster');
+        if (!$archivo || !$archivo->isValid() || $archivo->getError() === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+        if (!in_array($archivo->getMimeType(), ['image/jpeg', 'image/png', 'image/webp'], true)) {
+            return redirect()->back()->withInput()->with('error', 'El poster debe ser JPG, PNG o WebP.');
+        }
+        if ($archivo->getSizeByUnit('mb') > 5) {
+            return redirect()->back()->withInput()->with('error', 'El poster excede 5MB.');
+        }
+
+        $dir = FCPATH . 'uploads/posters/';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        $nombre = $archivo->getRandomName();
+        $archivo->move($dir, $nombre);
+
+        return 'posters/' . $nombre;
     }
 
     public function postulantes()

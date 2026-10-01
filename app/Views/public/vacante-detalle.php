@@ -58,6 +58,34 @@
     </div>
     <?php endif; ?>
 
+    <?php if (!empty($vacante['poster_url'])): ?>
+    <div class="card vd-section">
+        <h2 class="vd-section-title">Anuncio original</h2>
+        <img class="vd-poster" src="<?= esc($vacante['poster_url']) ?>" alt="Anuncio de la vacante" loading="lazy">
+    </div>
+    <?php endif; ?>
+
+    <div class="card vd-metrics" data-vacante-id="<?= (int)$vacante['id'] ?>" data-mi-reaccion="<?= esc($vacante['mi_reaccion'] ?? '') ?>">
+        <div class="vd-metrics-group">
+            <button type="button" class="vd-metric-btn vd-like<?= ($vacante['mi_reaccion'] ?? '') === 'me_gusta' ? ' active' : '' ?>" data-tipo="me_gusta" aria-pressed="<?= ($vacante['mi_reaccion'] ?? '') === 'me_gusta' ? 'true' : 'false' ?>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                <span class="vd-count-like"><?= (int)($vacante['me_gusta'] ?? 0) ?></span>
+            </button>
+            <button type="button" class="vd-metric-btn vd-dislike<?= ($vacante['mi_reaccion'] ?? '') === 'no_me_gusta' ? ' active' : '' ?>" data-tipo="no_me_gusta" aria-pressed="<?= ($vacante['mi_reaccion'] ?? '') === 'no_me_gusta' ? 'true' : 'false' ?>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+                <span class="vd-count-dislike"><?= (int)($vacante['no_me_gusta'] ?? 0) ?></span>
+            </button>
+            <button type="button" class="vd-metric-btn vd-share" id="vdShareBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                <span class="vd-count-share"><?= (int)($vacante['compartidos'] ?? 0) ?></span>
+            </button>
+        </div>
+        <div class="vd-metrics-views">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            <span><?= (int)($vacante['vistas'] ?? 0) ?> vistas</span>
+        </div>
+    </div>
+
     <div class="card vd-section">
         <h2 class="vd-section-title">Descripcion</h2>
         <div class="vd-section-content"><?= nl2br(esc($vacante['descripcion'])) ?></div>
@@ -81,3 +109,55 @@
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    const bar = document.querySelector('.vd-metrics');
+    if (!bar) return;
+    const vacanteId = bar.dataset.vacanteId;
+    const csrfName = '<?= csrf_token() ?>';
+    const csrfHash = '<?= csrf_hash() ?>';
+
+    async function postMetric(url, tipo) {
+        const body = new URLSearchParams();
+        if (tipo) body.set('tipo', tipo);
+        body.set(csrfName, csrfHash);
+        try {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                body,
+            });
+            return await res.json();
+        } catch (e) {
+            return null;
+        }
+    }
+
+    bar.querySelectorAll('.vd-like, .vd-dislike').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const data = await postMetric(`<?= base_url() ?>vacante/${vacanteId}/reaccion`, btn.dataset.tipo);
+            if (!data || data.error) return;
+            bar.querySelector('.vd-count-like').textContent = data.me_gusta;
+            bar.querySelector('.vd-count-dislike').textContent = data.no_me_gusta;
+            bar.querySelector('.vd-like').classList.toggle('active', data.mi_reaccion === 'me_gusta');
+            bar.querySelector('.vd-dislike').classList.toggle('active', data.mi_reaccion === 'no_me_gusta');
+            bar.querySelector('.vd-like').setAttribute('aria-pressed', data.mi_reaccion === 'me_gusta');
+            bar.querySelector('.vd-dislike').setAttribute('aria-pressed', data.mi_reaccion === 'no_me_gusta');
+        });
+    });
+
+    document.getElementById('vdShareBtn').addEventListener('click', async () => {
+        const url = window.location.href;
+        if (navigator.share) {
+            try { await navigator.share({ title: document.title, url }); } catch (e) {}
+        } else if (navigator.clipboard) {
+            try { await navigator.clipboard.writeText(url); } catch (e) {}
+        }
+        const data = await postMetric(`<?= base_url() ?>vacante/${vacanteId}/compartir`);
+        if (data && data.compartidos !== undefined) {
+            bar.querySelector('.vd-count-share').textContent = data.compartidos;
+        }
+    });
+})();
+</script>

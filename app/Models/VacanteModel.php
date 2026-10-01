@@ -13,11 +13,13 @@ class VacanteModel extends Model
     protected $useSoftDeletes = true;
 
     protected $allowedFields = [
-        'empresa_id', 'categoria_id', 'tipo_contrato_id', 'nivel_experiencia_id',
+        'empresa_id', 'empresa_externa', 'contacto_externo', 'origen', 'origen_url',
+        'poster', 'categoria_id', 'tipo_contrato_id', 'nivel_experiencia_id',
         'titulo', 'slug', 'descripcion', 'funciones', 'ubicacion', 'ciudad', 'region',
         'latitud', 'longitud',
         'modalidad', 'salario_min', 'salario_max', 'moneda', 'anios_experiencia',
         'vacantes_disponibles', 'max_postulantes', 'estado', 'destacada',
+        'vistas', 'me_gusta', 'no_me_gusta', 'compartidos',
         'fecha_publicacion', 'fecha_cierre',
     ];
 

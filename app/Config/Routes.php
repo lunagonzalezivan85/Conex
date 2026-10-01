@@ -8,6 +8,8 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'PublicController::index');
 $routes->get('/buscar-empleo', 'PublicController::buscarEmpleo');
 $routes->get('/vacante/(:segment)', 'PublicController::verVacante/$1');
+$routes->post('/vacante/(:num)/reaccion', 'PublicController::reaccionar/$1');
+$routes->post('/vacante/(:num)/compartir', 'PublicController::compartir/$1');
 $routes->get('/planes', 'PublicController::planes');
 $routes->get('/nosotros', 'PublicController::nosotros');
 $routes->get('/noticias', 'NoticiaController::listar');
@@ -88,6 +90,8 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
     // Vacantes (ambos roles)
     $routes->get('vacantes', 'Api\VacanteController::index');
     $routes->get('vacantes/meta/filtros', 'Api\VacanteController::filtros');
+    $routes->post('vacantes/(:num)/reaccion', 'Api\VacanteController::reaccionar/$1');
+    $routes->post('vacantes/(:num)/compartir', 'Api\VacanteController::compartir/$1');
     $routes->get('vacantes/(:segment)', 'Api\VacanteController::show/$1');
 
     // Candidato
@@ -115,6 +119,11 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
 $routes->get('/admin', 'AdminController::index');
 $routes->get('/admin/usuarios', 'AdminController::usuarios');
 $routes->get('/admin/vacantes', 'AdminController::vacantes');
+$routes->get('/admin/vacantes/crear', 'AdminController::crearVacante');
+$routes->post('/admin/vacantes/guardar', 'AdminController::guardarVacante');
+$routes->get('/admin/vacantes/editar/(:num)', 'AdminController::editarVacante/$1');
+$routes->post('/admin/vacantes/actualizar/(:num)', 'AdminController::actualizarVacante/$1');
+$routes->post('/admin/vacantes/estado/(:num)', 'AdminController::cambiarEstadoVacante/$1');
 $routes->get('/admin/postulantes', 'AdminController::postulantes');
 $routes->get('/admin/postulantes/ver/(:num)', 'AdminController::verificarPostulante/$1');
 $routes->get('/admin/postulantes/perfil/(:num)', 'AdminController::perfilPostulante/$1');

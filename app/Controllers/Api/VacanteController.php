@@ -114,12 +114,21 @@ class VacanteController extends BaseApiController
             return $this->fail('Vacante no encontrada', 404);
         }
 
+        // Contar vista (una por request de detalle)
+        $db = \Config\Database::connect();
+        $db->table('vac_vacante')->where('id', $vacante['id'])->set('vistas', 'vistas+1', false)->update();
+        $vacante['vistas'] = (int)$vacante['vistas'] + 1;
+
+        $vacante['empresa_nombre'] = $vacante['empresa_nombre'] ?? $vacante['empresa_externa'];
         $vacante['empresa_logo_url'] = !empty($vacante['empresa_logo'])
             ? base_url('uploads/' . $vacante['empresa_logo'])
             : null;
+        $vacante['poster_url'] = !empty($vacante['poster'])
+            ? base_url('uploads/' . $vacante['poster'])
+            : null;
+        $vacante['mi_reaccion'] = $this->reaccionActual($vacante['id']);
 
         // Requisitos asociados
-        $db = \Config\Database::connect();
         $vacante['requisitos'] = $db->table('vac_requisito')
             ->select('vac_requisito.tipo, cat_requisito.nombre')
             ->join('cat_requisito', 'cat_requisito.id = vac_requisito.requisito_id', 'left')
@@ -133,6 +142,98 @@ class VacanteController extends BaseApiController
             ->get()->getResultArray();
 
         return $this->ok(['data' => $vacante]);
+    }
+
+    /**
+     * POST /api/vacantes/{id}/reaccion — body: tipo=me_gusta|no_me_gusta
+     * Toggle: misma reaccion la quita; la contraria la cambia.
+     */
+    public function reaccionar($id)
+    {
+        $tipo = $this->body()['tipo'] ?? null;
+        if (!in_array($tipo, ['me_gusta', 'no_me_gusta'], true)) {
+            return $this->fail('Tipo invalido', 422);
+        }
+
+        $db = \Config\Database::connect();
+        $vacante = $db->table('vac_vacante')->where('id', (int)$id)->get()->getRowArray();
+        if (!$vacante) {
+            return $this->fail('Vacante no encontrada', 404);
+        }
+
+        $user = $this->authUser();
+        $identificador = 'u' . ($user['id'] ?? 0);
+
+        $existente = $db->table('vac_reaccion')
+            ->where('vacante_id', (int)$id)
+            ->where('identificador', $identificador)
+            ->get()->getRowArray();
+
+        $miReaccion = null;
+        if ($existente && $existente['tipo'] === $tipo) {
+            $db->table('vac_reaccion')->where('id', $existente['id'])->delete();
+        } elseif ($existente) {
+            $db->table('vac_reaccion')->where('id', $existente['id'])->update(['tipo' => $tipo]);
+            $miReaccion = $tipo;
+        } else {
+            $db->table('vac_reaccion')->insert([
+                'vacante_id'   => (int)$id,
+                'user_id'      => $user['id'] ?? null,
+                'identificador' => $identificador,
+                'tipo'         => $tipo,
+                'created_at'   => date('Y-m-d H:i:s'),
+            ]);
+            $miReaccion = $tipo;
+        }
+
+        $conteos = $this->conteosReaccion((int)$id);
+        $db->table('vac_vacante')->where('id', (int)$id)->update($conteos);
+
+        return $this->ok([
+            'me_gusta'    => $conteos['me_gusta'],
+            'no_me_gusta' => $conteos['no_me_gusta'],
+            'mi_reaccion' => $miReaccion,
+        ]);
+    }
+
+    /**
+     * POST /api/vacantes/{id}/compartir — incrementa contador de shares.
+     */
+    public function compartir($id)
+    {
+        $db = \Config\Database::connect();
+        $existe = $db->table('vac_vacante')->where('id', (int)$id)->countAllResults();
+        if (!$existe) {
+            return $this->fail('Vacante no encontrada', 404);
+        }
+        $db->table('vac_vacante')->where('id', (int)$id)->set('compartidos', 'compartidos+1', false)->update();
+        $total = (int)$db->table('vac_vacante')->where('id', (int)$id)->get()->getRowArray()['compartidos'];
+        return $this->ok(['compartidos' => $total]);
+    }
+
+    /**
+     * Reaccion vigente del usuario actual sobre la vacante (o null).
+     */
+    private function reaccionActual(int $vacanteId): ?string
+    {
+        $user = $this->authUser();
+        if (empty($user['id'])) {
+            return null;
+        }
+        $row = \Config\Database::connect()->table('vac_reaccion')
+            ->where('vacante_id', $vacanteId)
+            ->where('identificador', 'u' . $user['id'])
+            ->get()->getRowArray();
+        return $row['tipo'] ?? null;
+    }
+
+    private function conteosReaccion(int $vacanteId): array
+    {
+        $db = \Config\Database::connect();
+        return [
+            'me_gusta'    => (int)$db->table('vac_reaccion')->where('vacante_id', $vacanteId)->where('tipo', 'me_gusta')->countAllResults(),
+            'no_me_gusta' => (int)$db->table('vac_reaccion')->where('vacante_id', $vacanteId)->where('tipo', 'no_me_gusta')->countAllResults(),
+        ];
     }
 
     /**

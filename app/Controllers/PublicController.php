@@ -126,11 +126,22 @@ class PublicController extends BaseController
     public function verVacante($slug): string
     {
         $vacanteModel = new VacanteModel();
-        $vacante = $vacanteModel->where('slug', $slug)->first();
+        $vacante = $vacanteModel
+            ->select('vac_vacante.*, emp_empresa.razon_social as empresa_nombre_db')
+            ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left')
+            ->where('slug', $slug)->first();
 
         if (!$vacante) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
+
+        // Metrica: contar vista del detalle
+        $db = \Config\Database::connect();
+        $db->table('vac_vacante')->where('id', $vacante['id'])->set('vistas', 'vistas+1', false)->update();
+        $vacante['vistas'] = (int)$vacante['vistas'] + 1;
+        $vacante['empresa_nombre'] = $vacante['empresa_nombre_db'] ?? $vacante['empresa_externa'];
+        $vacante['poster_url'] = !empty($vacante['poster']) ? base_url('uploads/' . $vacante['poster']) : null;
+        $vacante['mi_reaccion'] = $this->reaccionWeb($vacante['id']);
 
         return view('layouts/publico', [
             'content' => view('public/vacante-detalle', [
@@ -139,6 +150,90 @@ class PublicController extends BaseController
             'css' => ['vacante-detalle.css'],
             'js' => ['vacante-mapa.js'],
         ]);
+    }
+
+    /**
+     * POST /vacante/{id}/reaccion — me_gusta|no_me_gusta (web, anonimo por sesion/IP).
+     */
+    public function reaccionar($id)
+    {
+        $tipo = $this->request->getPost('tipo');
+        if (!in_array($tipo, ['me_gusta', 'no_me_gusta'], true)) {
+            return $this->response->setJSON(['error' => 'Tipo invalido'])->setStatusCode(422);
+        }
+
+        $db = \Config\Database::connect();
+        $vacante = $db->table('vac_vacante')->where('id', (int)$id)->get()->getRowArray();
+        if (!$vacante) {
+            return $this->response->setJSON(['error' => 'No encontrada'])->setStatusCode(404);
+        }
+
+        $identificador = $this->identificadorWeb();
+        $existente = $db->table('vac_reaccion')
+            ->where('vacante_id', (int)$id)
+            ->where('identificador', $identificador)
+            ->get()->getRowArray();
+
+        $miReaccion = null;
+        if ($existente && $existente['tipo'] === $tipo) {
+            $db->table('vac_reaccion')->where('id', $existente['id'])->delete();
+        } elseif ($existente) {
+            $db->table('vac_reaccion')->where('id', $existente['id'])->update(['tipo' => $tipo]);
+            $miReaccion = $tipo;
+        } else {
+            $db->table('vac_reaccion')->insert([
+                'vacante_id'    => (int)$id,
+                'user_id'       => session()->get('user_id'),
+                'identificador' => $identificador,
+                'tipo'          => $tipo,
+                'created_at'    => date('Y-m-d H:i:s'),
+            ]);
+            $miReaccion = $tipo;
+        }
+
+        $conteos = [
+            'me_gusta'    => (int)$db->table('vac_reaccion')->where('vacante_id', (int)$id)->where('tipo', 'me_gusta')->countAllResults(),
+            'no_me_gusta' => (int)$db->table('vac_reaccion')->where('vacante_id', (int)$id)->where('tipo', 'no_me_gusta')->countAllResults(),
+        ];
+        $db->table('vac_vacante')->where('id', (int)$id)->update($conteos);
+
+        return $this->response->setJSON($conteos + ['mi_reaccion' => $miReaccion]);
+    }
+
+    /**
+     * POST /vacante/{id}/compartir — contador de shares web.
+     */
+    public function compartir($id)
+    {
+        $db = \Config\Database::connect();
+        $existe = $db->table('vac_vacante')->where('id', (int)$id)->countAllResults();
+        if (!$existe) {
+            return $this->response->setJSON(['error' => 'No encontrada'])->setStatusCode(404);
+        }
+        $db->table('vac_vacante')->where('id', (int)$id)->set('compartidos', 'compartidos+1', false)->update();
+        $total = (int)$db->table('vac_vacante')->where('id', (int)$id)->get()->getRowArray()['compartidos'];
+        return $this->response->setJSON(['compartidos' => $total]);
+    }
+
+    /**
+     * Identificador de reaccion web: usuario logueado o hash sesion+IP.
+     */
+    private function identificadorWeb(): string
+    {
+        $userId = session()->get('user_id');
+        if ($userId) {
+            return 'u' . $userId;
+        }
+        return 'a' . substr(hash('sha256', (string)session_id() . $this->request->getIPAddress()), 0, 32);
+    }
+
+    private function reaccionWeb(int $vacanteId): ?string
+    {
+        $row = \Config\Database::connect()->table('vac_reaccion')
+            ->where('vacante_id', $vacanteId)
+            ->where('identificador', $this->identificadorWeb())
+            ->get()->getRowArray();
+        return $row['tipo'] ?? null;
     }
 
     public function planes(): string
