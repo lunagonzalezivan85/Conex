@@ -28,7 +28,7 @@
     <meta property="og:title" content="<?= isset($title) ? esc($title) . ' - CONEX' : 'CONEX - Conectando talentos con oportunidades' ?>">
     <meta property="og:description" content="<?= isset($meta_description) ? esc($meta_description) : 'Plataforma de reclutamiento de personal en Nicaragua. Busca vacantes y postulate gratis.' ?>">
     <meta property="og:url" content="<?= isset($canonical_url) ? esc($canonical_url) : current_url() ?>">
-    <meta property="og:image" content="<?= base_url('img/conex-og.jpg') ?>">
+    <meta property="og:image" content="<?= isset($og_image) ? esc($og_image) : base_url('img/conex-og.jpg') ?>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:locale" content="es_NI">
@@ -37,7 +37,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<?= isset($title) ? esc($title) . ' - CONEX' : 'CONEX - Conectando talentos con oportunidades' ?>">
     <meta name="twitter:description" content="<?= isset($meta_description) ? esc($meta_description) : 'Plataforma de reclutamiento de personal en Nicaragua. Busca vacantes y postulate gratis.' ?>">
-    <meta name="twitter:image" content="<?= base_url('img/conex-og.jpg') ?>">
+    <meta name="twitter:image" content="<?= isset($og_image) ? esc($og_image) : base_url('img/conex-og.jpg') ?>">
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="<?= base_url('favicon.ico') ?>">

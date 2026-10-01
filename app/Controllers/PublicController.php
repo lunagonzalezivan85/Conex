@@ -148,7 +148,7 @@ class PublicController extends BaseController
     {
         $vacanteModel = new VacanteModel();
         $vacante = $vacanteModel
-            ->select('vac_vacante.*, emp_empresa.razon_social as empresa_nombre_db')
+            ->select('vac_vacante.*, emp_empresa.razon_social as empresa_nombre_db, emp_empresa.logo as empresa_logo')
             ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left')
             ->where('slug', $slug)->first();
 
@@ -156,7 +156,7 @@ class PublicController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
-        // Metrica: contar vista del detalle
+        // Contar vista del detalle
         $db = \Config\Database::connect();
         $db->table('vac_vacante')->where('id', $vacante['id'])->set('vistas', 'vistas+1', false)->update();
         $vacante['vistas'] = (int)$vacante['vistas'] + 1;
@@ -164,12 +164,26 @@ class PublicController extends BaseController
         $vacante['poster_url'] = !empty($vacante['poster']) ? base_url('uploads/' . $vacante['poster']) : null;
         $vacante['mi_reaccion'] = $this->reaccionWeb($vacante['id']);
 
+        // SEO/Open Graph: titulo, descripcion e imagen del anuncio para compartir
+        $metaTitle = $vacante['titulo'] . ($vacante['empresa_nombre'] ? ' - ' . $vacante['empresa_nombre'] : '');
+        $metaDesc = trim(preg_replace('/\s+/', ' ', strip_tags((string)$vacante['descripcion'])));
+        $metaDesc = mb_substr($metaDesc, 0, 160);
+        if (!empty($vacante['ciudad'])) {
+            $metaDesc = $vacante['ciudad'] . ' · ' . $metaDesc;
+        }
+        $ogImage = $vacante['poster_url']
+            ?? (!empty($vacante['empresa_logo']) ? base_url('uploads/' . $vacante['empresa_logo']) : null);
+
         return view('layouts/publico', [
             'content' => view('public/vacante-detalle', [
                 'vacante' => $vacante,
             ]),
             'css' => ['vacante-detalle.css'],
             'js' => ['vacante-mapa.js'],
+            'title' => $metaTitle,
+            'meta_description' => $metaDesc,
+            'canonical_url' => base_url('vacante/' . $vacante['slug']),
+            'og_image' => $ogImage,
         ]);
     }
 
