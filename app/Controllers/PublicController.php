@@ -61,9 +61,9 @@ class PublicController extends BaseController
             $builder->like('vac_vacante.ciudad', $ciudad);
         }
 
-        // Datos de empresa para las cards
+        // Datos de empresa para las cards (fallback a empresa externa captada)
         $builder->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left');
-        $select = 'vac_vacante.*, emp_empresa.razon_social as empresa_nombre, emp_empresa.logo as empresa_logo';
+        $select = 'vac_vacante.*, COALESCE(emp_empresa.razon_social, vac_vacante.empresa_externa) as empresa_nombre, emp_empresa.logo as empresa_logo';
 
         // Filtro por geolocalizacion (Haversine, radio en km)
         $geoActivo = is_numeric($lat) && is_numeric($lng);
@@ -100,6 +100,27 @@ class PublicController extends BaseController
 
         $vacantes = $builder->paginate(12);
         $categorias = $categoriaModel->where('estado', 'activo')->findAll();
+
+        // Poster, iniciales de empresa y reaccion del usuario por vacante
+        $ids = array_column($vacantes, 'id');
+        $misReacciones = [];
+        if (!empty($ids)) {
+            $rows = \Config\Database::connect()->table('vac_reaccion')
+                ->select('vacante_id, tipo')
+                ->whereIn('vacante_id', $ids)
+                ->where('identificador', $this->identificadorWeb())
+                ->get()->getResultArray();
+            foreach ($rows as $r) {
+                $misReacciones[$r['vacante_id']] = $r['tipo'];
+            }
+        }
+        foreach ($vacantes as &$v) {
+            $v['poster_url'] = !empty($v['poster']) ? base_url('uploads/' . $v['poster']) : null;
+            $nombre = $v['empresa_nombre'] ?? $v['titulo'];
+            $v['empresa_iniciales'] = strtoupper(substr($nombre, 0, 1));
+            $v['mi_reaccion'] = $misReacciones[$v['id']] ?? null;
+        }
+        unset($v);
 
         return view('layouts/publico', [
             'content' => view('public/buscar-empleo', [

@@ -120,16 +120,20 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
     <div class="be-grid">
         <?php if (!empty($vacantes)): ?>
             <?php foreach ($vacantes as $v): ?>
-                <a href="<?= base_url('vacante/' . $v['slug']) ?>" class="card be-card">
-                    <div class="be-card-top">
-                        <?php if (!empty($v['empresa_logo'])): ?>
+                <div class="card be-card" data-vacante-id="<?= (int)$v['id'] ?>" data-slug="<?= esc($v['slug']) ?>">
+                    <a href="<?= base_url('vacante/' . $v['slug']) ?>" class="be-card-top">
+                        <?php if (!empty($v['poster_url'])): ?>
+                            <img src="<?= esc($v['poster_url']) ?>" alt="" class="be-card-logo be-card-poster">
+                        <?php elseif (!empty($v['empresa_logo'])): ?>
                             <img src="<?= base_url('uploads/' . $v['empresa_logo']) ?>" alt="" class="be-card-logo">
                         <?php else: ?>
-                            <div class="be-card-icon"><?= strtoupper(substr($v['empresa_nombre'] ?? $v['titulo'], 0, 1)) ?></div>
+                            <div class="be-card-icon"><?= esc($v['empresa_iniciales']) ?></div>
                         <?php endif; ?>
                         <span class="be-card-date"><?= isset($v['fecha_publicacion']) ? date('d M', strtotime($v['fecha_publicacion'])) : '' ?></span>
-                    </div>
-                    <h3 class="be-card-title"><?= esc($v['titulo']) ?></h3>
+                    </a>
+                    <a href="<?= base_url('vacante/' . $v['slug']) ?>" class="be-card-title-link">
+                        <h3 class="be-card-title"><?= esc($v['titulo']) ?></h3>
+                    </a>
                     <?php if (!empty($v['empresa_nombre'])): ?>
                         <p class="be-card-empresa"><?= esc($v['empresa_nombre']) ?></p>
                     <?php endif; ?>
@@ -151,7 +155,25 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
                             <span class="badge badge-warning"><?= $v['anios_experiencia'] ?> ano(s) exp.</span>
                         <?php endif; ?>
                     </div>
-                </a>
+                    <div class="be-card-metrics">
+                        <button type="button" class="be-metric be-m-like<?= ($v['mi_reaccion'] ?? '') === 'me_gusta' ? ' active' : '' ?>" data-tipo="me_gusta" aria-label="Me gusta" aria-pressed="<?= ($v['mi_reaccion'] ?? '') === 'me_gusta' ? 'true' : 'false' ?>">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                            <span class="be-count-like"><?= (int)($v['me_gusta'] ?? 0) ?></span>
+                        </button>
+                        <button type="button" class="be-metric be-m-dislike<?= ($v['mi_reaccion'] ?? '') === 'no_me_gusta' ? ' active' : '' ?>" data-tipo="no_me_gusta" aria-label="No me gusta" aria-pressed="<?= ($v['mi_reaccion'] ?? '') === 'no_me_gusta' ? 'true' : 'false' ?>">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+                            <span class="be-count-dislike"><?= (int)($v['no_me_gusta'] ?? 0) ?></span>
+                        </button>
+                        <button type="button" class="be-metric be-m-share" aria-label="Compartir">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                            <span class="be-count-share"><?= (int)($v['compartidos'] ?? 0) ?></span>
+                        </button>
+                        <span class="be-metric be-m-views" title="Vistas">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            <?= (int)($v['vistas'] ?? 0) ?>
+                        </span>
+                    </div>
+                </div>
             <?php endforeach; ?>
         <?php else: ?>
             <div class="card resultados-empty be-empty">
@@ -167,3 +189,55 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
         <div class="pagination-wrapper"><?= $pager->links() ?></div>
     <?php endif; ?>
 </div>
+
+<script>
+(function () {
+    const csrfName = '<?= csrf_token() ?>';
+    const csrfHash = '<?= csrf_hash() ?>';
+    const baseUrl = '<?= base_url() ?>';
+
+    async function postMetric(url, tipo) {
+        const body = new URLSearchParams();
+        if (tipo) body.set('tipo', tipo);
+        body.set(csrfName, csrfHash);
+        try {
+            const res = await fetch(url, { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' }, body });
+            return await res.json();
+        } catch (e) { return null; }
+    }
+
+    document.querySelectorAll('.be-card').forEach(card => {
+        const id = card.dataset.vacanteId;
+        const slug = card.dataset.slug;
+
+        card.querySelectorAll('.be-m-like, .be-m-dislike').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const data = await postMetric(`${baseUrl}vacante/${id}/reaccion`, btn.dataset.tipo);
+                if (!data || data.error) return;
+                card.querySelector('.be-count-like').textContent = data.me_gusta;
+                card.querySelector('.be-count-dislike').textContent = data.no_me_gusta;
+                const like = card.querySelector('.be-m-like');
+                const dislike = card.querySelector('.be-m-dislike');
+                like.classList.toggle('active', data.mi_reaccion === 'me_gusta');
+                dislike.classList.toggle('active', data.mi_reaccion === 'no_me_gusta');
+                like.setAttribute('aria-pressed', data.mi_reaccion === 'me_gusta');
+                dislike.setAttribute('aria-pressed', data.mi_reaccion === 'no_me_gusta');
+            });
+        });
+
+        const shareBtn = card.querySelector('.be-m-share');
+        if (shareBtn) shareBtn.addEventListener('click', async () => {
+            const url = `${baseUrl}vacante/${slug}`;
+            if (navigator.share) {
+                try { await navigator.share({ title: card.querySelector('.be-card-title').textContent, url }); } catch (e) {}
+            } else if (navigator.clipboard) {
+                try { await navigator.clipboard.writeText(url); } catch (e) {}
+            }
+            const data = await postMetric(`${baseUrl}vacante/${id}/compartir`);
+            if (data && data.compartidos !== undefined) {
+                card.querySelector('.be-count-share').textContent = data.compartidos;
+            }
+        });
+    });
+})();
+</script>

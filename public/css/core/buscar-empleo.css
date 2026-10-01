@@ -48,3 +48,31 @@
     .buscar-layout { grid-template-columns: 1fr; }
     .filtros { position: static; }
 }
+
+/* Poster + metricas en cards */
+.be-card-top { display: flex; align-items: center; justify-content: space-between; text-decoration: none; }
+.be-card-poster { object-fit: cover; }
+.be-card-title-link { text-decoration: none; color: inherit; }
+.be-card-title-link:hover .be-card-title { color: #1B2A4A; }
+.be-card-metrics {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 12px; padding-top: 10px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+}
+.be-metric {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 5px 10px; border-radius: 16px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  background: transparent; color: var(--text-secondary, #6b7280);
+  font-size: 12px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: all 0.15s ease; min-height: 32px;
+}
+.be-metric svg { width: 14px; height: 14px; }
+button.be-metric:hover { border-color: #1B2A4A; color: #1B2A4A; }
+.be-metric.active.be-m-like { background: #1B2A4A; border-color: #1B2A4A; color: #fff; }
+.be-metric.active.be-m-dislike { background: #ef4444; border-color: #ef4444; color: #fff; }
+.be-metric.be-m-share:hover { border-color: #0FC6C2; color: #0FC6C2; }
+.be-metric.be-m-views {
+  border: none; cursor: default; margin-left: auto;
+  color: var(--text-secondary, #9ca3af);
+}
