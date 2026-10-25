@@ -1,13 +1,14 @@
-<div class="noticias-hero">
-    <div class="noticias-hero-inner">
+<section class="page-hero">
+    <div class="page-hero-inner">
+        <span class="page-hero-eyebrow">Blog</span>
         <h1>Noticias</h1>
-        <p>Mantente al dia sobre empleo, reclutamiento y mercado laboral</p>
+        <p>Mantente al dia sobre empleo, reclutamiento y mercado laboral.</p>
     </div>
-</div>
+</section>
 
 <div class="container noticias-page">
     <?php if (!empty($noticias)): ?>
-        <div class="noticias-list">
+        <div class="noticias-list reveal">
             <?php $i = 0; foreach ($noticias as $n): ?>
                 <article class="noticia-item <?= $i % 2 === 1 ? 'noticia-item-reverse' : '' ?>">
                     <?php if (!empty($n['imagen'])): ?>

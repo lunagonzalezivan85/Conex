@@ -1357,6 +1357,237 @@ class CandidatoController extends BaseController
         ]);
     }
 
+    // ============ MODULO SERVICIOS (prestador) ============
+    // El candidato decide si aparece en el directorio publico.
+    // El telefono del solicitante solo se revela al ACEPTAR la solicitud.
+
+    private function candidatoActual(): ?array
+    {
+        if (!session()->get('isLoggedIn')) {
+            return null;
+        }
+        $userModel = new UserModel();
+        if ($userModel->getRoleSlug(session()->get('role_id')) !== 'candidato') {
+            return null;
+        }
+        return (new CandidatoModel())->where('user_id', session()->get('user_id'))->first() ?: null;
+    }
+
+    public function misServicios()
+    {
+        $candidato = $this->candidatoActual();
+        if (!$candidato) {
+            return redirect()->to('login');
+        }
+
+        $db = \Config\Database::connect();
+        $servicios = $db->table('srv_servicio')
+            ->where('candidato_id', $candidato['id'])
+            ->where('deleted_at IS NULL')
+            ->orderBy('created_at', 'DESC')
+            ->get()->getResultArray();
+
+        $pendientes = $db->table('srv_contacto')
+            ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
+            ->where('srv_servicio.candidato_id', $candidato['id'])
+            ->where('srv_contacto.estado', 'pendiente')
+            ->countAllResults();
+
+        $content = view('candidato/servicios', [
+            'candidato'  => $candidato,
+            'servicios'  => $servicios,
+            'pendientes' => $pendientes,
+        ]);
+
+        return view('layouts/panel', [
+            'content' => $content,
+            'title' => 'Mis Servicios',
+            'pageTitle' => 'Mis Servicios',
+            'roleSlug' => 'candidato',
+            'sidebarSections' => $this->getSidebarSections(),
+            'activeSection' => 'servicios',
+            'css' => ['servicios.css'],
+        ]);
+    }
+
+    /** POST: activar/desactivar aparicion en el directorio + zona publica. */
+    public function configurarServicios()
+    {
+        $candidato = $this->candidatoActual();
+        if (!$candidato) {
+            return redirect()->to('login');
+        }
+
+        $activo = $this->request->getPost('ofrece_servicios') ? 1 : 0;
+        $zona   = mb_substr(trim((string)$this->request->getPost('zona_servicio')), 0, 150);
+
+        (new CandidatoModel())->update($candidato['id'], [
+            'ofrece_servicios' => $activo,
+            'zona_servicio'    => $zona ?: null,
+        ]);
+
+        $msg = $activo
+            ? 'Ya apareces en el directorio de servicios.'
+            : 'Saliste del directorio. Tus servicios quedan pausados.';
+        return redirect()->to('candidato/servicios')->with('info', $msg);
+    }
+
+    public function guardarServicio()
+    {
+        $candidato = $this->candidatoActual();
+        if (!$candidato) {
+            return redirect()->to('login');
+        }
+
+        $oficio      = mb_substr(trim((string)$this->request->getPost('oficio')), 0, 100);
+        $descripcion = mb_substr(trim((string)$this->request->getPost('descripcion')), 0, 2000);
+        $ciudad      = mb_substr(trim((string)$this->request->getPost('ciudad')), 0, 100);
+        $zona        = mb_substr(trim((string)$this->request->getPost('zona')), 0, 150);
+        $precio      = $this->request->getPost('precio_desde');
+        $precioTipo  = (string)$this->request->getPost('precio_tipo');
+
+        if ($oficio === '') {
+            return redirect()->back()->withInput()
+                ->with('error', 'El oficio es obligatorio (ej: Electricista).');
+        }
+        if (!in_array($precioTipo, ['por_hora', 'por_servicio', 'a_convenir'], true)) {
+            $precioTipo = 'a_convenir';
+        }
+
+        $db = \Config\Database::connect();
+        $db->table('srv_servicio')->insert([
+            'candidato_id' => $candidato['id'],
+            'oficio'       => $oficio,
+            'descripcion'  => $descripcion ?: null,
+            'precio_desde' => is_numeric($precio) ? (float)$precio : null,
+            'precio_tipo'  => $precioTipo,
+            'ciudad'       => $ciudad ?: ($candidato['ciudad'] ?? null),
+            'zona'         => $zona ?: ($candidato['zona_servicio'] ?? null),
+            'estado'       => 'activo',
+            'created_at'   => date('Y-m-d H:i:s'),
+        ]);
+
+        // Crear el primer servicio activa el opt-in automaticamente
+        if (empty($candidato['ofrece_servicios'])) {
+            (new CandidatoModel())->update($candidato['id'], ['ofrece_servicios' => 1]);
+        }
+
+        return redirect()->to('candidato/servicios')->with('info', 'Servicio publicado.');
+    }
+
+    public function estadoServicio($id)
+    {
+        $candidato = $this->candidatoActual();
+        if (!$candidato) {
+            return redirect()->to('login');
+        }
+
+        $db = \Config\Database::connect();
+        $srv = $db->table('srv_servicio')
+            ->where('id', (int)$id)->where('candidato_id', $candidato['id'])
+            ->where('deleted_at IS NULL')->get()->getRowArray();
+        if (!$srv) {
+            return redirect()->to('candidato/servicios')->with('error', 'Servicio no encontrado.');
+        }
+
+        $nuevo = $srv['estado'] === 'activo' ? 'pausado' : 'activo';
+        $db->table('srv_servicio')->where('id', (int)$id)->update([
+            'estado' => $nuevo, 'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->to('candidato/servicios')
+            ->with('info', $nuevo === 'activo' ? 'Servicio activado.' : 'Servicio pausado.');
+    }
+
+    public function eliminarServicio($id)
+    {
+        $candidato = $this->candidatoActual();
+        if (!$candidato) {
+            return redirect()->to('login');
+        }
+
+        $db = \Config\Database::connect();
+        $srv = $db->table('srv_servicio')
+            ->where('id', (int)$id)->where('candidato_id', $candidato['id'])
+            ->where('deleted_at IS NULL')->get()->getRowArray();
+        if (!$srv) {
+            return redirect()->to('candidato/servicios')->with('error', 'Servicio no encontrado.');
+        }
+
+        $db->table('srv_servicio')->where('id', (int)$id)
+            ->update(['deleted_at' => date('Y-m-d H:i:s')]);
+
+        return redirect()->to('candidato/servicios')->with('info', 'Servicio eliminado.');
+    }
+
+    /** Solicitudes de contacto recibidas. Telefono oculto hasta aceptar. */
+    public function solicitudesServicio()
+    {
+        $candidato = $this->candidatoActual();
+        if (!$candidato) {
+            return redirect()->to('login');
+        }
+
+        $db = \Config\Database::connect();
+        $solicitudes = $db->table('srv_contacto')
+            ->select('srv_contacto.id, srv_contacto.nombre, srv_contacto.mensaje,
+                srv_contacto.estado, srv_contacto.created_at,
+                srv_servicio.oficio,
+                IF(srv_contacto.estado = "aceptado", srv_contacto.telefono, NULL) AS telefono')
+            ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
+            ->where('srv_servicio.candidato_id', $candidato['id'])
+            ->orderBy('srv_contacto.created_at', 'DESC')
+            ->limit(100)
+            ->get()->getResultArray();
+
+        $content = view('candidato/solicitudes', ['solicitudes' => $solicitudes]);
+
+        return view('layouts/panel', [
+            'content' => $content,
+            'title' => 'Solicitudes',
+            'pageTitle' => 'Solicitudes de contacto',
+            'roleSlug' => 'candidato',
+            'sidebarSections' => $this->getSidebarSections(),
+            'activeSection' => 'solicitudes',
+            'css' => ['servicios.css'],
+        ]);
+    }
+
+    /** POST: aceptar (revela telefono) o rechazar (nunca se muestra). */
+    public function responderSolicitud($id)
+    {
+        $candidato = $this->candidatoActual();
+        if (!$candidato) {
+            return redirect()->to('login');
+        }
+
+        $accion = (string)$this->request->getPost('accion');
+        if (!in_array($accion, ['aceptar', 'rechazar'], true)) {
+            return redirect()->back()->with('error', 'Accion invalida.');
+        }
+
+        $db = \Config\Database::connect();
+        $sol = $db->table('srv_contacto')
+            ->select('srv_contacto.id')
+            ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
+            ->where('srv_contacto.id', (int)$id)
+            ->where('srv_servicio.candidato_id', $candidato['id'])
+            ->get()->getRowArray();
+        if (!$sol) {
+            return redirect()->to('candidato/solicitudes')->with('error', 'Solicitud no encontrada.');
+        }
+
+        $db->table('srv_contacto')->where('id', (int)$id)->update([
+            'estado'     => $accion === 'aceptar' ? 'aceptado' : 'rechazado',
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        $msg = $accion === 'aceptar'
+            ? 'Solicitud aceptada. Ya puedes ver el contacto del cliente.'
+            : 'Solicitud rechazada.';
+        return redirect()->to('candidato/solicitudes')->with('info', $msg);
+    }
+
     private function getSidebarSections(): array
     {
         $iconHome = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>';
@@ -1380,6 +1611,13 @@ class CandidatoController extends BaseController
                 'title' => 'Empleo',
                 'links' => [
                     ['key' => 'buscar', 'url' => 'candidato/buscar-empleo', 'label' => 'Buscar Vacantes', 'icon' => $iconSearch],
+                ],
+            ],
+            [
+                'title' => 'Servicios',
+                'links' => [
+                    ['key' => 'servicios', 'url' => 'candidato/servicios', 'label' => 'Mis Servicios', 'icon' => $iconBriefcase],
+                    ['key' => 'solicitudes', 'url' => 'candidato/solicitudes', 'label' => 'Solicitudes', 'icon' => $iconFile],
                 ],
             ],
             [

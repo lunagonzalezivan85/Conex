@@ -1,4 +1,4 @@
-// Mapa de solo lectura para detalle de vacante
+// Mapa de solo lectura para detalle de vacante — MapLibre + OpenFreeMap Liberty
 document.addEventListener('DOMContentLoaded', function() {
     var mapEl = document.getElementById('vacanteMapa');
     if (!mapEl) return;
@@ -12,36 +12,41 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var titulo = mapEl.dataset.titulo || 'Ubicacion';
 
-    // Cargar Leaflet si no esta presente
     function init() {
-        var map = L.map('vacanteMapa', {
-            zoomControl: true,
-            scrollWheelZoom: false
-        }).setView([lat, lng], 14);
+        var map = new maplibregl.Map({
+            container: 'vacanteMapa',
+            style: 'https://tiles.openfreemap.org/styles/liberty',
+            center: [lng, lat],
+            zoom: 14,
+            attributionControl: { compact: true },
+            cooperativeGestures: true // no secuestrar el scroll de la pagina
+        });
+        map.addControl(new maplibregl.NavigationControl(), 'top-right');
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap',
-            maxZoom: 18
-        }).addTo(map);
+        // Pin navy/naranja (mismo estilo que el mapa de busqueda)
+        var el = document.createElement('span');
+        el.className = 'cx-map-pin';
+        el.title = titulo;
 
-        L.marker([lat, lng]).addTo(map)
-            .bindPopup(titulo)
-            .openPopup();
-
-        // Activar scroll zoom solo al hacer clic (mejor UX en scroll de pagina)
-        map.on('click', function() { map.scrollWheelZoom.enable(); });
-        map.on('mouseout', function() { map.scrollWheelZoom.disable(); });
+        new maplibregl.Marker({ element: el })
+            .setLngLat([lng, lat])
+            .setPopup(
+                new maplibregl.Popup({ offset: 18 })
+                    .setHTML('<div class="cx-pop"><strong>' + titulo + '</strong></div>')
+            )
+            .addTo(map)
+            .togglePopup();
     }
 
-    if (typeof L !== 'undefined') {
+    if (typeof maplibregl !== 'undefined') {
         init();
     } else {
         var link = document.createElement('link');
         link.rel = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        link.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
         document.head.appendChild(link);
         var script = document.createElement('script');
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        script.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
         script.onload = init;
         document.head.appendChild(script);
     }

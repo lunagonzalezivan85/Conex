@@ -124,3 +124,7 @@ _modules/*
 
 /results/
 /phpunit.xml
+
+# Documentos de trabajo (no parte de la app)
+business-canvas.html
+test.md

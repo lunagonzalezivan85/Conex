@@ -11,7 +11,7 @@
     </div>
 </section>
 
-<section class="container nosotros-stats" id="nosotrosStats">
+<section class="container nosotros-stats reveal" id="nosotrosStats">
     <div class="stat-card" data-target="500" data-suffix="+">
         <span class="stat-number">0</span>
         <span class="stat-label">Vacantes activas</span>
@@ -30,7 +30,7 @@
     </div>
 </section>
 
-<section class="container nosotros-mision">
+<section class="container nosotros-mision reveal">
     <div class="nosotros-mision-text">
         <span class="section-tag">Nuestra mision</span>
         <h2>Transformamos la forma en que las empresas y los candidatos se conectan</h2>
@@ -55,7 +55,7 @@
     </div>
 </section>
 
-<section class="nosotros-valores">
+<section class="nosotros-valores reveal">
     <div class="container">
         <div class="section-header-center">
             <span class="section-tag">Nuestros valores</span>
@@ -94,7 +94,7 @@
     </div>
 </section>
 
-<section class="nosotros-timeline">
+<section class="nosotros-timeline reveal">
     <div class="container">
         <div class="section-header-center">
             <span class="section-tag">Nuestra historia</span>
@@ -129,7 +129,7 @@
     </div>
 </section>
 
-<section class="nosotros-ubicacion">
+<section class="nosotros-ubicacion reveal">
     <div class="container">
         <div class="section-header-center">
             <span class="section-tag">Donde estamos</span>
@@ -176,7 +176,7 @@
     </div>
 </section>
 
-<section class="nosotros-cta">
+<section class="nosotros-cta reveal">
     <div class="container nosotros-cta-inner">
         <h2>Listo para empezar?</h2>
         <p>Unete a CONEX y forma parte de la nueva era del reclutamiento en Nicaragua.</p>

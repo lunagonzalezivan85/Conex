@@ -8,18 +8,129 @@ $ordenLabels = [
 ];
 $ordenActual = $filtros['orden'] ?? 'reciente';
 $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad']) + (int)!empty($filtros['ciudad']) + (int)!empty($filtros['lat']);
+$vista = $vista ?? 'listado';
+$qsBase = array_filter($_GET ?? [], function ($v) { return $v !== '' && $v !== null; });
+$urlLista = base_url('buscar-empleo') . '?' . http_build_query(array_merge($qsBase, ['vista' => 'listado']));
+$urlMapa  = base_url('buscar-empleo') . '?' . http_build_query(array_merge($qsBase, ['vista' => 'mapa']));
 ?>
-<div class="container buscar-empleo">
-    <h1>Buscar Empleo</h1>
 
-    <form action="<?= base_url('buscar-empleo') ?>" method="get" id="filterForm">
-
-        <!-- Topbar: busqueda + orden + filtros + paginacion -->
-        <div class="be-topbar">
-            <div class="be-search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="be-search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="text" name="q" placeholder="Buscar por titulo o palabra clave..." value="<?= esc($filtros['q']) ?>">
+<?php if ($vista === 'mapa'): ?>
+<!-- ============ VISTA MAPA (fullscreen, sin hero) ============ -->
+<section class="be-mapa-view">
+    <aside class="be-mapa-panel">
+        <div class="be-mapa-panel-top">
+            <a href="<?= $urlLista ?>" class="be-mapa-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5"/><polyline points="12 19 5 12 12 5"/></svg>
+                Listado
+            </a>
+            <div class="be-scope">
+                <span class="be-scope-pill active">Empleos</span>
+                <a href="<?= base_url('servicios') ?>" class="be-scope-pill">Servicios</a>
             </div>
+        </div>
+
+        <form action="<?= base_url('buscar-empleo') ?>" method="get" class="be-mapa-form" id="mapaFilterForm">
+            <input type="hidden" name="vista" value="mapa">
+            <div class="be-search be-search-sm">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="be-search-icon"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" name="q" placeholder="Titulo o palabra clave..." value="<?= esc($filtros['q']) ?>">
+            </div>
+            <select name="categoria" class="form-control">
+                <option value="">Todas las categorias</option>
+                <?php if (!empty($categorias)): ?>
+                    <?php foreach ($categorias as $cat): ?>
+                        <option value="<?= $cat['id'] ?>" <?= $filtros['categoria'] == $cat['id'] ? 'selected' : '' ?>><?= esc($cat['nombre']) ?></option>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </select>
+            <select name="modalidad" class="form-control">
+                <option value="">Toda modalidad</option>
+                <option value="presencial" <?= $filtros['modalidad'] === 'presencial' ? 'selected' : '' ?>>Presencial</option>
+                <option value="remoto" <?= $filtros['modalidad'] === 'remoto' ? 'selected' : '' ?>>Remoto</option>
+                <option value="hibrido" <?= $filtros['modalidad'] === 'hibrido' ? 'selected' : '' ?>>Hibrido</option>
+            </select>
+            <input type="text" name="ciudad" class="form-control" placeholder="Ciudad..." value="<?= esc($filtros['ciudad']) ?>">
+
+            <button type="button" class="btn btn-outline btn-sm" id="btnMapaUbicacion">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="9"/></svg>
+                Cerca de mi
+            </button>
+            <div class="geo-radio-row">
+                <input type="range" name="radio" id="mapRadio" min="5" max="200" step="5" value="<?= (int)$filtros['radio'] ?>">
+                <span class="geo-radio-value" id="mapRadioValue"><?= (int)$filtros['radio'] ?> km</span>
+            </div>
+            <input type="hidden" name="lat" id="mapLat" value="<?= esc($filtros['lat'] ?? '') ?>">
+            <input type="hidden" name="lng" id="mapLng" value="<?= esc($filtros['lng'] ?? '') ?>">
+
+            <button type="submit" class="btn btn-primary btn-block">Aplicar filtros</button>
+        </form>
+        <p class="be-mapa-count"><?= count($vacantesMapa ?? []) ?> vacante(s) con ubicacion en el mapa</p>
+    </aside>
+    <div id="mapaCompleto" class="be-mapa-full"></div>
+    <script>
+    window.cxVacantesMapa = <?= json_encode($vacantesMapa ?? [], JSON_UNESCAPED_UNICODE) ?>;
+    window.cxCiudadFiltro = <?= json_encode($filtros['ciudad'] ?? '') ?>;
+    window.cxGeoJsonUrl = <?= json_encode(base_url('js/data/nic-departamentos.geojson')) ?>;
+    </script>
+</section>
+
+<?php else: ?>
+<!-- ============ VISTA LISTADO ============ -->
+<section class="page-hero">
+    <div class="page-hero-inner">
+        <div class="page-hero-top">
+            <a href="<?= $urlMapa ?>" class="be-view-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Ver en mapa
+            </a>
+        </div>
+        <h1>Encuentra tu proxima <span class="hero-accent">oportunidad</span></h1>
+        <p><?= count($vacantes ?? []) ?> vacante(s) <?= !empty($filtros['q']) || $activos > 0 ? 'con los filtros aplicados' : 'activas ahora' ?></p>
+
+        <form action="<?= base_url('buscar-empleo') ?>" method="get" class="be-hero-search">
+            <div class="be-search-pill">
+                <select id="heroScope" class="be-scope-select" aria-label="Buscar empleos o servicios">
+                    <option value="empleos" selected>Empleos</option>
+                    <option value="servicios">Servicios</option>
+                </select>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" name="q" id="heroSearchInput" placeholder="Titulo, palabra clave, empresa..." value="<?= esc($filtros['q']) ?>">
+                <?php foreach (['lat','lng','radio','orden'] as $keep): ?>
+                    <?php if (!empty($filtros[$keep])): ?><input type="hidden" name="<?= $keep ?>" value="<?= esc($filtros[$keep]) ?>"><?php endif; ?>
+                <?php endforeach; ?>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+            <div class="be-hero-chips">
+                <select name="categoria" id="heroCat" class="be-chip">
+                    <option value="">Todas las categorias</option>
+                    <?php if (!empty($categorias)): ?>
+                        <?php foreach ($categorias as $cat): ?>
+                            <option value="<?= $cat['id'] ?>" <?= $filtros['categoria'] == $cat['id'] ? 'selected' : '' ?>><?= esc($cat['nombre']) ?></option>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </select>
+                <select name="modalidad" id="heroModalidad" class="be-chip">
+                    <option value="">Modalidad</option>
+                    <option value="presencial" <?= $filtros['modalidad'] === 'presencial' ? 'selected' : '' ?>>Presencial</option>
+                    <option value="remoto" <?= $filtros['modalidad'] === 'remoto' ? 'selected' : '' ?>>Remoto</option>
+                    <option value="hibrido" <?= $filtros['modalidad'] === 'hibrido' ? 'selected' : '' ?>>Hibrido</option>
+                </select>
+                <input type="text" name="ciudad" id="heroCiudad" class="be-chip be-chip-input" placeholder="Ciudad..." value="<?= esc($filtros['ciudad']) ?>">
+                <button type="button" class="be-chip be-chip-btn" id="btnFiltros">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                    Filtros<?php if ($activos > 0): ?> (<?= $activos ?>)<?php endif; ?>
+                </button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<div class="container buscar-empleo">
+    <form action="<?= base_url('buscar-empleo') ?>" method="get" id="filterForm">
+        <input type="hidden" name="q" value="<?= esc($filtros['q']) ?>">
+
+        <!-- Topbar: orden + paginacion -->
+        <div class="be-topbar be-topbar-slim">
 
             <div class="be-actions">
                 <!-- Dropdown ordenar -->
@@ -37,17 +148,11 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
                     <input type="hidden" name="orden" id="ordenInput" value="<?= esc($ordenActual) ?>">
                 </div>
 
-                <!-- Boton filtros -->
-                <button type="button" class="btn btn-outline be-filter-btn" id="btnFiltros">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-                    Filtros
-                    <?php if ($activos > 0): ?><span class="be-filter-count"><?= $activos ?></span><?php endif; ?>
-                </button>
             </div>
 
             <?php if (isset($pager) && $pager): ?>
             <div class="be-pagination-top">
-                <?= $pager->links() ?>
+                <?= $pager->links('default', 'conex_full') ?>
             </div>
             <?php endif; ?>
         </div>
@@ -94,8 +199,7 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="9"/></svg>
                             Mi ubicacion
                         </button>
-                        <p class="geo-hint" id="geoLabel"><?= !empty($filtros['lat']) ? 'Ubicacion seleccionada' : 'o haz clic en el mapa' ?></p>
-                        <div id="geoMapa" class="geo-mapa"></div>
+                        <p class="geo-hint" id="geoLabel"><?= !empty($filtros['lat']) ? 'Ubicacion seleccionada' : 'Usa tu ubicacion GPS para filtrar por distancia' ?></p>
                         <div class="geo-radio-row">
                             <input type="range" id="geoRadio" min="5" max="200" step="5" value="<?= esc($filtros['radio'] ?? 50) ?>">
                             <span class="geo-radio-value" id="geoRadioValue"><?= (int)($filtros['radio'] ?? 50) ?> km</span>
@@ -117,7 +221,7 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
     <!-- Resultados en cards -->
     <p class="resultados-count"><?= count($vacantes) ?> resultado(s) encontrado(s)</p>
 
-    <div class="be-grid">
+    <div class="be-grid reveal">
         <?php if (!empty($vacantes)): ?>
             <?php foreach ($vacantes as $v): ?>
                 <div class="card be-card" data-vacante-id="<?= (int)$v['id'] ?>" data-slug="<?= esc($v['slug']) ?>">
@@ -177,7 +281,7 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
             <?php endforeach; ?>
         <?php else: ?>
             <div class="card resultados-empty be-empty">
-                <p class="empty-state-icon">&#128269;</p>
+                <p class="empty-state-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></p>
                 <h3>No se encontraron vacantes</h3>
                 <p>Intenta ajustar los filtros de busqueda.</p>
                 <a href="<?= base_url('buscar-empleo') ?>" class="btn btn-outline">Limpiar filtros</a>
@@ -186,7 +290,7 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
     </div>
 
     <?php if (isset($pager) && $pager): ?>
-        <div class="pagination-wrapper"><?= $pager->links() ?></div>
+        <div class="pagination-wrapper"><?= $pager->links('default', 'conex_full') ?></div>
     <?php endif; ?>
 </div>
 
@@ -241,3 +345,5 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
     });
 })();
 </script>
+
+<?php endif; ?>

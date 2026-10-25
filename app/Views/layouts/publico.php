@@ -117,6 +117,7 @@
                 <a href="<?= base_url('nosotros') ?>">Nosotros</a>
                 <a href="<?= base_url('planes') ?>">Planes</a>
                 <a href="<?= base_url('buscar-empleo') ?>">Empleos</a>
+                <a href="<?= base_url('servicios') ?>">Servicios</a>
             </div>
             <div class="header-actions">
                 <a href="<?= base_url('login') ?>" class="btn btn-ghost">Iniciar Sesion</a>

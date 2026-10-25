@@ -133,4 +133,49 @@ document.addEventListener('DOMContentLoaded', function() {
         }, { threshold: 0.5 });
         statCards.forEach(function(c) { observer.observe(c); });
     }
+
+    // ===== V2: reveal on scroll (todas las paginas publicas) =====
+    var revealEls = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window && revealEls.length) {
+        var revIO = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('reveal-visible');
+                    revIO.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12 });
+        revealEls.forEach(function(el) { revIO.observe(el); });
+    } else {
+        revealEls.forEach(function(el) { el.classList.add('reveal-visible'); });
+    }
+
+    // ===== V2: contadores .counter[data-target] =====
+    function cxAnimateCounter(el) {
+        var target = parseInt(el.dataset.target, 10) || 0;
+        var duration = 1600;
+        var start = null;
+        function tick(now) {
+            if (!start) start = now;
+            var p = Math.min((now - start) / duration, 1);
+            var eased = 1 - Math.pow(1 - p, 3);
+            el.textContent = Math.round(target * eased).toLocaleString('es-NI');
+            if (p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    }
+    var cxCounters = document.querySelectorAll('.counter[data-target]');
+    if ('IntersectionObserver' in window && cxCounters.length) {
+        var cIO = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (entry.isIntersecting) {
+                    cxAnimateCounter(entry.target);
+                    cIO.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.4 });
+        cxCounters.forEach(function(el) { cIO.observe(el); });
+    } else {
+        cxCounters.forEach(cxAnimateCounter);
+    }
 });

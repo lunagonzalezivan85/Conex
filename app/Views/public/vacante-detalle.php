@@ -4,7 +4,7 @@
         Volver a buscar
     </a>
 
-    <div class="card vd-header-card">
+    <div class="card vd-header-card reveal">
         <div class="vd-header-top">
             <div class="vd-header-icon"><?= strtoupper(substr($vacante['titulo'], 0, 1)) ?></div>
             <div class="vd-header-info">
@@ -44,6 +44,29 @@
                 <p class="vd-meta-value"><?= $vacante['max_postulantes'] > 0 ? $vacante['max_postulantes'] : 'Ilimitado' ?></p>
             </div>
         </div>
+
+        <div class="vd-metrics" data-vacante-id="<?= (int)$vacante['id'] ?>" data-mi-reaccion="<?= esc($vacante['mi_reaccion'] ?? '') ?>">
+          <div class="vd-metrics-pill">
+            <div class="vd-metrics-group">
+                <button type="button" class="vd-metric-btn vd-like<?= ($vacante['mi_reaccion'] ?? '') === 'me_gusta' ? ' active' : '' ?>" data-tipo="me_gusta" aria-pressed="<?= ($vacante['mi_reaccion'] ?? '') === 'me_gusta' ? 'true' : 'false' ?>">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+                    <span class="vd-count-like"><?= (int)($vacante['me_gusta'] ?? 0) ?></span>
+                </button>
+                <button type="button" class="vd-metric-btn vd-dislike<?= ($vacante['mi_reaccion'] ?? '') === 'no_me_gusta' ? ' active' : '' ?>" data-tipo="no_me_gusta" aria-pressed="<?= ($vacante['mi_reaccion'] ?? '') === 'no_me_gusta' ? 'true' : 'false' ?>">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+                    <span class="vd-count-dislike"><?= (int)($vacante['no_me_gusta'] ?? 0) ?></span>
+                </button>
+                <button type="button" class="vd-metric-btn vd-share" id="vdShareBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    <span class="vd-count-share"><?= (int)($vacante['compartidos'] ?? 0) ?></span>
+                </button>
+            </div>
+            <div class="vd-metrics-views">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span><?= (int)($vacante['vistas'] ?? 0) ?> vistas</span>
+            </div>
+          </div>
+        </div>
     </div>
 
     <?php if (!empty($vacante['latitud']) && !empty($vacante['longitud'])): ?>
@@ -64,27 +87,6 @@
         <img class="vd-poster" src="<?= esc($vacante['poster_url']) ?>" alt="Anuncio de la vacante" loading="lazy">
     </div>
     <?php endif; ?>
-
-    <div class="card vd-metrics" data-vacante-id="<?= (int)$vacante['id'] ?>" data-mi-reaccion="<?= esc($vacante['mi_reaccion'] ?? '') ?>">
-        <div class="vd-metrics-group">
-            <button type="button" class="vd-metric-btn vd-like<?= ($vacante['mi_reaccion'] ?? '') === 'me_gusta' ? ' active' : '' ?>" data-tipo="me_gusta" aria-pressed="<?= ($vacante['mi_reaccion'] ?? '') === 'me_gusta' ? 'true' : 'false' ?>">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
-                <span class="vd-count-like"><?= (int)($vacante['me_gusta'] ?? 0) ?></span>
-            </button>
-            <button type="button" class="vd-metric-btn vd-dislike<?= ($vacante['mi_reaccion'] ?? '') === 'no_me_gusta' ? ' active' : '' ?>" data-tipo="no_me_gusta" aria-pressed="<?= ($vacante['mi_reaccion'] ?? '') === 'no_me_gusta' ? 'true' : 'false' ?>">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H6.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
-                <span class="vd-count-dislike"><?= (int)($vacante['no_me_gusta'] ?? 0) ?></span>
-            </button>
-            <button type="button" class="vd-metric-btn vd-share" id="vdShareBtn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                <span class="vd-count-share"><?= (int)($vacante['compartidos'] ?? 0) ?></span>
-            </button>
-        </div>
-        <div class="vd-metrics-views">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            <span><?= (int)($vacante['vistas'] ?? 0) ?> vistas</span>
-        </div>
-    </div>
 
     <div class="card vd-section">
         <h2 class="vd-section-title">Descripcion</h2>

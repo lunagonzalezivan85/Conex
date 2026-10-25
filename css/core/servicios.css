@@ -1,0 +1,114 @@
+/* ============ DIRECTORIO DE SERVICIOS ============ */
+
+.srv-hero { margin-bottom: 18px; }
+.srv-hero-sub { color: var(--text-secondary); font-size: 14px; margin-top: 2px; }
+
+.srv-filter-inline {
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+}
+.srv-filter-inline .form-control { max-width: 220px; }
+
+/* Card del prestador */
+.srv-card { display: flex; flex-direction: column; gap: 8px; }
+.srv-card-head { display: flex; align-items: center; gap: 12px; }
+.srv-card-head-lg { gap: 16px; margin-bottom: 14px; }
+
+.srv-avatar {
+    width: 52px; height: 52px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+}
+.srv-avatar-ini {
+    background: var(--brand-navy); color: var(--brand-teal);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 18px;
+}
+.srv-avatar-lg { width: 76px; height: 76px; font-size: 26px; }
+
+.srv-nombre { font-size: 13px; font-weight: 700; color: var(--text-secondary); display: inline-flex; align-items: center; gap: 5px; }
+.srv-nombre-lg { font-size: 15px; }
+.srv-verified { color: var(--brand-teal); display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 800; }
+
+.srv-oficio-lg { font-size: 24px; font-weight: 800; color: var(--brand-navy); }
+.srv-desc { font-size: 12.5px; color: var(--text-secondary); }
+.srv-desc-lg { font-size: 14px; color: var(--text-primary); margin-bottom: 14px; }
+.srv-cta { margin-top: auto; text-align: center; display: block; }
+
+/* Detalle */
+.srv-back { display: inline-block; margin-bottom: 14px; color: var(--text-secondary); font-size: 13px; }
+.srv-back:hover { color: var(--brand-navy); }
+.srv-detalle-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; align-items: start; }
+.srv-perfil, .srv-contacto { padding: 24px; }
+.srv-contacto h3 { font-size: 16px; color: var(--brand-navy); margin-bottom: 6px; }
+.srv-contacto-nota { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px; line-height: 1.5; }
+
+.srv-otros { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+.srv-otros h4 { font-size: 13px; color: var(--brand-navy); margin-bottom: 8px; }
+.srv-otro-link { display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; color: var(--text-primary); padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.srv-otro-link:last-child { border-bottom: none; }
+.srv-otro-link span { color: var(--text-secondary); font-weight: 400; font-size: 12px; }
+
+.srv-report { margin-top: 18px; border-top: 1px dashed var(--border); padding-top: 12px; }
+.srv-report form { display: flex; gap: 8px; align-items: center; }
+.srv-report-motivo { font-size: 12px; max-width: 180px; }
+.srv-report-btn { background: none; border: none; color: var(--text-secondary); font-size: 12px; cursor: pointer; text-decoration: underline; }
+.srv-report-btn:hover { color: var(--danger); }
+
+/* ============ PANEL CANDIDATO ============ */
+
+.srv-panel { display: flex; flex-direction: column; gap: 16px; }
+.srv-panel .card { padding: 22px; }
+.srv-card-h { font-size: 15px; color: var(--brand-navy); margin-bottom: 14px; }
+
+.srv-optin { display: flex; gap: 20px; align-items: flex-start; }
+.srv-optin-info { flex: 1; }
+.srv-optin-info h3 { font-size: 15px; color: var(--brand-navy); margin-bottom: 6px; }
+.srv-optin-info p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.srv-pendientes-aviso { margin-top: 8px; font-size: 13px; color: var(--brand-orange, #FF8400); }
+.srv-optin-form { min-width: 260px; }
+.srv-zona-field { margin-top: 10px; }
+.srv-zona-field small { color: var(--text-secondary); font-size: 11px; }
+
+/* Switch */
+.srv-switch { display: inline-flex; align-items: center; gap: 10px; cursor: pointer; }
+.srv-switch input { display: none; }
+.srv-switch-track {
+    width: 42px; height: 24px; border-radius: 999px;
+    background: var(--border); position: relative; transition: background 0.2s;
+}
+.srv-switch-track::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; transition: transform 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.srv-switch input:checked + .srv-switch-track { background: var(--brand-teal); }
+.srv-switch input:checked + .srv-switch-track::after { transform: translateX(18px); }
+.srv-switch-label { font-size: 13px; font-weight: 700; color: var(--brand-navy); }
+
+.srv-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0 14px; }
+
+/* Lista de servicios / solicitudes */
+.srv-list { display: flex; flex-direction: column; }
+.srv-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 0; border-bottom: 1px dashed var(--border);
+}
+.srv-item:last-child { border-bottom: none; }
+.srv-item-pausado { opacity: 0.55; }
+.srv-item-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.srv-item-info strong { font-size: 14px; color: var(--brand-navy); }
+.srv-item-meta { font-size: 12px; color: var(--text-secondary); }
+.srv-item-desc { font-size: 12.5px; color: var(--text-secondary); font-style: italic; }
+.srv-item-tel { font-size: 13px; font-weight: 700; color: var(--brand-navy); }
+.srv-item-tel a { color: var(--brand-teal); }
+.srv-item-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.srv-item-actions form { margin: 0; }
+.srv-del { color: var(--danger); }
+.srv-empty { font-size: 13px; color: var(--text-secondary); padding: 10px 0; }
+.srv-sol-nota { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 12px; }
+
+@media (max-width: 820px) {
+    .srv-detalle-grid { grid-template-columns: 1fr; }
+    .srv-optin { flex-direction: column; }
+    .srv-optin-form { width: 100%; }
+}
