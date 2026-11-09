@@ -255,6 +255,10 @@ export const candidatoApi = {
     }),
 };
 
+export const usuarioApi = {
+  eliminarCuenta: () => api<{ message: string }>('/usuario/eliminar-cuenta', { method: 'POST' }),
+};
+
 export const empresaApi = {
   perfil: () => api('/empresa/perfil'),
   actualizarPerfil: (data: Record<string, any>) =>

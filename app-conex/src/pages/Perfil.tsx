@@ -11,11 +11,12 @@ import {
   documentTextOutline, constructOutline, starOutline, navigateOutline,
   cameraOutline, createOutline, addOutline, trashOutline, closeOutline,
   schoolOutline, sparklesOutline, languageOutline, chevronForward,
-  cloudUploadOutline, downloadOutline,
+  cloudUploadOutline, downloadOutline, shieldCheckmarkOutline, trashBinOutline,
+  openOutline,
 } from 'ionicons/icons';
 import { Geolocation } from '@capacitor/geolocation';
 import { useAuth } from '../context/AuthContext';
-import { candidatoApi, empresaApi, vacantesApi, CandidatoPerfilFull } from '../services/api';
+import { candidatoApi, empresaApi, vacantesApi, usuarioApi, CandidatoPerfilFull } from '../services/api';
 import '../theme/app.css';
 
 type EditModalType =
@@ -257,26 +258,46 @@ const Perfil: React.FC = () => {
   };
 
   const toggleDisponible = async (on: boolean) => {
+    if (on) {
+      presentAlert({
+        header: 'Ubicación de tu Servicio',
+        message: 'Para aparecer como disponible ahora en el mapa, CONEX accederá a tu ubicación actual para que los clientes encuentren tu oficio en su zona.',
+        buttons: [
+          { text: 'Cancelar', role: 'cancel', handler: () => setDisponible(false) },
+          {
+            text: 'Activar',
+            handler: async () => {
+              setDispSaving(true);
+              try {
+                const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+                const res = await candidatoApi.disponibilidad({ disponible: 1, lat: pos.coords.latitude, lng: pos.coords.longitude });
+                setDisponible(Number(res.disponible_ahora) === 1);
+                presentToast({ message: 'Ahora apareces disponible en el mapa', duration: 2400, color: 'success' });
+              } catch {
+                setDisponible(false);
+                presentToast({ message: 'Activa el GPS para marcar tu ubicación disponible', duration: 2800, color: 'warning' });
+              } finally {
+                setDispSaving(false);
+              }
+            },
+          },
+        ],
+      });
+      return;
+    }
+
     setDispSaving(true);
     try {
-      let lat: number | undefined;
-      let lng: number | undefined;
-      if (on) {
-        const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-        lat = pos.coords.latitude;
-        lng = pos.coords.longitude;
-      }
-      const res = await candidatoApi.disponibilidad({ disponible: on ? 1 : 0, lat, lng });
+      const res = await candidatoApi.disponibilidad({ disponible: 0 });
       setDisponible(Number(res.disponible_ahora) === 1);
       presentToast({
-        message: on ? 'Ahora apareces disponible en el directorio y mapa' : 'Disponibilidad desactivada',
+        message: 'Disponibilidad desactivada',
         duration: 2400,
-        color: 'success',
       });
     } catch (err: any) {
-      setDisponible(!on);
+      setDisponible(true);
       presentToast({
-        message: on ? 'Activa el GPS para marcar tu ubicación disponible' : (err?.error || 'Error de conexión'),
+        message: err?.error || 'Error de conexión',
         duration: 2800,
         color: 'warning',
       });
@@ -552,6 +573,30 @@ const Perfil: React.FC = () => {
           role: 'destructive',
           handler: async () => {
             await logout();
+          },
+        },
+      ],
+    });
+  };
+
+  const doEliminarCuenta = () => {
+    presentAlert({
+      header: 'Eliminar mi cuenta',
+      subHeader: 'Esta acción no se puede deshacer',
+      message: 'Al eliminar tu cuenta se borrarán permanentemente tu perfil, currículums, solicitudes y datos asociados. ¿Deseas continuar?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Sí, eliminar definitivamente',
+          role: 'destructive',
+          handler: async () => {
+            try {
+              await usuarioApi.eliminarCuenta();
+              presentToast({ message: 'Tu cuenta ha sido eliminada', duration: 3000, color: 'success' });
+              await logout();
+            } catch (err: any) {
+              presentToast({ message: err?.error || 'No se pudo eliminar la cuenta', duration: 3000, color: 'danger' });
+            }
           },
         },
       ],
@@ -942,10 +987,29 @@ const Perfil: React.FC = () => {
           </div>
         )}
 
-        <div style={{ padding: '8px 16px 36px' }}>
-          <IonButton expand="block" color="danger" fill="outline" onClick={doLogout}>
+        <div style={{ padding: '8px 16px 36px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <IonButton
+            expand="block"
+            fill="clear"
+            color="medium"
+            href="https://conex.softlutionic.com/politica-privacidad"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ fontSize: 13 }}
+          >
+            <IonIcon icon={shieldCheckmarkOutline} slot="start" />
+            Política de Privacidad
+            <IonIcon icon={openOutline} slot="end" style={{ fontSize: 14 }} />
+          </IonButton>
+
+          <IonButton expand="block" color="primary" fill="outline" onClick={doLogout}>
             <IonIcon icon={logOutOutline} slot="start" />
             Cerrar sesión
+          </IonButton>
+
+          <IonButton expand="block" color="danger" fill="clear" onClick={doEliminarCuenta} style={{ fontSize: 13, marginTop: 4 }}>
+            <IonIcon icon={trashBinOutline} slot="start" />
+            Eliminar mi cuenta y datos
           </IonButton>
         </div>
 

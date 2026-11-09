@@ -485,6 +485,16 @@ class PublicController extends BaseController
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
 
+        // Vista al perfil del prestador (ignorar si la columna aun no migro)
+        try {
+            $db->table('cand_candidato')
+                ->where('id', (int) $servicio['candidato_id'])
+                ->set('vistas_perfil', 'vistas_perfil + 1', false)
+                ->update();
+        } catch (\Throwable $e) {
+            // no bloquear la pagina por un contador
+        }
+
         $servicio['nombre_publico'] = $this->nombrePublico($servicio['nombre'], $servicio['apellido']);
         $servicio['iniciales']      = strtoupper(substr($servicio['nombre'], 0, 1) . substr($servicio['apellido'], 0, 1));
         $servicio['avatar_url']     = !empty($servicio['avatar']) ? base_url('uploads/' . $servicio['avatar']) : null;
@@ -672,5 +682,47 @@ class PublicController extends BaseController
             'meta_description' => 'Conoce CONEX, la plataforma de reclutamiento que conecta talentos con oportunidades en Nicaragua. Nuestra mision, valores e historia.',
             'meta_keywords' => 'CONEX nosotros, mision, vision, valores, empresa reclutamiento Nicaragua, historia CONEX',
         ]);
+    }
+
+    public function privacidad(): string
+    {
+        return view('layouts/publico', [
+            'content' => view('public/privacidad'),
+            'title'   => 'Politica de Privacidad',
+            'meta_description' => 'Politica de privacidad y proteccion de datos personales de CONEX Nicaragua.',
+            'meta_keywords'    => 'privacidad CONEX, proteccion datos, terminos empleo Nicaragua',
+        ]);
+    }
+
+    public function eliminarCuenta()
+    {
+        return view('layouts/publico', [
+            'content' => view('public/eliminar-cuenta'),
+            'title'   => 'Eliminar Cuenta',
+            'meta_description' => 'Solicitud de baja y eliminacion definitiva de cuenta de usuario en CONEX.',
+            'meta_keywords'    => 'eliminar cuenta CONEX, baja usuario, borrar datos',
+        ]);
+    }
+
+    public function procesarEliminarCuenta()
+    {
+        $idOrEmail = trim($this->request->getPost('identificador') ?? '');
+        if ($idOrEmail === '') {
+            return redirect()->back()->with('error', 'Por favor ingresa tu correo electronico o numero de telefono.');
+        }
+
+        $userModel = new \App\Models\UserModel();
+        $user = $userModel->where('email', $idOrEmail)
+            ->orWhere('telefono', $idOrEmail)
+            ->orWhere('usuario', $idOrEmail)
+            ->first();
+
+        if ($user) {
+            $userModel->update($user['id'], ['estado' => 'inactivo']);
+            $userModel->delete($user['id']);
+            log_message('info', 'Usuario ' . $user['id'] . ' solicito eliminacion de cuenta via web.');
+        }
+
+        return redirect()->back()->with('success', 'Tu solicitud de eliminacion ha sido procesada. Tu cuenta y datos han sido dados de baja de la plataforma.');
     }
 }

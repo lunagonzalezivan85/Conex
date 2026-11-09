@@ -237,6 +237,34 @@ class AuthController extends BaseApiController
     }
 
     /**
+     * POST /api/usuario/eliminar-cuenta — baja y borrado de cuenta del usuario actual.
+     */
+    public function eliminarCuenta()
+    {
+        $user = $this->authUser();
+        if (empty($user['id'])) {
+            return $this->fail('Token de autenticacion requerido', 401);
+        }
+
+        $userId = (int)$user['id'];
+        $userModel = new UserModel();
+
+        // Desactivar tokens activos
+        $token = ApiAuth::token();
+        if ($token) {
+            (new ApiTokenModel())->delete($token['id']);
+        }
+
+        // Marcar inactivo y soft-delete
+        $userModel->update($userId, ['estado' => 'inactivo']);
+        $userModel->delete($userId);
+
+        log_message('info', 'Usuario ' . $userId . ' elimino su cuenta desde la app movil.');
+
+        return $this->ok(['message' => 'Tu cuenta ha sido eliminada correctamente']);
+    }
+
+    /**
      * GET /api/me — usuario actual + perfil segun rol.
      */
     public function me()

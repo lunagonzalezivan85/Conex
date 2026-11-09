@@ -628,6 +628,16 @@ class EmpresaController extends BaseController
 
         $candidatoId = $postulacion['candidato_id'];
 
+        // Vista al perfil del candidato por parte de la empresa
+        try {
+            $db->table('cand_candidato')
+                ->where('id', (int) $candidatoId)
+                ->set('vistas_perfil', 'vistas_perfil + 1', false)
+                ->update();
+        } catch (\Throwable $e) {
+            // no bloquear la vista por un contador
+        }
+
         $candidato = $db->table('cand_candidato')
             ->select('cand_candidato.*, auth_user.nombre, auth_user.email, auth_user.telefono, auth_user.avatar,
                 cat_nivel_experiencia.nombre as nivel_exp_nombre')

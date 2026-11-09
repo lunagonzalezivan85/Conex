@@ -153,18 +153,30 @@ const Buscar: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filtros, coords, modo]);
 
-  const activarGeo = async () => {
-    setGeoLoading(true);
-    try {
-      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
-      setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-      setFiltros(f => ({ ...f, geo: true, orden: f.orden === 'reciente' ? 'distancia' : f.orden }));
-    } catch {
-      presentToast({ message: 'No se pudo obtener tu ubicacion', duration: 2500, color: 'warning' });
-      setFiltros(f => ({ ...f, geo: false }));
-    } finally {
-      setGeoLoading(false);
-    }
+  const activarGeo = () => {
+    presentAlert({
+      header: 'Ubicación en CONEX',
+      message: 'CONEX utiliza tu ubicación para calcular la distancia a las oportunidades laborales y mostrarte ofertas cercanas en el mapa.',
+      buttons: [
+        { text: 'Ahora no', role: 'cancel' },
+        {
+          text: 'Continuar',
+          handler: async () => {
+            setGeoLoading(true);
+            try {
+              const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+              setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+              setFiltros(f => ({ ...f, geo: true, orden: f.orden === 'reciente' ? 'distancia' : f.orden }));
+            } catch {
+              presentToast({ message: 'No se pudo obtener tu ubicación', duration: 2500, color: 'warning' });
+              setFiltros(f => ({ ...f, geo: false }));
+            } finally {
+              setGeoLoading(false);
+            }
+          },
+        },
+      ],
+    });
   };
 
   const quitarGeo = () => {

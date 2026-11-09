@@ -16,6 +16,10 @@ $routes->post('/servicios/(:num)/contacto', 'PublicController::contactarPrestado
 $routes->post('/servicios/(:num)/reporte', 'PublicController::reportarPrestador/$1');
 $routes->get('/planes', 'PublicController::planes');
 $routes->get('/nosotros', 'PublicController::nosotros');
+$routes->get('/politica-privacidad', 'PublicController::privacidad');
+$routes->get('/privacidad', 'PublicController::privacidad');
+$routes->get('/eliminar-cuenta', 'PublicController::eliminarCuenta');
+$routes->post('/eliminar-cuenta', 'PublicController::procesarEliminarCuenta');
 $routes->get('/noticias', 'NoticiaController::listar');
 $routes->get('/noticias/(:segment)', 'NoticiaController::ver/$1');
 
@@ -94,6 +98,7 @@ $routes->post('api/register', 'Api\AuthController::register', ['filter' => 'apiR
 $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($routes) {
     $routes->post('logout', 'Api\AuthController::logout');
     $routes->get('me', 'Api\AuthController::me');
+    $routes->post('usuario/eliminar-cuenta', 'Api\AuthController::eliminarCuenta');
 
     // CV descarga (candidato dueno o empresa con postulacion)
     $routes->get('cv/(:num)', 'Api\CvController::descargar/$1');

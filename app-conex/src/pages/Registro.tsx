@@ -353,7 +353,7 @@ const Registro: React.FC = () => {
                   >
                     Acepto los{' '}
                     <span className="reg-link" onClick={() => setVerTerminos(true)}>
-                      terminos y condiciones
+                      términos y política de privacidad
                     </span>
                   </IonToggle>
                 </div>
@@ -571,7 +571,8 @@ const Registro: React.FC = () => {
               <p><strong>2. Tus datos.</strong> Usamos tu cedula, nombre, telefono y los datos de tu perfil para crear tu cuenta, mostrarte a empresas y contactarte por WhatsApp. Tu telefono solo se revela a una empresa cuando vos aceptas una postulacion o solicitud.</p>
               <p><strong>3. Prestadores.</strong> Si ofreces servicios, tu perfil aparece en el directorio publico. La insignia de "verificado" se otorga despues de una verificacion por llamada; no garantiza la calidad del trabajo ni crea relacion laboral con CONEX.</p>
               <p><strong>4. Conducta.</strong> Es prohibido publicar informacion falsa, suplantar identidades o usar la plataforma para fraudes. Las cuentas que lo hagan seran suspendidas.</p>
-              <p><strong>5. Privacidad.</strong> No vendemos tus datos. Podes pedir la eliminacion de tu cuenta en cualquier momento contactandonos.</p>
+              <p><strong>5. Privacidad.</strong> No vendemos tus datos. Puedes solicitar la eliminación definitiva de tu cuenta y datos en cualquier momento desde tu Perfil o en nuestro portal web.</p>
+              <p>Consulta nuestra <a href="https://conex.softlutionic.com/politica-privacidad" target="_blank" rel="noopener noreferrer" style={{ color: '#F97316', fontWeight: 700 }}>Política de Privacidad completa aquí</a>.</p>
               <p><strong>6. Edad.</strong> Debes ser mayor de edad para registrarte.</p>
             </div>
             <IonButton expand="block" onClick={() => setVerTerminos(false)} className="auth-btn">

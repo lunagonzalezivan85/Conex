@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrabajoYa | Empleos y Servicios</title>
+  <style>
+    :root {
+      --azul: #2455b8;
+      --azul-oscuro: #102b63;
+      --texto: #172b55;
+      --suave: #eef5ff;
+      --borde: #d9e3f3;
+      --gris: #71809b;
+      --blanco: #fff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f4f7fc;
+      color: var(--texto);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app { max-width: 1100px; margin: 0 auto; background: white; min-height: 100vh; box-shadow: 0 8px 40px #172b5510; }
+    header {
+      background: linear-gradient(120deg, #214b9b, #3268c9);
+      color: white; padding: 22px clamp(18px, 4vw, 42px);
+      display: flex; align-items: center; justify-content: space-between; gap: 18px;
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-icon { font-size: 42px; line-height: 1; }
+    .brand h1 { margin: 0; font-size: clamp(25px, 4vw, 38px); letter-spacing: -.8px; }
+    .brand p { margin: 4px 0 0; color: #e4edff; font-size: 14px; }
+    .profile {
+      border: 0; border-radius: 50%; width: 48px; height: 48px;
+      background: #ffffff2a; color: white; font-size: 23px;
+    }
+    main { padding: 24px clamp(16px, 4vw, 42px) 100px; }
+    .search-row { display: grid; grid-template-columns: 1fr auto; border: 2px solid var(--borde); border-radius: 18px; overflow: hidden; margin-bottom: 25px; }
+    .search-input { display: flex; align-items: center; gap: 12px; padding: 0 17px; min-width: 0; }
+    .search-input span { font-size: 24px; }
+    .search-input input { border: 0; outline: 0; padding: 17px 0; width: 100%; min-width: 0; color: var(--texto); }
+    .location { border: 0; border-left: 1px solid var(--borde); background: white; color: #52627e; padding: 0 20px; }
+    .hero { display: flex; align-items: center; justify-content: space-between; gap: 18px; background: linear-gradient(110deg, #e5f1ff, #d8e9ff); border-radius: 25px; padding: 30px clamp(20px, 4vw, 42px); overflow: hidden; margin-bottom: 34px; }
+    .hero h2 { color: var(--azul-oscuro); font-size: clamp(25px, 3.5vw, 36px); line-height: 1.2; max-width: 560px; margin: 0 0 12px; }
+    .hero p { color: #465d82; font-size: 17px; line-height: 1.5; margin: 0; }
+    .hero-art { font-size: clamp(70px, 12vw, 120px); flex-shrink: 0; padding-right: 15px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 18px; }
+    .section-head h2 { font-size: clamp(25px, 3vw, 32px); margin: 0; color: var(--azul-oscuro); }
+    .text-button { border: 0; background: transparent; color: #174fce; font-weight: 650; padding: 8px 0; }
+    .categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px 16px; margin-bottom: 38px; }
+    .category { border: 1px solid transparent; border-radius: 18px; background: white; padding: 10px 6px 12px; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--texto); transition: .18s; }
+    .category:hover, .category.active { border-color: #b9cdf8; background: #f5f8ff; transform: translateY(-2px); }
+    .category-icon { display: grid; place-items: center; width: 82px; height: 82px; border-radius: 50%; font-size: 34px; }
+    .orange { background: #ffdfb4; } .green { background: #b8efd9; } .purple { background: #dfd1ff; }
+    .pink { background: #ffc8d0; } .cyan { background: #bceef5; } .blue { background: #c9dcff; }
+    .category-label { text-align: center; font-weight: 600; }
+    .vacancies { display: grid; gap: 14px; }
+    .listing { display: flex; align-items: center; gap: 18px; border-radius: 22px; padding: 20px 22px; background: #edf4ff; border: 1px solid transparent; transition: .2s; }
+    .listing:nth-child(2) { background: #edf8f3; }
+    .listing:hover { border-color: #c5d6f4; transform: translateY(-1px); }
+    .listing-icon { font-size: 35px; width: 64px; text-align: center; }
+    .listing-info { flex: 1; }
+    .listing h3 { margin: 0 0 5px; font-size: 20px; color: var(--azul-oscuro); }
+    .listing p { margin: 0; color: #617493; }
+    .arrow { font-size: 30px; color: #31538b; }
+    .empty { display: none; text-align: center; color: var(--gris); padding: 24px; }
+    .bottom-nav { position: fixed; z-index: 5; bottom: 0; left: 50%; transform: translateX(-50%); width: min(1100px, 100%); display: grid; grid-template-columns: repeat(5, 1fr); background: #ffffffed; backdrop-filter: blur(12px); border-top: 1px solid #e4eaf4; padding: 10px 8px max(10px, env(safe-area-inset-bottom)); }
+    .nav-item { border: 0; background: transparent; color: #78869e; display: flex; align-items: center; flex-direction: column; gap: 3px; padding: 4px; font-size: 12px; }
+    .nav-item .nav-icon { font-size: 23px; line-height: 1.1; }
+    .nav-item.active { color: #1c54d7; font-weight: 700; }
+    .toast { position: fixed; z-index: 10; left: 50%; bottom: 90px; transform: translateX(-50%); background: #142e61; color: white; border-radius: 12px; padding: 12px 18px; box-shadow: 0 8px 25px #0002; display: none; max-width: calc(100% - 30px); text-align: center; }
+    @media (min-width: 800px) { .hero { min-height: 220px; } .hero-art { font-size: 110px; } }
+    @media (max-width: 540px) {
+      .brand-icon { font-size: 33px; } .brand p { font-size: 12px; }
+      .search-row { grid-template-columns: 1fr; }
+      .location { border-left: 0; border-top: 1px solid var(--borde); padding: 13px 17px; text-align: left; }
+      .hero { padding: 23px 20px; } .hero-art { font-size: 62px; padding: 0; }
+      .categories { gap: 18px 5px; } .category-icon { width: 68px; height: 68px; font-size: 29px; }
+      .category-label { font-size: 13px; } .listing { padding: 17px 12px; gap: 10px; }
+      .listing-icon { width: 42px; font-size: 28px; } .listing h3 { font-size: 16px; } .listing p { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">💼</div>
+        <div><h1>TrabajoYa</h1><p>Empleos y servicios, en un solo lugar</p></div>
+      </div>
+      <button class="profile" data-action="Perfil" aria-label="Abrir perfil">♙</button>
+    </header>
+
+    <main>
+      <form class="search-row" id="searchForm">
+        <label class="search-input">
+          <span aria-hidden="true">⌕</span>
+          <input id="searchInput" type="search" placeholder="Buscar empleo o servicio..." aria-label="Buscar empleo o servicio">
+        </label>
+        <button class="location" type="button" id="locationButton">📍 Ubicación</button>
+      </form>
+
+      <section class="hero">
+        <div>
+          <h2>Encuentra el trabajo o servicio ideal para ti</h2>
+          <p>Conecta con personas y negocios de tu localidad.</p>
+        </div>
+        <div class="hero-art" aria-hidden="true">👨‍💻</div>
+      </section>
+
+      <section aria-labelledby="categoriesTitle">
+        <div class="section-head">
+          <h2 id="categoriesTitle">Categorías</h2>
+          <button class="text-button" id="allCategories">Ver todas&nbsp; ›</button>
+        </div>
+        <div class="categories" id="categories">
+          <button class="category" data-category="Empleos"><span class="category-icon orange">💼</span><span class="category-label">Empleos</span></button>
+          <button class="category" data-category="Servicios profesionales"><span class="category-icon green">🔧</span><span class="category-label">Servicios profesionales</span></button>
+          <button class="category" data-category="Hogar y limpieza"><span class="category-icon purple">🏠</span><span class="category-label">Hogar y limpieza</span></button>
+          <button class="category" data-category="Transporte"><span class="category-icon pink">🚗</span><span class="category-label">Transporte</span></button>
+          <button class="category" data-category="Tecnología"><span class="category-icon cyan">💻</span><span class="category-label">Tecnología</span></button>
+          <button class="category" data-category="Otros servicios"><span class="category-icon blue">🛠️</span><span class="category-label">Otros servicios</span></button>
+        </div>
+      </section>
+
+      <section aria-labelledby="vacanciesTitle">
+        <div class="section-head">
+          <h2 id="vacanciesTitle">Vacantes</h2>
+          <button class="text-button" id="moreListings">◉&nbsp; Ver más</button>
+        </div>
+        <div class="vacancies" id="vacancies">
+          <button class="listing" data-action="Ofertas de empleo">
+            <span class="listing-icon">💼</span>
+            <span class="listing-info"><h3>Ofertas de empleo</h3><p>Encuentra tu próximo trabajo</p></span>
+            <span class="arrow">›</span>
+          </button>
+          <button class="listing" data-action="Servicios disponibles">
+            <span class="listing-icon">🛠️</span>
+            <span class="listing-info"><h3>Servicios disponibles</h3><p>Contrata el servicio que necesitas</p></span>
+            <span class="arrow">›</span>
+          </button>
+        </div>
+        <div class="empty" id="emptyState">No encontramos resultados. Prueba con otra búsqueda.</div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Navegación principal">
+      <button class="nav-item active" data-action="Inicio"><span class="nav-icon">⌂</span>Inicio</button>
+      <button class="nav-item" data-action="Buscar"><span class="nav-icon">⌕</span>Buscar</button>
+      <button class="nav-item" data-action="Publicar"><span class="nav-icon">⊕</span>Publicar</button>
+      <button class="nav-item" data-action="Mensajes"><span class="nav-icon">▤</span>Mensajes</button>
+      <button class="nav-item" data-action="Perfil"><span class="nav-icon">♙</span>Perfil</button>
+    </nav>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+
+  <script>
+    const toast = document.getElementById('toast');
+    let toastTimer;
+    function showToast(message) {
+      toast.textContent = message;
+      toast.style.display = 'block';
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.style.display = 'none', 2400);
+    }
+
+    document.getElementById('searchForm').addEventListener('submit', event => {
+      event.preventDefault();
+      const query = document.getElementById('searchInput').value.trim();
+      showToast(query ? `Buscando: ${query}` : 'Escribe qué empleo o servicio necesitas.');
+    });
+
+    document.getElementById('locationButton').addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        showToast('Tu navegador no permite obtener la ubicación.');
+        return;
+      }
+      showToast('Solicitando permiso de ubicación…');
+      navigator.geolocation.getCurrentPosition(
+        position => showToast(`Ubicación detectada (${position.coords.latitude.toFixed(2)}, ${position.coords.longitude.toFixed(2)}).`),
+        () => showToast('No se pudo obtener la ubicación. Puedes continuar sin ella.')
+      );
+    });
+
+    document.querySelectorAll('.category').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.category').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+        showToast(`Categoría seleccionada: ${button.dataset.category}`);
+      });
+    });
+
+    document.getElementById('allCategories').addEventListener('click', () => showToast('Aquí puedes añadir más categorías de empleo y servicios.'));
+    document.getElementById('moreListings').addEventListener('click', () => showToast('La lista de vacantes se puede conectar a una base de datos.'));
+    document.querySelectorAll('[data-action]').forEach(button => {
+      button.addEventListener('click', () => {
+        const action = button.dataset.action;
+        if (button.classList.contains('nav-item')) {
+          document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+          button.classList.add('active');
+        }
+        showToast(`${action}: esta sección está lista para desarrollar.`);
+      });
+    });
+  </script>
+</body>
+</html>

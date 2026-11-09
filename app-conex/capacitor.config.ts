@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.conex.app',
+  appId: 'com.softlutionic.conex',
   appName: 'CONEX',
   webDir: 'dist',
   server: {
