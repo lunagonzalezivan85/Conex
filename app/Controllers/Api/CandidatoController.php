@@ -215,13 +215,14 @@ class CandidatoController extends BaseApiController
      */
     public function subirAvatar()
     {
-        if ($res = $this->requireAuth()) {
-            return $res;
+        $user = $this->authUser();
+        if (empty($user['id'])) {
+            return $this->fail('Token de autenticacion requerido', 401);
         }
 
         $file = $this->request->getFile('avatar');
         if (!$file || !$file->isValid()) {
-            return $this->fail('No se recibio la imagen o archivo no valido', 422);
+            return $this->fail('No se recibio la imagen o archivo no valido: ' . ($file ? $file->getErrorString() : 'vacio'), 422);
         }
 
         $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
@@ -232,34 +233,38 @@ class CandidatoController extends BaseApiController
             return $this->fail('La imagen supera el limite de 5MB', 422);
         }
 
-        $targetDir1 = FCPATH . 'uploads/avatars/';
-        $targetDir2 = ROOTPATH . 'public/uploads/avatars/';
-        if (!is_dir($targetDir1)) {
-            @mkdir($targetDir1, 0777, true);
+        try {
+            $targetDir1 = FCPATH . 'uploads/avatars/';
+            $targetDir2 = ROOTPATH . 'public/uploads/avatars/';
+            if (!is_dir($targetDir1)) {
+                @mkdir($targetDir1, 0777, true);
+            }
+            if (!is_dir($targetDir2)) {
+                @mkdir($targetDir2, 0777, true);
+            }
+
+            $destDir = is_dir($targetDir1) ? $targetDir1 : $targetDir2;
+            $newName = $file->getRandomName();
+            $file->move($destDir, $newName);
+
+            if (is_file($targetDir1 . $newName) && !is_file($targetDir2 . $newName) && is_dir($targetDir2)) {
+                @copy($targetDir1 . $newName, $targetDir2 . $newName);
+            } elseif (is_file($targetDir2 . $newName) && !is_file($targetDir1 . $newName) && is_dir($targetDir1)) {
+                @copy($targetDir2 . $newName, $targetDir1 . $newName);
+            }
+
+            $relPath = 'avatars/' . $newName;
+            (new UserModel())->update($user['id'], ['avatar' => $relPath]);
+
+            return $this->ok([
+                'message'    => 'Foto de perfil actualizada',
+                'avatar'     => $relPath,
+                'avatar_url' => base_url('uploads/' . $relPath),
+            ]);
+        } catch (\Throwable $e) {
+            log_message('error', 'Error en subirAvatar: ' . $e->getMessage());
+            return $this->fail('Error al procesar la imagen: ' . $e->getMessage(), 500);
         }
-        if (!is_dir($targetDir2)) {
-            @mkdir($targetDir2, 0777, true);
-        }
-
-        $destDir = is_dir($targetDir1) ? $targetDir1 : $targetDir2;
-        $newName = $file->getRandomName();
-        $file->move($destDir, $newName);
-
-        if (is_file($targetDir1 . $newName) && !is_file($targetDir2 . $newName) && is_dir($targetDir2)) {
-            @copy($targetDir1 . $newName, $targetDir2 . $newName);
-        } elseif (is_file($targetDir2 . $newName) && !is_file($targetDir1 . $newName) && is_dir($targetDir1)) {
-            @copy($targetDir2 . $newName, $targetDir1 . $newName);
-        }
-
-        $relPath = 'avatars/' . $newName;
-        $user = $this->authUser();
-        (new UserModel())->update($user['id'], ['avatar' => $relPath]);
-
-        return $this->ok([
-            'message'    => 'Foto de perfil actualizada',
-            'avatar'     => $relPath,
-            'avatar_url' => base_url('uploads/' . $relPath),
-        ]);
     }
 
     /**

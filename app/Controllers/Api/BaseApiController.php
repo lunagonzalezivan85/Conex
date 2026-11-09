@@ -40,6 +40,17 @@ class BaseApiController extends BaseController
     }
 
     /**
+     * Verifica que el usuario este autenticado.
+     */
+    protected function requireAuth(): ?ResponseInterface
+    {
+        if (empty($this->authUser()['id'])) {
+            return $this->fail('Token de autenticacion requerido', 401);
+        }
+        return null;
+    }
+
+    /**
      * Verifica que el usuario tenga uno de los roles dados.
      */
     protected function requireRole(array $roles): ?ResponseInterface
