@@ -16,7 +16,8 @@ class CandidatoModel extends Model
         'user_id', 'apellidos', 'fecha_nacimiento', 'profesion',
         'nivel_experiencia_id', 'sobre_mi', 'direccion', 'ciudad', 'region', 'pais',
         'latitud', 'longitud', 'disponibilidad', 'modalidad_preferida',
-        'ofrece_servicios', 'zona_servicio', 'prestador_verificado',
+        'ofrece_servicios', 'zona_servicio', 'prestador_verificado', 'vistas_perfil',
+        'disponible_ahora', 'disponible_desde',
         'salario_esperado_usd', 'portafolio_url', 'linkedin_url', 'porcentaje_perfil',
     ];
 

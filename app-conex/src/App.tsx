@@ -5,15 +5,21 @@ import {
   IonTabBar, IonTabButton, IonTabs, setupIonicReact,
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import { homeOutline, personOutline, searchOutline } from 'ionicons/icons';
+import {
+  briefcaseOutline, chatbubbleOutline, homeOutline, peopleOutline, personOutline,
+} from 'ionicons/icons';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Splash from './pages/Splash';
 import Login from './pages/Login';
+import Registro from './pages/Registro';
 import Dashboard from './pages/Dashboard';
 import Perfil from './pages/Perfil';
 import Buscar from './pages/Buscar';
+import Categorias from './pages/Categorias';
 import VacanteDetalle from './pages/VacanteDetalle';
+import Planes from './pages/Planes';
+import Solicitudes from './pages/Solicitudes';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -34,8 +40,12 @@ const AppTabs: React.FC = () => (
     <IonRouterOutlet>
       <Route exact path="/app/dashboard" component={Dashboard} />
       <Route exact path="/app/buscar" component={Buscar} />
+      <Route exact path="/app/contactos" render={() => <Redirect to="/app/buscar?modo=servicios" />} />
+      <Route exact path="/app/solicitudes" component={Solicitudes} />
+      <Route exact path="/app/categorias" component={Categorias} />
       <Route exact path="/app/vacante/:slug" component={VacanteDetalle} />
       <Route exact path="/app/perfil" component={Perfil} />
+      <Route exact path="/app/planes" component={Planes} />
       <Route exact path="/app" render={() => <Redirect to="/app/dashboard" />} />
     </IonRouterOutlet>
 
@@ -44,9 +54,17 @@ const AppTabs: React.FC = () => (
         <IonIcon icon={homeOutline} />
         <IonLabel>Inicio</IonLabel>
       </IonTabButton>
-      <IonTabButton tab="buscar" href="/app/buscar">
-        <IonIcon icon={searchOutline} />
-        <IonLabel>Buscar</IonLabel>
+      <IonTabButton tab="buscar" href="/app/buscar?modo=vacantes">
+        <IonIcon icon={briefcaseOutline} />
+        <IonLabel>Empleos</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab="contactos" href="/app/buscar?modo=servicios">
+        <IonIcon icon={peopleOutline} />
+        <IonLabel>Contactos</IonLabel>
+      </IonTabButton>
+      <IonTabButton tab="solicitudes" href="/app/solicitudes">
+        <IonIcon icon={chatbubbleOutline} />
+        <IonLabel>Mensajes</IonLabel>
       </IonTabButton>
       <IonTabButton tab="perfil" href="/app/perfil">
         <IonIcon icon={personOutline} />
@@ -68,6 +86,7 @@ const AppRoutes: React.FC = () => {
       <IonRouterOutlet>
         <Route exact path="/" component={Splash} />
         <Route exact path="/login" component={Login} />
+        <Route exact path="/registro" component={Registro} />
         <Route
           path="/app"
           render={() => {

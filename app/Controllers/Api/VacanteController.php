@@ -28,12 +28,14 @@ class VacanteController extends BaseApiController
 
         $builder = $vacanteModel->where('vac_vacante.estado', 'publicada')
             ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left')
-            ->join('cat_categoria', 'cat_categoria.id = vac_vacante.categoria_id', 'left');
+            ->join('cat_categoria', 'cat_categoria.id = vac_vacante.categoria_id', 'left')
+            ->join('cat_tipo_contrato', 'cat_tipo_contrato.id = vac_vacante.tipo_contrato_id', 'left');
 
         if ($q !== '') {
             $builder->groupStart()
                 ->like('vac_vacante.titulo', $q)
                 ->orLike('emp_empresa.razon_social', $q)
+                ->orLike('vac_vacante.empresa_externa', $q)
                 ->groupEnd();
         }
         if (!empty($categoria)) {
@@ -46,7 +48,7 @@ class VacanteController extends BaseApiController
             $builder->like('vac_vacante.ciudad', $ciudad);
         }
 
-        $select = 'vac_vacante.*, emp_empresa.razon_social AS empresa_nombre, emp_empresa.logo AS empresa_logo, cat_categoria.nombre AS categoria_nombre';
+        $select = 'vac_vacante.*, COALESCE(emp_empresa.razon_social, vac_vacante.empresa_externa) AS empresa_nombre, emp_empresa.logo AS empresa_logo, cat_categoria.nombre AS categoria_nombre, cat_tipo_contrato.nombre AS tipo_contrato_nombre';
 
         $geoActivo = is_numeric($lat) && is_numeric($lng);
         if ($geoActivo) {
@@ -78,11 +80,16 @@ class VacanteController extends BaseApiController
         $vacantes = $builder->paginate($perPage, 'default', $page);
         $pager = $vacanteModel->pager;
 
-        // URLs absolutas para logos
+        // URLs absolutas para logos y posters
         foreach ($vacantes as &$v) {
             $v['empresa_logo_url'] = !empty($v['empresa_logo'])
                 ? base_url('uploads/' . $v['empresa_logo'])
                 : null;
+            $v['poster_url'] = !empty($v['poster'])
+                ? base_url('uploads/' . $v['poster'])
+                : null;
+            $pubTime = !empty($v['fecha_publicacion']) ? strtotime($v['fecha_publicacion']) : (!empty($v['created_at']) ? strtotime($v['created_at']) : 0);
+            $v['es_nueva'] = ($pubTime > 0 && (time() - $pubTime) <= 5 * 86400) ? 1 : 0;
         }
 
         return $this->ok([
@@ -241,9 +248,23 @@ class VacanteController extends BaseApiController
      */
     public function filtros()
     {
-        $categorias = (new CategoriaModel())->where('estado', 'activo')->findAll();
+        $db = \Config\Database::connect();
+        $categorias = $db->table('cat_categoria')
+            ->select('cat_categoria.*,
+                (SELECT COUNT(*) FROM vac_vacante v WHERE v.categoria_id = cat_categoria.id AND v.estado = "publicada" AND v.deleted_at IS NULL) AS total_vacantes,
+                (SELECT COUNT(DISTINCT ch.candidato_id) FROM cand_habilidad ch JOIN cat_habilidad h ON h.id = ch.habilidad_id WHERE h.categoria_id = cat_categoria.id) AS total_miembros')
+            ->where('cat_categoria.estado', 'activo')
+            ->orderBy('total_vacantes', 'DESC')
+            ->get()->getResultArray();
+
+        $habilidades = $db->table('cat_habilidad')
+            ->select('id, nombre, categoria_id')
+            ->where('estado', 'activo')
+            ->orderBy('nombre', 'ASC')
+            ->get()->getResultArray();
         return $this->ok([
             'categorias'  => $categorias,
+            'habilidades' => $habilidades,
             'modalidades' => ['presencial', 'remoto', 'hibrido'],
             'ordenes'     => ['reciente', 'antigua', 'salario', 'distancia'],
         ]);

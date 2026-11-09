@@ -8,47 +8,69 @@
   --padding-end: 8px;
 }
 
-.buscar-searchbar {
-  --border-radius: 16px;
-  --box-shadow: none;
-  --background: var(--cx-surface);
-  --icon-color: var(--cx-turq);
-  --color: var(--ion-text-color);
-  --placeholder-color: var(--cx-muted);
-  --cancel-button-color: var(--cx-orange);
-  --clear-button-color: var(--cx-muted);
-  padding-top: 4px;
-  padding-bottom: 4px;
-  height: 52px;
-  border: 1.5px solid var(--cx-border);
+/* Caja de busqueda propia (sin IonSearchbar): una sola caja, sin bordes */
+.buscar-searchbox {
+  display: flex;
+  align-items: center;
+  height: 46px;
   border-radius: 16px;
+  background: var(--cx-surface, var(--ion-card-background, #fff));
+  box-shadow: 0 6px 18px rgba(23, 43, 85, 0.10);
+  margin: 0 6px 0 4px;
+  flex: 1;
 }
-.buscar-searchbar:focus-within {
-  border-color: var(--cx-turq);
-  --background: transparent;
+.buscar-searchbox:focus-within {
+  box-shadow: 0 0 0 2px rgba(15, 198, 194, 0.45), 0 6px 18px rgba(23, 43, 85, 0.10);
+}
+.buscar-searchbox ion-icon {
+  font-size: 18px;
+  color: var(--cx-turq);
+  margin: 0 10px 0 14px;
+  flex-shrink: 0;
+}
+.buscar-searchbox input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ion-text-color);
+  padding: 0 12px 0 0;
+}
+.buscar-searchbox input::placeholder { color: var(--cx-muted, #8a94a8); }
+
+/* Wrapper del boton de filtros: el badge queda FUERA del overflow del IonButton */
+.buscar-filter-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-/* Boton de filtros con gradiente de marca + badge */
+/* Boton de filtros naranja solido + badge navy */
 .buscar-filter-btn {
   position: relative;
-  --background: linear-gradient(135deg, #F97316, #FB923C);
-  --border-radius: 14px;
+  --background: #F97316;
+  --background-activated: #ea6a0a;
+  --border-radius: 12px;
   --padding-start: 0;
   --padding-end: 0;
-  width: 44px;
-  height: 44px;
+  width: 42px;
+  height: 42px;
   margin: 0 4px 0 0;
-  box-shadow: 0 4px 14px rgba(249, 115, 22, 0.4);
+  box-shadow: 0 3px 10px rgba(249, 115, 22, 0.35);
 }
 .buscar-filter-btn ion-icon { color: #fff; font-size: 20px; }
 .filter-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -3px;
+  right: -3px;
   min-width: 18px;
   height: 18px;
   border-radius: 9px;
-  background: #F97316;
+  background: #1B2A4A;
   color: #fff;
   font-size: 11px;
   font-weight: 700;
@@ -89,10 +111,16 @@
 .filter-pill ion-icon { font-size: 16px; }
 .filter-pill:active { transform: scale(0.96); }
 .filter-pill.active {
-  background: linear-gradient(135deg, #1B2A4A, #0FC6C2);
-  border-color: transparent;
+  background: #1B2A4A;
+  border-color: #1B2A4A;
   color: #fff;
   box-shadow: 0 3px 10px rgba(27, 42, 74, 0.3);
+}
+/* Toggle lista/mapa: naranja cuando esta activo */
+.filter-pill.vista-toggle.active {
+  background: #F97316;
+  border-color: #F97316;
+  box-shadow: 0 3px 10px rgba(249, 115, 22, 0.3);
 }
 
 .filter-count {
@@ -101,6 +129,118 @@
   color: #9aa0a6;
   margin-left: auto;
   white-space: nowrap;
+}
+
+/* ---------- Lista con margenes laterales ---------- */
+.buscar-list { padding: 0 14px; }
+.buscar-list .job-card { margin: 0 0 10px; }
+
+/* ---------- Vista mapa ---------- */
+.buscar-map {
+  position: relative;
+  margin: 4px 14px 0;
+  height: calc(100% - 64px);
+  min-height: 420px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--cx-border);
+  z-index: 0;
+}
+.buscar-map-error {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--cx-surface, var(--ion-card-background, #fff));
+  color: var(--ion-color-medium, #6b7280);
+  z-index: 5;
+}
+.buscar-map-error ion-icon { font-size: 44px; opacity: 0.4; color: #1B2A4A; }
+.buscar-map-error p { margin: 0; font-size: 14px; font-weight: 600; }
+.buscar-map-error small { font-size: 12px; opacity: 0.7; }
+/* Pin custom del mapa: circulo navy, borde naranja (mismo estilo que la web) */
+.cx-map-pin {
+  display: block;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1B2A4A;
+  border: 4px solid #F97316;
+  box-shadow: 0 3px 12px rgba(18, 61, 115, 0.45);
+  position: relative;
+}
+.cx-map-pin::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #fff;
+}
+.cx-map-pin-me { background: #F97316; border-color: #1B2A4A; }
+/* Pin de prestador 'disponible ahora': turquesa con aro navy */
+.cx-map-pin-srv { background: #0FC6C2; border-color: #1B2A4A; }
+
+/* Aviso superpuesto del mapa (modo servicios) */
+.buscar-map-hint {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(27, 42, 74, 0.92);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  z-index: 6;
+  white-space: nowrap;
+}
+
+/* Badge 'Disponible ahora' en la card del prestador */
+.job-badge-disp {
+  --background: rgba(15, 198, 194, 0.15);
+  --color: #0aa8a5;
+  font-weight: 700;
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.job-badge-disp ion-icon { font-size: 13px; }
+.maplibregl-marker:hover .cx-map-pin,
+.maplibregl-marker:active .cx-map-pin { transform: scale(1.18); }
+
+/* Popup del mapa */
+.cx-pop { display: flex; flex-direction: column; gap: 3px; min-width: 140px; font-family: inherit; }
+.cx-pop strong { font-size: 14px; color: #1B2A4A; }
+.cx-pop span { font-size: 11px; color: #8a94a8; }
+.cx-pop-btn {
+  margin-top: 6px;
+  border: 0;
+  border-radius: 8px;
+  background: #F97316;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ---------- Carrusel de categorias en el modal de filtros ---------- */
+.fm-cats { margin: 0 -2px; }
+.fm-cats .cat-btn.sel .cat-icon {
+  box-shadow: 0 0 0 2.5px #1B2A4A;
+}
+.fm-cats .cat-btn.sel .cat-label {
+  color: #1B2A4A;
+  font-weight: 700;
 }
 
 /* ---------- Empty state ---------- */
@@ -178,8 +318,8 @@
 }
 .fm-pill:active { transform: scale(0.96); }
 .fm-pill.active {
-  background: linear-gradient(135deg, #1B2A4A, #0FC6C2);
-  border-color: transparent;
+  background: #1B2A4A;
+  border-color: #1B2A4A;
   color: #fff;
   box-shadow: 0 3px 12px rgba(27, 42, 74, 0.35);
 }
@@ -216,7 +356,7 @@
 }
 .fm-geo-dot.on {
   border-color: #1B2A4A;
-  background: radial-gradient(circle, #0FC6C2 0 40%, #1B2A4A 45% 100%);
+  background: #0FC6C2;
 }
 
 .fm-radio { margin-top: 4px; padding: 4px 4px 0; }
@@ -224,7 +364,7 @@
 .fm-radio-label strong { color: #1B2A4A; }
 .fm-range {
   --bar-background: rgba(128, 128, 128, 0.2);
-  --bar-background-active: linear-gradient(90deg, #1B2A4A, #0FC6C2);
+  --bar-background-active: #1B2A4A;
   --knob-background: #1B2A4A;
   --knob-size: 26px;
   padding-top: 4px;
@@ -273,7 +413,7 @@
   height: 50px;
   border: none;
   border-radius: 14px;
-  background: linear-gradient(135deg, #F97316, #FB923C);
+  background: #F97316;
   color: #fff;
   font-family: inherit;
   font-size: 15px;
@@ -291,8 +431,6 @@
 .vd-hero {
   text-align: center;
   padding: 24px 20px 18px;
-  background:
-    radial-gradient(180% 120% at 50% 0%, rgba(27, 42, 74, 0.12), transparent 60%);
 }
 .vd-logo-ring {
   width: 84px;
@@ -300,7 +438,7 @@
   margin: 0 auto 14px;
   border-radius: 26px;
   padding: 3px;
-  background: linear-gradient(135deg, #1B2A4A, #0FC6C2);
+  background: #1B2A4A;
   box-shadow: 0 8px 24px rgba(27, 42, 74, 0.35);
   display: flex;
   align-items: center;
@@ -344,7 +482,7 @@
   color: var(--ion-text-color);
 }
 .vd-badge-primary {
-  background: linear-gradient(135deg, #1B2A4A, #0FC6C2);
+  background: #1B2A4A;
   color: #fff;
 }
 .vd-badge-star {
@@ -442,7 +580,7 @@
   height: 38px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(135deg, #F97316, #FB923C);
+  background: #F97316;
   color: #fff;
   font-size: 18px;
   display: flex; align-items: center; justify-content: center;
@@ -450,7 +588,7 @@
   margin-right: 4px;
 }
 .vd-header-btn.done {
-  background: linear-gradient(135deg, #2eb85c, #3fc97e);
+  background: #2eb85c;
   box-shadow: 0 4px 12px rgba(46, 184, 92, 0.3);
 }
 
@@ -461,7 +599,7 @@
   height: 52px;
   border: none;
   border-radius: 14px;
-  background: linear-gradient(135deg, #F97316, #FB923C);
+  background: #F97316;
   color: #fff;
   font-family: inherit;
   font-size: 15px;
@@ -472,7 +610,7 @@
 }
 .vd-apply:active { transform: scale(0.98); }
 .vd-apply.done {
-  background: linear-gradient(135deg, #2eb85c, #3fc97e);
+  background: #2eb85c;
   box-shadow: 0 6px 18px rgba(46, 184, 92, 0.35);
 }
 

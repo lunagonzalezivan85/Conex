@@ -64,10 +64,16 @@ class AuthController extends BaseApiController
      * POST /api/register
      * Body: { tipo_cuenta: candidato|empresa, nombre, apellido, usuario,
      *         email, telefono, password, password_confirm, razon_social? }
+     * Si llega `cedula` → flujo de la app (wizard): cedula=usuario, PIN=password.
      */
     public function register()
     {
         $data = $this->body();
+
+        if (!empty($data['cedula'])) {
+            return $this->registerApp($data);
+        }
+
         $tipoCuenta = $data['tipo_cuenta'] ?? '';
 
         $rules = [
@@ -144,6 +150,81 @@ class AuthController extends BaseApiController
     }
 
     /**
+     * Registro desde la app (wizard de cedula).
+     * Body: { cedula, nombre, apellido, telefono, pin, email?, terminos, device_name? }
+     * usuario = cedula | password = PIN de 4 digitos | email opcional (placeholder si falta).
+     * La persona puede no saber usar un telefono: sin correo ni contrasena segura.
+     */
+    private function registerApp(array $data)
+    {
+        $rules = [
+            'cedula'   => 'required|min_length[6]|max_length[20]|is_unique[auth_user.usuario]',
+            'nombre'   => 'required|min_length[2]|max_length[100]',
+            'apellido' => 'required|min_length[2]|max_length[100]',
+            'telefono' => 'required|min_length[8]|max_length[20]',
+            'pin'      => 'required|numeric|exact_length[4]',
+            'email'    => 'permit_empty|valid_email|is_unique[auth_user.email]',
+            'terminos' => 'required',
+        ];
+
+        $validation = service('validation');
+        $validation->setRules($rules);
+        if (!$validation->run($data)) {
+            return $this->fail('Datos invalidos', 422, $validation->getErrors());
+        }
+
+        $userModel = new UserModel();
+        $roleId = $userModel->getRoleIdBySlug('candidato');
+        if (!$roleId) {
+            return $this->fail('Tipo de cuenta no valido', 422);
+        }
+
+        $cedula = preg_replace('/\D/', '', (string) $data['cedula']);
+        $email  = trim((string) ($data['email'] ?? '')) ?: $cedula . '@conex.local';
+
+        // UserModel hashea el password automaticamente (beforeInsert)
+        $userId = $userModel->insert([
+            'role_id'         => $roleId,
+            'nombre'          => $data['nombre'],
+            'apellido'        => $data['apellido'],
+            'usuario'         => $cedula,
+            'email'           => $email,
+            'telefono'        => $data['telefono'],
+            'password'        => (string) $data['pin'],
+            'estado'          => 'activo',
+            'perfil_completo' => false,
+        ], true);
+
+        if (!$userId) {
+            return $this->fail('No se pudo crear la cuenta', 500, $userModel->errors());
+        }
+
+        (new CandidatoModel())->insert([
+            'user_id'   => $userId,
+            'apellidos' => $data['apellido'],
+        ]);
+
+        // Login automatico: emitir token
+        $tokenModel = new ApiTokenModel();
+        $tokenData = $tokenModel->createToken(
+            $userId,
+            $data['device_name'] ?? 'conex-app',
+            $this->request->getIPAddress(),
+            $this->request->getUserAgent()->getAgentString()
+        );
+
+        $user = $userModel->find($userId);
+        unset($user['password']);
+
+        return $this->ok([
+            'token'      => $tokenData['token'],
+            'token_type' => 'Bearer',
+            'expires_at' => $tokenData['expires_at'],
+            'user'       => $this->userPayload($user, 'candidato'),
+        ], 201);
+    }
+
+    /**
      * POST /api/logout — revoca el token actual.
      */
     public function logout()
@@ -184,6 +265,7 @@ class AuthController extends BaseApiController
             'email'           => $user['email'],
             'telefono'        => $user['telefono'] ?? null,
             'avatar'          => $user['avatar'] ?? null,
+            'avatar_url'      => !empty($user['avatar']) ? base_url('uploads/' . $user['avatar']) : null,
             'role'            => $roleSlug,
             'perfil_completo' => (bool)($user['perfil_completo'] ?? false),
         ];

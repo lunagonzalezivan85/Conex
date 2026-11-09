@@ -88,6 +88,15 @@ const Login: React.FC = () => {
               <IonButton expand="block" type="submit" disabled={busy} className="auth-btn">
                 {busy ? <IonSpinner name="crescent" /> : 'Iniciar sesion'}
               </IonButton>
+
+              <IonButton
+                fill="clear"
+                size="small"
+                onClick={() => router.push('/registro')}
+                className="login-registro-link"
+              >
+                Soy nuevo — crear mi cuenta
+              </IonButton>
             </form>
           </div>
         </div>

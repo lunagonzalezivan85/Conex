@@ -101,6 +101,10 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
     // Vacantes (ambos roles)
     $routes->get('vacantes', 'Api\VacanteController::index');
     $routes->get('vacantes/meta/filtros', 'Api\VacanteController::filtros');
+
+    // Servicios (directorio publico de prestadores)
+    $routes->get('servicios', 'Api\ServicioController::index');
+    $routes->post('servicios/(:num)/contacto', 'Api\ServicioController::contactar/$1');
     $routes->post('vacantes/(:num)/reaccion', 'Api\VacanteController::reaccionar/$1');
     $routes->post('vacantes/(:num)/compartir', 'Api\VacanteController::compartir/$1');
     $routes->get('vacantes/(:segment)', 'Api\VacanteController::show/$1');
@@ -108,10 +112,26 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
     // Candidato
     $routes->get('candidato/perfil', 'Api\CandidatoController::perfil');
     $routes->post('candidato/perfil', 'Api\CandidatoController::actualizarPerfil');
+    $routes->post('candidato/avatar', 'Api\CandidatoController::subirAvatar');
+    $routes->get('candidato/dashboard', 'Api\CandidatoController::dashboard');
+    $routes->post('candidato/disponibilidad', 'Api\CandidatoController::disponibilidad');
     $routes->get('candidato/cvs', 'Api\CandidatoController::cvs');
     $routes->post('candidato/cv', 'Api\CandidatoController::subirCv');
     $routes->delete('candidato/cv/(:num)', 'Api\CandidatoController::eliminarCv/$1');
     $routes->post('candidato/cv/(:num)/eliminar', 'Api\CandidatoController::eliminarCv/$1');
+    $routes->post('candidato/habilidades', 'Api\CandidatoController::guardarHabilidades');
+    $routes->post('candidato/experiencia', 'Api\CandidatoController::guardarExperiencia');
+    $routes->delete('candidato/experiencia/(:num)', 'Api\CandidatoController::eliminarExperiencia/$1');
+    $routes->post('candidato/experiencia/(:num)/eliminar', 'Api\CandidatoController::eliminarExperiencia/$1');
+    $routes->post('candidato/educacion', 'Api\CandidatoController::guardarEducacion');
+    $routes->delete('candidato/educacion/(:num)', 'Api\CandidatoController::eliminarEducacion/$1');
+    $routes->post('candidato/educacion/(:num)/eliminar', 'Api\CandidatoController::eliminarEducacion/$1');
+    $routes->post('candidato/idiomas', 'Api\CandidatoController::guardarIdiomas');
+    $routes->post('candidato/servicios', 'Api\CandidatoController::guardarServicio');
+    $routes->delete('candidato/servicios/(:num)', 'Api\CandidatoController::eliminarServicio/$1');
+    $routes->post('candidato/servicios/(:num)/eliminar', 'Api\CandidatoController::eliminarServicio/$1');
+    $routes->get('candidato/solicitudes', 'Api\CandidatoController::solicitudes');
+    $routes->post('candidato/solicitudes/(:num)', 'Api\CandidatoController::responderSolicitud/$1');
     $routes->get('candidato/postulaciones', 'Api\CandidatoController::postulaciones');
     $routes->post('candidato/postularse/(:num)', 'Api\CandidatoController::postularse/$1');
 

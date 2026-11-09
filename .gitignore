@@ -128,3 +128,5 @@ _modules/*
 # Documentos de trabajo (no parte de la app)
 business-canvas.html
 test.md
+
+.ftp-config

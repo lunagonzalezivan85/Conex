@@ -1,0 +1,109 @@
+/* Wizard de registro (cedula -> contacto -> modo -> preguntas -> servicio) */
+.reg-wrap {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: var(--ion-background-color);
+}
+
+.reg-card { width: 100%; max-width: 420px; text-align: center; }
+
+.reg-title { font-size: 22px; font-weight: 800; margin: 0 0 4px; color: var(--ion-text-color); }
+.reg-sub { font-size: 14px; color: var(--ion-color-medium, #6b7280); margin: 0 0 24px; }
+.reg-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ion-color-medium, #6b7280);
+  text-align: left;
+  margin: 18px 0 8px;
+}
+
+.reg-scan-btn {
+  --border-radius: 14px;
+  height: 56px;
+  font-weight: 700;
+  --background: linear-gradient(135deg, #1B2A4A, #2a3d63);
+  --box-shadow: 0 6px 18px rgba(27, 42, 74, 0.35);
+  margin-bottom: 8px;
+}
+
+.reg-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0;
+  color: var(--ion-color-medium, #6b7280);
+  font-size: 12px;
+}
+.reg-divider::before,
+.reg-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--ion-border-color, #e5e7eb);
+}
+
+.reg-terminos {
+  margin: 16px 0 8px;
+  text-align: left;
+  font-size: 13px;
+}
+.reg-link {
+  color: var(--ion-color-primary, #F97316);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reg-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: flex-start;
+}
+
+.reg-modo-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  border: 1px solid var(--ion-border-color, #e5e7eb);
+  background: var(--ion-card-background, #fff);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.reg-modo-card:active { transform: scale(0.98); }
+.reg-modo-card ion-icon {
+  font-size: 32px;
+  color: #F97316;
+  flex-shrink: 0;
+}
+.reg-modo-card strong { font-size: 16px; color: var(--ion-text-color); }
+.reg-modo-card p {
+  margin: 2px 0 0;
+  font-size: 13px;
+  color: var(--ion-color-medium, #6b7280);
+}
+
+.reg-ok-icon {
+  font-size: 64px;
+  color: #22c55e;
+  margin-bottom: 12px;
+}
+
+.reg-terminos-modal { padding: 24px; }
+.reg-terminos-modal h2 { font-size: 18px; font-weight: 800; margin: 0 0 12px; }
+.reg-terminos-texto {
+  max-height: 60vh;
+  overflow-y: auto;
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ion-text-color);
+  margin-bottom: 20px;
+}
+.reg-terminos-texto p { margin: 0 0 12px; }

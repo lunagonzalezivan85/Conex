@@ -76,19 +76,18 @@
   }
 }
 
-/* ============ One UI: headers flat sin sombra ============ */
+/* ============ One UI: headers flat sin sombra, compactos ============ */
 ion-header {
   box-shadow: none !important;
 }
 ion-toolbar {
   --border-width: 0 !important;
-}
-ion-header ion-toolbar:first-of-type {
-  padding-top: 4px;
+  --min-height: 46px;
 }
 ion-title {
   font-weight: 800;
   letter-spacing: -0.01em;
+  font-size: 17px;
 }
 
 /* Card suave bento en ambos temas */
@@ -103,4 +102,28 @@ ion-card {
   ion-card {
     border-color: var(--cx-border);
   }
+}
+
+/* ============ Tab bar compacto: indicador pill ============ */
+ion-tab-bar {
+  height: 46px; /* ionic suma el safe-area internamente, no hace falta padding extra */
+}
+ion-tab-button {
+  margin: 2px;
+  border-radius: 10px;
+  --color-selected: var(--cx-orange);
+}
+ion-tab-button ion-icon {
+  font-size: 20px;
+}
+ion-tab-button ion-label {
+  font-size: 10px;
+}
+ion-tab-button.tab-selected {
+  background: rgba(249, 115, 22, 0.12);
+}
+ion-tab-button.tab-selected ion-icon,
+ion-tab-button.tab-selected ion-label {
+  color: var(--cx-orange);
+  font-weight: 700;
 }
