@@ -215,13 +215,13 @@ class CandidatoController extends BaseApiController
      */
     public function subirAvatar()
     {
-        if ($res = $this->requireRole(['candidato', 'empresa'])) {
+        if ($res = $this->requireAuth()) {
             return $res;
         }
 
         $file = $this->request->getFile('avatar');
         if (!$file || !$file->isValid()) {
-            return $this->fail('No se recibio la imagen', 422);
+            return $this->fail('No se recibio la imagen o archivo no valido', 422);
         }
 
         $allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
@@ -232,21 +232,23 @@ class CandidatoController extends BaseApiController
             return $this->fail('La imagen supera el limite de 5MB', 422);
         }
 
-        $uploadDir = ROOTPATH . 'public/uploads/avatars/';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+        $targetDir1 = FCPATH . 'uploads/avatars/';
+        $targetDir2 = ROOTPATH . 'public/uploads/avatars/';
+        if (!is_dir($targetDir1)) {
+            @mkdir($targetDir1, 0777, true);
+        }
+        if (!is_dir($targetDir2)) {
+            @mkdir($targetDir2, 0777, true);
         }
 
+        $destDir = is_dir($targetDir1) ? $targetDir1 : $targetDir2;
         $newName = $file->getRandomName();
-        $file->move($uploadDir, $newName);
+        $file->move($destDir, $newName);
 
-        // Tambien copiar a FCPATH/uploads/avatars si existe separado
-        $fcDir = FCPATH . 'uploads/avatars/';
-        if ($fcDir !== $uploadDir) {
-            if (!is_dir($fcDir)) {
-                @mkdir($fcDir, 0777, true);
-            }
-            @copy($uploadDir . $newName, $fcDir . $newName);
+        if (is_file($targetDir1 . $newName) && !is_file($targetDir2 . $newName) && is_dir($targetDir2)) {
+            @copy($targetDir1 . $newName, $targetDir2 . $newName);
+        } elseif (is_file($targetDir2 . $newName) && !is_file($targetDir1 . $newName) && is_dir($targetDir1)) {
+            @copy($targetDir2 . $newName, $targetDir1 . $newName);
         }
 
         $relPath = 'avatars/' . $newName;
@@ -632,7 +634,7 @@ class CandidatoController extends BaseApiController
         if ($res = $this->validateApi([
             'oficio'       => 'required|min_length[2]|max_length[100]',
             'descripcion'  => 'permit_empty|max_length[2000]',
-            'precio_desde' => 'permit_empty|numeric',
+            'precio_desde' => 'permit_empty',
             'ciudad'       => 'permit_empty|max_length[100]',
             'zona'         => 'permit_empty|max_length[150]',
         ])) {
@@ -646,11 +648,13 @@ class CandidatoController extends BaseApiController
         }
         $estado = ($data['estado'] ?? 'activo') === 'pausado' ? 'pausado' : 'activo';
 
+        $precioDesde = (isset($data['precio_desde']) && is_numeric($data['precio_desde'])) ? (float)$data['precio_desde'] : null;
+
         $payload = [
             'candidato_id' => $candidato['id'],
             'oficio'       => trim($data['oficio']),
             'descripcion'  => !empty($data['descripcion']) ? trim($data['descripcion']) : null,
-            'precio_desde' => isset($data['precio_desde']) && $data['precio_desde'] !== '' ? (float)$data['precio_desde'] : null,
+            'precio_desde' => $precioDesde,
             'precio_tipo'  => $precioTipo,
             'ciudad'       => !empty($data['ciudad']) ? trim($data['ciudad']) : ($candidato['ciudad'] ?? null),
             'zona'         => !empty($data['zona']) ? trim($data['zona']) : ($candidato['zona_servicio'] ?? null),
@@ -1076,7 +1080,25 @@ class CandidatoController extends BaseApiController
 
     private function getCandidato(): ?array
     {
-        return (new CandidatoModel())->where('user_id', $this->authUser()['id'] ?? 0)->first();
+        $user = $this->authUser();
+        $userId = $user['id'] ?? 0;
+        if (!$userId) {
+            return null;
+        }
+
+        $candidatoModel = new CandidatoModel();
+        $candidato = $candidatoModel->where('user_id', $userId)->first();
+        if (!$candidato) {
+            $candidatoModel->insert([
+                'user_id'   => $userId,
+                'apellidos' => $user['apellido'] ?? '',
+                'ciudad'    => 'Managua',
+                'pais'      => 'Nicaragua',
+            ]);
+            $candidato = $candidatoModel->where('user_id', $userId)->first();
+        }
+
+        return $candidato;
     }
 
     private function requireCandidato(?array $candidato): ?\CodeIgniter\HTTP\ResponseInterface

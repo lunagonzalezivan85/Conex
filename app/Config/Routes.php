@@ -128,6 +128,7 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
     $routes->post('candidato/educacion/(:num)/eliminar', 'Api\CandidatoController::eliminarEducacion/$1');
     $routes->post('candidato/idiomas', 'Api\CandidatoController::guardarIdiomas');
     $routes->post('candidato/servicios', 'Api\CandidatoController::guardarServicio');
+    $routes->post('candidato/servicios/guardar', 'Api\CandidatoController::guardarServicio');
     $routes->delete('candidato/servicios/(:num)', 'Api\CandidatoController::eliminarServicio/$1');
     $routes->post('candidato/servicios/(:num)/eliminar', 'Api\CandidatoController::eliminarServicio/$1');
     $routes->get('candidato/solicitudes', 'Api\CandidatoController::solicitudes');
