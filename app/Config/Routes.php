@@ -93,6 +93,7 @@ $routes->options('api/(:any)', function () {
 // Auth publica (rate limit estricto anti fuerza bruta)
 $routes->post('api/login', 'Api\AuthController::login', ['filter' => 'apiRate:5,60']);
 $routes->post('api/register', 'Api\AuthController::register', ['filter' => 'apiRate:5,60']);
+$routes->post('api/auth/google', 'Api\AuthController::googleLogin', ['filter' => 'apiRate:10,60']);
 
 // Rutas autenticadas con Bearer token (120 req/min por IP+endpoint)
 $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($routes) {

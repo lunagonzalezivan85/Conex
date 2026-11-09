@@ -61,6 +61,163 @@ class AuthController extends BaseApiController
     }
 
     /**
+     * POST /api/auth/google
+     * Body: { id_token: string, device_name?: string }
+     * Valida el token con Google OAuth2 y autentica/registra al usuario.
+     */
+    public function googleLogin()
+    {
+        $rules = [
+            'id_token' => 'required',
+        ];
+        if ($res = $this->validateApi($rules)) {
+            return $res;
+        }
+
+        $data = $this->body();
+        $idToken = trim($data['id_token']);
+
+        // Validar token con el endpoint oficial de Google OAuth2
+        $googleUser = $this->verifyGoogleToken($idToken);
+        if (!$googleUser) {
+            return $this->fail('Token de Google no valido o expirado', 401);
+        }
+
+        $email = strtolower(trim($googleUser['email'] ?? ''));
+        if (empty($email) || empty($googleUser['email_verified'])) {
+            return $this->fail('El correo de Google no esta verificado', 400);
+        }
+
+        $userModel = new UserModel();
+        $user = $userModel->where('email', $email)->first();
+
+        if ($user) {
+            // Usuario existente
+            if ($user['estado'] !== 'activo') {
+                return $this->fail('Tu cuenta esta ' . $user['estado'] . '. Contacta al administrador.', 403);
+            }
+
+            // Actualizar last_login y avatar si no tiene
+            $updateData = ['last_login' => date('Y-m-d H:i:s')];
+            if (empty($user['avatar']) && !empty($googleUser['picture'])) {
+                $updateData['avatar'] = $googleUser['picture'];
+            }
+            $userModel->update($user['id'], $updateData);
+            $user = $userModel->find($user['id']);
+            $roleSlug = $userModel->getRoleSlug($user['role_id']);
+        } else {
+            // Nuevo usuario registrado via Google -> Rol candidato
+            $roleId = $userModel->getRoleIdBySlug('candidato');
+            if (!$roleId) {
+                return $this->fail('Error en configuracion del sistema', 500);
+            }
+
+            // Generar un nombre de usuario unico a partir del correo o nombre
+            $baseUser = explode('@', $email)[0];
+            $baseUser = preg_replace('/[^a-zA-Z0-9_]/', '', $baseUser) ?: 'user';
+            $uniqueUser = $baseUser;
+            $counter = 1;
+            while ($userModel->where('usuario', $uniqueUser)->first()) {
+                $uniqueUser = $baseUser . $counter++;
+            }
+
+            $nombre = $googleUser['given_name'] ?? ($googleUser['name'] ?? 'Usuario');
+            $apellido = $googleUser['family_name'] ?? '';
+            $avatar = $googleUser['picture'] ?? null;
+
+            // Password aleatorio seguro de 32 caracteres (acceso via Google)
+            $randomPassword = bin2hex(random_bytes(16));
+
+            $userId = $userModel->insert([
+                'role_id'         => $roleId,
+                'nombre'          => $nombre,
+                'apellido'        => $apellido,
+                'usuario'         => $uniqueUser,
+                'email'           => $email,
+                'telefono'        => null,
+                'password'        => $randomPassword,
+                'avatar'          => $avatar,
+                'estado'          => 'activo',
+                'perfil_completo' => false,
+                'last_login'      => date('Y-m-d H:i:s'),
+            ], true);
+
+            if (!$userId) {
+                return $this->fail('No se pudo registrar la cuenta con Google', 500, $userModel->errors());
+            }
+
+            // Crear registro en tabla candidatos
+            (new CandidatoModel())->insert([
+                'user_id'   => $userId,
+                'apellidos' => $apellido,
+            ]);
+
+            $user = $userModel->find($userId);
+            $roleSlug = 'candidato';
+        }
+
+        // Generar token de sesion API
+        $tokenModel = new ApiTokenModel();
+        $tokenData = $tokenModel->createToken(
+            $user['id'],
+            $data['device_name'] ?? 'google-auth',
+            $this->request->getIPAddress(),
+            $this->request->getUserAgent()->getAgentString()
+        );
+
+        return $this->ok([
+            'token'      => $tokenData['token'],
+            'token_type' => 'Bearer',
+            'expires_at' => $tokenData['expires_at'],
+            'user'       => $this->userPayload($user, $roleSlug),
+        ]);
+    }
+
+    /**
+     * Valida el token con Google OAuth2 TokenInfo API.
+     */
+    private function verifyGoogleToken(string $idToken): ?array
+    {
+        $url = 'https://oauth2.googleapis.com/tokeninfo?id_token=' . urlencode($idToken);
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200 || !$response) {
+            return null;
+        }
+
+        $data = json_decode($response, true);
+        if (!is_array($data) || empty($data['sub'])) {
+            return null;
+        }
+
+        // Validar emisor y expiracion
+        $iss = $data['iss'] ?? '';
+        if ($iss !== 'accounts.google.com' && $iss !== 'https://accounts.google.com') {
+            return null;
+        }
+
+        if (isset($data['exp']) && (int)$data['exp'] < time()) {
+            return null;
+        }
+
+        // Convertir boolean string si viene como texto
+        if (isset($data['email_verified'])) {
+            $data['email_verified'] = ($data['email_verified'] === true || $data['email_verified'] === 'true');
+        }
+
+        return $data;
+    }
+
+    /**
      * POST /api/register
      * Body: { tipo_cuenta: candidato|empresa, nombre, apellido, usuario,
      *         email, telefono, password, password_confirm, razon_social? }
@@ -293,7 +450,7 @@ class AuthController extends BaseApiController
             'email'           => $user['email'],
             'telefono'        => $user['telefono'] ?? null,
             'avatar'          => $user['avatar'] ?? null,
-            'avatar_url'      => !empty($user['avatar']) ? base_url('uploads/' . $user['avatar']) : null,
+            'avatar_url'      => !empty($user['avatar']) ? (str_starts_with($user['avatar'], 'http') ? $user['avatar'] : base_url('uploads/' . $user['avatar'])) : null,
             'role'            => $roleSlug,
             'perfil_completo' => (bool)($user['perfil_completo'] ?? false),
         ];
