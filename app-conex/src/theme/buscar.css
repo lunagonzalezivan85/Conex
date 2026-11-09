@@ -161,26 +161,47 @@
 .buscar-map-error ion-icon { font-size: 44px; opacity: 0.4; color: #1B2A4A; }
 .buscar-map-error p { margin: 0; font-size: 14px; font-weight: 600; }
 .buscar-map-error small { font-size: 12px; opacity: 0.7; }
-/* Pin custom del mapa: circulo navy, borde naranja (mismo estilo que la web) */
+
+/* Touch wrapper para MapLibre marker (área táctil de 48px según AGENT.md) */
+.cx-marker-wrap {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* Pin custom del mapa: circulo navy, borde naranja */
 .cx-map-pin {
   display: block;
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #1B2A4A;
   border: 4px solid #F97316;
-  box-shadow: 0 3px 12px rgba(18, 61, 115, 0.45);
+  box-shadow: 0 4px 14px rgba(18, 61, 115, 0.45);
   position: relative;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: none;
 }
 .cx-map-pin::after {
   content: "";
   position: absolute;
   inset: 0;
   margin: auto;
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: #fff;
+}
+.cx-marker-wrap:hover .cx-map-pin,
+.cx-marker-wrap:active .cx-map-pin {
+  transform: scale(1.25);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.6);
 }
 .cx-map-pin-me { background: #F97316; border-color: #1B2A4A; }
 /* Pin de prestador 'disponible ahora': turquesa con aro navy */
@@ -200,6 +221,112 @@
   border-radius: 999px;
   z-index: 6;
   white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Card flotante al seleccionar un marker en el mapa */
+.cx-map-card-container {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  right: 12px;
+  z-index: 20;
+  animation: cxSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes cxSlideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.cx-map-card {
+  position: relative;
+  background: var(--ion-card-background, #fff);
+  border-radius: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--cx-border);
+  box-shadow: 0 10px 28px rgba(27, 42, 74, 0.22);
+}
+.cx-map-card-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: var(--cx-surface, rgba(27, 42, 74, 0.06));
+  color: var(--ion-text-color, #1B2A4A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  cursor: pointer;
+}
+.cx-map-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 6px;
+  padding-right: 28px;
+}
+.cx-card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--cx-surface, rgba(27, 42, 74, 0.06));
+  color: var(--cx-navy);
+}
+.cx-card-badge.badge-urgente {
+  background: rgba(249, 115, 22, 0.14);
+  color: #ea580c;
+}
+.cx-card-badge.badge-disp {
+  background: rgba(15, 198, 194, 0.15);
+  color: #0aa8a5;
+}
+.cx-map-card-title {
+  margin: 0 0 2px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ion-text-color, #1B2A4A);
+  letter-spacing: -0.01em;
+}
+.cx-map-card-empresa {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: var(--ion-color-medium, #6b7280);
+}
+.cx-map-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--cx-border);
+}
+.cx-map-card-salary {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cx-navy);
+}
+.cx-map-card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--cx-orange, #F97316);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+.cx-map-card-btn.btn-cta {
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
 }
 
 /* Badge 'Disponible ahora' en la card del prestador */

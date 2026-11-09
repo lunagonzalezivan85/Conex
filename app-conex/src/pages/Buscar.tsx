@@ -59,6 +59,10 @@ const Buscar: React.FC = () => {
   const [modo, setModo] = useState<'vacantes' | 'servicios'>('vacantes');
   const [servicios, setServicios] = useState<any[]>([]);
   const [servMeta, setServMeta] = useState<any>({ current_page: 1, last_page: 1, total: 0 });
+  const [selectedItem, setSelectedItem] = useState<{
+    tipo: 'vacante' | 'servicio';
+    data: any;
+  } | null>(null);
   const [presentToast] = useIonToast();
   const [presentAlert] = useIonAlert();
   const { user } = useAuth();
@@ -288,11 +292,35 @@ const Buscar: React.FC = () => {
     setTimeout(() => m.resize(), 60);
     markersRef.current.forEach(mk => mk.remove());
     markersRef.current = [];
-    const pinEl = (cls: string) => {
-      const el = document.createElement('span');
-      el.className = cls;
-      return el;
+
+    const onMapClick = (e: any) => {
+      const orig = e.originalEvent;
+      if (orig && (orig.target as HTMLElement)?.closest?.('.cx-marker-wrap')) {
+        return;
+      }
+      setSelectedItem(null);
     };
+    m.off('click', onMapClick);
+    m.on('click', onMapClick);
+
+    const pinEl = (cls: string, onSelect?: () => void) => {
+      const wrap = document.createElement('div');
+      wrap.className = 'cx-marker-wrap';
+      const pin = document.createElement('div');
+      pin.className = cls;
+      wrap.appendChild(pin);
+
+      if (onSelect) {
+        const trigger = (e: Event) => {
+          e.stopPropagation();
+          onSelect();
+        };
+        wrap.addEventListener('click', trigger);
+        wrap.addEventListener('touchend', trigger);
+      }
+      return wrap;
+    };
+
     // Separar pines que caen en la misma posicion (misma ciudad / mismas coords)
     const seen: Record<string, number> = {};
     const jitter = (pos: [number, number]): [number, number] => {
@@ -310,7 +338,7 @@ const Buscar: React.FC = () => {
       servicios.forEach(s => {
         if (s.disponible !== 1 || s.lat == null || s.lng == null) return;
         const pos = jitter([Number(s.lng), Number(s.lat)]);
-        const popup = new maplibregl.Popup({ offset: 20, closeButton: false, closeOnClick: false })
+        const popup = new maplibregl.Popup({ offset: 22, closeButton: true, closeOnClick: true })
           .setHTML(
             `<div class="cx-pop"><strong>${s.oficio}</strong>` +
             `<span>${s.nombre_publico} · ${s.zona || s.ciudad || ''}</span>` +
@@ -320,9 +348,13 @@ const Buscar: React.FC = () => {
           popup.getElement().querySelector('.cx-pop-btn')
             ?.addEventListener('click', () => contactar(s), { once: true });
         });
-        const mk = new maplibregl.Marker({ element: pinEl('cx-map-pin cx-map-pin-srv') })
+        const onSelect = () => {
+          setSelectedItem({ tipo: 'servicio', data: s });
+          m.flyTo({ center: pos, zoom: Math.max(m.getZoom(), 12), offset: [0, -70] });
+        };
+        const el = pinEl('cx-map-pin cx-map-pin-srv', onSelect);
+        const mk = new maplibregl.Marker({ element: el })
           .setLngLat(pos).setPopup(popup).addTo(m);
-        mk.getElement().style.cursor = 'pointer';
         markersRef.current.push(mk);
       });
       // Centrar en el primer prestador disponible si no hay ubicacion propia
@@ -335,7 +367,7 @@ const Buscar: React.FC = () => {
         const pos0 = vGeo(v);
         if (!pos0) return;
         const pos = jitter(pos0);
-        const popup = new maplibregl.Popup({ offset: 20, closeButton: false, closeOnClick: false })
+        const popup = new maplibregl.Popup({ offset: 22, closeButton: true, closeOnClick: true })
           .setHTML(
             `<div class="cx-pop"><strong>${v.titulo}</strong><span>${v.empresa_nombre || ''}</span>` +
             `<button class="cx-pop-btn" data-slug="${v.slug}">Ver vacante</button></div>`
@@ -344,21 +376,30 @@ const Buscar: React.FC = () => {
           popup.getElement().querySelector('.cx-pop-btn')
             ?.addEventListener('click', () => router.push(`/app/vacante/${v.slug}`), { once: true });
         });
-        const mk = new maplibregl.Marker({ element: pinEl('cx-map-pin') })
+        const onSelect = () => {
+          setSelectedItem({ tipo: 'vacante', data: v });
+          m.flyTo({ center: pos, zoom: Math.max(m.getZoom(), 12), offset: [0, -70] });
+        };
+        const el = pinEl('cx-map-pin', onSelect);
+        const mk = new maplibregl.Marker({ element: el })
           .setLngLat(pos).setPopup(popup).addTo(m);
-        mk.getElement().style.cursor = 'pointer';
         markersRef.current.push(mk);
       });
     }
     if (coords) {
-      const mk = new maplibregl.Marker({ element: pinEl('cx-map-pin cx-map-pin-me') })
+      const el = pinEl('cx-map-pin cx-map-pin-me');
+      const mk = new maplibregl.Marker({ element: el })
         .setLngLat([coords.lng, coords.lat])
-        .setPopup(new maplibregl.Popup({ offset: 20, closeButton: false }).setHTML('<div class="cx-pop"><strong>Tu ubicación</strong></div>'))
+        .setPopup(new maplibregl.Popup({ offset: 22, closeButton: true }).setHTML('<div class="cx-pop"><strong>Tu ubicación</strong></div>'))
         .addTo(m);
       markersRef.current.push(mk);
       if (m.getZoom() < 10) m.flyTo({ center: [coords.lng, coords.lat], zoom: 11 });
     }
   }, [vista, vacantes, servicios, coords, modo, router]);
+
+  useEffect(() => {
+    setSelectedItem(null);
+  }, [modo, vista, filtros]);
 
   useEffect(() => () => {
     if (mapRef.current) { mapRef.current.remove(); mapRef.current = null; }
@@ -465,6 +506,77 @@ const Buscar: React.FC = () => {
               <IonIcon icon={mapOutline} />
               <p>{mapError}</p>
               <small>Revisa tu conexion a internet</small>
+            </div>
+          )}
+
+          {/* Card flotante al seleccionar un marker en el mapa */}
+          {selectedItem && (
+            <div className="cx-map-card-container">
+              {selectedItem.tipo === 'vacante' ? (
+                <div className="cx-map-card">
+                  <button
+                    className="cx-map-card-close"
+                    onClick={() => setSelectedItem(null)}
+                    aria-label="Cerrar"
+                  >
+                    <IonIcon icon={closeOutline} />
+                  </button>
+                  <div className="cx-map-card-tags">
+                    {selectedItem.data.destacada && <span className="cx-card-badge badge-urgente">URGENTE</span>}
+                    {selectedItem.data.tipo_contrato_nombre && (
+                      <span className="cx-card-badge">{selectedItem.data.tipo_contrato_nombre}</span>
+                    )}
+                    <span className="cx-card-badge">{selectedItem.data.ciudad || 'Nicaragua'}</span>
+                  </div>
+                  <h4 className="cx-map-card-title">{selectedItem.data.titulo}</h4>
+                  <p className="cx-map-card-empresa">{selectedItem.data.empresa_nombre || 'Empresa confidencial'}</p>
+                  <div className="cx-map-card-footer">
+                    <span className="cx-map-card-salary">
+                      {selectedItem.data.salario_formateado || 'Salario a convenir'}
+                    </span>
+                    <button
+                      className="cx-map-card-btn"
+                      onClick={() => router.push(`/app/vacante/${selectedItem.data.slug}`)}
+                    >
+                      Ver vacante
+                      <IonIcon icon={chevronForward} />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="cx-map-card">
+                  <button
+                    className="cx-map-card-close"
+                    onClick={() => setSelectedItem(null)}
+                    aria-label="Cerrar"
+                  >
+                    <IonIcon icon={closeOutline} />
+                  </button>
+                  <div className="cx-map-card-tags">
+                    <span className="cx-card-badge badge-disp">● Disponible ahora</span>
+                    <span className="cx-card-badge">{selectedItem.data.zona || selectedItem.data.ciudad || 'Managua'}</span>
+                  </div>
+                  <h4 className="cx-map-card-title">{selectedItem.data.oficio}</h4>
+                  <p className="cx-map-card-empresa">
+                    {selectedItem.data.nombre_publico}
+                    {selectedItem.data.experiencia_label ? ` · ${selectedItem.data.experiencia_label}` : ''}
+                  </p>
+                  <div className="cx-map-card-footer">
+                    <span className="cx-map-card-salary">
+                      {selectedItem.data.precio_desde
+                        ? `Desde C$${Number(selectedItem.data.precio_desde).toLocaleString()}`
+                        : 'Precio a convenir'}
+                    </span>
+                    <button
+                      className="cx-map-card-btn btn-cta"
+                      onClick={() => contactar(selectedItem.data)}
+                    >
+                      <IonIcon icon={chatbubbleOutline} />
+                      Contactar
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
