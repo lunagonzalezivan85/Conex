@@ -20,6 +20,12 @@ $routes->get('/politica-privacidad', 'PublicController::privacidad');
 $routes->get('/privacidad', 'PublicController::privacidad');
 $routes->get('/eliminar-cuenta', 'PublicController::eliminarCuenta');
 $routes->post('/eliminar-cuenta', 'PublicController::procesarEliminarCuenta');
+$routes->get('/descargar', 'PublicController::descargarApp');
+$routes->get('/app', 'PublicController::descargarApp');
+$routes->get('/descargar-app', 'PublicController::descargarApp');
+$routes->get('/descargar-apk', 'PublicController::descargarApk');
+$routes->get('/descargar/apk', 'PublicController::descargarApk');
+$routes->get('/descargas/conex-latest.apk', 'PublicController::descargarApk');
 $routes->get('/noticias', 'NoticiaController::listar');
 $routes->get('/noticias/(:segment)', 'NoticiaController::ver/$1');
 

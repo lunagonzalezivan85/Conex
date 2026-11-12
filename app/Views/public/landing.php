@@ -215,6 +215,9 @@ $busquedasPopulares = ['Contador', 'Electricista', 'Ventas', 'Desarrollador', 'C
     </div>
 </section>
 
+<!-- ============ SECCIÓN DESCARGA DE APP ESTILO PLAY STORE ============ -->
+<?= view('public/seccion-playstore') ?>
+
 <!-- ============ CTA EMPRESA ============ -->
 <section class="cta-section reveal">
     <div class="container cta-inner">

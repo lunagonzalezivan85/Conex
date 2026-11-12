@@ -1,0 +1,962 @@
+/* ========================================================
+   CONEX - Sección de Descarga de App Estilo Play Store
+   ======================================================== */
+
+.cx-playstore-wrap {
+    padding: 80px 20px;
+    background: radial-gradient(120% 120% at 50% 10%, #F8FAFD 0%, #EEF3FA 60%, #E2ECF8 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.cx-playstore-wrap::before {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -100px;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(15, 198, 194, 0.12) 0%, rgba(15, 198, 194, 0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.cx-playstore-wrap::after {
+    content: '';
+    position: absolute;
+    bottom: -150px;
+    left: -120px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.10) 0%, rgba(249, 115, 22, 0) 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.cx-playstore-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+/* Header de la sección */
+.cx-playstore-header {
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto 50px auto;
+}
+
+.cx-playstore-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(18, 61, 115, 0.08);
+    color: var(--brand-navy, #123D73);
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    border: 1px solid rgba(18, 61, 115, 0.14);
+}
+
+.cx-playstore-badge svg {
+    width: 16px;
+    height: 16px;
+    color: var(--brand-orange, #FF8400);
+}
+
+.cx-playstore-title {
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--brand-navy, #123D73);
+    line-height: 1.2;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+}
+
+.cx-playstore-title span {
+    color: var(--brand-orange, #FF8400);
+}
+
+.cx-playstore-subtitle {
+    font-size: 17px;
+    color: #4A5568;
+    line-height: 1.6;
+}
+
+/* Grid principal: Tarjeta Play Store + Smartphone Mockup */
+.cx-playstore-main {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 48px;
+    align-items: center;
+    margin-bottom: 60px;
+}
+
+/* ==================== TARJETA PLAY STORE ==================== */
+.cx-ps-card {
+    background: #FFFFFF;
+    border-radius: 28px;
+    padding: 36px;
+    box-shadow: 0 20px 48px rgba(18, 61, 115, 0.09), 0 4px 12px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    position: relative;
+}
+
+/* Cabecera del producto (Icono, Título, Empresa) */
+.cx-ps-product-head {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 26px;
+}
+
+.cx-ps-app-icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #1B2A4A 0%, #101B30 100%);
+    box-shadow: 0 8px 24px rgba(27, 42, 74, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.cx-ps-app-icon::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+    border-radius: 20px 20px 0 0;
+}
+
+.cx-ps-app-icon-text {
+    font-size: 32px;
+    font-weight: 900;
+    color: #FFFFFF;
+    letter-spacing: -1px;
+}
+
+.cx-ps-app-icon-text .cx-x {
+    color: #F97316;
+}
+
+.cx-ps-app-info h3 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1A202C;
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+.cx-ps-app-dev {
+    font-size: 15px;
+    font-weight: 600;
+    color: #008F98;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.cx-ps-app-dev svg {
+    width: 16px;
+    height: 16px;
+    color: #008F98;
+}
+
+.cx-ps-tags {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    color: #718096;
+}
+
+/* Tira de Métricas Play Store (Rating, Descargas, Clasificación) */
+.cx-ps-metrics {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 16px 0;
+    border-top: 1px solid #EDF2F7;
+    border-bottom: 1px solid #EDF2F7;
+    margin-bottom: 28px;
+    text-align: center;
+}
+
+.cx-ps-metric-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+}
+
+.cx-ps-metric-item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 15%;
+    height: 70%;
+    width: 1px;
+    background: #E2E8F0;
+}
+
+.cx-ps-metric-val {
+    font-size: 17px;
+    font-weight: 800;
+    color: #1A202C;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    line-height: 1.2;
+    margin-bottom: 3px;
+}
+
+.cx-ps-metric-val svg.star {
+    width: 16px;
+    height: 16px;
+    color: #EFA800;
+    fill: #EFA800;
+}
+
+.cx-ps-metric-lbl {
+    font-size: 11px;
+    color: #718096;
+    font-weight: 500;
+}
+
+.cx-ps-pegi-badge {
+    display: inline-block;
+    padding: 1px 5px;
+    background: #2E7D32;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 800;
+    border-radius: 3px;
+}
+
+/* Botones de acción */
+.cx-ps-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 26px;
+}
+
+/* Botón Google Play Oficial */
+.cx-btn-googleplay {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: #000000;
+    color: #FFFFFF !important;
+    padding: 11px 22px;
+    border-radius: 12px;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    flex: 1;
+    min-width: 210px;
+}
+
+.cx-btn-googleplay:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+}
+
+.cx-btn-gp-icon {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+}
+
+.cx-btn-gp-text {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    line-height: 1.15;
+}
+
+.cx-btn-gp-text .cx-gp-small {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: #CBD5E0;
+}
+
+.cx-btn-gp-text .cx-gp-big {
+    font-size: 18px;
+    font-weight: 700;
+    font-family: 'Product Sans', 'Inter', sans-serif;
+    color: #FFFFFF;
+}
+
+/* Botón APK Directo */
+.cx-btn-apk {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #123D73 0%, #1A4D8C 100%);
+    color: #FFFFFF !important;
+    padding: 12px 22px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 700;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 14px rgba(18, 61, 115, 0.22);
+    flex: 1;
+    min-width: 210px;
+}
+
+.cx-btn-apk:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(18, 61, 115, 0.32);
+    background: linear-gradient(135deg, #FF8400 0%, #E67600 100%);
+}
+
+.cx-btn-apk svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.4;
+}
+
+.cx-btn-apk-sub {
+    font-size: 11px;
+    font-weight: 400;
+    opacity: 0.85;
+    display: block;
+}
+
+/* QR Code & Safe Guarantee Strip */
+.cx-ps-security-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    background: #F8FAFD;
+    border-radius: 16px;
+    border: 1px solid #E2E8F0;
+}
+
+.cx-ps-security-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cx-ps-shield-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #E8F5E9;
+    color: #2E7D32;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cx-ps-shield-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.cx-ps-security-text h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1A202C;
+    margin-bottom: 2px;
+}
+
+.cx-ps-security-text p {
+    font-size: 11px;
+    color: #718096;
+    margin: 0;
+}
+
+/* QR Mini pop */
+.cx-ps-qr-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #FFFFFF;
+    padding: 6px 12px 6px 6px;
+    border-radius: 12px;
+    border: 1px solid #CBD5E0;
+}
+
+.cx-ps-qr-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+}
+
+.cx-ps-qr-caption {
+    font-size: 11px;
+    font-weight: 600;
+    color: #4A5568;
+    line-height: 1.25;
+}
+
+/* ==================== SMARTPHONE MOCKUP ==================== */
+.cx-phone-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cx-phone-frame {
+    width: 330px;
+    height: 670px;
+    background: #111827;
+    border-radius: 46px;
+    padding: 12px;
+    box-shadow: 0 25px 60px rgba(18, 61, 115, 0.28), 0 10px 24px rgba(0, 0, 0, 0.16);
+    border: 3px solid #374151;
+    position: relative;
+}
+
+/* Dynamic island */
+.cx-phone-notch {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90px;
+    height: 20px;
+    background: #000000;
+    border-radius: 20px;
+    z-index: 20;
+}
+
+/* Pantalla interna */
+.cx-phone-screen {
+    width: 100%;
+    height: 100%;
+    background: #F7F9FC;
+    border-radius: 36px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Barra de estado */
+.cx-phone-status {
+    height: 38px;
+    padding: 10px 22px 0 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1A202C;
+    z-index: 10;
+}
+
+/* Header de la app */
+.cx-phone-appbar {
+    padding: 8px 16px 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cx-phone-brand {
+    font-size: 18px;
+    font-weight: 900;
+    color: #1B2A4A;
+    letter-spacing: -0.5px;
+}
+
+.cx-phone-brand span.x {
+    color: #F97316;
+}
+
+.cx-phone-brand-sub {
+    font-size: 8px;
+    font-weight: 800;
+    color: #64748B;
+    letter-spacing: 0.6px;
+    display: block;
+    margin-top: -2px;
+}
+
+.cx-phone-appbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cx-phone-action-bell {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #1B2A4A;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    position: relative;
+}
+
+.cx-phone-action-bell::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    background: #F97316;
+    border-radius: 50%;
+}
+
+.cx-phone-action-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #E2E8F0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* Contenido del mock móvil */
+.cx-phone-body {
+    padding: 0 16px;
+    overflow-y: hidden;
+    flex: 1;
+}
+
+.cx-phone-greeting {
+    margin-bottom: 12px;
+}
+
+.cx-phone-greeting h4 {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1E293B;
+    margin: 0;
+}
+
+.cx-phone-greeting p {
+    font-size: 10px;
+    color: #64748B;
+    margin: 2px 0 0 0;
+}
+
+/* Search input móvil */
+.cx-phone-search {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    margin-bottom: 12px;
+    border: 1px solid #E2E8F0;
+}
+
+.cx-phone-search svg {
+    width: 14px;
+    height: 14px;
+    color: #94A3B8;
+}
+
+.cx-phone-search span {
+    font-size: 10px;
+    color: #94A3B8;
+}
+
+/* Acciones Bento */
+.cx-phone-bento {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.cx-phone-bento-card {
+    border-radius: 14px;
+    padding: 10px;
+    color: #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 64px;
+}
+
+.cx-phone-bento-card.blue {
+    background: linear-gradient(135deg, #1B2A4A 0%, #243B66 100%);
+}
+
+.cx-phone-bento-card.orange {
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+}
+
+.cx-phone-bento-card .bento-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cx-phone-bento-card .bento-top svg {
+    width: 14px;
+    height: 14px;
+}
+
+.cx-phone-bento-card strong {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.cx-phone-bento-card small {
+    font-size: 8px;
+    opacity: 0.9;
+}
+
+/* Sección de trabajadores destacados */
+.cx-phone-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #1E293B;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cx-phone-section-title a {
+    font-size: 9px;
+    color: #008F98;
+    text-decoration: none;
+}
+
+.cx-phone-cards-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.cx-phone-worker-card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 8px;
+    flex: 1;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    border: 1px solid #E2E8F0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.cx-phone-worker-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    margin-bottom: 6px;
+    object-fit: cover;
+    background: #E2E8F0;
+}
+
+.cx-phone-worker-card strong {
+    font-size: 10px;
+    color: #1E293B;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 80px;
+}
+
+.cx-phone-worker-card span {
+    font-size: 8px;
+    color: #64748B;
+}
+
+.cx-phone-worker-rating {
+    font-size: 8px;
+    font-weight: 700;
+    color: #EFA800;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Job card mockup */
+.cx-phone-job-card {
+    background: #FFFFFF;
+    border-radius: 12px;
+    padding: 9px 11px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    border: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cx-phone-job-title {
+    font-size: 10px;
+    font-weight: 800;
+    color: #1E293B;
+}
+
+.cx-phone-job-company {
+    font-size: 8px;
+    color: #64748B;
+}
+
+.cx-phone-job-salary {
+    font-size: 9px;
+    font-weight: 700;
+    color: #008F98;
+    margin-top: 2px;
+}
+
+.cx-phone-job-badge {
+    background: #FFF3E6;
+    color: #F97316;
+    font-size: 7px;
+    font-weight: 800;
+    padding: 3px 6px;
+    border-radius: 4px;
+}
+
+/* Bottom Nav bar */
+.cx-phone-tabbar {
+    height: 48px;
+    background: #FFFFFF;
+    border-top: 1px solid #E2E8F0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.cx-phone-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 8px;
+    color: #94A3B8;
+}
+
+.cx-phone-tab.active {
+    color: #1B2A4A;
+    font-weight: 700;
+}
+
+.cx-phone-tab svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Tarjetas flotantes estilo banner */
+.cx-floating-chip {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 14px;
+    padding: 10px 14px;
+    box-shadow: 0 10px 26px rgba(18, 61, 115, 0.16);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1A202C;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    z-index: 25;
+    animation: cxFloat 4s ease-in-out infinite;
+}
+
+.cx-floating-chip.top-left {
+    top: 70px;
+    left: -40px;
+    animation-delay: 0s;
+}
+
+.cx-floating-chip.bottom-right {
+    bottom: 80px;
+    right: -40px;
+    animation-delay: 2s;
+}
+
+.cx-chip-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    flex-shrink: 0;
+}
+
+.cx-chip-icon.teal {
+    background: linear-gradient(135deg, #0FC6C2 0%, #008F98 100%);
+}
+
+.cx-chip-icon.orange {
+    background: linear-gradient(135deg, #F97316 0%, #EA580C 100%);
+}
+
+@keyframes cxFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* ==================== BENEFICIOS (GRID INFERIOR) ==================== */
+.cx-ps-features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.cx-ps-feature-item {
+    background: #FFFFFF;
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cx-ps-feature-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(18, 61, 115, 0.08);
+}
+
+.cx-ps-feat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: #FFFFFF;
+}
+
+.cx-ps-feat-icon.icon-blue { background: linear-gradient(135deg, #123D73 0%, #1A4D8C 100%); }
+.cx-ps-feat-icon.icon-orange { background: linear-gradient(135deg, #FF8400 0%, #E67600 100%); }
+.cx-ps-feat-icon.icon-teal { background: linear-gradient(135deg, #008F98 0%, #0BA8B0 100%); }
+.cx-ps-feat-icon.icon-green { background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%); }
+
+.cx-ps-feat-icon svg {
+    width: 22px;
+    height: 22px;
+}
+
+.cx-ps-feature-item h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1A202C;
+    margin-bottom: 6px;
+}
+
+.cx-ps-feature-item p {
+    font-size: 13px;
+    color: #64748B;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 992px) {
+    .cx-playstore-main {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .cx-floating-chip.top-left {
+        left: 0;
+    }
+    
+    .cx-floating-chip.bottom-right {
+        right: 0;
+    }
+
+    .cx-ps-features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .cx-playstore-title {
+        font-size: 28px;
+    }
+
+    .cx-ps-card {
+        padding: 22px;
+    }
+
+    .cx-ps-product-head {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .cx-ps-app-dev {
+        justify-content: center;
+    }
+
+    .cx-ps-tags {
+        justify-content: center;
+    }
+
+    .cx-ps-actions {
+        flex-direction: column;
+    }
+
+    .cx-btn-googleplay, .cx-btn-apk {
+        width: 100%;
+    }
+
+    .cx-ps-security-bar {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .cx-ps-security-info {
+        flex-direction: column;
+    }
+
+    .cx-phone-frame {
+        width: 290px;
+        height: 590px;
+    }
+
+    .cx-floating-chip {
+        display: none;
+    }
+
+    .cx-ps-features-grid {
+        grid-template-columns: 1fr;
+    }
+}

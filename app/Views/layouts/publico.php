@@ -118,6 +118,10 @@
                 <a href="<?= base_url('planes') ?>">Planes</a>
                 <a href="<?= base_url('buscar-empleo') ?>">Empleos</a>
                 <a href="<?= base_url('servicios') ?>">Servicios</a>
+                <a href="<?= base_url('descargar') ?>" style="display:inline-flex; align-items:center; gap:5px; color:var(--brand-orange); font-weight:700;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    App Móvil
+                </a>
             </div>
             <div class="header-actions">
                 <a href="<?= base_url('login') ?>" class="btn btn-ghost">Iniciar Sesion</a>
@@ -152,8 +156,15 @@
             <div class="footer-col">
                 <h4>Empresas</h4>
                 <a href="<?= base_url('registro') ?>">Publicar vacante</a>
-                <a href="#">Planes y precios</a>
+                <a href="<?= base_url('planes') ?>">Planes y precios</a>
                 <a href="#">Soporte</a>
+            </div>
+            <div class="footer-col">
+                <h4>App Móvil</h4>
+                <a href="<?= base_url('descargar') ?>">Descargar para Android</a>
+                <a href="<?= base_url('descargar-apk') ?>">Descargar APK Directo</a>
+                <a href="https://play.google.com/store/apps/details?id=com.softlutionic.conex" target="_blank" rel="noopener">Google Play Store</a>
+                <a href="<?= base_url('politica-privacidad') ?>">Privacidad</a>
             </div>
         </div>
         <div class="footer-bottom">

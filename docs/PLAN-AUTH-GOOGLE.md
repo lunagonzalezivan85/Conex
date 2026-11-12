@@ -174,3 +174,4 @@ plugins: {
 - [ ] Configuración del Client ID en `capacitor.config.ts` y `strings.xml`.
 - [ ] Integración de botones UI en `Login.tsx` y `Registro.tsx`.
 - [ ] Prueba de login nativo en dispositivo físico / emulador Android.
+

@@ -725,4 +725,53 @@ class PublicController extends BaseController
 
         return redirect()->back()->with('success', 'Tu solicitud de eliminacion ha sido procesada. Tu cuenta y datos han sido dados de baja de la plataforma.');
     }
+
+    public function descargarApp(): string
+    {
+        return view('layouts/publico', [
+            'content'          => view('public/descargar-app'),
+            'title'            => 'Descargar App Móvil Oficial',
+            'meta_description' => 'Descarga la app de CONEX para Android. Encuentra empleo, vacantes y servicios cerca de ti en Google Play Store o descarga directa APK.',
+            'css'              => ['landing.css', 'playstore-section.css'],
+            'js'               => ['landing.js'],
+        ]);
+    }
+
+    public function descargarApk()
+    {
+        $candidates = [
+            FCPATH . 'descargas/conex-latest.apk',
+            ROOTPATH . 'descargas/conex-latest.apk',
+            ROOTPATH . 'public/descargas/conex-latest.apk',
+            dirname(FCPATH) . '/descargas/conex-latest.apk',
+            __DIR__ . '/../../../descargas/conex-latest.apk',
+        ];
+
+        $target = null;
+        foreach ($candidates as $apkPath) {
+            if (is_file($apkPath)) {
+                $target = $apkPath;
+                break;
+            }
+        }
+
+        if (!$target) {
+            return redirect()->to(base_url('descargar'))->with('error', 'El archivo APK está en proceso de actualización.');
+        }
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/vnd.android.package-archive');
+        header('Content-Disposition: attachment; filename="conex-app-v1.0.apk"');
+        header('Content-Transfer-Encoding: binary');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($target));
+        readfile($target);
+        exit;
+    }
 }
