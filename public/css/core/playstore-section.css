@@ -960,3 +960,134 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ==================== HERO DEDICADO DE LA APP ==================== */
+.cx-app-hero {
+    position: relative;
+    background: linear-gradient(135deg, #0D1B2A 0%, #123D73 55%, #102A4C 100%);
+    color: #FFFFFF;
+    padding: 76px 20px 84px 20px;
+    overflow: hidden;
+    text-align: center;
+}
+
+.cx-app-hero::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(15, 198, 194, 0.20) 0%, rgba(249, 115, 22, 0.12) 45%, rgba(0,0,0,0) 70%);
+    pointer-events: none;
+}
+
+.cx-app-hero-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 2;
+}
+
+.cx-app-hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.10);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #0FC6C2;
+    padding: 6px 18px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    margin-bottom: 22px;
+}
+
+.cx-app-hero-eyebrow svg {
+    width: 16px;
+    height: 16px;
+}
+
+.cx-app-hero h1 {
+    font-size: 44px;
+    font-weight: 800;
+    line-height: 1.18;
+    margin-bottom: 18px;
+    letter-spacing: -1px;
+    color: #FFFFFF;
+}
+
+.cx-app-hero h1 span.highlight {
+    background: linear-gradient(135deg, #FF9A2E 0%, #FF8400 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.cx-app-hero p.lead {
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.6;
+    margin-bottom: 34px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.cx-app-hero-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.cx-app-hero-stats {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 36px;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.cx-app-hero-stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cx-app-hero-stat-num {
+    font-size: 24px;
+    font-weight: 800;
+    color: #FFFFFF;
+}
+
+.cx-app-hero-stat-lbl {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+    .cx-app-hero {
+        padding: 50px 16px 60px 16px;
+    }
+    .cx-app-hero h1 {
+        font-size: 30px;
+    }
+    .cx-app-hero p.lead {
+        font-size: 15px;
+    }
+    .cx-app-hero-stats {
+        gap: 18px;
+    }
+    .cx-app-hero-stat-num {
+        font-size: 20px;
+    }
+}
+
+

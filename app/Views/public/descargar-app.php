@@ -1,15 +1,63 @@
 <!-- ========================================================
-     PÁGINA DEDICADA DE DESCARGA DE LA APP CONEX
+     HERO DEDICADO DE LA APP CONEX
      ======================================================== -->
-<div style="background: var(--bg-primary); padding: 40px 0 10px 0;">
-    <div class="container" style="max-width: 1000px; margin: 0 auto; padding: 0 20px;">
-        <nav style="display: flex; gap: 8px; font-size: 13px; color: #64748B; margin-bottom: 20px;">
-            <a href="<?= base_url() ?>" style="color: #64748B; text-decoration: none;">Inicio</a>
-            <span>/</span>
-            <span style="color: var(--brand-navy); font-weight: 600;">Descargar App Android</span>
-        </nav>
+<section class="cx-app-hero">
+    <div class="cx-app-hero-inner">
+        <span class="cx-app-hero-eyebrow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            Aplicación Oficial para Android
+        </span>
+        <h1>
+            Encuentra trabajo y servicios<br>
+            <span class="highlight">en la palma de tu mano</span>
+        </h1>
+        <p class="lead">
+            Postúlate a cientos de vacantes en Nicaragua, contacta técnicos y clientes cerca de ti y gestiona tu perfil profesional desde cualquier lugar con la app oficial de CONEX.
+        </p>
+
+        <div class="cx-app-hero-actions">
+            <a href="https://play.google.com/store/apps/details?id=com.softlutionic.conex" target="_blank" rel="noopener" class="cx-btn-googleplay" style="max-width: 250px;">
+                <svg class="cx-btn-gp-icon" viewBox="0 0 512 512">
+                    <path fill="#4285F4" d="M32.5 13.5c-4.2 4.5-6.5 11.2-6.5 19.5v446c0 8.3 2.3 15 6.5 19.5l239.5-242.5L32.5 13.5z"/>
+                    <path fill="#34A853" d="M352.5 315.5l-80.5-80.5-239.5 242.5c5.3 2.8 11.6 4.5 18.5 4.5 9.8 0 20.1-4.2 30-10.5l271.5-156z"/>
+                    <path fill="#FBBC04" d="M352.5 196.5L81 40.5C71.1 34.2 60.8 30 51 30c-6.9 0-13.2 1.7-18.5 4.5L272 277l80.5-80.5z"/>
+                    <path fill="#EA4335" d="M470.5 237.5l-118-68.5-80.5 80.5 80.5 80.5 118-68.5c16.5-9.5 25.5-22.5 25.5-37s-9-27.5-25.5-37z"/>
+                </svg>
+                <div class="cx-btn-gp-text">
+                    <span class="cx-gp-small">DISPONIBLE EN</span>
+                    <span class="cx-gp-big">Google Play</span>
+                </div>
+            </a>
+
+            <a href="<?= base_url('descargar-apk') ?>" class="cx-btn-apk" style="max-width: 250px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <div>
+                    <span>Descargar APK</span>
+                    <span class="cx-btn-apk-sub">v1.0.0 • 35.4 MB</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="cx-app-hero-stats">
+            <div class="cx-app-hero-stat-item">
+                <span class="cx-app-hero-stat-num">10,000+</span>
+                <span class="cx-app-hero-stat-lbl">Descargas</span>
+            </div>
+            <div class="cx-app-hero-stat-item">
+                <span class="cx-app-hero-stat-num" style="color: #FFB703;">★ 4.9</span>
+                <span class="cx-app-hero-stat-lbl">Calificación</span>
+            </div>
+            <div class="cx-app-hero-stat-item">
+                <span class="cx-app-hero-stat-num" style="color: #0FC6C2;">100% Gratis</span>
+                <span class="cx-app-hero-stat-lbl">Sin comisiones</span>
+            </div>
+            <div class="cx-app-hero-stat-item">
+                <span class="cx-app-hero-stat-num" style="color: #2ECC71;">Protegida</span>
+                <span class="cx-app-hero-stat-lbl">Google Play Protect</span>
+            </div>
+        </div>
     </div>
-</div>
+</section>
 
 <!-- Sección Play Store -->
 <?= view('public/seccion-playstore') ?>
