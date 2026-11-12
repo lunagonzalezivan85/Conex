@@ -195,7 +195,11 @@
 .section-header .section-eyebrow { margin-bottom: 2px; }
 
 /* Hero split */
-.hero-v2 { padding: 90px 24px 70px; text-align: left; }
+.hero-v2 { 
+    background: linear-gradient(135deg, #0D1B2A 0%, #123D73 55%, #163B6B 100%);
+    padding: 90px 24px 70px; 
+    text-align: left; 
+}
 .hero-split {
     max-width: 1180px; display: grid; grid-template-columns: 1.15fr 0.85fr;
     gap: 48px; align-items: center;

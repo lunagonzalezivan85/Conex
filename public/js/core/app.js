@@ -150,6 +150,13 @@ document.addEventListener('DOMContentLoaded', function() {
         revealEls.forEach(function(el) { el.classList.add('reveal-visible'); });
     }
 
+    // Fallback de seguridad: asegurar visibilidad total tras 900ms
+    setTimeout(function() {
+        document.querySelectorAll('.reveal').forEach(function(el) {
+            el.classList.add('reveal-visible');
+        });
+    }, 900);
+
     // ===== V2: contadores .counter[data-target] =====
     function cxAnimateCounter(el) {
         var target = parseInt(el.dataset.target, 10) || 0;

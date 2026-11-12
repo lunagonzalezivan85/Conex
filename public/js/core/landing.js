@@ -43,4 +43,12 @@
             cardsIO.observe(grid);
         });
     }
+
+    // Fallback de seguridad: asegurar visibilidad total de vacantes y tarjetas
+    setTimeout(function () {
+        document.querySelectorAll('.categoria-card, .srv-mini-card, .vacante-card').forEach(function (el) {
+            el.style.opacity = '1';
+            el.style.transform = 'translateY(0)';
+        });
+    }, 800);
 })();
