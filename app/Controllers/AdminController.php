@@ -56,25 +56,287 @@ class AdminController extends BaseController
             return redirect()->to('')->with('error', 'No tienes acceso a esta seccion.');
         }
 
-        $usuarios = $userModel->select('auth_user.*, auth_role.slug as role_slug, auth_role.nombre as role_nombre')
+        $db = \Config\Database::connect();
+        $usuarios = $db->table('auth_user')
+            ->select('auth_user.id, auth_user.nombre, auth_user.apellido, auth_user.usuario, auth_user.email, auth_user.telefono,
+                      auth_user.avatar, auth_user.estado, auth_user.perfil_completo, auth_user.last_login, auth_user.created_at,
+                      auth_role.slug as role_slug, auth_role.nombre as role_nombre,
+                      cand_candidato.id as candidato_id, cand_candidato.profesion, cand_candidato.ciudad as cand_ciudad,
+                      cand_candidato.pais as cand_pais, cand_candidato.porcentaje_perfil, cand_candidato.disponibilidad,
+                      cand_candidato.ofrece_servicios, cand_candidato.sobre_mi,
+                      emp_empresa.id as empresa_id, emp_empresa.razon_social, emp_empresa.rubro,
+                      emp_empresa.ciudad as emp_ciudad, emp_empresa.ruc, emp_empresa.sitio_web, emp_empresa.verificada as emp_verificada')
             ->join('auth_role', 'auth_role.id = auth_user.role_id')
-            ->findAll();
+            ->join('cand_candidato', 'cand_candidato.user_id = auth_user.id AND cand_candidato.deleted_at IS NULL', 'left')
+            ->join('emp_empresa', 'emp_empresa.user_id = auth_user.id AND emp_empresa.deleted_at IS NULL', 'left')
+            ->where('auth_user.deleted_at IS NULL')
+            ->orderBy('auth_user.id', 'DESC')
+            ->get()
+            ->getResultArray();
+
+        $totalUsuarios = count($usuarios);
+        $totalCandidatos = 0;
+        $totalEmpresas = 0;
+        $totalStaff = 0;
+        $totalActivos = 0;
+
+        foreach ($usuarios as $u) {
+            if ($u['role_slug'] === 'candidato') $totalCandidatos++;
+            elseif ($u['role_slug'] === 'empresa') $totalEmpresas++;
+            elseif (in_array($u['role_slug'], ['admin', 'asesor'])) $totalStaff++;
+
+            if ($u['estado'] === 'activo') $totalActivos++;
+        }
 
         $sidebarSections = $this->getSidebarSections($roleSlug);
 
         $content = view('admin/usuarios', [
             'usuarios' => $usuarios,
+            'stats'    => [
+                'total'      => $totalUsuarios,
+                'candidatos' => $totalCandidatos,
+                'empresas'   => $totalEmpresas,
+                'staff'      => $totalStaff,
+                'activos'    => $totalActivos,
+            ],
         ]);
 
         return view('layouts/panel', [
-            'content' => $content,
-            'title' => 'Usuarios',
-            'pageTitle' => 'Gestion de Usuarios',
-            'roleSlug' => $roleSlug,
+            'content'         => $content,
+            'title'           => 'Usuarios',
+            'pageTitle'       => 'Gestión de Usuarios',
+            'roleSlug'        => $roleSlug,
             'sidebarSections' => $sidebarSections,
-            'activeSection' => 'usuarios',
-            'css' => [],
+            'activeSection'   => 'usuarios',
+            'css'             => ['admin-usuarios.css'],
         ]);
+    }
+
+    public function perfilUsuario(int $userId)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return redirect()->to('login');
+        }
+
+        $userModel = new UserModel();
+        $roleSlug = $userModel->getRoleSlug(session()->get('role_id'));
+
+        if (!in_array($roleSlug, ['admin', 'asesor'])) {
+            return redirect()->to('')->with('error', 'No tienes acceso a esta seccion.');
+        }
+
+        $db = \Config\Database::connect();
+        $usuario = $db->table('auth_user')
+            ->select('auth_user.*, auth_role.slug as role_slug, auth_role.nombre as role_nombre, auth_role.descripcion as role_descripcion')
+            ->join('auth_role', 'auth_role.id = auth_user.role_id')
+            ->where('auth_user.id', $userId)
+            ->where('auth_user.deleted_at IS NULL')
+            ->get()
+            ->getRowArray();
+
+        if (!$usuario) {
+            return redirect()->to('admin/usuarios')->with('error', 'Usuario no encontrado.');
+        }
+
+        $candidato = null;
+        $educacion = [];
+        $experiencias = [];
+        $habilidades = [];
+        $idiomas = [];
+        $cvs = [];
+        $postulaciones = [];
+        $servicios = [];
+
+        $empresa = null;
+        $vacantes = [];
+        $totalPostulacionesEmpresa = 0;
+
+        if ($usuario['role_slug'] === 'candidato') {
+            $candidato = $db->table('cand_candidato')
+                ->select('cand_candidato.*, cat_nivel_experiencia.nombre as nivel_exp_nombre')
+                ->join('cat_nivel_experiencia', 'cat_nivel_experiencia.id = cand_candidato.nivel_experiencia_id', 'left')
+                ->where('cand_candidato.user_id', $userId)
+                ->where('cand_candidato.deleted_at IS NULL')
+                ->get()
+                ->getRowArray();
+
+            if ($candidato) {
+                $candId = $candidato['id'];
+                $educacion = $db->table('cand_educacion')
+                    ->select('cand_educacion.*, cat_nivel_educacion.nombre as nivel_nombre')
+                    ->join('cat_nivel_educacion', 'cat_nivel_educacion.id = cand_educacion.nivel_educacion_id', 'left')
+                    ->where('cand_educacion.candidato_id', $candId)
+                    ->orderBy('fecha_inicio', 'DESC')
+                    ->get()
+                    ->getResultArray();
+
+                $experiencias = $db->table('cand_experiencia')
+                    ->where('candidato_id', $candId)
+                    ->orderBy('fecha_inicio', 'DESC')
+                    ->get()
+                    ->getResultArray();
+
+                $habilidades = $db->table('cand_habilidad')
+                    ->select('cand_habilidad.*, cat_habilidad.nombre as habilidad_nombre')
+                    ->join('cat_habilidad', 'cat_habilidad.id = cand_habilidad.habilidad_id', 'left')
+                    ->where('cand_habilidad.candidato_id', $candId)
+                    ->get()
+                    ->getResultArray();
+
+                $idiomas = $db->table('cand_idioma')
+                    ->select('cand_idioma.*, cat_idioma.nombre as idioma_nombre')
+                    ->join('cat_idioma', 'cat_idioma.id = cand_idioma.idioma_id', 'left')
+                    ->where('cand_idioma.candidato_id', $candId)
+                    ->get()
+                    ->getResultArray();
+
+                $cvs = $db->table('cand_cv')
+                    ->where('candidato_id', $candId)
+                    ->orderBy('created_at', 'DESC')
+                    ->get()
+                    ->getResultArray();
+
+                $postulaciones = $db->table('post_postulacion')
+                    ->select('post_postulacion.*, vac_vacante.titulo as vacante_titulo, emp_empresa.razon_social as empresa_nombre')
+                    ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id')
+                    ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left')
+                    ->where('post_postulacion.candidato_id', $candId)
+                    ->orderBy('post_postulacion.created_at', 'DESC')
+                    ->get()
+                    ->getResultArray();
+
+                $servicios = $db->table('srv_servicio')
+                    ->where('candidato_id', $candId)
+                    ->where('deleted_at IS NULL')
+                    ->get()
+                    ->getResultArray();
+            }
+        } elseif ($usuario['role_slug'] === 'empresa') {
+            $empresa = $db->table('emp_empresa')
+                ->where('user_id', $userId)
+                ->where('deleted_at IS NULL')
+                ->get()
+                ->getRowArray();
+
+            if ($empresa) {
+                $vacantes = $db->table('vac_vacante')
+                    ->select('vac_vacante.*, (SELECT COUNT(*) FROM post_postulacion WHERE post_postulacion.vacante_id = vac_vacante.id) as total_postulantes')
+                    ->where('empresa_id', $empresa['id'])
+                    ->where('deleted_at IS NULL')
+                    ->orderBy('created_at', 'DESC')
+                    ->get()
+                    ->getResultArray();
+
+                foreach ($vacantes as $v) {
+                    $totalPostulacionesEmpresa += (int)($v['total_postulantes'] ?? 0);
+                }
+            }
+        }
+
+        $sidebarSections = $this->getSidebarSections($roleSlug);
+
+        $content = view('admin/usuario-perfil', [
+            'usuario'                   => $usuario,
+            'candidato'                 => $candidato,
+            'educacion'                 => $educacion,
+            'experiencias'              => $experiencias,
+            'habilidades'               => $habilidades,
+            'idiomas'                   => $idiomas,
+            'cvs'                       => $cvs,
+            'postulaciones'             => $postulaciones,
+            'servicios'                 => $servicios,
+            'empresa'                   => $empresa,
+            'vacantes'                  => $vacantes,
+            'totalPostulacionesEmpresa' => $totalPostulacionesEmpresa,
+        ]);
+
+        return view('layouts/panel', [
+            'content'         => $content,
+            'title'           => 'Perfil de Usuario',
+            'pageTitle'       => 'Perfil: ' . esc($usuario['nombre'] . ' ' . $usuario['apellido']),
+            'roleSlug'        => $roleSlug,
+            'sidebarSections' => $sidebarSections,
+            'activeSection'   => 'usuarios',
+            'css'             => ['admin-usuarios.css'],
+        ]);
+    }
+
+    public function apiDetalleUsuario(int $userId)
+    {
+        if (!session()->get('isLoggedIn')) {
+            return $this->response->setStatusCode(401)->setJSON(['error' => 'No autorizado']);
+        }
+
+        $userModel = new UserModel();
+        $roleSlug = $userModel->getRoleSlug(session()->get('role_id'));
+
+        if (!in_array($roleSlug, ['admin', 'asesor'])) {
+            return $this->response->setStatusCode(403)->setJSON(['error' => 'Acceso denegado']);
+        }
+
+        $db = \Config\Database::connect();
+        $usuario = $db->table('auth_user')
+            ->select('auth_user.id, auth_user.nombre, auth_user.apellido, auth_user.usuario, auth_user.email, auth_user.telefono,
+                      auth_user.avatar, auth_user.estado, auth_user.perfil_completo, auth_user.last_login, auth_user.created_at,
+                      auth_role.slug as role_slug, auth_role.nombre as role_nombre, auth_role.descripcion as role_descripcion')
+            ->join('auth_role', 'auth_role.id = auth_user.role_id')
+            ->where('auth_user.id', $userId)
+            ->where('auth_user.deleted_at IS NULL')
+            ->get()
+            ->getRowArray();
+
+        if (!$usuario) {
+            return $this->response->setStatusCode(404)->setJSON(['error' => 'Usuario no encontrado']);
+        }
+
+        $response = [
+            'usuario'   => $usuario,
+            'candidato' => null,
+            'empresa'   => null,
+            'extra'     => [],
+        ];
+
+        if ($usuario['role_slug'] === 'candidato') {
+            $candidato = $db->table('cand_candidato')
+                ->select('cand_candidato.*, cat_nivel_experiencia.nombre as nivel_exp_nombre')
+                ->join('cat_nivel_experiencia', 'cat_nivel_experiencia.id = cand_candidato.nivel_experiencia_id', 'left')
+                ->where('cand_candidato.user_id', $userId)
+                ->where('cand_candidato.deleted_at IS NULL')
+                ->get()
+                ->getRowArray();
+
+            if ($candidato) {
+                $candId = $candidato['id'];
+                $response['candidato'] = $candidato;
+                $response['extra']['educacion_count'] = $db->table('cand_educacion')->where('candidato_id', $candId)->countAllResults();
+                $response['extra']['experiencia_count'] = $db->table('cand_experiencia')->where('candidato_id', $candId)->countAllResults();
+                $response['extra']['cv_count'] = $db->table('cand_cv')->where('candidato_id', $candId)->countAllResults();
+                $response['extra']['postulaciones_count'] = $db->table('post_postulacion')->where('candidato_id', $candId)->countAllResults();
+                $response['extra']['servicios_count'] = $db->table('srv_servicio')->where('candidato_id', $candId)->where('deleted_at IS NULL')->countAllResults();
+                
+                $habilidades = $db->table('cand_habilidad')
+                    ->select('cat_habilidad.nombre')
+                    ->join('cat_habilidad', 'cat_habilidad.id = cand_habilidad.habilidad_id', 'left')
+                    ->where('cand_habilidad.candidato_id', $candId)
+                    ->limit(8)
+                    ->get()
+                    ->getResultArray();
+                $response['extra']['habilidades'] = array_column($habilidades, 'nombre');
+            }
+        } elseif ($usuario['role_slug'] === 'empresa') {
+            $empresa = $db->table('emp_empresa')
+                ->where('user_id', $userId)
+                ->where('deleted_at IS NULL')
+                ->get()
+                ->getRowArray();
+
+            if ($empresa) {
+                $response['empresa'] = $empresa;
+                $response['extra']['vacantes_count'] = $db->table('vac_vacante')->where('empresa_id', $empresa['id'])->where('deleted_at IS NULL')->countAllResults();
+            }
+        }
+
+        return $this->response->setJSON($response);
     }
 
     public function vacantes()
