@@ -276,7 +276,7 @@ class AgenteController extends BaseController
                       auth_user.id as user_id, auth_user.nombre, auth_user.apellido, auth_user.email, auth_user.telefono, auth_user.avatar,
                       vac_vacante.id as vacante_id, vac_vacante.titulo as vacante_titulo,
                       COALESCE(emp_empresa.razon_social, vac_vacante.empresa_externa) as empresa_nombre,
-                      post_verificacion_proceso.paso_actual, post_verificacion_proceso.asesor_id')
+                      post_verificacion_proceso.paso_actual')
             ->join('cand_candidato', 'cand_candidato.id = post_postulacion.candidato_id')
             ->join('auth_user', 'auth_user.id = cand_candidato.user_id')
             ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id')

@@ -104,7 +104,8 @@
                     <select id="plan_interes_id" name="plan_interes_id" class="agente-select">
                         <option value="">-- Sin plan específico (Alianza / Estándar) --</option>
                         <?php foreach ($planes as $plan): ?>
-                            <option value="<?= $plan['id'] ?>"><?= esc($plan['nombre']) ?> ($<?= number_format($plan['precio'], 2) ?> USD)</option>
+                            <?php $precioStr = !empty($plan['precio_mensual']) ? ' ($' . number_format((float)$plan['precio_mensual'], 2) . ' USD/mes)' : ''; ?>
+                            <option value="<?= $plan['id'] ?>"><?= esc($plan['nombre']) ?><?= $precioStr ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
