@@ -202,3 +202,13 @@ $routes->post('/admin/crm/cambiar-estado/(:num)', 'CrmController::cambiarEstadoL
 $routes->post('/admin/crm/seguimiento/(:num)', 'CrmController::agregarSeguimiento/$1');
 $routes->post('/admin/crm/servicio/(:num)', 'CrmController::agregarServicio/$1');
 $routes->post('/admin/crm/convertir/(:num)', 'CrmController::convertirLead/$1');
+
+// Portal de Agentes / Asesores
+$routes->get('/agente', 'AgenteController::index');
+$routes->get('/agente/captar', 'AgenteController::captar');
+$routes->post('/agente/captar/guardar', 'AgenteController::guardarLead');
+$routes->get('/agente/verificacion', 'AgenteController::verificacion');
+$routes->get('/agente/registro-campo', 'AgenteController::registroCampo');
+$routes->post('/agente/registro-campo/guardar', 'AgenteController::guardarCandidatoCampo');
+$routes->get('/agente/prestadores', 'AgenteController::prestadores');
+$routes->post('/agente/prestadores/verificar/(:num)', 'AgenteController::verificarPrestador/$1');

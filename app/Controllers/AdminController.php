@@ -25,6 +25,11 @@ class AdminController extends BaseController
         }
 
         $totalUsuarios = $userModel->countAll();
+
+        if ($roleSlug === 'asesor') {
+            return redirect()->to('agente');
+        }
+
         $sidebarSections = $this->getSidebarSections($roleSlug);
 
         $content = view('admin/dashboard', [
@@ -1662,11 +1667,40 @@ class AdminController extends BaseController
         $iconInfo = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
         $iconCrm = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>';
 
+        $iconZap = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>';
+        $iconUserPlus = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>';
+        $iconTool = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>';
+
+        if ($roleSlug === 'asesor') {
+            return [
+                [
+                    'title' => 'Portal del Agente',
+                    'links' => [
+                        ['key' => 'agente-dashboard', 'url' => 'agente', 'label' => 'Mi Tablero', 'icon' => $iconHome],
+                        ['key' => 'agente-captar', 'url' => 'agente/captar', 'label' => 'Captar Empresas/Socios', 'icon' => $iconCrm],
+                        ['key' => 'agente-verificacion', 'url' => 'agente/verificacion', 'label' => 'Consola de Verificación', 'icon' => $iconCheck],
+                        ['key' => 'agente-registro-campo', 'url' => 'agente/registro-campo', 'label' => 'Registro en Campo', 'icon' => $iconUserPlus],
+                        ['key' => 'agente-prestadores', 'url' => 'agente/prestadores', 'label' => 'Validar Prestadores', 'icon' => $iconTool],
+                    ],
+                ],
+                [
+                    'title' => 'Gestión General',
+                    'links' => [
+                        ['key' => 'crm-pipeline', 'url' => 'admin/crm', 'label' => 'Pipeline CRM', 'icon' => $iconCrm],
+                        ['key' => 'vacantes', 'url' => 'admin/vacantes', 'label' => 'Vacantes', 'icon' => $iconBriefcase],
+                        ['key' => 'usuarios', 'url' => 'admin/usuarios', 'label' => 'Usuarios', 'icon' => $iconUsers],
+                        ['key' => 'info', 'url' => 'admin/info', 'label' => 'Información CONEX', 'icon' => $iconInfo],
+                    ],
+                ],
+            ];
+        }
+
         $sections = [
             [
                 'title' => '',
                 'links' => [
                     ['key' => 'dashboard', 'url' => 'admin', 'label' => 'Inicio', 'icon' => $iconHome],
+                    ['key' => 'agente-dashboard', 'url' => 'agente', 'label' => 'Portal Agentes', 'icon' => $iconZap],
                     ['key' => 'crm-pipeline', 'url' => 'admin/crm', 'label' => 'CRM Pipeline', 'icon' => $iconCrm],
                     ['key' => 'usuarios', 'url' => 'admin/usuarios', 'label' => 'Usuarios', 'icon' => $iconUsers],
                 ],

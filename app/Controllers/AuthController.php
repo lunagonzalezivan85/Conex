@@ -57,7 +57,8 @@ class AuthController extends BaseController
         $roleSlug = $userModel->getRoleSlug($user['role_id']);
 
         return match ($roleSlug) {
-            'admin', 'asesor' => redirect()->to('admin'),
+            'admin' => redirect()->to('admin'),
+            'asesor' => redirect()->to('agente'),
             'empresa' => redirect()->to('empresa'),
             'candidato' => redirect()->to('candidato'),
             default => redirect()->to(''),
