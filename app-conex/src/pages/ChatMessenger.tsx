@@ -8,6 +8,7 @@ import {
   IonFooter,
   IonIcon,
   IonSpinner,
+  IonModal,
   useIonToast,
   useIonRouter,
 } from '@ionic/react';
@@ -17,6 +18,15 @@ import {
   checkmarkCircle,
   locationOutline,
   cashOutline,
+  personCircleOutline,
+  personOutline,
+  eyeOutline,
+  closeOutline,
+  shieldCheckmarkOutline,
+  callOutline,
+  logoWhatsapp,
+  briefcaseOutline,
+  timeOutline,
 } from 'ionicons/icons';
 import { Geolocation } from '@capacitor/geolocation';
 import { useAuth } from '../context/AuthContext';
@@ -54,6 +64,13 @@ export const ChatMessenger: React.FC = () => {
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+
+  const cleanPhone = (tel?: string | null) => {
+    if (!tel) return '';
+    const digits = tel.replace(/\D/g, '');
+    return digits.length === 8 ? `505${digits}` : digits;
+  };
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -310,10 +327,14 @@ export const ChatMessenger: React.FC = () => {
 
   const targetName = getTargetName();
   const targetOficio = getTargetOficio();
+  const isAccepted = contactoData?.estado === 'aceptado';
+  const directPhone = contactoData?.es_cliente
+    ? contactoData?.prestador_telefono
+    : contactoData?.cliente_telefono_revelado;
 
   return (
     <IonPage className="cx-messenger-screen">
-      {/* 1. Header Azul Marino sólido (sin iconos de llamar, videollamada ni info) */}
+      {/* 1. Header Azul Marino sólido con acceso al perfil de solo lectura */}
       <IonHeader className="cx-msgr-header">
         <IonToolbar className="cx-msgr-toolbar">
           <div className="cx-msgr-nav-row">
@@ -327,8 +348,13 @@ export const ChatMessenger: React.FC = () => {
               <IonIcon icon={arrowBackOutline} />
             </button>
 
-            {/* Avatar circular con foto o iniciales */}
-            <div className="cx-msgr-avatar-wrap">
+            {/* Avatar circular con foto o iniciales (toca para ver perfil) */}
+            <div
+              className="cx-msgr-avatar-wrap"
+              onClick={() => setShowProfileModal(true)}
+              title="Ver perfil de solo lectura"
+              style={{ cursor: 'pointer' }}
+            >
               {paramAvatar ? (
                 <img src={paramAvatar} alt={targetName} className="cx-msgr-avatar-img" />
               ) : (
@@ -337,10 +363,30 @@ export const ChatMessenger: React.FC = () => {
               <span className="cx-msgr-online-dot" />
             </div>
 
-            {/* Nombre del contacto (sin subtítulo de servicio) */}
-            <div className="cx-msgr-user-info">
+            {/* Nombre del contacto y enlace de ver perfil */}
+            <div
+              className="cx-msgr-user-info"
+              onClick={() => setShowProfileModal(true)}
+              title="Ver perfil de solo lectura"
+              style={{ cursor: 'pointer' }}
+            >
               <span className="cx-msgr-name">{targetName}</span>
+              <span className="cx-msgr-sub" style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+                <IonIcon icon={eyeOutline} style={{ fontSize: '11px' }} /> Ver perfil
+              </span>
             </div>
+
+            {/* Botón en el header para ver perfil */}
+            <button
+              type="button"
+              className="cx-msgr-head-icon"
+              title="Ver perfil del contacto"
+              onClick={() => setShowProfileModal(true)}
+              aria-label="Ver perfil"
+              style={{ marginLeft: 'auto' }}
+            >
+              <IonIcon icon={personCircleOutline} />
+            </button>
           </div>
         </IonToolbar>
       </IonHeader>
@@ -354,9 +400,17 @@ export const ChatMessenger: React.FC = () => {
         ) : (
           <div className="cx-msgr-flow">
             {/* Servicio centrado en la parte superior del contenedor del chat */}
-            <div className="cx-msgr-service-pill-center">
+            <div
+              className="cx-msgr-service-pill-center"
+              onClick={() => setShowProfileModal(true)}
+              title="Ver detalles del perfil y servicio"
+              style={{ cursor: 'pointer' }}
+            >
               <span className="cx-msgr-service-pill-label">SERVICIO</span>
               <strong className="cx-msgr-service-pill-title">{targetOficio}</strong>
+              <span className="cx-msgr-service-pill-hint">
+                <IonIcon icon={personOutline} /> Ver perfil de {targetName}
+              </span>
             </div>
 
             {/* Fecha centrada tipo Messenger */}
@@ -465,6 +519,154 @@ export const ChatMessenger: React.FC = () => {
           </button>
         </form>
       </IonFooter>
+
+      {/* 4. Modal de Solo Lectura: Perfil del Contacto */}
+      <IonModal
+        isOpen={showProfileModal}
+        onDidDismiss={() => setShowProfileModal(false)}
+        className="cx-ro-profile-modal"
+        initialBreakpoint={0.88}
+        breakpoints={[0, 0.88, 1]}
+      >
+        <div className="cx-ro-profile-wrap">
+          {/* Header del Modal */}
+          <div className="cx-ro-profile-header">
+            <h3>Perfil del Contacto</h3>
+            <button
+              type="button"
+              className="cx-ro-close-btn"
+              onClick={() => setShowProfileModal(false)}
+              aria-label="Cerrar perfil"
+            >
+              <IonIcon icon={closeOutline} />
+            </button>
+          </div>
+
+          <div className="cx-ro-profile-body">
+            {/* Tarjeta de Presentación */}
+            <div className="cx-ro-avatar-card">
+              <div className="cx-ro-avatar-big">
+                {paramAvatar ? (
+                  <img src={paramAvatar} alt={targetName} />
+                ) : (
+                  <span>{initials(targetName)}</span>
+                )}
+                <span className="cx-ro-online-dot" />
+              </div>
+
+              <h2 className="cx-ro-name">{targetName}</h2>
+              <span className="cx-ro-role-badge">
+                <IonIcon icon={briefcaseOutline} /> {targetOficio}
+              </span>
+
+              {contactoData?.prestador_verificado ? (
+                <div className="cx-ro-verified-badge">
+                  <IonIcon icon={checkmarkCircle} /> Prestador Verificado CONEX
+                </div>
+              ) : null}
+            </div>
+
+            {/* Lista de Detalles en Solo Lectura */}
+            <div className="cx-ro-details-list">
+              {/* Ubicación y zona */}
+              <div className="cx-ro-detail-item">
+                <div className="cx-ro-icon-circle">
+                  <IonIcon icon={locationOutline} />
+                </div>
+                <div className="cx-ro-detail-text">
+                  <span className="cx-ro-label">Ubicación y Cobertura</span>
+                  <strong className="cx-ro-val">
+                    {contactoData?.prestador_ciudad || contactoData?.ciudad || 'Nicaragua'}
+                    {contactoData?.prestador_zona_servicio || contactoData?.zona ? ` · ${contactoData?.prestador_zona_servicio || contactoData?.zona}` : ''}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Tarifa de referencia */}
+              {(contactoData?.precio_desde || paramPrecio) && (
+                <div className="cx-ro-detail-item">
+                  <div className="cx-ro-icon-circle">
+                    <IonIcon icon={cashOutline} />
+                  </div>
+                  <div className="cx-ro-detail-text">
+                    <span className="cx-ro-label">Tarifa de Referencia</span>
+                    <strong className="cx-ro-val">
+                      Desde C$ {formatPrice(contactoData?.precio_desde || paramPrecio)}
+                    </strong>
+                  </div>
+                </div>
+              )}
+
+              {/* Disponibilidad */}
+              <div className="cx-ro-detail-item">
+                <div className="cx-ro-icon-circle green">
+                  <IonIcon icon={timeOutline} />
+                </div>
+                <div className="cx-ro-detail-text">
+                  <span className="cx-ro-label">Disponibilidad</span>
+                  <strong className="cx-ro-val">
+                    {contactoData?.prestador_disponible_ahora
+                      ? '🟢 Disponible Ahora para coordinar'
+                      : contactoData?.prestador_disponibilidad || 'Horario habitual y previa cita'}
+                  </strong>
+                </div>
+              </div>
+
+              {/* Sobre el trabajador / descripción del servicio */}
+              {(contactoData?.prestador_sobre_mi || contactoData?.servicio_descripcion) && (
+                <div className="cx-ro-detail-item block">
+                  <span className="cx-ro-label">Sobre la experiencia y el servicio</span>
+                  <p className="cx-ro-bio">
+                    {contactoData?.prestador_sobre_mi || contactoData?.servicio_descripcion}
+                  </p>
+                </div>
+              )}
+
+              {/* Contacto telefónico directo si la solicitud está aceptada */}
+              {isAccepted && directPhone ? (
+                <div className="cx-ro-phone-card">
+                  <span className="cx-ro-label">Contacto Telefónico Acordado</span>
+                  <strong className="cx-ro-phone-number">{directPhone}</strong>
+                  <div className="cx-ro-phone-btns">
+                    <a href={`tel:${directPhone}`} className="cx-ro-action-btn phone">
+                      <IonIcon icon={callOutline} /> Llamar
+                    </a>
+                    <a
+                      href={`https://wa.me/${cleanPhone(directPhone)}?text=${encodeURIComponent(
+                        `¡Hola ${targetName}! Te escribo sobre el servicio de ${targetOficio} en CONEX.`
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="cx-ro-action-btn wa"
+                    >
+                      <IonIcon icon={logoWhatsapp} /> WhatsApp
+                    </a>
+                  </div>
+                </div>
+              ) : (
+                <div className="cx-ro-security-note">
+                  <IonIcon icon={shieldCheckmarkOutline} />
+                  <div>
+                    <strong>Protección CONEX</strong>
+                    <span>
+                      Los datos telefónicos directos se compartirán mutuamente una vez acordada y aceptada la solicitud en el chat.
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Botón para volver al chat */}
+            <button
+              type="button"
+              className="cx-ro-back-chat-btn"
+              onClick={() => setShowProfileModal(false)}
+            >
+              Volver a la Conversación
+            </button>
+          </div>
+        </div>
+      </IonModal>
     </IonPage>
   );
 };
