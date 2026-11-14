@@ -419,7 +419,7 @@ const Solicitudes: React.FC = () => {
                               }}
                             >
                               <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                              Abrir Chat tipo Messenger
+                              Abrir Chat
                             </IonButton>
 
                             {s.estado === 'pendiente' && (
@@ -613,7 +613,7 @@ const Solicitudes: React.FC = () => {
                               }}
                             >
                               <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                              Abrir Chat tipo Messenger
+                              Abrir Chat
                             </IonButton>
                           </div>
                         )}

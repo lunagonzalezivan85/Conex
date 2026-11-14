@@ -47,7 +47,6 @@ const AppTabs: React.FC = () => (
       <Route exact path="/app/vacante/:slug" component={VacanteDetalle} />
       <Route exact path="/app/perfil" component={Perfil} />
       <Route exact path="/app/planes" component={Planes} />
-      <Route exact path="/app/chat" component={ChatMessenger} />
       <Route exact path="/app" render={() => <Redirect to="/app/dashboard" />} />
     </IonRouterOutlet>
 
@@ -89,6 +88,14 @@ const AppRoutes: React.FC = () => {
         <Route exact path="/" component={Splash} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/registro" component={Registro} />
+        <Route
+          exact
+          path="/app/chat"
+          render={() => {
+            if (loading) return null;
+            return user ? <ChatMessenger /> : <Redirect to="/login" />;
+          }}
+        />
         <Route
           path="/app"
           render={() => {

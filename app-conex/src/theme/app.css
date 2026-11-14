@@ -2082,14 +2082,14 @@ button.hero-slide { cursor: pointer; }
 
 /* ---------- Botón de Acción Principal (CTA Sólido) ---------- */
 .cx-cta-chat-btn {
-  --background: linear-gradient(135deg, #1B2A4A, #2563EB);
-  --background-activated: #1B2A4A;
-  --background-hover: #1e3a8a;
+  --background: #1B2A4A;
+  --background-activated: #121d33;
+  --background-hover: #152238;
   --color: #ffffff;
   --border-radius: 12px;
-  --box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
+  --box-shadow: 0 4px 14px rgba(27, 42, 74, 0.25);
   font-weight: 800;
-  font-size: 13px;
+  font-size: 13.5px;
   letter-spacing: 0.2px;
   text-transform: none;
   min-height: 42px;
@@ -2437,7 +2437,7 @@ button.hero-slide { cursor: pointer; }
 }
 
 /* ============================================================
-   BOTONES DE CONTACTAR: SOLO ICONO TIPO MESSENGER
+   BOTONES DE CONTACTAR: SOLO ICONO TIPO MESSENGER (AZUL MARINO CONEX)
    ============================================================ */
 .cx-chat-bubble-btn {
   display: inline-flex;
@@ -2446,11 +2446,11 @@ button.hero-slide { cursor: pointer; }
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0084FF, #00C6FF);
+  background: #1B2A4A;
   color: #ffffff;
   border: none;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(0, 132, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(27, 42, 74, 0.28);
   font-size: 22px;
   flex-shrink: 0;
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
@@ -2462,7 +2462,7 @@ button.hero-slide { cursor: pointer; }
 
 .cx-chat-bubble-btn:hover {
   transform: scale(1.06);
-  box-shadow: 0 6px 18px rgba(0, 132, 255, 0.45);
+  box-shadow: 0 6px 18px rgba(27, 42, 74, 0.38);
 }
 
 .cx-chat-icon-btn {
@@ -2472,11 +2472,11 @@ button.hero-slide { cursor: pointer; }
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0084FF, #00C6FF);
+  background: #1B2A4A;
   color: #ffffff;
   border: none;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(0, 132, 255, 0.35);
+  box-shadow: 0 3px 10px rgba(27, 42, 74, 0.25);
   font-size: 20px;
   transition: transform 0.2s ease;
 }
@@ -2493,14 +2493,14 @@ button.hero-slide { cursor: pointer; }
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #0084FF, #00C6FF);
+  background: #1B2A4A;
   color: #ffffff;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 19px;
-  box-shadow: 0 3px 10px rgba(0, 132, 255, 0.35);
+  box-shadow: 0 3px 10px rgba(27, 42, 74, 0.25);
   cursor: pointer;
   z-index: 4;
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -2511,7 +2511,7 @@ button.hero-slide { cursor: pointer; }
 }
 
 /* ============================================================
-   PANTALLA DE CHAT TIPO FACEBOOK MESSENGER (IDÉNTICA A LA CAPTURA)
+   PANTALLA DE CHAT TIPO FACEBOOK MESSENGER (AZUL MARINO CONEX)
    ============================================================ */
 .cx-messenger-screen {
   background: #ffffff;
@@ -2528,10 +2528,10 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 }
 
 .cx-msgr-toolbar {
-  --background: #0084FF;
+  --background: #1B2A4A;
   --color: #ffffff;
   --padding-top: 6px;
-  --padding-bottom: 4px;
+  --padding-bottom: 6px;
   --padding-start: 8px;
   --padding-end: 12px;
 }
@@ -2597,7 +2597,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   height: 11px;
   border-radius: 50%;
   background: #22c55e;
-  border: 2px solid #0084FF;
+  border: 2px solid #1B2A4A;
 }
 
 .cx-msgr-user-info {
@@ -2676,7 +2676,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 }
 
 .cx-msgr-banner-icon {
-  color: #0084FF;
+  color: #1B2A4A;
   font-size: 16px;
 }
 
@@ -2696,6 +2696,37 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   flex-direction: column;
   gap: 8px;
   padding: 14px 14px 20px 14px;
+}
+
+/* Píldora de servicio centrada en la parte superior del contenedor del chat */
+.cx-msgr-service-pill-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 2px auto 10px auto;
+  padding: 6px 18px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  max-width: 88%;
+  text-align: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cx-msgr-service-pill-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.cx-msgr-service-pill-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #1B2A4A;
+  margin-top: 1px;
 }
 
 .cx-msgr-date-divider {
@@ -2764,14 +2795,14 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 }
 
 .cx-msgr-bubble.outgoing {
-  background: #0084FF;
+  background: #1B2A4A;
   color: #ffffff;
   border-radius: 18px 18px 4px 18px;
 }
 
 .cx-msgr-check-icon {
   font-size: 14px;
-  color: #0084FF;
+  color: #1B2A4A;
   display: flex;
   align-items: center;
   margin-bottom: 4px;
@@ -2834,7 +2865,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 .cx-msgr-plan-btn {
   background: transparent;
   border: none;
-  color: #0084FF;
+  color: #1B2A4A;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.5px;
@@ -2859,13 +2890,15 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 
 .cx-msgr-plan-check {
   font-size: 13px;
-  color: #0084FF;
+  color: #1B2A4A;
 }
 
-/* Footer / Messenger Input Bar */
+/* Footer / Messenger Input Bar (validado para no chocar con la barra ni safe-area) */
 .cx-msgr-footer {
   background: #ffffff;
   border-top: 1px solid #e4e6eb;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
 }
 
 .cx-msgr-price-drawer {
@@ -2883,7 +2916,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   justify-content: space-between;
   font-size: 12px;
   font-weight: 800;
-  color: #0084FF;
+  color: #1B2A4A;
 }
 
 .cx-msgr-drawer-head button {
@@ -2923,14 +2956,35 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 10px 10px 10px;
+  padding: 8px 12px;
   background: #ffffff;
+}
+
+/* Botón de compartir ubicación actual */
+.cx-msgr-loc-btn {
+  background: transparent;
+  border: none;
+  color: #1B2A4A;
+  font-size: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 6px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.cx-msgr-loc-btn:active {
+  background: #f1f5f9;
+  transform: scale(0.92);
 }
 
 .cx-msgr-plus-btn {
   background: transparent;
   border: none;
-  color: #0084FF;
+  color: #1B2A4A;
   font-size: 27px;
   display: flex;
   align-items: center;
@@ -2943,7 +2997,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 .cx-msgr-tool-btn {
   background: transparent;
   border: none;
-  color: #0084FF;
+  color: #1B2A4A;
   font-size: 22px;
   display: flex;
   align-items: center;
@@ -2959,7 +3013,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   align-items: center;
   background: #F0F2F5;
   border-radius: 20px;
-  padding: 6px 12px;
+  padding: 6px 14px;
 }
 
 .cx-msgr-pill-input input {
@@ -2979,7 +3033,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 .cx-msgr-emoji-btn {
   background: transparent;
   border: none;
-  color: #0084FF;
+  color: #1B2A4A;
   font-size: 20px;
   display: flex;
   align-items: center;
@@ -2991,20 +3045,31 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 .cx-msgr-send-btn {
   background: transparent;
   border: none;
-  color: #0084FF;
+  color: #1B2A4A;
   font-size: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  padding: 2px;
+  padding: 6px;
   flex-shrink: 0;
+  border-radius: 50%;
+  transition: transform 0.15s ease;
+}
+
+.cx-msgr-send-btn:active {
+  transform: scale(0.9);
+}
+
+.cx-msgr-send-btn:disabled {
+  color: #cbd5e1;
+  cursor: not-allowed;
 }
 
 .cx-msgr-thumb-btn {
   background: transparent;
   border: none;
-  color: #0084FF;
+  color: #1B2A4A;
   font-size: 25px;
   display: flex;
   align-items: center;
@@ -3038,7 +3103,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: #0084FF;
+  background: #1B2A4A;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -3076,7 +3141,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 
 .cx-msgr-info-item ion-icon {
   font-size: 20px;
-  color: #0084FF;
+  color: #1B2A4A;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -3108,7 +3173,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   margin: 0;
   font-size: 12px;
   font-weight: 800;
-  color: #0084FF;
+  color: #1B2A4A;
 }
 
 .cx-msgr-guest-box input {
@@ -3121,7 +3186,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 }
 
 .cx-msgr-close-info-btn {
-  background: #0084FF;
+  background: #1B2A4A;
   color: #ffffff;
   border: none;
   border-radius: 12px;

@@ -8,33 +8,17 @@ import {
   IonFooter,
   IonIcon,
   IonSpinner,
-  IonModal,
   useIonToast,
   useIonRouter,
 } from '@ionic/react';
 import {
   arrowBackOutline,
-  call,
-  videocam,
-  informationCircleOutline,
-  addCircle,
-  cameraOutline,
-  imagesOutline,
-  micOutline,
-  happyOutline,
   send,
-  thumbsUp,
-  cashOutline,
-  calendarOutline,
   checkmarkCircle,
-  closeOutline,
-  shieldCheckmarkOutline,
-  logoWhatsapp,
-  checkmark,
   locationOutline,
-  personOutline,
-  callOutline,
+  cashOutline,
 } from 'ionicons/icons';
+import { Geolocation } from '@capacitor/geolocation';
 import { useAuth } from '../context/AuthContext';
 import { candidatoApi, serviciosApi } from '../services/api';
 import '../theme/app.css';
@@ -60,7 +44,6 @@ export const ChatMessenger: React.FC = () => {
   const paramNombre = queryParams.get('nombre') || 'Contacto';
   const paramOficio = queryParams.get('oficio') || 'Servicio';
   const paramAvatar = queryParams.get('avatar') || '';
-  const paramTelefono = queryParams.get('telefono') || '';
   const paramPrecio = queryParams.get('precio') || '';
 
   const [contactoId, setContactoId] = useState<number | null>(
@@ -70,16 +53,7 @@ export const ChatMessenger: React.FC = () => {
   const [contactoData, setContactoData] = useState<any>(null);
   const [messages, setMessages] = useState<MessageItem[]>([]);
   const [inputText, setInputText] = useState('');
-  const [inputPrice, setInputPrice] = useState('');
-  const [showPriceBox, setShowPriceBox] = useState(false);
-  const [showInfoModal, setShowInfoModal] = useState(false);
   const [sending, setSending] = useState(false);
-
-  // Datos para clientes no registrados o primer contacto
-  const [clientNombre, setClientNombre] = useState(
-    `${user?.nombre ?? ''} ${user?.apellido ?? ''}`.trim()
-  );
-  const [clientTelefono, setClientTelefono] = useState(user?.telefono ?? '');
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -169,13 +143,13 @@ export const ChatMessenger: React.FC = () => {
           setMessages(deduped);
         }
       } else {
-        // Conversación nueva por iniciar desde Buscar / Dashboard
+        // Conversación nueva iniciada desde el directorio
         setMessages([
           {
             id: 'welcome',
             emisor_tipo: 'prestador',
             emisor_nombre: paramNombre,
-            mensaje: `¡Hola! 👋 Trabajo en servicios de ${paramOficio}. Cuéntame qué trabajo necesitas para coordinar o darte un presupuesto.`,
+            mensaje: `¡Hola! 👋 Trabajo en servicios de ${paramOficio}. Cuéntame qué necesitas para coordinar el trabajo o brindarte un presupuesto.`,
             precio_propuesto: paramPrecio ? parseFloat(paramPrecio) : null,
             created_at: new Date().toISOString(),
           },
@@ -195,59 +169,64 @@ export const ChatMessenger: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [contactoId, paramServicioId]);
 
-  // Enviar mensaje o contraoferta
+  // Compartir ubicación actual vía GPS
+  const compartirUbicacionActual = async () => {
+    try {
+      presentToast({ message: 'Obteniendo tu ubicación actual...', duration: 1500 });
+      const pos = await Geolocation.getCurrentPosition({ enableHighAccuracy: true, timeout: 10000 });
+      const lat = pos.coords.latitude.toFixed(6);
+      const lng = pos.coords.longitude.toFixed(6);
+      const mapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+      const locText = `📍 Mi ubicación actual: ${mapsUrl}`;
+      setInputText(locText);
+      presentToast({ message: 'Ubicación agregada al mensaje', duration: 1800, color: 'success' });
+    } catch (err) {
+      presentToast({
+        message: 'No se pudo obtener la ubicación GPS. Verifica que el GPS y los permisos estén activados.',
+        duration: 2500,
+        color: 'warning',
+      });
+    }
+  };
+
+  // Enviar mensaje
   const handleSendMessage = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     const cleanMsg = inputText.trim();
-    const cleanPrice = inputPrice.trim() ? parseFloat(inputPrice) : undefined;
 
-    if (!cleanMsg && cleanPrice === undefined) {
+    if (!cleanMsg) {
       return;
     }
 
     setSending(true);
     try {
       if (contactoId) {
-        // Responder en solicitud existente
         const res = await candidatoApi.responderSolicitud(contactoId, {
           accion: 'mensaje',
-          mensaje: cleanMsg || undefined,
-          precio_propuesto: cleanPrice,
+          mensaje: cleanMsg,
         });
 
         presentToast({
           message: res.message || 'Mensaje enviado',
-          duration: 2000,
+          duration: 1800,
           color: 'success',
         });
 
         setInputText('');
-        setInputPrice('');
-        setShowPriceBox(false);
         await loadConversation();
       } else if (paramServicioId) {
-        // Primer mensaje de contacto
-        if (clientNombre.trim().length < 2 || clientTelefono.trim().length < 7) {
-          presentToast({
-            message: 'Por favor completa tu nombre y teléfono para enviar la solicitud',
-            duration: 2400,
-            color: 'warning',
-          });
-          setShowInfoModal(true);
-          setSending(false);
-          return;
-        }
+        const defaultName = `${user?.nombre ?? ''} ${user?.apellido ?? ''}`.trim() || 'Cliente';
+        const defaultTel = user?.telefono || '8888-8888';
 
         const res = await serviciosApi.contactar(parseInt(paramServicioId, 10), {
-          nombre: clientNombre.trim(),
-          telefono: clientTelefono.trim(),
-          mensaje: cleanMsg || 'Solicito cotización de servicio',
-          precio_propuesto: cleanPrice,
+          nombre: defaultName,
+          telefono: defaultTel,
+          mensaje: cleanMsg,
         });
 
         presentToast({
-          message: res.message || '¡Solicitud y mensaje enviados con éxito!',
-          duration: 2600,
+          message: res.message || 'Mensaje enviado con éxito',
+          duration: 2200,
           color: 'success',
         });
 
@@ -256,27 +235,18 @@ export const ChatMessenger: React.FC = () => {
         }
 
         setInputText('');
-        setInputPrice('');
-        setShowPriceBox(false);
         await loadConversation();
       }
     } catch (err: any) {
       presentToast({
         message: err?.error || 'No se pudo enviar el mensaje',
-        duration: 2800,
+        duration: 2600,
         color: 'danger',
       });
     } finally {
       setSending(false);
       setTimeout(scrollToBottom, 150);
     }
-  };
-
-  const enviarMeGusta = () => {
-    setInputText('👍');
-    setTimeout(() => {
-      handleSendMessage();
-    }, 50);
   };
 
   const getTargetName = () => {
@@ -295,21 +265,6 @@ export const ChatMessenger: React.FC = () => {
     return paramOficio;
   };
 
-  const getTargetPhone = () => {
-    if (contactoData) {
-      return contactoData.es_cliente
-        ? contactoData.prestador_telefono
-        : contactoData.cliente_telefono_revelado;
-    }
-    return paramTelefono;
-  };
-
-  const cleanPhone = (tel?: string | null) => {
-    if (!tel) return '';
-    const digits = tel.replace(/\D/g, '');
-    return digits.length === 8 ? `505${digits}` : digits;
-  };
-
   const formatPrice = (val?: number | string | null) => {
     if (val === null || val === undefined || val === '') return null;
     const num = Number(val);
@@ -326,11 +281,10 @@ export const ChatMessenger: React.FC = () => {
 
   const targetName = getTargetName();
   const targetOficio = getTargetOficio();
-  const phoneDirect = getTargetPhone();
 
   return (
     <IonPage className="cx-messenger-screen">
-      {/* 1. Header Idéntico a Facebook Messenger */}
+      {/* 1. Header Azul Marino sólido (sin iconos de llamar, videollamada ni info) */}
       <IonHeader className="cx-msgr-header">
         <IonToolbar className="cx-msgr-toolbar">
           <div className="cx-msgr-nav-row">
@@ -354,88 +308,15 @@ export const ChatMessenger: React.FC = () => {
               <span className="cx-msgr-online-dot" />
             </div>
 
-            {/* Título y estado */}
-            <div className="cx-msgr-user-info" onClick={() => setShowInfoModal(true)}>
+            {/* Nombre del contacto (sin subtítulo de servicio) */}
+            <div className="cx-msgr-user-info">
               <span className="cx-msgr-name">{targetName}</span>
-              <span className="cx-msgr-sub">{targetOficio} · En línea</span>
             </div>
-
-            {/* Acciones del Header: 📞 📹 ℹ️ (apuntado con la flecha roja en la imagen) */}
-            <div className="cx-msgr-head-actions">
-              {phoneDirect ? (
-                <a href={`tel:${phoneDirect}`} className="cx-msgr-head-icon" title="Llamar">
-                  <IonIcon icon={call} />
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  className="cx-msgr-head-icon"
-                  title="Llamada telefónica disponible al aceptar la solicitud"
-                  onClick={() =>
-                    presentToast({
-                      message: 'El número telefónico se habilita al aceptar la negociación.',
-                      duration: 2500,
-                      color: 'primary',
-                    })
-                  }
-                >
-                  <IonIcon icon={call} />
-                </button>
-              )}
-
-              {phoneDirect ? (
-                <a
-                  href={`https://wa.me/${cleanPhone(phoneDirect)}?text=${encodeURIComponent(
-                    `¡Hola ${targetName}! Te contacto desde CONEX sobre el trabajo de ${targetOficio}.`
-                  )}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="cx-msgr-head-icon"
-                  title="WhatsApp / Video"
-                >
-                  <IonIcon icon={videocam} />
-                </a>
-              ) : (
-                <button
-                  type="button"
-                  className="cx-msgr-head-icon"
-                  title="WhatsApp"
-                  onClick={() =>
-                    presentToast({
-                      message: 'WhatsApp disponible cuando se acepte el servicio.',
-                      duration: 2500,
-                      color: 'primary',
-                    })
-                  }
-                >
-                  <IonIcon icon={videocam} />
-                </button>
-              )}
-
-              {/* Botón de Información con círculo ℹ️ (Flecha Roja en captura) */}
-              <button
-                type="button"
-                className="cx-msgr-head-icon info"
-                title="Información y detalles del trato"
-                onClick={() => setShowInfoModal(true)}
-              >
-                <IonIcon icon={informationCircleOutline} />
-              </button>
-            </div>
-          </div>
-
-          {/* Sub-barra de evento / cita / plan acordado */}
-          <div className="cx-msgr-event-banner">
-            <div className="cx-msgr-banner-left">
-              <IonIcon icon={calendarOutline} className="cx-msgr-banner-icon" />
-              <span>Servicio de {targetOficio} · Negociación activa</span>
-            </div>
-            <span className="cx-msgr-banner-right">CONEX</span>
           </div>
         </IonToolbar>
       </IonHeader>
 
-      {/* 2. Cuerpo de Conversación idéntico a Messenger */}
+      {/* 2. Cuerpo de Conversación */}
       <IonContent className="cx-msgr-content" scrollEvents={true}>
         {loading ? (
           <div className="cx-msgr-loading">
@@ -443,6 +324,12 @@ export const ChatMessenger: React.FC = () => {
           </div>
         ) : (
           <div className="cx-msgr-flow">
+            {/* Servicio centrado en la parte superior del contenedor del chat */}
+            <div className="cx-msgr-service-pill-center">
+              <span className="cx-msgr-service-pill-label">SERVICIO</span>
+              <strong className="cx-msgr-service-pill-title">{targetOficio}</strong>
+            </div>
+
             {/* Fecha centrada tipo Messenger */}
             <div className="cx-msgr-date-divider">
               <span>HOY A LAS {new Date().toLocaleTimeString('es-NI', { hour: '2-digit', minute: '2-digit' })}</span>
@@ -453,7 +340,7 @@ export const ChatMessenger: React.FC = () => {
 
               return (
                 <React.Fragment key={m.id}>
-                  {/* Fila de Burbuja de Mensaje */}
+                  {/* Fila de Burbuja de Mensaje (Azul Marino para salientes) */}
                   {m.mensaje && (
                     <div className={`cx-msgr-bubble-row ${isMe ? 'outgoing' : 'incoming'}`}>
                       {!isMe && (
@@ -478,7 +365,7 @@ export const ChatMessenger: React.FC = () => {
                     </div>
                   )}
 
-                  {/* 3. Tarjeta de Negociación / Acuerdo Integrada en el Chat (Idéntica a la tarjeta de la foto) */}
+                  {/* Tarjeta de Negociación si tiene precio propuesto */}
                   {m.precio_propuesto && (
                     <div className="cx-msgr-plan-wrap">
                       <div className="cx-msgr-plan-card">
@@ -494,21 +381,10 @@ export const ChatMessenger: React.FC = () => {
                             ? `Tú propusiste un presupuesto de C$ ${formatPrice(m.precio_propuesto)} para coordinar el trabajo de ${targetOficio}.`
                             : `${targetName} te ha cotizado C$ ${formatPrice(m.precio_propuesto)} por la mano de obra del servicio.`}
                         </p>
-
-                        <button
-                          type="button"
-                          className="cx-msgr-plan-btn"
-                          onClick={() => {
-                            setShowPriceBox(true);
-                            setInputPrice(String(m.precio_propuesto));
-                          }}
-                        >
-                          MODIFICAR O RENOVAR COTIZACIÓN
-                        </button>
                       </div>
 
                       <div className="cx-msgr-plan-sub-text">
-                        <span>{isMe ? 'Has propuesto una oferta económica.' : `${targetName} ha enviado una cotización.`}</span>
+                        <span>{isMe ? 'Propuesta económica registrada.' : `${targetName} ha enviado una cotización.`}</span>
                         <IonIcon icon={checkmarkCircle} className="cx-msgr-plan-check" />
                       </div>
                     </div>
@@ -522,183 +398,43 @@ export const ChatMessenger: React.FC = () => {
         )}
       </IonContent>
 
-      {/* 4. Barra Inferior de Entrada (Messenger Input Bar) */}
+      {/* 3. Footer / Input Bar sin choque con la navegación */}
       <IonFooter className="cx-msgr-footer">
-        {/* Desplegable para Contraoferta / Cotización C$ */}
-        {showPriceBox && (
-          <div className="cx-msgr-price-drawer">
-            <div className="cx-msgr-drawer-head">
-              <span>💰 Proponer Cotización / Contraoferta (C$)</span>
-              <button type="button" onClick={() => setShowPriceBox(false)}>
-                <IonIcon icon={closeOutline} />
-              </button>
-            </div>
-            <div className="cx-msgr-drawer-body">
-              <span className="cx-msgr-curr">C$</span>
-              <input
-                type="number"
-                step="any"
-                min="1"
-                placeholder="Monto propuesto (ej: 1800)"
-                value={inputPrice}
-                onChange={(e) => setInputPrice(e.target.value)}
-              />
-            </div>
-          </div>
-        )}
-
         <form onSubmit={handleSendMessage} className="cx-msgr-input-bar">
-          {/* Botón azul + */}
+          {/* Opción de agregar: Compartir ubicación actual */}
           <button
             type="button"
-            className="cx-msgr-plus-btn"
-            title="Proponer cotización o plan"
-            onClick={() => setShowPriceBox(!showPriceBox)}
+            className="cx-msgr-loc-btn"
+            title="Compartir ubicación actual"
+            onClick={compartirUbicacionActual}
           >
-            <IonIcon icon={addCircle} />
+            <IonIcon icon={locationOutline} />
           </button>
 
-          {/* Iconos de Messenger: cámara, galería, micro */}
-          <button
-            type="button"
-            className="cx-msgr-tool-btn"
-            title="Cámara"
-            onClick={() => presentToast({ message: 'Adjuntar fotos de la avería estará disponible en breve', duration: 1800 })}
-          >
-            <IonIcon icon={cameraOutline} />
-          </button>
-          <button
-            type="button"
-            className="cx-msgr-tool-btn"
-            title="Galería"
-            onClick={() => presentToast({ message: 'Selecciona una foto de la galería', duration: 1800 })}
-          >
-            <IonIcon icon={imagesOutline} />
-          </button>
-          <button
-            type="button"
-            className="cx-msgr-tool-btn"
-            title="Nota de voz"
-            onClick={() => presentToast({ message: 'Mensajes de voz en preparación', duration: 1800 })}
-          >
-            <IonIcon icon={micOutline} />
-          </button>
-
-          {/* Campo Píldora Aa */}
+          {/* Opción de escribir el mensaje */}
           <div className="cx-msgr-pill-input">
             <input
               type="text"
-              placeholder="Aa"
+              placeholder="Escribe un mensaje..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               disabled={sending}
             />
-            <button
-              type="button"
-              className="cx-msgr-emoji-btn"
-              onClick={() => setInputText((prev) => `${prev} 😊`)}
-            >
-              <IonIcon icon={happyOutline} />
-            </button>
           </div>
 
-          {/* Botón de Enviar o Me gusta 👍 */}
-          {inputText.trim() || inputPrice.trim() ? (
-            <button
-              type="submit"
-              className="cx-msgr-send-btn"
-              disabled={sending}
-              title="Enviar mensaje"
-            >
-              <IonIcon icon={send} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="cx-msgr-thumb-btn"
-              title="Enviar me gusta"
-              onClick={enviarMeGusta}
-            >
-              <IonIcon icon={thumbsUp} />
-            </button>
-          )}
+          {/* Botón de Enviar */}
+          <button
+            type="submit"
+            className="cx-msgr-send-btn"
+            disabled={sending || !inputText.trim()}
+            title="Enviar mensaje"
+          >
+            <IonIcon icon={send} />
+          </button>
         </form>
       </IonFooter>
-
-      {/* Modal de Información ℹ️ del Contacto */}
-      <IonModal
-        isOpen={showInfoModal}
-        onDidDismiss={() => setShowInfoModal(false)}
-        initialBreakpoint={0.7}
-        breakpoints={[0, 0.7, 1]}
-        className="cx-msgr-info-modal"
-      >
-        <div className="cx-msgr-info-body">
-          <div className="cx-msgr-info-head">
-            <div className="cx-msgr-info-avatar">{initials(targetName)}</div>
-            <h3>{targetName}</h3>
-            <p>{targetOficio} · Verificado</p>
-          </div>
-
-          <div className="cx-msgr-info-meta-list">
-            <div className="cx-msgr-info-item">
-              <IonIcon icon={shieldCheckmarkOutline} />
-              <div>
-                <strong>Seguridad CONEX</strong>
-                <span>Tus datos telefónicos se protegen mediante el sistema de aceptación.</span>
-              </div>
-            </div>
-
-            {phoneDirect ? (
-              <div className="cx-msgr-info-item">
-                <IonIcon icon={callOutline} />
-                <div>
-                  <strong>Teléfono directo</strong>
-                  <span>{phoneDirect}</span>
-                </div>
-              </div>
-            ) : null}
-
-            <div className="cx-msgr-info-item">
-              <IonIcon icon={cashOutline} />
-              <div>
-                <strong>Tarifa de referencia</strong>
-                <span>{paramPrecio ? `Desde C$ ${paramPrecio}` : 'A convenir por cotización'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Datos del cliente para primer mensaje si no está registrado */}
-          {!contactoId && (!user || !user.telefono) && (
-            <div className="cx-msgr-guest-box">
-              <h4>Tus datos para este contacto:</h4>
-              <input
-                type="text"
-                placeholder="Tu nombre"
-                value={clientNombre}
-                onChange={(e) => setClientNombre(e.target.value)}
-              />
-              <input
-                type="tel"
-                placeholder="Tu teléfono (ej: 8888-8888)"
-                value={clientTelefono}
-                onChange={(e) => setClientTelefono(e.target.value)}
-              />
-            </div>
-          )}
-
-          <button
-            type="button"
-            className="cx-msgr-close-info-btn"
-            onClick={() => setShowInfoModal(false)}
-          >
-            Volver a la conversación
-          </button>
-        </div>
-      </IonModal>
     </IonPage>
   );
 };
 
 export default ChatMessenger;
-
