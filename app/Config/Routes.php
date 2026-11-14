@@ -144,6 +144,7 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
     $routes->delete('candidato/servicios/(:num)', 'Api\CandidatoController::eliminarServicio/$1');
     $routes->post('candidato/servicios/(:num)/eliminar', 'Api\CandidatoController::eliminarServicio/$1');
     $routes->get('candidato/solicitudes', 'Api\CandidatoController::solicitudes');
+    $routes->get('candidato/solicitudes/(:num)', 'Api\CandidatoController::solicitudDetalle/$1');
     $routes->post('candidato/solicitudes/(:num)', 'Api\CandidatoController::responderSolicitud/$1');
     $routes->get('candidato/postulaciones', 'Api\CandidatoController::postulaciones');
     $routes->post('candidato/postularse/(:num)', 'Api\CandidatoController::postularse/$1');

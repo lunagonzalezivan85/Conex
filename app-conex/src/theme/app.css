@@ -2510,5 +2510,628 @@ button.hero-slide { cursor: pointer; }
   transform: scale(0.9);
 }
 
+/* ============================================================
+   PANTALLA DE CHAT TIPO FACEBOOK MESSENGER (IDÉNTICA A LA CAPTURA)
+   ============================================================ */
+.cx-messenger-screen {
+  background: #ffffff;
+}
+
+/* Ocultar barra de tabs de navegación cuando estamos en el chat */
+ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
+.cx-messenger-screen ~ ion-tab-bar {
+  display: none !important;
+}
+
+.cx-msgr-header {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cx-msgr-toolbar {
+  --background: #0084FF;
+  --color: #ffffff;
+  --padding-top: 6px;
+  --padding-bottom: 4px;
+  --padding-start: 8px;
+  --padding-end: 12px;
+}
+
+.cx-msgr-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.cx-msgr-back-btn {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.cx-msgr-back-btn:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.cx-msgr-avatar-wrap {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+}
+
+.cx-msgr-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #ffffff;
+}
+
+.cx-msgr-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  border: 1.5px solid #ffffff;
+}
+
+.cx-msgr-online-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #0084FF;
+}
+
+.cx-msgr-user-info {
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+.cx-msgr-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.2px;
+}
+
+.cx-msgr-sub {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.85);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cx-msgr-head-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cx-msgr-head-icon {
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 4px;
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+
+.cx-msgr-head-icon.info {
+  font-size: 24px;
+}
+
+.cx-msgr-head-icon:active {
+  transform: scale(0.9);
+}
+
+/* Sub-banner de cita / negociación */
+.cx-msgr-event-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  color: #050505;
+  padding: 8px 14px;
+  margin-top: 4px;
+  border-radius: 10px 10px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.cx-msgr-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cx-msgr-banner-icon {
+  color: #0084FF;
+  font-size: 16px;
+}
+
+.cx-msgr-banner-right {
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* Flujo del chat */
+.cx-msgr-content {
+  --background: #ffffff;
+}
+
+.cx-msgr-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 14px 20px 14px;
+}
+
+.cx-msgr-date-divider {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0 14px 0;
+}
+
+.cx-msgr-date-divider span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8c96a5;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.cx-msgr-bubble-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.cx-msgr-bubble-row.incoming {
+  align-self: flex-start;
+}
+
+.cx-msgr-bubble-row.outgoing {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.cx-msgr-bubble-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: #1B2A4A;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+.cx-msgr-bubble-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cx-msgr-bubble {
+  max-width: 74vw;
+  padding: 10px 14px;
+  font-size: 14.5px;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.cx-msgr-bubble.incoming {
+  background: #F0F2F5;
+  color: #050505;
+  border-radius: 18px 18px 18px 4px;
+}
+
+.cx-msgr-bubble.outgoing {
+  background: #0084FF;
+  color: #ffffff;
+  border-radius: 18px 18px 4px 18px;
+}
+
+.cx-msgr-check-icon {
+  font-size: 14px;
+  color: #0084FF;
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+/* Tarjeta de Negociación integrada en el chat (idéntica a la tarjeta de la foto) */
+.cx-msgr-plan-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 14px 0 8px 0;
+  width: 100%;
+}
+
+.cx-msgr-plan-card {
+  width: 100%;
+  max-width: 320px;
+  background: #ffffff;
+  border: 1px solid #e4e6eb;
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cx-msgr-plan-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cx-msgr-plan-badge-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fee2e2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.cx-msgr-plan-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #050505;
+}
+
+.cx-msgr-plan-desc {
+  margin: 0;
+  font-size: 12.5px;
+  color: #65676b;
+  line-height: 1.4;
+}
+
+.cx-msgr-plan-btn {
+  background: transparent;
+  border: none;
+  color: #0084FF;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 8px 0 2px 0;
+  text-align: left;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.cx-msgr-plan-btn:active {
+  opacity: 0.7;
+}
+
+.cx-msgr-plan-sub-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #8c96a5;
+  margin-top: 6px;
+}
+
+.cx-msgr-plan-check {
+  font-size: 13px;
+  color: #0084FF;
+}
+
+/* Footer / Messenger Input Bar */
+.cx-msgr-footer {
+  background: #ffffff;
+  border-top: 1px solid #e4e6eb;
+}
+
+.cx-msgr-price-drawer {
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cx-msgr-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0084FF;
+}
+
+.cx-msgr-drawer-head button {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.cx-msgr-drawer-body {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 6px 12px;
+}
+
+.cx-msgr-curr {
+  font-size: 14px;
+  font-weight: 800;
+  color: #64748b;
+}
+
+.cx-msgr-drawer-body input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+
+.cx-msgr-input-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 10px 10px;
+  background: #ffffff;
+}
+
+.cx-msgr-plus-btn {
+  background: transparent;
+  border: none;
+  color: #0084FF;
+  font-size: 27px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.cx-msgr-tool-btn {
+  background: transparent;
+  border: none;
+  color: #0084FF;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.cx-msgr-pill-input {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: #F0F2F5;
+  border-radius: 20px;
+  padding: 6px 12px;
+}
+
+.cx-msgr-pill-input input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 14.5px;
+  font-family: inherit;
+  color: #050505;
+  outline: none;
+}
+
+.cx-msgr-pill-input input::placeholder {
+  color: #8c96a5;
+}
+
+.cx-msgr-emoji-btn {
+  background: transparent;
+  border: none;
+  color: #0084FF;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cx-msgr-send-btn {
+  background: transparent;
+  border: none;
+  color: #0084FF;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.cx-msgr-thumb-btn {
+  background: transparent;
+  border: none;
+  color: #0084FF;
+  font-size: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+/* Modal de información ℹ️ */
+.cx-msgr-info-modal {
+  --border-radius: 20px 20px 0 0;
+}
+
+.cx-msgr-info-body {
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cx-msgr-info-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+
+.cx-msgr-info-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #0084FF;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.cx-msgr-info-head h3 {
+  margin: 6px 0 0 0;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.cx-msgr-info-head p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.cx-msgr-info-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cx-msgr-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.cx-msgr-info-item ion-icon {
+  font-size: 20px;
+  color: #0084FF;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cx-msgr-info-item div {
+  display: flex;
+  flex-direction: column;
+  font-size: 12.5px;
+}
+
+.cx-msgr-info-item strong {
+  color: #050505;
+}
+
+.cx-msgr-info-item span {
+  color: #64748b;
+}
+
+.cx-msgr-guest-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.cx-msgr-guest-box h4 {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0084FF;
+}
+
+.cx-msgr-guest-box input {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 7px 10px;
+  font-size: 13px;
+  outline: none;
+  background: #ffffff;
+}
+
+.cx-msgr-close-info-btn {
+  background: #0084FF;
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 0;
+  font-weight: 800;
+  font-size: 13.5px;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+
 
 

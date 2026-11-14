@@ -415,13 +415,11 @@ const Solicitudes: React.FC = () => {
                               fill="solid"
                               className="cx-cta-chat-btn"
                               onClick={() => {
-                                setReplyingId(s.id);
-                                setReplyText(s.respuesta || '');
-                                setReplyPrice(s.precio_propuesto ? String(s.precio_propuesto) : '');
+                                router.push(`/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(s.nombre || 'Cliente')}&oficio=${encodeURIComponent(s.oficio)}`);
                               }}
                             >
                               <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                              {hasHistory ? 'Continuar Negociación / Responder' : 'Responder en el Chat'}
+                              Abrir Chat tipo Messenger
                             </IonButton>
 
                             {s.estado === 'pendiente' && (
@@ -611,13 +609,11 @@ const Solicitudes: React.FC = () => {
                               fill="solid"
                               className="cx-cta-chat-btn"
                               onClick={() => {
-                                setReplyingId(s.id);
-                                setReplyText('');
-                                setReplyPrice('');
+                                router.push(`/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(s.prestador_nombre || 'Prestador')}&oficio=${encodeURIComponent(s.oficio || '')}`);
                               }}
                             >
                               <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                              {hasHistory ? 'Responder en el Chat / Negociar' : 'Enviar Mensaje al Prestador'}
+                              Abrir Chat tipo Messenger
                             </IonButton>
                           </div>
                         )}

@@ -900,6 +900,59 @@ class CandidatoController extends BaseApiController
         ]);
     }
 
+    /**
+     * GET /api/candidato/solicitudes/{id}
+     * Detalle y mensajes de una solicitud de contacto para la vista de chat
+     */
+    public function solicitudDetalle($id = null)
+    {
+        $user = $this->authUser();
+        if (!$user) {
+            return $this->fail('No autenticado', 401);
+        }
+
+        $db = \Config\Database::connect();
+        $candidato = $this->getCandidato();
+
+        $sol = $db->table('srv_contacto')
+            ->select('srv_contacto.*,
+                srv_servicio.oficio, srv_servicio.ciudad, srv_servicio.zona, srv_servicio.precio_desde,
+                auth_user.nombre AS prestador_nombre, auth_user.avatar AS prestador_avatar,
+                IF(srv_contacto.estado = "aceptado", auth_user.telefono, NULL) AS prestador_telefono,
+                IF(srv_contacto.estado = "aceptado", srv_contacto.telefono, NULL) AS cliente_telefono_revelado')
+            ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
+            ->join('cand_candidato', 'cand_candidato.id = srv_servicio.candidato_id')
+            ->join('auth_user', 'auth_user.id = cand_candidato.user_id')
+            ->where('srv_contacto.id', (int)$id)
+            ->get()->getRowArray();
+
+        if (!$sol) {
+            return $this->fail('Conversación no encontrada', 404);
+        }
+
+        // Permiso: solo el cliente solicitante o el prestador del servicio pueden verla
+        $esCliente = ((int)($sol['user_id'] ?? 0) === (int)$user['id']);
+        $esPrestador = ($candidato && (int)($sol['servicio_candidato_id'] ?? 0) === (int)$candidato['id']);
+
+        if (!$esCliente && !$esPrestador) {
+            return $this->fail('No tienes permiso para ver esta conversación', 403);
+        }
+
+        $mensajes = [];
+        if ($db->tableExists('srv_contacto_mensaje')) {
+            $mensajes = $db->table('srv_contacto_mensaje')
+                ->where('contacto_id', (int)$id)
+                ->orderBy('created_at', 'ASC')
+                ->get()->getResultArray();
+        }
+
+        $sol['mensajes'] = $mensajes;
+        $sol['es_cliente'] = $esCliente;
+        $sol['es_prestador'] = $esPrestador;
+
+        return $this->ok(['data' => $sol]);
+    }
+
     /**dashboard
      * Una sola llamada para el inicio de la app: stats del candidato
      * (postulaciones, servicios brindados = contactos aceptados, vistas al

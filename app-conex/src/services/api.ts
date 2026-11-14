@@ -242,6 +242,8 @@ export const candidatoApi = {
     api<{ message: string }>(`/candidato/servicios/${id}`, { method: 'DELETE' }),
   solicitudes: () =>
     api<{ data: { recibidas: any[]; enviadas: any[] } }>('/candidato/solicitudes'),
+  solicitudDetalle: (id: number) =>
+    api<{ data: any }>(`/candidato/solicitudes/${id}`),
   responderSolicitud: (
     id: number,
     payloadOrAccion: 'aceptar' | 'rechazar' | 'negociar' | 'mensaje' | { accion?: string; mensaje?: string; precio_propuesto?: number | string }

@@ -203,7 +203,15 @@ const Buscar: React.FC = () => {
 
   // Contacto al prestador: abre la ventana de chat estilo Messenger
   const contactar = (s: any) => {
-    setPrestadorChat(s);
+    const params = new URLSearchParams({
+      servicio_id: String(s.id),
+      nombre: s.nombre_publico || '',
+      oficio: s.oficio || '',
+      precio: s.precio_desde ? String(s.precio_desde) : '',
+      avatar: s.avatar_url || '',
+      telefono: s.telefono || '',
+    });
+    router.push(`/app/chat?${params.toString()}`);
   };
 
   // ---------- Mapa (Leaflet + OSM) ----------
