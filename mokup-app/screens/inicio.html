@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../css/mockup.css">
+<title>Inicio</title>
+</head>
+<body>
+<div class="screen">
+  <div class="status-space"></div>
+
+  <!-- Header compacto -->
+  <header class="appbar">
+    <h1>CONEX</h1>
+    <button class="bell" aria-label="Notificaciones">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+    </button>
+  </header>
+
+  <main class="content">
+    <!-- Hero slider: bienvenida + destacados -->
+    <div class="hero-slider-wrap">
+      <div class="hero-slider" id="heroSlider">
+        <div class="hero-slide">
+          <div class="hero-text">
+            <span class="hero-kicker">Bienvenido de nuevo</span>
+            <h2 class="hero-name">Hola, Iván</h2>
+            <p class="hero-sub">Encuentra tu próxima oportunidad</p>
+            <div class="hero-progress">
+              <div class="hero-progress-track"><div class="hero-progress-bar" style="width:70%"></div></div>
+              <span class="hero-progress-label">Perfil al 70%</span>
+            </div>
+          </div>
+          <button class="hero-btn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.8 2.8 0 114 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+            Actualizar perfil
+          </button>
+        </div>
+        <button class="hero-slide" type="button">
+          <div class="hero-text">
+            <span class="hero-kicker">Servicio destacado</span>
+            <h2 class="hero-name small">Electricista</h2>
+            <p class="hero-sub">José M. · Managua</p>
+          </div>
+          <div class="slide-avatar">J</div>
+        </button>
+        <button class="hero-slide" type="button">
+          <div class="hero-text">
+            <span class="hero-kicker">Servicio destacado</span>
+            <h2 class="hero-name small">Repostería a domicilio</h2>
+            <p class="hero-sub">María C. · León</p>
+          </div>
+          <div class="slide-avatar">M</div>
+        </button>
+        <button class="hero-slide" type="button">
+          <div class="hero-text">
+            <span class="hero-kicker orange">Vacante destacada</span>
+            <h2 class="hero-name small">Contador Senior</h2>
+            <p class="hero-sub">Banco Azul · Managua</p>
+          </div>
+          <div class="slide-avatar">B</div>
+        </button>
+      </div>
+      <div class="hero-dots" id="heroDots"></div>
+    </div>
+
+    <!-- Busqueda flotante unificada -->
+    <form class="home-search" onsubmit="return false">
+      <span class="s-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+      </span>
+      <input type="search" placeholder="Buscar empleo o servicio...">
+      <button type="button" class="geo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        Ubicación
+      </button>
+    </form>
+
+    <!-- Stats -->
+    <div class="stats-card">
+      <button class="stat-item">
+        <span class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></span>
+        <div class="stat-num">3</div>
+        <div class="stat-label">Postulaciones</div>
+        <span class="stat-arrow"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></span>
+      </button>
+      <button class="stat-item">
+        <span class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg></span>
+        <div class="stat-num">2</div>
+        <div class="stat-label">Mis servicios</div>
+        <span class="stat-arrow"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></span>
+      </button>
+      <button class="stat-item">
+        <span class="stat-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></span>
+        <div class="stat-num">12</div>
+        <div class="stat-label">Visualizaciones</div>
+        <span class="stat-arrow"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></span>
+      </button>
+    </div>
+
+    <!-- Categorias: carrusel -->
+    <div class="section-head">
+      <h3 class="section-title">Categorías</h3>
+      <button class="text-btn">Ver todas ›</button>
+    </div>
+    <div class="cat-scroll">
+      <button class="cat-btn"><span class="cat-ico cat-c1"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></span><span class="cat-label">Programación y Tecnología</span></button>
+      <button class="cat-btn"><span class="cat-ico cat-c2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></span><span class="cat-label">Hogar y Limpieza</span></button>
+      <button class="cat-btn"><span class="cat-ico cat-c3"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.6 3.6l2.8 2.8L8.4 18.4 4 20l1.6-4.4z"/></svg></span><span class="cat-label">Diseño y Creatividad</span></button>
+      <button class="cat-btn"><span class="cat-ico cat-c4"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></span><span class="cat-label">Administración y Finanzas</span></button>
+      <button class="cat-btn"><span class="cat-ico cat-c5"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5zM6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg></span><span class="cat-label">Educación</span></button>
+      <button class="cat-btn"><span class="cat-ico cat-c6"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></span><span class="cat-label">Construcción y Obra</span></button>
+    </div>
+
+    <!-- Toggle Vacantes / Servicios -->
+    <div class="seg">
+      <button class="on">Vacantes</button>
+      <button>Servicios</button>
+    </div>
+
+    <!-- Vacantes recientes -->
+    <div class="section-head">
+      <h3 class="section-title">Vacantes recientes</h3>
+      <button class="text-btn">Ver todos ›</button>
+    </div>
+    <div class="job-card">
+      <div class="job-logo">B</div>
+      <div class="job-info">
+        <div class="job-title">Contador Senior</div>
+        <div class="job-company">Banco Azul</div>
+        <div class="job-meta">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Managua · hace 2h
+          <span class="badge">Presencial</span>
+        </div>
+      </div>
+      <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="job-card">
+      <div class="job-logo">A</div>
+      <div class="job-info">
+        <div class="job-title">Auxiliar de Bodega</div>
+        <div class="job-company">Agroexport S.A.</div>
+        <div class="job-meta">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          León · hace 5h
+          <span class="badge orange">Medio tiempo</span>
+        </div>
+      </div>
+      <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="job-card">
+      <div class="job-logo">C</div>
+      <div class="job-info">
+        <div class="job-title">Diseñador Gráfico Jr.</div>
+        <div class="job-company">Creativa Studio</div>
+        <div class="job-meta">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Remoto · ayer
+          <span class="badge">Remoto</span>
+        </div>
+      </div>
+      <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+  </main>
+
+  <!-- Tab bar -->
+  <nav class="tabbar">
+    <button class="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+      Inicio
+    </button>
+    <button onclick="parent.postMessage({goto:'buscar'}, '*')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+      Buscar
+    </button>
+    <button onclick="parent.postMessage({goto:'mensajes'}, '*')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Mensajes
+    </button>
+    <button onclick="parent.postMessage({goto:'servicios'}, '*')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Servicios
+    </button>
+  </nav>
+</div>
+
+<script>
+  // Dots del slider: se generan y siguen el scroll
+  const slider = document.getElementById('heroSlider');
+  const dots = document.getElementById('heroDots');
+  const n = slider.children.length;
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('span');
+    d.className = 'hero-dot' + (i === 0 ? ' on' : '');
+    dots.appendChild(d);
+  }
+  slider.addEventListener('scroll', () => {
+    const idx = Math.round(slider.scrollLeft / slider.clientWidth);
+    dots.querySelectorAll('.hero-dot').forEach((d, i) =>
+      d.classList.toggle('on', i === idx));
+  });
+  // El toggle solo ilustra estado visual
+  document.querySelectorAll('.seg button').forEach(b =>
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.seg button').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+    }));
+</script>
+</body>
+</html>

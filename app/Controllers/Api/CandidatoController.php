@@ -728,6 +728,7 @@ class CandidatoController extends BaseApiController
         if ($candidato && $db->tableExists('srv_contacto')) {
             $recibidas = $db->table('srv_contacto')
                 ->select('srv_contacto.id, srv_contacto.nombre, srv_contacto.mensaje,
+                    srv_contacto.respuesta, srv_contacto.precio_propuesto, srv_contacto.fecha_respuesta,
                     srv_contacto.estado, srv_contacto.created_at,
                     srv_servicio.oficio,
                     IF(srv_contacto.estado = "aceptado", srv_contacto.telefono, NULL) AS telefono')
@@ -741,7 +742,9 @@ class CandidatoController extends BaseApiController
         $enviadas = [];
         if ($db->tableExists('srv_contacto')) {
             $enviadas = $db->table('srv_contacto')
-                ->select('srv_contacto.id, srv_contacto.mensaje, srv_contacto.estado, srv_contacto.created_at,
+                ->select('srv_contacto.id, srv_contacto.mensaje,
+                    srv_contacto.respuesta, srv_contacto.precio_propuesto, srv_contacto.fecha_respuesta,
+                    srv_contacto.estado, srv_contacto.created_at,
                     srv_servicio.oficio, srv_servicio.ciudad, srv_servicio.zona,
                     auth_user.nombre AS prestador_nombre,
                     IF(srv_contacto.estado = "aceptado", auth_user.telefono, NULL) AS prestador_telefono')
@@ -754,6 +757,33 @@ class CandidatoController extends BaseApiController
                 ->get()->getResultArray();
         }
 
+        // Cargar historial de conversacion / mensajes estilo Messenger si existe la tabla
+        $allIds = array_filter(array_unique(array_merge(
+            array_column($recibidas, 'id'),
+            array_column($enviadas, 'id')
+        )));
+
+        $mensajesPorContacto = [];
+        if (!empty($allIds) && $db->tableExists('srv_contacto_mensaje')) {
+            $msgs = $db->table('srv_contacto_mensaje')
+                ->whereIn('contacto_id', $allIds)
+                ->orderBy('created_at', 'ASC')
+                ->get()->getResultArray();
+            foreach ($msgs as $m) {
+                $mensajesPorContacto[$m['contacto_id']][] = $m;
+            }
+        }
+
+        foreach ($recibidas as &$r) {
+            $r['mensajes'] = $mensajesPorContacto[$r['id']] ?? [];
+        }
+        unset($r);
+
+        foreach ($enviadas as &$e) {
+            $e['mensajes'] = $mensajesPorContacto[$e['id']] ?? [];
+        }
+        unset($e);
+
         return $this->ok([
             'data' => [
                 'recibidas' => $recibidas,
@@ -764,45 +794,109 @@ class CandidatoController extends BaseApiController
 
     /**
      * POST /api/candidato/solicitudes/{id}
-     * Body: { accion: 'aceptar' | 'rechazar' }
+     * Responder o negociar en la app (estilo chat / messenger)
+     * Body: { accion?: 'aceptar'|'rechazar'|'negociar'|'mensaje', mensaje?: string, precio_propuesto?: number|string }
      */
     public function responderSolicitud($id)
     {
-        if ($res = $this->requireRole(['candidato'])) {
+        if ($res = $this->requireRole(['candidato', 'empresa'])) {
             return $res;
         }
+
+        $user = $this->authUser();
         $candidato = $this->getCandidato();
-        if ($res = $this->requireCandidato($candidato)) {
-            return $res;
-        }
-
-        $accion = $this->body()['accion'] ?? '';
-        if (!in_array($accion, ['aceptar', 'rechazar'], true)) {
-            return $this->fail('Accion invalida', 422);
-        }
-
         $db = \Config\Database::connect();
+        $body = $this->body();
+
+        // Buscar solicitud y determinar si es el prestador o el cliente
         $sol = $db->table('srv_contacto')
-            ->select('srv_contacto.id, srv_contacto.telefono')
+            ->select('srv_contacto.*, srv_servicio.candidato_id as servicio_candidato_id')
             ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
             ->where('srv_contacto.id', (int)$id)
-            ->where('srv_servicio.candidato_id', $candidato['id'])
             ->get()->getRowArray();
 
         if (!$sol) {
             return $this->fail('Solicitud no encontrada', 404);
         }
 
-        $nuevoEstado = $accion === 'aceptar' ? 'aceptado' : 'rechazado';
-        $db->table('srv_contacto')->where('id', (int)$id)->update([
+        $esPrestador = ($candidato && (int)$sol['servicio_candidato_id'] === (int)$candidato['id']);
+        $esCliente = ((int)$sol['user_id'] === (int)$user['id']);
+
+        if (!$esPrestador && !$esCliente) {
+            return $this->fail('No tienes permisos sobre esta solicitud', 403);
+        }
+
+        $accion = $body['accion'] ?? '';
+        $mensajeTexto = trim($body['mensaje'] ?? $body['mensaje_respuesta'] ?? '');
+        $precioPropuesto = isset($body['precio_propuesto']) && $body['precio_propuesto'] !== '' ? (float)$body['precio_propuesto'] : null;
+
+        if (empty($accion) && !empty($mensajeTexto)) {
+            $accion = 'negociar';
+        }
+
+        if (!in_array($accion, ['aceptar', 'rechazar', 'negociar', 'mensaje'], true) && empty($mensajeTexto)) {
+            return $this->fail('Debes indicar una acción o escribir un mensaje de respuesta', 422);
+        }
+
+        $nuevoEstado = $sol['estado'];
+        if ($accion === 'aceptar') {
+            $nuevoEstado = 'aceptado';
+        } elseif ($accion === 'rechazar') {
+            $nuevoEstado = 'rechazado';
+        }
+
+        // Actualizar registro principal
+        $updateData = [
             'estado'     => $nuevoEstado,
             'updated_at' => date('Y-m-d H:i:s'),
-        ]);
+        ];
+        if (!empty($mensajeTexto)) {
+            $updateData['respuesta'] = $mensajeTexto;
+            $updateData['fecha_respuesta'] = date('Y-m-d H:i:s');
+        }
+        if ($precioPropuesto !== null) {
+            $updateData['precio_propuesto'] = $precioPropuesto;
+        }
+
+        $db->table('srv_contacto')->where('id', (int)$id)->update($updateData);
+
+        // Si se envió mensaje, guardarlo en el hilo de conversacion srv_contacto_mensaje
+        if (!empty($mensajeTexto) && $db->tableExists('srv_contacto_mensaje')) {
+            $db->table('srv_contacto_mensaje')->insert([
+                'contacto_id'      => (int)$id,
+                'emisor_tipo'      => $esPrestador ? 'prestador' : 'cliente',
+                'emisor_nombre'    => trim(($user['nombre'] ?? '') . ' ' . ($user['apellido'] ?? '')) ?: 'Usuario',
+                'mensaje'          => $mensajeTexto,
+                'precio_propuesto' => $precioPropuesto,
+                'created_at'       => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        // Obtener historial completo de mensajes actualizado
+        $mensajes = [];
+        if ($db->tableExists('srv_contacto_mensaje')) {
+            $mensajes = $db->table('srv_contacto_mensaje')
+                ->where('contacto_id', (int)$id)
+                ->orderBy('created_at', 'ASC')
+                ->get()->getResultArray();
+        }
+
+        $msgRetorno = 'Respuesta enviada con éxito.';
+        if ($accion === 'aceptar') {
+            $msgRetorno = 'Solicitud aceptada. Ya puedes coordinar con el cliente.';
+        } elseif ($accion === 'rechazar') {
+            $msgRetorno = 'Solicitud rechazada.';
+        } elseif ($precioPropuesto !== null) {
+            $msgRetorno = 'Propuesta de negociación enviada al cliente.';
+        }
 
         return $this->ok([
-            'message'  => $accion === 'aceptar' ? 'Solicitud aceptada. Ya puedes contactar al cliente.' : 'Solicitud rechazada.',
-            'estado'   => $nuevoEstado,
-            'telefono' => $accion === 'aceptar' ? $sol['telefono'] : null,
+            'message'          => $msgRetorno,
+            'estado'           => $nuevoEstado,
+            'telefono'         => $nuevoEstado === 'aceptado' ? $sol['telefono'] : null,
+            'precio_propuesto' => $precioPropuesto ?? $sol['precio_propuesto'],
+            'respuesta'        => $mensajeTexto ?: ($sol['respuesta'] ?? null),
+            'mensajes'         => $mensajes,
         ]);
     }
 

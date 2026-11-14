@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../css/mockup.css">
+<title>Buscar</title>
+</head>
+<body>
+<div class="screen">
+  <div class="status-space"></div>
+
+  <header class="appbar">
+    <h1>Buscar</h1>
+    <button class="bell" aria-label="Filtros">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+    </button>
+  </header>
+
+  <main class="content">
+    <form class="home-search" style="margin-top:0" onsubmit="return false">
+      <span class="s-icon">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+      </span>
+      <input type="search" placeholder="Puesto, empresa u oficio...">
+      <button type="button" class="geo">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        Ubicación
+      </button>
+    </form>
+
+    <!-- Chips: toggle Mapa + filtros (activo = navy solido) -->
+    <div class="cat-scroll" style="padding-bottom:6px">
+      <button class="text-btn chip" id="btnMapa" style="border:1.5px solid var(--cx-border);border-radius:999px;padding:6px 14px;background:#fff;color:var(--cx-muted);font-weight:600">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:3px"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><path d="M8 2v16M16 6v16"/></svg>
+        <span id="btnMapaLabel">Mapa</span>
+      </button>
+      <button class="text-btn chip-on" style="border:1.5px solid var(--cx-navy);border-radius:999px;padding:6px 14px;background:var(--cx-navy);color:#fff;font-weight:600">Programación ✕</button>
+      <button class="text-btn chip" style="border:1.5px solid var(--cx-border);border-radius:999px;padding:6px 14px;background:#fff;color:var(--cx-muted);font-weight:600">Modalidad ▾</button>
+      <button class="text-btn chip" style="border:1.5px solid var(--cx-border);border-radius:999px;padding:6px 14px;background:#fff;color:var(--cx-muted);font-weight:600">Ciudad ▾</button>
+      <button class="text-btn chip" style="border:1.5px solid var(--cx-border);border-radius:999px;padding:6px 14px;background:#fff;color:var(--cx-muted);font-weight:600">Ordenar ▾</button>
+    </div>
+
+    <!-- Vista mapa (oculta por defecto) -->
+    <div id="mapView" style="display:none;margin:2px 0 10px;height:560px;border-radius:16px;border:1px solid var(--cx-border);position:relative;overflow:hidden;background:#e8eef0">
+      <svg style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 380 560" preserveAspectRatio="none">
+        <rect width="380" height="560" fill="#e8eef0"/>
+        <path d="M0 120 Q120 90 200 140 T380 110 V0 H0 Z" fill="#dde7e3"/>
+        <path d="M60 560 Q40 400 110 340 T180 200 L240 180 Q300 240 280 330 T340 560 Z" fill="#d5e5da"/>
+        <path d="M0 300 H380 M120 0 V560 M260 60 V560" stroke="#c8d4d2" stroke-width="6" fill="none"/>
+        <path d="M0 460 H380 M320 0 V560" stroke="#e4ebe9" stroke-width="14" fill="none"/>
+      </svg>
+      <!-- Pines navy -->
+      <div style="position:absolute;top:180px;left:150px" class="mk-pin"></div>
+      <div style="position:absolute;top:300px;left:210px" class="mk-pin"></div>
+      <div style="position:absolute;top:390px;left:90px" class="mk-pin"></div>
+      <!-- Pin usuario naranja -->
+      <div style="position:absolute;top:260px;left:170px" class="mk-pin mk-pin-me"></div>
+      <!-- Popup ejemplo -->
+      <div style="position:absolute;top:120px;left:95px;background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 4px 14px rgba(0,0,0,.18);font-size:12px;min-width:140px">
+        <b style="color:var(--cx-navy)">Desarrollador Web Jr.</b><br>
+        <span style="color:var(--cx-muted);font-size:11px">DataSoft</span><br>
+        <button style="margin-top:6px;border:0;border-radius:8px;background:var(--cx-orange);color:#fff;font-size:11px;font-weight:700;padding:5px 10px;cursor:pointer">Ver vacante</button>
+      </div>
+    </div>
+
+    <p class="empty" id="resCount" style="margin:6px 0 10px">8 resultados</p>
+
+    <div class="job-card">
+      <div class="job-logo">D</div>
+      <div class="job-info">
+        <div class="job-title">Desarrollador Web Jr.</div>
+        <div class="job-company">DataSoft</div>
+        <div class="job-meta">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Managua · hace 1h
+          <span class="badge">Híbrido</span>
+        </div>
+      </div>
+      <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="job-card">
+      <div class="job-logo">T</div>
+      <div class="job-info">
+        <div class="job-title">Técnico en Redes</div>
+        <div class="job-company">TechNic</div>
+        <div class="job-meta">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Managua · hace 3h
+          <span class="badge">Presencial</span>
+        </div>
+      </div>
+      <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="job-card">
+      <div class="job-logo">I</div>
+      <div class="job-info">
+        <div class="job-title">Soporte IT</div>
+        <div class="job-company">Innova Corp</div>
+        <div class="job-meta">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Remoto · ayer
+          <span class="badge">Remoto</span>
+        </div>
+      </div>
+      <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+    <div class="job-card">
+      <div class="job-logo">Q</div>
+      <div class="job-info">
+        <div class="job-title">QA Tester</div>
+        <div class="job-company">Qualitas</div>
+        <div class="job-meta">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 1114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+          Managua · hace 2d
+          <span class="badge orange">Medio tiempo</span>
+        </div>
+      </div>
+      <span class="chevron"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+    </div>
+
+    <script>
+      // Toggle vista mapa (demo)
+      const btnMapa = document.getElementById('btnMapa');
+      const mapView = document.getElementById('mapView');
+      let on = false;
+      btnMapa.addEventListener('click', () => {
+        on = !on;
+        mapView.style.display = on ? 'block' : 'none';
+        document.getElementById('btnMapaLabel').textContent = on ? 'Lista' : 'Mapa';
+        btnMapa.style.background = on ? 'var(--cx-orange)' : '#fff';
+        btnMapa.style.color = on ? '#fff' : 'var(--cx-muted)';
+        btnMapa.style.borderColor = on ? 'var(--cx-orange)' : 'var(--cx-border)';
+      });
+    </script>
+
+    <style>
+      .mk-pin {
+        width: 22px; height: 22px;
+        background: var(--cx-navy);
+        border: 2.5px solid #fff;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        box-shadow: 0 3px 8px rgba(0,0,0,.35);
+      }
+      .mk-pin-me { background: var(--cx-orange); }
+    </style>
+  </main>
+
+  <nav class="tabbar">
+    <button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+      Inicio
+    </button>
+    <button class="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+      Buscar
+    </button>
+    <button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Perfil
+    </button>
+  </nav>
+</div>
+</body>
+</html>

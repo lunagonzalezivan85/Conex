@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="../css/mockup.css">
+<title>Mensajes y Negociación</title>
+<style>
+  /* Messenger Styles en Mockup */
+  .msg-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 8px;
+  }
+  .msg-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 14px 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.04);
+    border: 1px solid var(--cx-border);
+  }
+  .msg-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .msg-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  .msg-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1B2A4A, #2563EB);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 15px;
+    box-shadow: 0 3px 8px rgba(37,99,235,.2);
+  }
+  .msg-avatar.client {
+    background: linear-gradient(135deg, #0FC6C2, #0284C7);
+    box-shadow: 0 3px 8px rgba(15,198,194,.2);
+  }
+  .msg-dot {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #22c55e;
+    border: 2px solid #fff;
+  }
+  .msg-user-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .msg-name {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--cx-text);
+  }
+  .msg-service-tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--cx-orange);
+    display: inline-block;
+  }
+  .msg-meta {
+    font-size: 11px;
+    color: var(--cx-muted);
+  }
+  .msg-badge {
+    padding: 4px 8px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+  .msg-badge.warning { background: #FEF3C7; color: #D97706; }
+  .msg-badge.success { background: #DCFCE7; color: #15803D; }
+  .msg-badge.primary { background: #E0F2FE; color: #0369A1; }
+
+  /* Chat Bubbles */
+  .msg-chat-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 0 8px;
+  }
+  .bubble-wrap {
+    display: flex;
+    flex-direction: column;
+  }
+  .bubble-wrap.in { align-items: flex-start; }
+  .bubble-wrap.out { align-items: flex-end; }
+  .bubble-author {
+    font-size: 10.5px;
+    font-weight: 700;
+    margin-bottom: 3px;
+    color: var(--cx-muted);
+    padding: 0 4px;
+  }
+  .bubble {
+    max-width: 88%;
+    padding: 9px 13px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .bubble.in {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-radius: 16px 16px 16px 4px;
+  }
+  .bubble.out {
+    background: linear-gradient(135deg, #1B2A4A, #1e3a8a);
+    color: #ffffff;
+    border-radius: 16px 16px 4px 16px;
+  }
+  .quote-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+    padding: 4px 9px;
+    border-radius: 7px;
+    font-size: 11.5px;
+    font-weight: 800;
+  }
+  .bubble.out .quote-pill {
+    background: rgba(255,255,255,.16);
+    color: #38bdf8;
+    border: 1px solid rgba(255,255,255,.2);
+  }
+  .bubble.in .quote-pill {
+    background: #e0f2fe;
+    color: #0369a1;
+  }
+  .bubble-time {
+    font-size: 9.5px;
+    opacity: 0.75;
+    margin-top: 3px;
+    display: block;
+    text-align: right;
+  }
+
+  /* Responder & Negociación */
+  .composer {
+    display: none;
+    background: #f8fafc;
+    border: 1px solid var(--cx-border);
+    border-radius: 12px;
+    padding: 10px;
+    margin-top: 8px;
+  }
+  .composer.open { display: flex; flex-direction: column; gap: 8px; }
+  .composer-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--cx-orange);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .composer textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 13px;
+    resize: none;
+    outline: none;
+    background: #fff;
+    font-family: inherit;
+  }
+  .composer input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 12.5px;
+    outline: none;
+    background: #fff;
+  }
+  .composer-btns {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .btn-c {
+    padding: 7px 12px;
+    border-radius: 8px;
+    border: 0;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-c.primary { background: #2563EB; color: #fff; }
+  .btn-c.success { background: #16A34A; color: #fff; }
+  .btn-c.ghost { background: transparent; color: #64748b; }
+
+  /* Botones principales de acción */
+  .msg-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 13px;
+    border-radius: 9px;
+    border: 0;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .btn-action.reply { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
+  .btn-action.accept { background: var(--cx-orange); color: #fff; }
+  .btn-action.reject { background: transparent; color: #dc2626; border: 1px solid #fecaca; }
+  .btn-action.phone { background: var(--cx-navy); color: #fff; }
+  .btn-action.wa { background: #25D366; color: #fff; }
+</style>
+</head>
+<body>
+<div class="screen">
+  <div class="status-space"></div>
+
+  <!-- Header -->
+  <header class="appbar">
+    <h1>Mensajes y Negociación</h1>
+    <button class="bell" aria-label="Notificaciones">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
+    </button>
+  </header>
+
+  <!-- Segment Tabs -->
+  <div style="padding: 0 16px;">
+    <div class="seg" style="display:flex;background:#e2e8f0;border-radius:10px;padding:3px;gap:4px;">
+      <button class="on" style="flex:1;border:0;background:#fff;border-radius:8px;padding:7px;font-weight:700;font-size:12px;color:var(--cx-text);">Recibidas (3)</button>
+      <button style="flex:1;border:0;background:transparent;border-radius:8px;padding:7px;font-weight:600;font-size:12px;color:#64748b;">Enviadas (1)</button>
+      <button style="flex:1;border:0;background:transparent;border-radius:8px;padding:7px;font-weight:600;font-size:12px;color:#64748b;">Empleos</button>
+    </div>
+  </div>
+
+  <main class="content">
+    <div class="msg-list">
+      <!-- Tarjeta 1: Caso Negociación Activa -->
+      <div class="msg-card" id="card1">
+        <div class="msg-header">
+          <div class="msg-avatar-wrap">
+            <div class="msg-avatar client">DS</div>
+            <div class="msg-dot"></div>
+          </div>
+          <div class="msg-user-info">
+            <div class="msg-name">Darwin Siezar</div>
+            <div class="msg-service-tag">Albañilería y Envaldosado</div>
+            <div class="msg-meta">Hoy · 10:42 AM</div>
+          </div>
+          <span class="msg-badge warning">En negociación</span>
+        </div>
+
+        <div class="msg-chat-flow" id="flow1">
+          <!-- Mensaje del cliente -->
+          <div class="bubble-wrap in">
+            <span class="bubble-author">Darwin Siezar (Cliente)</span>
+            <div class="bubble in">
+              "Necesito hacer un envaldosado de 6 metros cuadrados en el patio con piso rojo."
+              <span class="bubble-time">10:42 AM</span>
+            </div>
+          </div>
+          <!-- Respuesta previa con cotización -->
+          <div class="bubble-wrap out">
+            <span class="bubble-author">Tú (Respuesta / Oferta)</span>
+            <div class="bubble out">
+              "Hola Darwin, con gusto te hago el trabajo. Te saldría en C$ 1,800 con pegamento incluido. ¿Iniciamos el viernes?"
+              <div class="quote-pill">💰 Cotización: C$ 1,800.00</div>
+              <span class="bubble-time">10:55 AM</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Compositor de Respuesta / Negociación -->
+        <div class="composer" id="comp1">
+          <div class="composer-title">💬 Responder en la negociación</div>
+          <textarea id="txt1" placeholder="Escribe tu contraoferta o acuerdo de trabajo...">Confirmado para el viernes a las 8:00 AM.</textarea>
+          <input type="number" id="prc1" placeholder="Cotización acordada C$ (ej: 1800)" value="1800">
+          <div class="composer-btns">
+            <button class="btn-c primary" onclick="enviarRespuesta(1)">Enviar propuesta</button>
+            <button class="btn-c success" onclick="aceptarTrabajo(1)">Aceptar y cerrar acuerdo</button>
+            <button class="btn-c ghost" onclick="toggleComp(1)">Cancelar</button>
+          </div>
+        </div>
+
+        <div class="msg-actions" id="act1">
+          <button class="btn-action reply" onclick="toggleComp(1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Continuar negociación
+          </button>
+          <button class="btn-action accept" onclick="aceptarTrabajo(1)">
+            ✓ Aceptar trabajo
+          </button>
+        </div>
+
+        <div id="contact1" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;">
+          <span style="font-size:12px;font-weight:700;display:block;margin-bottom:6px;color:#15803D;">✓ Trato acordado · Tel: +505 8386 8230</span>
+          <div style="display:flex;gap:8px;">
+            <a href="tel:83868230" class="btn-action phone">📞 Llamar</a>
+            <a href="https://wa.me/50583868230" target="_blank" class="btn-action wa">💬 WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta 2: Nueva Solicitud Pendiente -->
+      <div class="msg-card" id="card2">
+        <div class="msg-header">
+          <div class="msg-avatar-wrap">
+            <div class="msg-avatar client">IL</div>
+            <div class="msg-dot"></div>
+          </div>
+          <div class="msg-user-info">
+            <div class="msg-name">Iván Luna</div>
+            <div class="msg-service-tag">Jardinería y Paisajismo</div>
+            <div class="msg-meta">Ayer · 3:15 PM</div>
+          </div>
+          <span class="msg-badge warning" id="badge2">Pendiente</span>
+        </div>
+
+        <div class="msg-chat-flow" id="flow2">
+          <div class="bubble-wrap in">
+            <span class="bubble-author">Iván Luna (Cliente)</span>
+            <div class="bubble in">
+              "Necesito que me ayudes con la poda y diseño de los jardines de mi casa."
+              <span class="bubble-time">3:15 PM</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="composer" id="comp2">
+          <div class="composer-title">💬 Enviar cotización y respuesta</div>
+          <textarea id="txt2" placeholder="Escribe tu respuesta y disponibilidad..."></textarea>
+          <input type="number" id="prc2" placeholder="Proponer precio C$ (ej: 900)">
+          <div class="composer-btns">
+            <button class="btn-c primary" onclick="enviarRespuesta(2)">Enviar propuesta</button>
+            <button class="btn-c success" onclick="aceptarTrabajo(2)">Aceptar directo</button>
+            <button class="btn-c ghost" onclick="toggleComp(2)">Cancelar</button>
+          </div>
+        </div>
+
+        <div class="msg-actions" id="act2">
+          <button class="btn-action reply" onclick="toggleComp(2)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Responder / Negociar
+          </button>
+          <button class="btn-action accept" onclick="aceptarTrabajo(2)">
+            ✓ Aceptar directo
+          </button>
+          <button class="btn-action reject" onclick="rechazar(2)">
+            ✕ Rechazar
+          </button>
+        </div>
+
+        <div id="contact2" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;">
+          <span style="font-size:12px;font-weight:700;display:block;margin-bottom:6px;color:#15803D;">✓ Solicitud aceptada · Tel: +505 7718 7005</span>
+          <div style="display:flex;gap:8px;">
+            <a href="tel:77187005" class="btn-action phone">📞 Llamar</a>
+            <a href="https://wa.me/50577187005" target="_blank" class="btn-action wa">💬 WhatsApp</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button onclick="parent.postMessage({goto:'inicio'}, '*')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+      Inicio
+    </button>
+    <button onclick="parent.postMessage({goto:'buscar'}, '*')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>
+      Empleos
+    </button>
+    <button onclick="parent.postMessage({goto:'servicios'}, '*')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Contactos
+    </button>
+    <button class="on">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Mensajes
+    </button>
+  </nav>
+</div>
+
+<script>
+function toggleComp(id) {
+  const c = document.getElementById('comp' + id);
+  c.classList.toggle('open');
+}
+
+function enviarRespuesta(id) {
+  const txt = document.getElementById('txt' + id).value.trim();
+  const prc = document.getElementById('prc' + id).value.trim();
+  if (!txt && !prc) {
+    alert('Por favor escribe un mensaje o cotización.');
+    return;
+  }
+  const flow = document.getElementById('flow' + id);
+  const wrap = document.createElement('div');
+  wrap.className = 'bubble-wrap out';
+  let pillHtml = prc ? `<div class="quote-pill">💰 Cotización: C$ ${parseFloat(prc).toLocaleString('es-NI', {minimumFractionDigits:2})}</div>` : '';
+  wrap.innerHTML = `
+    <span class="bubble-author">Tú (Respuesta / Oferta)</span>
+    <div class="bubble out">
+      ${txt || 'Propuesta de negociación enviada'}
+      ${pillHtml}
+      <span class="bubble-time">Ahora</span>
+    </div>
+  `;
+  flow.appendChild(wrap);
+  toggleComp(id);
+}
+
+function aceptarTrabajo(id) {
+  const badge = document.querySelector('#card' + id + ' .msg-badge');
+  badge.className = 'msg-badge success';
+  badge.textContent = 'Aceptado';
+  document.getElementById('act' + id).style.display = 'none';
+  const c = document.getElementById('comp' + id);
+  if (c) c.classList.remove('open');
+  document.getElementById('contact' + id).style.display = 'block';
+}
+
+function rechazar(id) {
+  const badge = document.querySelector('#card' + id + ' .msg-badge');
+  badge.className = 'msg-badge';
+  badge.style.background = '#FEE2E2';
+  badge.style.color = '#B91C1C';
+  badge.textContent = 'Rechazado';
+  document.getElementById('act' + id).style.display = 'none';
+}
+</script>
+</body>
+</html>

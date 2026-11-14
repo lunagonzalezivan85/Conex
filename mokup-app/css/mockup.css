@@ -1,0 +1,293 @@
+/* ================================================================
+   CONEX · mokup-app — estilos compartidos de pantallas
+   Replica los tokens del tema real (variables.css/app.css de Ionic)
+   ================================================================ */
+:root {
+  --cx-navy: #1B2A4A;
+  --cx-teal: #0FC6C2;
+  --cx-orange: #F97316;
+  --cx-bg: #f5f6fa;
+  --cx-border: #e5e9f2;
+  --cx-muted: #8a94a8;
+  --cx-text: #172b55;
+}
+* { box-sizing: border-box; margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+html, body { height: 100%; }
+body {
+  background: var(--cx-bg);
+  color: var(--cx-text);
+  font-size: 14px;
+  overflow: hidden;
+}
+
+/* ---------- Estructura de pantalla (412x915) ---------- */
+.screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+/* Espacio para la status bar que dibuja el marco */
+.status-space { height: 34px; flex-shrink: 0; }
+
+/* ---------- Header compacto ---------- */
+.appbar {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 8px;
+  background: var(--cx-bg);
+  flex-shrink: 0;
+}
+.appbar h1 { font-size: 17px; font-weight: 800; letter-spacing: -.01em; flex: 1; }
+.appbar .bell {
+  width: 34px; height: 34px;
+  border: 0; background: transparent;
+  color: var(--cx-navy);
+  cursor: pointer;
+  display: grid; place-items: center;
+}
+.back-btn {
+  width: 34px; height: 34px;
+  border: 0; background: transparent;
+  color: var(--cx-navy);
+  cursor: pointer;
+  display: grid; place-items: center;
+  margin-left: -8px;
+}
+
+/* ---------- Contenido con scroll ---------- */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+}
+.content::-webkit-scrollbar { width: 0; }
+
+/* ---------- Hero slider ---------- */
+.hero-slider-wrap { position: relative; margin: 0 -16px 18px; }
+.hero-slider {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.hero-slider::-webkit-scrollbar { display: none; }
+.hero-slide {
+  flex: 0 0 100%;
+  scroll-snap-align: start;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 48px;
+  border: 0;
+  text-align: left;
+  font: inherit;
+  background: linear-gradient(135deg, #1B2A4A 0%, #14213d 55%, #0d1526 100%);
+  color: #fff;
+  cursor: default;
+}
+button.hero-slide { cursor: pointer; }
+.hero-text { flex: 1; min-width: 0; }
+.hero-kicker {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .6px; text-transform: uppercase;
+  color: var(--cx-teal);
+}
+.hero-kicker.orange { color: var(--cx-orange); }
+.hero-name { font-size: 22px; font-weight: 800; margin: 3px 0 2px; }
+.hero-name.small { font-size: 18px; line-height: 1.25; }
+.hero-sub { font-size: 13px; color: rgba(255,255,255,.75); }
+.hero-btn {
+  border: 0;
+  background: var(--cx-orange);
+  color: #fff;
+  font-size: 12px; font-weight: 700;
+  height: 34px; padding: 0 12px;
+  border-radius: 12px;
+  display: inline-flex; align-items: center; gap: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.hero-progress { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.hero-progress-track { flex: 1; height: 5px; border-radius: 3px; background: rgba(255,255,255,.22); overflow: hidden; }
+.hero-progress-bar { height: 100%; border-radius: 3px; background: var(--cx-teal); }
+.hero-progress-label { font-size: 10px; font-weight: 700; color: rgba(255,255,255,.75); white-space: nowrap; }
+.slide-avatar {
+  width: 52px; height: 52px; border-radius: 14px;
+  background: #1B2A4A; color: #fff;
+  display: grid; place-items: center;
+  font-weight: 700; font-size: 20px;
+  border: 2px solid rgba(255,255,255,.2);
+  flex-shrink: 0;
+}
+.hero-dots {
+  position: absolute; bottom: 38px; left: 0; right: 0;
+  display: flex; justify-content: center; gap: 6px;
+  pointer-events: none;
+}
+.hero-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.35); }
+.hero-dot.on { width: 18px; border-radius: 3px; background: var(--cx-teal); }
+
+/* ---------- Barra de busqueda flotante ---------- */
+.home-search {
+  display: flex; align-items: center;
+  border-radius: 18px;
+  background: #fff;
+  margin: -32px 2px 18px;
+  position: relative; z-index: 2;
+  box-shadow: 0 8px 24px rgba(23,43,85,.14);
+  overflow: hidden;
+}
+.home-search .s-icon { font-size: 19px; color: var(--cx-muted); margin-left: 14px; flex-shrink: 0; display: grid; place-items: center; }
+.home-search input {
+  border: 0; outline: 0; flex: 1; min-width: 0;
+  padding: 14px 10px;
+  font-size: 15px; color: var(--cx-text);
+  background: transparent; font-family: inherit;
+}
+.home-search .geo {
+  border: 0; border-left: 1px solid var(--cx-border);
+  background: transparent; color: #52627e;
+  font-size: 13px; font-weight: 600;
+  padding: 14px;
+  display: flex; align-items: center; gap: 4px;
+  cursor: pointer; flex-shrink: 0; font-family: inherit;
+}
+
+/* ---------- Stats card ---------- */
+.stats-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(23,43,85,.10);
+  padding: 16px 8px;
+  display: flex;
+  margin-bottom: 16px;
+}
+.stat-item {
+  flex: 1; text-align: center; min-width: 0;
+  border: 0; background: none; position: relative;
+  padding: 6px 2px 4px;
+  cursor: pointer; font: inherit;
+}
+.stat-item + .stat-item { border-left: 1px solid var(--cx-border); }
+.stat-icon {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--cx-navy); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+.stat-num { font-size: 22px; font-weight: 800; }
+.stat-label { font-size: 12px; color: var(--cx-muted); }
+.stat-arrow { position: absolute; top: 2px; right: 4px; color: #c3cbd9; display: grid; place-items: center; }
+
+/* ---------- Secciones ---------- */
+.section-head { display: flex; align-items: baseline; justify-content: space-between; }
+.section-title { font-size: 16px; font-weight: 700; margin: 4px 0 10px; }
+.text-btn {
+  border: 0; background: transparent;
+  color: var(--cx-orange); font-weight: 700; font-size: 13px;
+  cursor: pointer; font-family: inherit;
+}
+
+/* ---------- Carrusel de categorias ---------- */
+.cat-scroll {
+  display: flex; gap: 12px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  scrollbar-width: none;
+}
+.cat-scroll::-webkit-scrollbar { display: none; }
+.cat-btn {
+  border: 0; background: transparent;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 8px 4px; cursor: pointer; font-family: inherit;
+  flex: 0 0 74px;
+}
+.cat-ico {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: grid; place-items: center;
+  color: var(--cx-navy);
+}
+.cat-c1 { background: #ffdfb4; } .cat-c2 { background: #b8efd9; }
+.cat-c3 { background: #dfd1ff; } .cat-c4 { background: #ffc8d0; }
+.cat-c5 { background: #bceef5; } .cat-c6 { background: #c9dcff; }
+.cat-label {
+  font-size: 11px; font-weight: 600; text-align: center; line-height: 1.2;
+  display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Grid completo (vista categorias) */
+.cat-page-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px 8px;
+  padding-top: 8px;
+}
+.cat-page-grid .cat-btn { flex: none; width: 100%; }
+
+/* ---------- Toggle Vacantes / Servicios ---------- */
+.seg {
+  display: flex; background: #e9edf3; border-radius: 12px;
+  padding: 3px; margin-bottom: 4px;
+}
+.seg button {
+  flex: 1; border: 0; border-radius: 10px;
+  padding: 9px 0; font-size: 13px; font-weight: 600;
+  background: transparent; color: var(--cx-muted);
+  cursor: pointer; font-family: inherit;
+}
+.seg button.on { background: var(--cx-navy); color: #fff; }
+
+/* ---------- Cards de lista ---------- */
+.job-card {
+  background: #fff; border-radius: 16px;
+  border: 1px solid var(--cx-border);
+  padding: 14px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer;
+}
+.job-logo {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: var(--cx-navy); color: #fff;
+  display: grid; place-items: center;
+  font-weight: 700; font-size: 18px;
+  flex-shrink: 0;
+}
+.job-logo img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.job-info { flex: 1; min-width: 0; }
+.job-title { font-size: 15px; font-weight: 700; }
+.job-company { font-size: 13px; color: var(--cx-muted); }
+.job-meta { font-size: 12px; color: var(--cx-muted); display: flex; align-items: center; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+.badge {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 8px; border-radius: 8px;
+  background: rgba(15,198,194,.12); color: #0aa19e;
+  margin-left: 4px;
+}
+.badge.orange { background: rgba(249,115,22,.12); color: var(--cx-orange); }
+.chevron { color: #c3cbd9; flex-shrink: 0; display: grid; place-items: center; }
+
+/* ---------- Tab bar inferior (compacto) ---------- */
+.tabbar {
+  height: 50px;
+  display: flex;
+  padding: 4px 8px;
+  background: #fff;
+  border-top: 1px solid var(--cx-border);
+  flex-shrink: 0;
+}
+.tabbar button {
+  flex: 1; border: 0; background: transparent;
+  border-radius: 12px; margin: 0 2px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  color: var(--cx-muted); font-size: 10px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
+.tabbar button.on { background: rgba(249,115,22,.12); color: var(--cx-orange); }
+.tabbar svg { width: 20px; height: 20px; }
+
+/* Utilidades */
+.empty { color: var(--cx-muted); font-size: 14px; padding: 8px 0; }

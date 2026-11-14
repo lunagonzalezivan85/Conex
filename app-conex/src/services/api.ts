@@ -242,11 +242,23 @@ export const candidatoApi = {
     api<{ message: string }>(`/candidato/servicios/${id}`, { method: 'DELETE' }),
   solicitudes: () =>
     api<{ data: { recibidas: any[]; enviadas: any[] } }>('/candidato/solicitudes'),
-  responderSolicitud: (id: number, accion: 'aceptar' | 'rechazar') =>
-    api<{ message: string; estado: string; telefono?: string | null }>(`/candidato/solicitudes/${id}`, {
+  responderSolicitud: (
+    id: number,
+    payloadOrAccion: 'aceptar' | 'rechazar' | 'negociar' | 'mensaje' | { accion?: string; mensaje?: string; precio_propuesto?: number | string }
+  ) => {
+    const body = typeof payloadOrAccion === 'string' ? { accion: payloadOrAccion } : payloadOrAccion;
+    return api<{
+      message: string;
+      estado: string;
+      telefono?: string | null;
+      precio_propuesto?: number | null;
+      respuesta?: string | null;
+      mensajes?: any[];
+    }>(`/candidato/solicitudes/${id}`, {
       method: 'POST',
-      body: { accion },
-    }),
+      body,
+    });
+  },
   postulaciones: () => api<{ data: any[] }>('/candidato/postulaciones'),
   postularse: (vacanteId: number, cvId?: number, mensaje?: string) =>
     api(`/candidato/postularse/${vacanteId}`, {

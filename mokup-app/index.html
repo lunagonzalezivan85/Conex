@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CONEX · mokup-app</title>
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #0d1526;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: #e8ecf4;
+  }
+  .mk-toolbar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 10px 18px;
+    background: #131f3a;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+    flex-wrap: wrap;
+  }
+  .mk-brand { font-weight: 800; font-size: 15px; letter-spacing: .02em; }
+  .mk-brand b { color: #0FC6C2; }
+  .mk-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+  .mk-nav a {
+    color: #aab4cc; text-decoration: none; font-size: 12px; font-weight: 600;
+    padding: 5px 12px; border-radius: 999px;
+    background: rgba(255,255,255,.05);
+  }
+  .mk-nav a:hover { color: #fff; }
+  .mk-nav a.on { background: #F97316; color: #fff; }
+  .mk-size { margin-left: auto; font-size: 11px; color: #7d8699; }
+
+  .stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow: hidden;
+  }
+  /* Marco Samsung A54: 412x915 CSS px de pantalla + bisel */
+  .phone {
+    width: 432px;
+    height: 935px;
+    padding: 10px;
+    background: #1a1a1e;
+    border-radius: 44px;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0,0,0,.55), inset 0 0 0 2px #2c2c33;
+    flex-shrink: 0;
+  }
+  .phone .camera {
+    position: absolute;
+    top: 20px; left: 50%;
+    transform: translateX(-50%);
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: #0a0a0c;
+    box-shadow: inset 0 0 3px #333;
+    z-index: 5;
+  }
+  .phone iframe {
+    width: 412px;
+    height: 915px;
+    border: 0;
+    border-radius: 34px;
+    background: #f5f6fa;
+    display: block;
+  }
+  /* Barra de estado dibujada sobre el iframe */
+  .statusbar {
+    position: absolute;
+    top: 10px; left: 10px; right: 10px;
+    height: 34px;
+    border-radius: 34px 34px 0 0;
+    display: flex; align-items: center;
+    padding: 0 22px;
+    font-size: 12px; font-weight: 700; color: #fff;
+    pointer-events: none;
+    z-index: 4;
+    background: transparent;
+  }
+  .statusbar .time { flex: 1; }
+  .statusbar svg { width: 16px; height: 16px; margin-left: 5px; }
+</style>
+</head>
+<body>
+  <div class="mk-toolbar">
+    <span class="mk-brand">CONEX<b> · mokup-app</b></span>
+    <nav class="mk-nav" id="mkNav"></nav>
+    <span class="mk-size">Samsung A54 · 412×915</span>
+  </div>
+
+  <div class="stage">
+    <div class="phone" id="phone">
+      <div class="camera"></div>
+      <div class="statusbar">
+        <span class="time">9:41</span>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 17h4v4H2zM7 13h4v8H7zM12 9h4v12h-4zM17 5h4v16h-4z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7 3 2.5 5 0 8l12 13L24 8c-2.5-3-7-5-12-5z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      </div>
+      <iframe id="screen" src="screens/inicio.html" title="Pantalla"></iframe>
+    </div>
+  </div>
+
+<script>
+  // Pantallas del mockup: agregar aqui cada nueva
+  const SCREENS = [
+    { id: 'inicio',    file: 'screens/inicio.html',    label: 'Inicio' },
+    { id: 'mensajes',  file: 'screens/mensajes.html',  label: 'Mensajes (Chat)' },
+    { id: 'categorias',file: 'screens/categorias.html',label: 'Categorías' },
+    { id: 'servicios', file: 'screens/servicios.html', label: 'Servicios' },
+    { id: 'buscar',    file: 'screens/buscar.html',    label: 'Buscar' },
+  ];
+  const nav = document.getElementById('mkNav');
+  const frame = document.getElementById('screen');
+  const phone = document.getElementById('phone');
+
+  function goToScreen(screenId) {
+    const s = SCREENS.find(x => x.id === screenId);
+    if (!s) return;
+    frame.src = s.file;
+    nav.querySelectorAll('a').forEach(x => {
+      x.classList.toggle('on', x.getAttribute('href') === '#' + s.id);
+    });
+  }
+
+  window.addEventListener('message', (ev) => {
+    if (ev.data && ev.data.goto) {
+      goToScreen(ev.data.goto);
+    }
+  });
+
+  SCREENS.forEach((s, i) => {
+    const a = document.createElement('a');
+    a.href = '#' + s.id;
+    a.textContent = s.label;
+    a.onclick = (e) => {
+      e.preventDefault();
+      goToScreen(s.id);
+    };
+    if (i === 0) a.classList.add('on');
+    nav.appendChild(a);
+  });
+
+  // Escala el telefono para que siempre entre en la ventana
+  function fit() {
+    const s = Math.min((innerHeight - 120) / 935, (innerWidth - 40) / 432, 1);
+    phone.style.transform = `scale(${s})`;
+    phone.style.transformOrigin = 'center center';
+    document.querySelector('.stage').style.height = 'auto';
+  }
+  addEventListener('resize', fit);
+  fit();
+</script>
+</body>
+</html>
