@@ -153,8 +153,8 @@ export const serviciosApi = {
     return api<{ data: any[]; meta: any }>(`/servicios?${qs.toString()}`);
   },
   // Solicitud de contacto: el prestador ve tus datos solo si acepta
-  contactar: (id: number, data: { nombre: string; telefono: string; mensaje?: string }) =>
-    api<{ message: string }>(`/servicios/${id}/contacto`, { method: 'POST', body: data }),
+  contactar: (id: number, data: { nombre: string; telefono: string; mensaje?: string; precio_propuesto?: number }) =>
+    api<{ message: string; contacto_id?: number }>(`/servicios/${id}/contacto`, { method: 'POST', body: data }),
 };
 
 export interface CandidatoDashboard {

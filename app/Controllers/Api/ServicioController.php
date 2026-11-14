@@ -118,14 +118,15 @@ class ServicioController extends BaseApiController
      * POST /api/servicios/:id/contacto
      * Solicitud de contacto al prestador (misma logica que la web):
      * el telefono del cliente solo se revela si el prestador acepta.
-     * Body: { nombre, telefono, mensaje? }
+     * Body: { nombre, telefono, mensaje?, precio_propuesto? }
      */
     public function contactar($id = null)
     {
         if ($res = $this->validateApi([
-            'nombre'   => 'required|min_length[2]|max_length[120]',
-            'telefono' => 'required|min_length[7]|max_length[30]',
-            'mensaje'  => 'permit_empty|max_length[500]',
+            'nombre'           => 'required|min_length[2]|max_length[120]',
+            'telefono'         => 'required|min_length[7]|max_length[30]',
+            'mensaje'          => 'permit_empty|max_length[500]',
+            'precio_propuesto' => 'permit_empty|numeric',
         ])) {
             return $res;
         }
@@ -164,22 +165,48 @@ class ServicioController extends BaseApiController
             return $this->fail('Ya tienes una solicitud pendiente con este prestador.', 409);
         }
 
-        $db->table('srv_contacto')->insert([
+        $authUser = $this->authUser();
+        $precioPropuesto = !empty($data['precio_propuesto']) ? (float)$data['precio_propuesto'] : null;
+        $mensajeTexto = trim($data['mensaje'] ?? '');
+
+        $insertData = [
             'servicio_id' => (int)$id,
-            'user_id'     => $this->authUser()['id'] ?? null,
+            'user_id'     => $authUser['id'] ?? null,
             'nombre'      => trim($data['nombre']),
             'telefono'    => trim($data['telefono']),
-            'mensaje'     => trim($data['mensaje'] ?? ''),
+            'mensaje'     => $mensajeTexto,
             'ip_hash'     => $ipHash,
             'estado'      => 'pendiente',
-        ]);
+        ];
+
+        // Si la tabla soporta precio_propuesto
+        if ($precioPropuesto !== null && $db->fieldExists('precio_propuesto', 'srv_contacto')) {
+            $insertData['precio_propuesto'] = $precioPropuesto;
+        }
+
+        $db->table('srv_contacto')->insert($insertData);
+        $contactoId = $db->insertID();
+
+        // Si hay mensaje inicial y existe srv_contacto_mensaje, registrar el primer mensaje del hilo
+        if (!empty($mensajeTexto) && $db->tableExists('srv_contacto_mensaje')) {
+            $db->table('srv_contacto_mensaje')->insert([
+                'contacto_id'      => (int)$contactoId,
+                'emisor_tipo'      => 'cliente',
+                'emisor_nombre'    => trim($data['nombre']),
+                'mensaje'          => $mensajeTexto,
+                'precio_propuesto' => $precioPropuesto,
+                'created_at'       => date('Y-m-d H:i:s'),
+            ]);
+        }
+
         $db->table('srv_servicio')
             ->where('id', (int)$id)
             ->set('contactos', 'contactos+1', false)
             ->update();
 
         return $this->ok([
-            'message' => 'Solicitud enviada. El prestador vera tus datos si la acepta.',
+            'message'     => 'Solicitud enviada. El prestador vera tus datos si la acepta.',
+            'contacto_id' => $contactoId,
         ], 201);
     }
 }

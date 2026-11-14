@@ -12,7 +12,7 @@ import {
   filterOutline, locationOutline, navigateOutline,
   chevronForward, businessOutline, cashOutline, closeOutline,
   mapOutline, listOutline, appsOutline, searchOutline, constructOutline,
-  chatbubbleOutline,
+  chatbubbleOutline, chatbubbleEllipsesOutline,
 } from 'ionicons/icons';
 import { Geolocation } from '@capacitor/geolocation';
 import { CAT_STYLES, catIcon } from '../utils/categoriaIcons';
@@ -20,6 +20,7 @@ import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { vacantesApi, serviciosApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { ChatContactModal } from '../components/ChatContactModal';
 import '../theme/app.css';
 import '../theme/buscar.css';
 
@@ -63,6 +64,7 @@ const Buscar: React.FC = () => {
     tipo: 'vacante' | 'servicio';
     data: any;
   } | null>(null);
+  const [prestadorChat, setPrestadorChat] = useState<any | null>(null);
   const [presentToast] = useIonToast();
   const [presentAlert] = useIonAlert();
   const { user } = useAuth();
@@ -199,51 +201,9 @@ const Buscar: React.FC = () => {
     (e.target as HTMLIonInfiniteScrollElement).complete();
   };
 
-  // Contacto al prestador: el telefono solo se revela si el prestador acepta
+  // Contacto al prestador: abre la ventana de chat estilo Messenger
   const contactar = (s: any) => {
-    presentAlert({
-      header: `Contactar a ${s.nombre_publico}`,
-      message: 'Tus datos solo se comparten con el prestador si acepta tu solicitud.',
-      inputs: [
-        {
-          name: 'nombre', type: 'text', placeholder: 'Tu nombre',
-          value: `${user?.nombre ?? ''} ${user?.apellido ?? ''}`.trim(),
-        },
-        {
-          name: 'telefono', type: 'tel', placeholder: 'Tu telefono',
-          value: user?.telefono ?? '',
-        },
-        {
-          name: 'mensaje', type: 'textarea',
-          placeholder: 'Que necesitas? (ej: revisar la instalacion electrica)',
-        },
-      ],
-      buttons: [
-        'Cancelar',
-        {
-          text: 'Enviar solicitud',
-          handler: async (d: any) => {
-            const nombre = (d?.nombre || '').trim();
-            const telefono = (d?.telefono || '').trim();
-            if (nombre.length < 2 || telefono.length < 7) {
-              presentToast({ message: 'Completa tu nombre y telefono', duration: 2200, color: 'warning' });
-              return false;
-            }
-            try {
-              const res = await serviciosApi.contactar(s.id, {
-                nombre, telefono, mensaje: (d?.mensaje || '').trim(),
-              });
-              presentToast({ message: res.message || 'Solicitud enviada', duration: 2800, color: 'success' });
-            } catch (err: any) {
-              // eslint-disable-next-line no-console
-              console.warn('contacto error:', err);
-              presentToast({ message: err?.error || 'No se pudo enviar la solicitud', duration: 2800, color: 'danger' });
-            }
-            return true;
-          },
-        },
-      ],
-    });
+    setPrestadorChat(s);
   };
 
   // ---------- Mapa (Leaflet + OSM) ----------
@@ -580,11 +540,12 @@ const Buscar: React.FC = () => {
                         : 'Precio a convenir'}
                     </span>
                     <button
-                      className="cx-map-card-btn btn-cta"
+                      className="cx-chat-icon-btn"
+                      title={`Chatear con ${selectedItem.data.nombre_publico}`}
                       onClick={() => contactar(selectedItem.data)}
+                      aria-label="Abrir chat tipo Messenger"
                     >
-                      <IonIcon icon={chatbubbleOutline} />
-                      Contactar
+                      <IonIcon icon={chatbubbleEllipsesOutline} />
                     </button>
                   </div>
                 </div>
@@ -633,14 +594,15 @@ const Buscar: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <IonButton
-                        size="small"
-                        className="plan-cta"
+                      <button
+                        type="button"
+                        className="cx-chat-bubble-btn"
+                        title={`Chatear con ${s.nombre_publico}`}
                         onClick={e => { e.stopPropagation(); contactar(s); }}
+                        aria-label="Chatear con prestador"
                       >
-                        <IonIcon icon={chatbubbleOutline} slot="start" />
-                        Contactar
-                      </IonButton>
+                        <IonIcon icon={chatbubbleEllipsesOutline} />
+                      </button>
                     </div>
                   </IonCardContent>
                 </IonCard>
@@ -825,6 +787,13 @@ const Buscar: React.FC = () => {
           </button>
         </div>
       </IonModal>
+
+      {/* Sheet Modal de Chat tipo Messenger para contactar al prestador */}
+      <ChatContactModal
+        prestador={prestadorChat}
+        isOpen={!!prestadorChat}
+        onClose={() => setPrestadorChat(null)}
+      />
     </IonPage>
   );
 };

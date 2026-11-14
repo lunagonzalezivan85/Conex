@@ -10,11 +10,12 @@ import {
   briefcaseOutline, peopleOutline,
   locationOutline, timeOutline, chevronForward,
   searchOutline, notificationsOutline, star, cashOutline,
-  personOutline, shieldCheckmark,
+  personOutline, shieldCheckmark, chatbubbleEllipsesOutline,
 } from 'ionicons/icons';
 import { useAuth } from '../context/AuthContext';
 import { empresaApi, serviciosApi, vacantesApi } from '../services/api';
 import { catIcon } from '../utils/categoriaIcons';
+import { ChatContactModal } from '../components/ChatContactModal';
 import '../theme/app.css';
 
 const Dashboard: React.FC = () => {
@@ -28,6 +29,7 @@ const Dashboard: React.FC = () => {
   const [query, setQuery] = useState('');
   const [categorias, setCategorias] = useState<any[]>([]);
   const [prestadores, setPrestadores] = useState<any[]>([]);
+  const [prestadorChat, setPrestadorChat] = useState<any | null>(null);
 
   const load = async () => {
     try {
@@ -74,55 +76,9 @@ const Dashboard: React.FC = () => {
     router.push(`/app/buscar?q=${encodeURIComponent(query.trim())}`);
   };
 
+  // Contactar al prestador: abre la ventana modal de chat tipo Messenger
   const contactarPrestador = (s: any) => {
-    presentAlert({
-      header: `Contactar a ${s.nombre_publico}`,
-      message: `${s.oficio} · Tus datos solo se comparten si el trabajador acepta la solicitud.`,
-      inputs: [
-        {
-          name: 'nombre',
-          type: 'text',
-          placeholder: 'Tu nombre',
-          value: `${user?.nombre ?? ''} ${user?.apellido ?? ''}`.trim(),
-        },
-        {
-          name: 'telefono',
-          type: 'tel',
-          placeholder: 'Tu teléfono',
-          value: user?.telefono ?? '',
-        },
-        {
-          name: 'mensaje',
-          type: 'textarea',
-          placeholder: '¿Qué trabajo necesitas realizar?',
-        },
-      ],
-      buttons: [
-        'Cancelar',
-        {
-          text: 'Enviar solicitud',
-          handler: async (d: any) => {
-            const nombre = (d?.nombre || '').trim();
-            const telefono = (d?.telefono || '').trim();
-            if (nombre.length < 2 || telefono.length < 7) {
-              presentToast({ message: 'Completa tu nombre y teléfono', duration: 2200, color: 'warning' });
-              return false;
-            }
-            try {
-              const res = await serviciosApi.contactar(s.id, {
-                nombre,
-                telefono,
-                mensaje: (d?.mensaje || '').trim(),
-              });
-              presentToast({ message: res.message || 'Solicitud enviada', duration: 2800, color: 'success' });
-            } catch (err: any) {
-              presentToast({ message: err?.error || 'No se pudo enviar la solicitud', duration: 2800, color: 'danger' });
-            }
-            return true;
-          },
-        },
-      ],
-    });
+    setPrestadorChat(s);
   };
 
   const firstName = user?.nombre?.split(' ')[0] || 'Usuario';
@@ -315,49 +271,63 @@ const Dashboard: React.FC = () => {
                 ) : (
                   <div className="cx-workers-carousel">
                     {prestadores.map((s: any) => (
-                      <button
+                      <div
                         key={s.id}
-                        type="button"
-                        className="cx-worker-card"
-                        onClick={() => contactarPrestador(s)}
+                        className="cx-worker-card-wrap"
+                        style={{ position: 'relative' }}
                       >
-                        <div className="cx-worker-photo">
-                          {s.avatar_url ? (
-                            <img src={s.avatar_url} alt={s.nombre_publico} loading="lazy" />
-                          ) : (
-                            <div className="cx-worker-fallback">
-                              {(s.nombre_publico || s.oficio || 'T')[0]}
+                        <button
+                          type="button"
+                          className="cx-worker-card"
+                          onClick={() => contactarPrestador(s)}
+                        >
+                          <div className="cx-worker-photo">
+                            {s.avatar_url ? (
+                              <img src={s.avatar_url} alt={s.nombre_publico} loading="lazy" />
+                            ) : (
+                              <div className="cx-worker-fallback">
+                                {(s.nombre_publico || s.oficio || 'T')[0]}
+                              </div>
+                            )}
+                          </div>
+                          <div className="cx-worker-body">
+                            <span className={`cx-disp-pill ${s.disponible === 1 ? 'on' : 'ready'}`}>
+                              <span className="cx-disp-dot" />
+                              Disponible
+                            </span>
+
+                            <div className="cx-worker-title-row">
+                              <div className="cx-worker-name">{s.nombre_publico}</div>
+                              <IonIcon icon={chevronForward} className="cx-worker-chev" />
                             </div>
-                          )}
-                        </div>
-                        <div className="cx-worker-body">
-                          <span className={`cx-disp-pill ${s.disponible === 1 ? 'on' : 'ready'}`}>
-                            <span className="cx-disp-dot" />
-                            Disponible
-                          </span>
+                            <div className="cx-worker-role">{s.oficio}</div>
 
-                          <div className="cx-worker-title-row">
-                            <div className="cx-worker-name">{s.nombre_publico}</div>
-                            <IonIcon icon={chevronForward} className="cx-worker-chev" />
-                          </div>
-                          <div className="cx-worker-role">{s.oficio}</div>
+                            <div className="cx-worker-rating">
+                              <IonIcon icon={s.verificado ? shieldCheckmark : star} className="cx-star-icon" />
+                              <strong>{s.verificado ? '4.9' : '4.8'}</strong>
+                              <span>({Number(s.contactos || 0) + 12})</span>
+                            </div>
 
-                          <div className="cx-worker-rating">
-                            <IonIcon icon={s.verificado ? shieldCheckmark : star} className="cx-star-icon" />
-                            <strong>{s.verificado ? '4.9' : '4.8'}</strong>
-                            <span>({Number(s.contactos || 0) + 12})</span>
+                            <div className="cx-worker-meta">
+                              <IonIcon icon={locationOutline} />
+                              <span>{s.ciudad || s.zona || 'Managua'}</span>
+                            </div>
+                            <div className="cx-worker-meta">
+                              <IonIcon icon={briefcaseOutline} />
+                              <span>{s.experiencia_label || 'Experiencia verificada'}</span>
+                            </div>
                           </div>
-
-                          <div className="cx-worker-meta">
-                            <IonIcon icon={locationOutline} />
-                            <span>{s.ciudad || s.zona || 'Managua'}</span>
-                          </div>
-                          <div className="cx-worker-meta">
-                            <IonIcon icon={briefcaseOutline} />
-                            <span>{s.experiencia_label || 'Experiencia verificada'}</span>
-                          </div>
-                        </div>
-                      </button>
+                        </button>
+                        <button
+                          type="button"
+                          className="cx-worker-chat-btn"
+                          title={`Chatear con ${s.nombre_publico}`}
+                          onClick={(e) => { e.stopPropagation(); contactarPrestador(s); }}
+                          aria-label="Abrir chat tipo Messenger"
+                        >
+                          <IonIcon icon={chatbubbleEllipsesOutline} />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -532,6 +502,13 @@ const Dashboard: React.FC = () => {
           )}
         </div>
       </IonContent>
+
+      {/* Sheet Modal de Chat tipo Messenger para contactar al trabajador */}
+      <ChatContactModal
+        prestador={prestadorChat}
+        isOpen={!!prestadorChat}
+        onClose={() => setPrestadorChat(null)}
+      />
     </IonPage>
   );
 };
