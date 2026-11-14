@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
                 <span className="cx-w-orange">E</span>
                 <span className="cx-w-turq">X</span>
               </div>
-              <span className="cx-brand-sub">UNIENDO A LOS TRABAJADORES</span>
+              <span className="cx-brand-sub">CONECTANDO TALENTO CON OPORTUNIDADES</span>
             </div>
 
             <div className="cx-header-actions">

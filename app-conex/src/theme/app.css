@@ -513,12 +513,13 @@ button.hero-slide { cursor: pointer; }
 }
 
 .cx-brand-sub {
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   color: var(--cx-navy, #1B2A4A);
   margin-top: 2px;
   opacity: 0.85;
+  white-space: nowrap;
 }
 
 @media (prefers-color-scheme: dark) {
