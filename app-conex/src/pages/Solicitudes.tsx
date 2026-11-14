@@ -108,6 +108,123 @@ const Solicitudes: React.FC = () => {
     return num.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
+  interface ThreadMessage {
+    id: string | number;
+    emisor_tipo: 'cliente' | 'prestador';
+    emisor_nombre?: string;
+    mensaje: string;
+    precio_propuesto?: number | null;
+    created_at?: string;
+  }
+
+  // Prepara y deduplica el historial de mensajes de la conversación
+  const getThreadMessages = (s: any, rolContexto: 'recibidas' | 'enviadas'): ThreadMessage[] => {
+    const raw: ThreadMessage[] = [];
+    const initialText = (s.mensaje || '').trim();
+    const initialPrice = s.precio_propuesto ? Number(s.precio_propuesto) : null;
+
+    if (Array.isArray(s.mensajes) && s.mensajes.length > 0) {
+      s.mensajes.forEach((m: any, idx: number) => {
+        const msgText = (m.mensaje || '').trim();
+        if (!msgText && !m.precio_propuesto) return;
+        raw.push({
+          id: m.id || `msg-${idx}`,
+          emisor_tipo: m.emisor_tipo === 'prestador' ? 'prestador' : 'cliente',
+          emisor_nombre: m.emisor_nombre || (m.emisor_tipo === 'cliente' ? (s.nombre || 'Cliente') : (s.prestador_nombre || 'Prestador')),
+          mensaje: msgText,
+          precio_propuesto: m.precio_propuesto ? Number(m.precio_propuesto) : null,
+          created_at: m.created_at,
+        });
+      });
+
+      // Si el texto inicial no está en el array devuelto por el backend, anteponerlo
+      const yaEstaInicial = initialText && raw.some(
+        m => m.emisor_tipo === 'cliente' && m.mensaje.toLowerCase() === initialText.toLowerCase()
+      );
+      if (!yaEstaInicial && initialText) {
+        raw.unshift({
+          id: `initial-${s.id}`,
+          emisor_tipo: 'cliente',
+          emisor_nombre: s.nombre || 'Cliente',
+          mensaje: initialText,
+          precio_propuesto: initialPrice,
+          created_at: s.created_at,
+        });
+      }
+    } else {
+      if (initialText) {
+        raw.push({
+          id: `initial-${s.id}`,
+          emisor_tipo: 'cliente',
+          emisor_nombre: s.nombre || 'Cliente',
+          mensaje: initialText,
+          precio_propuesto: initialPrice,
+          created_at: s.created_at,
+        });
+      }
+      if (s.respuesta && s.respuesta.trim()) {
+        raw.push({
+          id: `resp-${s.id}`,
+          emisor_tipo: 'prestador',
+          emisor_nombre: s.prestador_nombre || 'Prestador',
+          mensaje: s.respuesta.trim(),
+          precio_propuesto: s.precio_propuesto ? Number(s.precio_propuesto) : null,
+          created_at: s.fecha_respuesta || s.updated_at,
+        });
+      }
+    }
+
+    // Deduplicación defensiva estricta: omitir mensajes idénticos consecutivos del mismo emisor
+    const deduped: ThreadMessage[] = [];
+    raw.forEach((m) => {
+      if (deduped.length === 0) {
+        deduped.push(m);
+      } else {
+        const prev = deduped[deduped.length - 1];
+        const sameSender = prev.emisor_tipo === m.emisor_tipo;
+        const sameText = prev.mensaje.trim().toLowerCase() === m.mensaje.trim().toLowerCase();
+        const samePrice = (prev.precio_propuesto || null) === (m.precio_propuesto || null);
+        if (!(sameSender && sameText && samePrice)) {
+          deduped.push(m);
+        }
+      }
+    });
+
+    return deduped;
+  };
+
+  // Componente de oferta y negociación dedicado (sin solapamiento visual)
+  const renderDealCard = (
+    precio: number | null | undefined,
+    isMe: boolean,
+    estado: string,
+    tituloOverride?: string
+  ) => {
+    if (!precio) return null;
+    return (
+      <div className={`cx-deal-card ${isMe ? 'outgoing' : 'incoming'}`}>
+        <div className="cx-deal-header">
+          <div className="cx-deal-title-box">
+            <span className="cx-deal-icon">💰</span>
+            <span>{tituloOverride || (isMe ? 'Tu Contraoferta' : 'Cotización Propuesta')}</span>
+          </div>
+          <span className={`cx-deal-status ${estado}`}>
+            {estado === 'aceptado' ? 'Aceptada' : estado === 'rechazado' ? 'Rechazada' : 'En Negociación'}
+          </span>
+        </div>
+        <div className="cx-deal-amount-box">
+          <span className="cx-deal-currency">C$</span>
+          <span className="cx-deal-amount">{formatPrice(precio)}</span>
+        </div>
+        <div className="cx-deal-footer">
+          {isMe
+            ? 'Propuesta económica enviada en esta conversación.'
+            : 'Monto presupuestado para acordar la realización del servicio.'}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <IonPage>
       <IonHeader translucent>
@@ -125,17 +242,28 @@ const Solicitudes: React.FC = () => {
           <IonSegment
             value={tab}
             onIonChange={e => setTab(e.detail.value as any)}
-            className="dash-segment"
+            className="dash-segment msg-tabs-segment"
+            scrollable={true}
+            mode="md"
           >
             <IonSegmentButton value="recibidas">
-              <IonLabel>Recibidas ({recibidas.length})</IonLabel>
+              <IonLabel className="msg-tab-label">
+                <span>Recibidas</span>
+                <span className="msg-tab-count">{recibidas.length}</span>
+              </IonLabel>
             </IonSegmentButton>
             <IonSegmentButton value="enviadas">
-              <IonLabel>Enviadas ({enviadas.length})</IonLabel>
+              <IonLabel className="msg-tab-label">
+                <span>Enviadas</span>
+                <span className="msg-tab-count">{enviadas.length}</span>
+              </IonLabel>
             </IonSegmentButton>
             {user?.role === 'candidato' && (
               <IonSegmentButton value="postulaciones">
-                <IonLabel>Empleos ({postulaciones.length})</IonLabel>
+                <IonLabel className="msg-tab-label">
+                  <span>Empleos</span>
+                  <span className="msg-tab-count">{postulaciones.length}</span>
+                </IonLabel>
               </IonSegmentButton>
             )}
           </IonSegment>
@@ -186,65 +314,40 @@ const Solicitudes: React.FC = () => {
                           </IonBadge>
                         </div>
 
-                        {/* Conversación Messenger ABAJO */}
+                        {/* Conversación Messenger ABAJO (Sin Duplicados ni Solapamientos) */}
                         <div className="msg-chat-container">
-                          {/* Mensaje original del cliente */}
-                          {s.mensaje ? (
-                            <div className="msg-bubble-row incoming">
-                              <span className="msg-bubble-author">{s.nombre || 'Cliente'}</span>
-                              <div className="msg-bubble incoming">
-                                "{s.mensaje}"
-                                <span className="msg-bubble-time">{s.created_at ? s.created_at.slice(11, 16) : ''}</span>
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="msg-bubble-row incoming">
-                              <span className="msg-bubble-author">{s.nombre || 'Cliente'}</span>
-                              <div className="msg-bubble incoming" style={{ fontStyle: 'italic', opacity: 0.85 }}>
-                                "Solicito contacto para coordinar trabajo de {s.oficio}."
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Mensajes del hilo / negociación */}
-                          {Array.isArray(s.mensajes) && s.mensajes.length > 0 ? (
-                            s.mensajes.map((m: any, idx: number) => {
-                              const isMe = m.emisor_tipo === 'prestador';
+                          {(() => {
+                            const thread = getThreadMessages(s, 'recibidas');
+                            if (thread.length === 0) {
                               return (
-                                <div key={m.id || idx} className={`msg-bubble-row ${isMe ? 'outgoing' : 'incoming'}`}>
-                                  <span className="msg-bubble-author">
-                                    {isMe ? 'Tú (Respuesta / Oferta)' : (m.emisor_nombre || s.nombre)}
-                                  </span>
-                                  <div className={`msg-bubble ${isMe ? 'outgoing' : 'incoming'}`}>
-                                    {m.mensaje}
-                                    {m.precio_propuesto && (
-                                      <div className="msg-quote-pill">
-                                        💰 {isMe ? 'Cotización' : 'Oferta'}: C$ {formatPrice(m.precio_propuesto)}
-                                      </div>
-                                    )}
-                                    {m.created_at && (
-                                      <span className="msg-bubble-time">{m.created_at.slice(11, 16)}</span>
-                                    )}
+                                <div className="msg-bubble-row incoming">
+                                  <span className="msg-bubble-author">{s.nombre || 'Cliente'}</span>
+                                  <div className="msg-bubble incoming" style={{ fontStyle: 'italic', opacity: 0.85 }}>
+                                    "Solicito contacto para coordinar trabajo de {s.oficio}."
                                   </div>
                                 </div>
                               );
-                            })
-                          ) : s.respuesta ? (
-                            <div className="msg-bubble-row outgoing">
-                              <span className="msg-bubble-author">Tú (Respuesta / Oferta)</span>
-                              <div className="msg-bubble outgoing">
-                                {s.respuesta}
-                                {s.precio_propuesto && (
-                                  <div className="msg-quote-pill">
-                                    💰 Cotización propuesta: C$ {formatPrice(s.precio_propuesto)}
-                                  </div>
-                                )}
-                                {s.fecha_respuesta && (
-                                  <span className="msg-bubble-time">{s.fecha_respuesta.slice(11, 16)}</span>
-                                )}
-                              </div>
-                            </div>
-                          ) : null}
+                            }
+                            return thread.map((m) => {
+                              const isMe = m.emisor_tipo === 'prestador';
+                              return (
+                                <div key={m.id} className={`msg-bubble-row ${isMe ? 'outgoing' : 'incoming'}`}>
+                                  <span className="msg-bubble-author">
+                                    {isMe ? 'Tú (Respuesta / Oferta)' : (m.emisor_nombre || s.nombre || 'Cliente')}
+                                  </span>
+                                  {m.mensaje && (
+                                    <div className={`msg-bubble ${isMe ? 'outgoing' : 'incoming'}`}>
+                                      "{m.mensaje}"
+                                      {m.created_at && (
+                                        <span className="msg-bubble-time">{m.created_at.slice(11, 16)}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                  {renderDealCard(m.precio_propuesto, isMe, s.estado, isMe ? 'Tu Cotización' : 'Oferta del Cliente')}
+                                </div>
+                              );
+                            });
+                          })()}
                         </div>
 
                         {/* Panel de Respuesta y Negociación en la App */}
@@ -306,11 +409,11 @@ const Solicitudes: React.FC = () => {
                             </div>
                           </div>
                         ) : (
-                          <div className="sol-actions" style={{ flexWrap: 'wrap', marginTop: '10px' }}>
+                          <div className="sol-actions" style={{ flexWrap: 'wrap', marginTop: '12px', width: '100%', gap: '8px' }}>
                             <IonButton
-                              size="small"
+                              expand="block"
                               fill="solid"
-                              color="primary"
+                              className="cx-cta-chat-btn"
                               onClick={() => {
                                 setReplyingId(s.id);
                                 setReplyText(s.respuesta || '');
@@ -318,14 +421,15 @@ const Solicitudes: React.FC = () => {
                               }}
                             >
                               <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                              {hasHistory ? 'Continuar negociación' : 'Responder / Negociar'}
+                              {hasHistory ? 'Continuar Negociación / Responder' : 'Responder en el Chat'}
                             </IonButton>
 
                             {s.estado === 'pendiente' && (
-                              <>
+                              <div style={{ display: 'flex', gap: '8px', width: '100%', marginTop: '4px' }}>
                                 <IonButton
                                   size="small"
                                   className="sol-btn-accept"
+                                  style={{ flex: 1 }}
                                   disabled={actingId === s.id}
                                   onClick={() => responder(s.id, 'aceptar')}
                                 >
@@ -336,13 +440,14 @@ const Solicitudes: React.FC = () => {
                                   size="small"
                                   fill="outline"
                                   color="danger"
+                                  style={{ flex: 1 }}
                                   disabled={actingId === s.id}
                                   onClick={() => responder(s.id, 'rechazar')}
                                 >
                                   <IonIcon icon={closeCircleOutline} slot="start" />
                                   Rechazar
                                 </IonButton>
-                              </>
+                              </div>
                             )}
                           </div>
                         )}
@@ -419,62 +524,37 @@ const Solicitudes: React.FC = () => {
                           </IonBadge>
                         </div>
 
-                        {/* Conversación Messenger ABAJO */}
+                        {/* Conversación Messenger ABAJO (Sin Duplicados ni Solapamientos) */}
                         <div className="msg-chat-container">
-                          {/* Mensaje original que envió el usuario */}
-                          {s.mensaje && (
-                            <div className="msg-bubble-row outgoing">
-                              <span className="msg-bubble-author">Tu solicitud</span>
-                              <div className="msg-bubble outgoing">
-                                "{s.mensaje}"
-                                <span className="msg-bubble-time">{s.created_at ? s.created_at.slice(11, 16) : ''}</span>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Respuestas del prestador o hilo de negociación */}
-                          {Array.isArray(s.mensajes) && s.mensajes.length > 0 ? (
-                            s.mensajes.map((m: any, idx: number) => {
+                          {(() => {
+                            const thread = getThreadMessages(s, 'enviadas');
+                            if (thread.length === 0) {
+                              return (
+                                <p style={{ fontStyle: 'italic', fontSize: '12.5px', color: 'var(--cx-muted)', margin: '6px 0' }}>
+                                  Esperando respuesta del prestador...
+                                </p>
+                              );
+                            }
+                            return thread.map((m) => {
                               const isMe = m.emisor_tipo === 'cliente';
                               return (
-                                <div key={m.id || idx} className={`msg-bubble-row ${isMe ? 'outgoing' : 'incoming'}`}>
+                                <div key={m.id} className={`msg-bubble-row ${isMe ? 'outgoing' : 'incoming'}`}>
                                   <span className="msg-bubble-author">
-                                    {isMe ? 'Tú' : (m.emisor_nombre || s.prestador_nombre || 'Prestador')}
+                                    {isMe ? 'Tú (Tu solicitud)' : (m.emisor_nombre || s.prestador_nombre || 'Prestador')}
                                   </span>
-                                  <div className={`msg-bubble ${isMe ? 'outgoing' : 'incoming'}`}>
-                                    {m.mensaje}
-                                    {m.precio_propuesto && (
-                                      <div className="msg-quote-pill">
-                                        💰 {isMe ? 'Tu contraoferta' : 'Cotización'}: C$ {formatPrice(m.precio_propuesto)}
-                                      </div>
-                                    )}
-                                    {m.created_at && (
-                                      <span className="msg-bubble-time">{m.created_at.slice(11, 16)}</span>
-                                    )}
-                                  </div>
+                                  {m.mensaje && (
+                                    <div className={`msg-bubble ${isMe ? 'outgoing' : 'incoming'}`}>
+                                      "{m.mensaje}"
+                                      {m.created_at && (
+                                        <span className="msg-bubble-time">{m.created_at.slice(11, 16)}</span>
+                                      )}
+                                    </div>
+                                  )}
+                                  {renderDealCard(m.precio_propuesto, isMe, s.estado, isMe ? 'Tu Contraoferta' : 'Cotización del Prestador')}
                                 </div>
                               );
-                            })
-                          ) : s.respuesta ? (
-                            <div className="msg-bubble-row incoming">
-                              <span className="msg-bubble-author">{s.prestador_nombre || 'Prestador'} (Respuesta)</span>
-                              <div className="msg-bubble incoming">
-                                {s.respuesta}
-                                {s.precio_propuesto && (
-                                  <div className="msg-quote-pill">
-                                    💰 Cotización: C$ {formatPrice(s.precio_propuesto)}
-                                  </div>
-                                )}
-                                {s.fecha_respuesta && (
-                                  <span className="msg-bubble-time">{s.fecha_respuesta.slice(11, 16)}</span>
-                                )}
-                              </div>
-                            </div>
-                          ) : (
-                            <p style={{ fontStyle: 'italic', fontSize: '12.5px', color: 'var(--cx-muted)', margin: '6px 0' }}>
-                              Esperando respuesta del prestador...
-                            </p>
-                          )}
+                            });
+                          })()}
                         </div>
 
                         {/* Responder / Contraofertar desde el cliente */}
@@ -525,11 +605,11 @@ const Solicitudes: React.FC = () => {
                             </div>
                           </div>
                         ) : (
-                          <div className="sol-actions" style={{ flexWrap: 'wrap', marginTop: '10px' }}>
+                          <div className="sol-actions" style={{ flexWrap: 'wrap', marginTop: '12px', width: '100%' }}>
                             <IonButton
-                              size="small"
-                              fill="outline"
-                              color="primary"
+                              expand="block"
+                              fill="solid"
+                              className="cx-cta-chat-btn"
                               onClick={() => {
                                 setReplyingId(s.id);
                                 setReplyText('');
@@ -537,7 +617,7 @@ const Solicitudes: React.FC = () => {
                               }}
                             >
                               <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                              {hasHistory ? 'Responder en el chat' : 'Enviar mensaje al prestador'}
+                              {hasHistory ? 'Responder en el Chat / Negociar' : 'Enviar Mensaje al Prestador'}
                             </IonButton>
                           </div>
                         )}

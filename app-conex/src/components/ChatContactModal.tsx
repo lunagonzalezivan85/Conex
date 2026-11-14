@@ -241,13 +241,26 @@ export const ChatContactModal: React.FC<ChatContactModalProps> = ({
               <span className="msg-bubble-author">Tú (Solicitud enviada)</span>
               <div className="msg-bubble outgoing">
                 "{sentMessage}"
-                {sentPrice && (
-                  <div className="msg-quote-pill">
-                    💰 Presupuesto estimado: C$ {Number(sentPrice).toLocaleString()}
-                  </div>
-                )}
                 <span className="msg-bubble-time">Enviado hace un momento</span>
               </div>
+              {sentPrice && (
+                <div className="cx-deal-card outgoing">
+                  <div className="cx-deal-header">
+                    <div className="cx-deal-title-box">
+                      <span className="cx-deal-icon">💰</span>
+                      <span>Tu Presupuesto Estimado</span>
+                    </div>
+                    <span className="cx-deal-status pendiente">Pendiente</span>
+                  </div>
+                  <div className="cx-deal-amount-box">
+                    <span className="cx-deal-currency">C$</span>
+                    <span className="cx-deal-amount">{Number(sentPrice).toLocaleString('es-NI', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="cx-deal-footer">
+                    Propuesta inicial enviada al prestador para cotizar el trabajo.
+                  </div>
+                </div>
+              )}
             </div>
           )}
 

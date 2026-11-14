@@ -9,21 +9,21 @@
   .msg-list {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
     padding-top: 8px;
   }
   .msg-card {
     background: #ffffff;
     border-radius: 18px;
-    padding: 14px 16px;
-    box-shadow: 0 4px 16px rgba(0,0,0,.04);
+    padding: 16px;
+    box-shadow: 0 4px 18px rgba(0,0,0,.05);
     border: 1px solid var(--cx-border);
   }
   .msg-header {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding-bottom: 10px;
+    padding-bottom: 12px;
     border-bottom: 1px solid #f1f5f9;
   }
   .msg-avatar-wrap {
@@ -62,7 +62,7 @@
     min-width: 0;
   }
   .msg-name {
-    font-size: 14.5px;
+    font-size: 15px;
     font-weight: 800;
     color: var(--cx-text);
   }
@@ -91,8 +91,8 @@
   .msg-chat-flow {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    padding: 12px 0 8px;
+    gap: 10px;
+    padding: 14px 0 10px;
   }
   .bubble-wrap {
     display: flex;
@@ -101,100 +101,147 @@
   .bubble-wrap.in { align-items: flex-start; }
   .bubble-wrap.out { align-items: flex-end; }
   .bubble-author {
-    font-size: 10.5px;
+    font-size: 11px;
     font-weight: 700;
-    margin-bottom: 3px;
+    margin-bottom: 4px;
     color: var(--cx-muted);
     padding: 0 4px;
   }
   .bubble {
     max-width: 88%;
-    padding: 9px 13px;
-    font-size: 13px;
+    padding: 10px 14px;
+    font-size: 13.5px;
     line-height: 1.4;
   }
   .bubble.in {
     background: #f1f5f9;
     color: #0f172a;
-    border-radius: 16px 16px 16px 4px;
+    border-radius: 18px 18px 18px 4px;
   }
   .bubble.out {
     background: linear-gradient(135deg, #1B2A4A, #1e3a8a);
     color: #ffffff;
-    border-radius: 16px 16px 4px 16px;
-  }
-  .quote-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 6px;
-    padding: 4px 9px;
-    border-radius: 7px;
-    font-size: 11.5px;
-    font-weight: 800;
-  }
-  .bubble.out .quote-pill {
-    background: rgba(255,255,255,.16);
-    color: #38bdf8;
-    border: 1px solid rgba(255,255,255,.2);
-  }
-  .bubble.in .quote-pill {
-    background: #e0f2fe;
-    color: #0369a1;
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 2px 8px rgba(27, 42, 74, 0.25);
   }
   .bubble-time {
-    font-size: 9.5px;
+    font-size: 10px;
     opacity: 0.75;
-    margin-top: 3px;
+    margin-top: 4px;
     display: block;
     text-align: right;
   }
 
-  /* Responder & Negociación */
-  .composer {
-    display: none;
-    background: #f8fafc;
-    border: 1px solid var(--cx-border);
-    border-radius: 12px;
-    padding: 10px;
+  /* Tarjeta de Oferta / Negociación Dedicada */
+  .cx-deal-card {
+    width: 100%;
+    max-width: 310px;
     margin-top: 8px;
+    border-radius: 16px;
+    padding: 12px 14px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.05);
+    background: #f8fafc;
   }
-  .composer.open { display: flex; flex-direction: column; gap: 8px; }
-  .composer-title {
-    font-size: 11px;
+  .cx-deal-card.out {
+    border: 1.5px solid #2563EB;
+    border-left: 5px solid #2563EB;
+    align-self: flex-end;
+  }
+  .cx-deal-card.in {
+    border: 1.5px solid #F97316;
+    border-left: 5px solid #F97316;
+    align-self: flex-start;
+  }
+  .cx-deal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
     font-weight: 800;
-    color: var(--cx-orange);
+  }
+  .cx-deal-badge {
+    font-size: 10.5px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 6px;
+    background: #fef3c7;
+    color: #b45309;
+  }
+  .cx-deal-badge.success {
+    background: #dcfce7;
+    color: #15803d;
+  }
+  .cx-deal-amount-box {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+  }
+  .cx-deal-amount {
+    font-size: 21px;
+    font-weight: 900;
+    color: #16a34a;
+    letter-spacing: -0.5px;
+  }
+  .cx-deal-footer {
+    font-size: 11px;
+    color: #64748b;
+    border-top: 1px dashed #cbd5e1;
+    padding-top: 5px;
+  }
+
+  /* Composer de Respuesta */
+  .composer {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 14px;
+    padding: 12px;
+    margin-top: 10px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .composer.open { display: flex; }
+  .composer-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #F97316;
     text-transform: uppercase;
-    letter-spacing: .4px;
   }
   .composer textarea {
     width: 100%;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 8px 10px;
     font-size: 13px;
     resize: none;
     outline: none;
     background: #fff;
     font-family: inherit;
+    box-sizing: border-box;
   }
   .composer input {
     width: 100%;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 7px 10px;
-    font-size: 12.5px;
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 13px;
     outline: none;
     background: #fff;
+    box-sizing: border-box;
   }
   .composer-btns {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
+    margin-top: 4px;
   }
   .btn-c {
-    padding: 7px 12px;
-    border-radius: 8px;
+    padding: 8px 14px;
+    border-radius: 10px;
     border: 0;
     font-size: 12px;
     font-weight: 700;
@@ -207,27 +254,55 @@
   /* Botones principales de acción */
   .msg-actions {
     display: flex;
+    flex-direction: column;
     gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 10px;
+    margin-top: 12px;
+    width: 100%;
   }
-  .btn-action {
+  .btn-action-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    background: linear-gradient(135deg, #1B2A4A, #2563EB);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 11px 16px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+    text-transform: none;
+    box-sizing: border-box;
+    transition: transform 0.15s ease;
+  }
+  .btn-action-cta:active {
+    transform: scale(0.98);
+  }
+  .btn-secondary-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+  .btn-action-sec {
+    flex: 1;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 5px;
-    padding: 7px 13px;
-    border-radius: 9px;
-    border: 0;
+    padding: 8px 12px;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    text-decoration: none;
+    border: none;
   }
-  .btn-action.reply { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; }
-  .btn-action.accept { background: var(--cx-orange); color: #fff; }
-  .btn-action.reject { background: transparent; color: #dc2626; border: 1px solid #fecaca; }
-  .btn-action.phone { background: var(--cx-navy); color: #fff; }
-  .btn-action.wa { background: #25D366; color: #fff; }
+  .btn-action-sec.accept { background: #16A34A; color: #fff; }
+  .btn-action-sec.reject { background: transparent; color: #dc2626; border: 1px solid #fecaca; }
+  .btn-action-sec.phone { background: var(--cx-navy); color: #fff; text-decoration: none; }
+  .btn-action-sec.wa { background: #25D366; color: #fff; text-decoration: none; }
 </style>
 </head>
 <body>
@@ -242,18 +317,27 @@
     </button>
   </header>
 
-  <!-- Segment Tabs -->
+  <!-- Segment Tabs Optimizadas sin Elipsis -->
   <div style="padding: 0 16px;">
-    <div class="seg" style="display:flex;background:#e2e8f0;border-radius:10px;padding:3px;gap:4px;">
-      <button class="on" style="flex:1;border:0;background:#fff;border-radius:8px;padding:7px;font-weight:700;font-size:12px;color:var(--cx-text);">Recibidas (3)</button>
-      <button style="flex:1;border:0;background:transparent;border-radius:8px;padding:7px;font-weight:600;font-size:12px;color:#64748b;">Enviadas (1)</button>
-      <button style="flex:1;border:0;background:transparent;border-radius:8px;padding:7px;font-weight:600;font-size:12px;color:#64748b;">Empleos</button>
+    <div style="display:flex; background:#e2e8f0; border-radius:14px; padding:3px; gap:4px; border:1px solid rgba(0,0,0,0.06);">
+      <button class="on" style="flex:1; border:0; background:#1B2A4A; border-radius:10px; padding:8px 6px; font-weight:700; font-size:12.5px; color:#fff; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <span>Recibidas</span>
+        <span style="background:rgba(255,255,255,0.22); padding:1px 7px; border-radius:999px; font-size:11px; font-weight:800;">3</span>
+      </button>
+      <button style="flex:1; border:0; background:transparent; border-radius:10px; padding:8px 6px; font-weight:700; font-size:12.5px; color:#64748b; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <span>Enviadas</span>
+        <span style="background:rgba(0,0,0,0.07); padding:1px 7px; border-radius:999px; font-size:11px; font-weight:800;">1</span>
+      </button>
+      <button style="flex:1; border:0; background:transparent; border-radius:10px; padding:8px 6px; font-weight:700; font-size:12.5px; color:#64748b; display:flex; align-items:center; justify-content:center; gap:6px;">
+        <span>Empleos</span>
+        <span style="background:rgba(0,0,0,0.07); padding:1px 7px; border-radius:999px; font-size:11px; font-weight:800;">2</span>
+      </button>
     </div>
   </div>
 
   <main class="content">
     <div class="msg-list">
-      <!-- Tarjeta 1: Caso Negociación Activa -->
+      <!-- Tarjeta 1: Caso Negociación Activa con Tarjeta de Oferta Dedicada -->
       <div class="msg-card" id="card1">
         <div class="msg-header">
           <div class="msg-avatar-wrap">
@@ -269,7 +353,7 @@
         </div>
 
         <div class="msg-chat-flow" id="flow1">
-          <!-- Mensaje del cliente -->
+          <!-- Mensaje del cliente (sin duplicación) -->
           <div class="bubble-wrap in">
             <span class="bubble-author">Darwin Siezar (Cliente)</span>
             <div class="bubble in">
@@ -277,20 +361,35 @@
               <span class="bubble-time">10:42 AM</span>
             </div>
           </div>
-          <!-- Respuesta previa con cotización -->
+
+          <!-- Respuesta previa del prestador -->
           <div class="bubble-wrap out">
             <span class="bubble-author">Tú (Respuesta / Oferta)</span>
             <div class="bubble out">
               "Hola Darwin, con gusto te hago el trabajo. Te saldría en C$ 1,800 con pegamento incluido. ¿Iniciamos el viernes?"
-              <div class="quote-pill">💰 Cotización: C$ 1,800.00</div>
               <span class="bubble-time">10:55 AM</span>
+            </div>
+            
+            <!-- Componente de Negociación Dedicado (Tarjeta de Oferta fuera de la burbuja) -->
+            <div class="cx-deal-card out">
+              <div class="cx-deal-header">
+                <span style="color:#2563EB;">💰 Tu Cotización Propuesta</span>
+                <span class="cx-deal-badge">En negociación</span>
+              </div>
+              <div class="cx-deal-amount-box">
+                <span style="font-size:13px;font-weight:700;color:#64748b;">C$</span>
+                <span class="cx-deal-amount">1,800.00</span>
+              </div>
+              <div class="cx-deal-footer">
+                Propuesta económica enviada al cliente para coordinar el inicio del trabajo.
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Compositor de Respuesta / Negociación -->
         <div class="composer" id="comp1">
-          <div class="composer-title">💬 Responder en la negociación</div>
+          <div class="composer-title">💬 Negociación en la App</div>
           <textarea id="txt1" placeholder="Escribe tu contraoferta o acuerdo de trabajo...">Confirmado para el viernes a las 8:00 AM.</textarea>
           <input type="number" id="prc1" placeholder="Cotización acordada C$ (ej: 1800)" value="1800">
           <div class="composer-btns">
@@ -300,26 +399,29 @@
           </div>
         </div>
 
+        <!-- Botón de Acción Principal Sólido -->
         <div class="msg-actions" id="act1">
-          <button class="btn-action reply" onclick="toggleComp(1)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            Continuar negociación
+          <button class="btn-action-cta" onclick="toggleComp(1)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Continuar Negociación / Responder
           </button>
-          <button class="btn-action accept" onclick="aceptarTrabajo(1)">
-            ✓ Aceptar trabajo
-          </button>
+          <div class="btn-secondary-row">
+            <button class="btn-action-sec accept" onclick="aceptarTrabajo(1)">
+              ✓ Aceptar directo
+            </button>
+          </div>
         </div>
 
-        <div id="contact1" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;">
+        <div id="contact1" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;">
           <span style="font-size:12px;font-weight:700;display:block;margin-bottom:6px;color:#15803D;">✓ Trato acordado · Tel: +505 8386 8230</span>
           <div style="display:flex;gap:8px;">
-            <a href="tel:83868230" class="btn-action phone">📞 Llamar</a>
-            <a href="https://wa.me/50583868230" target="_blank" class="btn-action wa">💬 WhatsApp</a>
+            <a href="tel:83868230" class="btn-action-sec phone">📞 Llamar</a>
+            <a href="https://wa.me/50583868230" target="_blank" class="btn-action-sec wa">💬 WhatsApp</a>
           </div>
         </div>
       </div>
 
-      <!-- Tarjeta 2: Nueva Solicitud Pendiente -->
+      <!-- Tarjeta 2: Solicitud con Contraoferta del Cliente -->
       <div class="msg-card" id="card2">
         <div class="msg-header">
           <div class="msg-avatar-wrap">
@@ -338,41 +440,57 @@
           <div class="bubble-wrap in">
             <span class="bubble-author">Iván Luna (Cliente)</span>
             <div class="bubble in">
-              "Necesito que me ayudes con la poda y diseño de los jardines de mi casa."
+              "Hola, quiero saber cuándo puedes venir a revisar el jardín y podar los árboles."
               <span class="bubble-time">3:15 PM</span>
+            </div>
+            <!-- Tarjeta de Contraoferta Dedicada -->
+            <div class="cx-deal-card in">
+              <div class="cx-deal-header">
+                <span style="color:#F97316;">💰 Oferta Propuesta por el Cliente</span>
+                <span class="cx-deal-badge">Pendiente</span>
+              </div>
+              <div class="cx-deal-amount-box">
+                <span style="font-size:13px;font-weight:700;color:#64748b;">C$</span>
+                <span class="cx-deal-amount">2,580.00</span>
+              </div>
+              <div class="cx-deal-footer">
+                Presupuesto estimado propuesto por el cliente para acordar el servicio.
+              </div>
             </div>
           </div>
         </div>
 
         <div class="composer" id="comp2">
-          <div class="composer-title">💬 Enviar cotización y respuesta</div>
+          <div class="composer-title">💬 Enviar respuesta o contraoferta</div>
           <textarea id="txt2" placeholder="Escribe tu respuesta y disponibilidad..."></textarea>
-          <input type="number" id="prc2" placeholder="Proponer precio C$ (ej: 900)">
+          <input type="number" id="prc2" placeholder="Proponer precio C$ (ej: 2580)">
           <div class="composer-btns">
             <button class="btn-c primary" onclick="enviarRespuesta(2)">Enviar propuesta</button>
-            <button class="btn-c success" onclick="aceptarTrabajo(2)">Aceptar directo</button>
+            <button class="btn-c success" onclick="aceptarTrabajo(2)">Aceptar oferta</button>
             <button class="btn-c ghost" onclick="toggleComp(2)">Cancelar</button>
           </div>
         </div>
 
         <div class="msg-actions" id="act2">
-          <button class="btn-action reply" onclick="toggleComp(2)">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            Responder / Negociar
+          <button class="btn-action-cta" onclick="toggleComp(2)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Responder en el Chat
           </button>
-          <button class="btn-action accept" onclick="aceptarTrabajo(2)">
-            ✓ Aceptar directo
-          </button>
-          <button class="btn-action reject" onclick="rechazar(2)">
-            ✕ Rechazar
-          </button>
+          <div class="btn-secondary-row">
+            <button class="btn-action-sec accept" onclick="aceptarTrabajo(2)">
+              ✓ Aceptar directo
+            </button>
+            <button class="btn-action-sec reject" onclick="rechazar(2)">
+              ✕ Rechazar
+            </button>
+          </div>
         </div>
 
-        <div id="contact2" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;">
+        <div id="contact2" style="display:none;margin-top:12px;padding-top:12px;border-top:1px solid #f1f5f9;">
           <span style="font-size:12px;font-weight:700;display:block;margin-bottom:6px;color:#15803D;">✓ Solicitud aceptada · Tel: +505 7718 7005</span>
           <div style="display:flex;gap:8px;">
-            <a href="tel:77187005" class="btn-action phone">📞 Llamar</a>
-            <a href="https://wa.me/50577187005" target="_blank" class="btn-action wa">💬 WhatsApp</a>
+            <a href="tel:77187005" class="btn-action-sec phone">📞 Llamar</a>
+            <a href="https://wa.me/50577187005" target="_blank" class="btn-action-sec wa">💬 WhatsApp</a>
           </div>
         </div>
       </div>
@@ -416,14 +534,33 @@ function enviarRespuesta(id) {
   const flow = document.getElementById('flow' + id);
   const wrap = document.createElement('div');
   wrap.className = 'bubble-wrap out';
-  let pillHtml = prc ? `<div class="quote-pill">💰 Cotización: C$ ${parseFloat(prc).toLocaleString('es-NI', {minimumFractionDigits:2})}</div>` : '';
+  
+  let dealCardHtml = '';
+  if (prc) {
+    dealCardHtml = `
+      <div class="cx-deal-card out">
+        <div class="cx-deal-header">
+          <span style="color:#2563EB;">💰 Tu Cotización Propuesta</span>
+          <span class="cx-deal-badge">En negociación</span>
+        </div>
+        <div class="cx-deal-amount-box">
+          <span style="font-size:13px;font-weight:700;color:#64748b;">C$</span>
+          <span class="cx-deal-amount">${parseFloat(prc).toLocaleString('es-NI', {minimumFractionDigits:2})}</span>
+        </div>
+        <div class="cx-deal-footer">
+          Monto propuesto enviado en esta conversación.
+        </div>
+      </div>
+    `;
+  }
+
   wrap.innerHTML = `
     <span class="bubble-author">Tú (Respuesta / Oferta)</span>
     <div class="bubble out">
-      ${txt || 'Propuesta de negociación enviada'}
-      ${pillHtml}
+      "${txt || 'Propuesta enviada'}"
       <span class="bubble-time">Ahora</span>
     </div>
+    ${dealCardHtml}
   `;
   flow.appendChild(wrap);
   toggleComp(id);
