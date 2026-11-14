@@ -7,7 +7,7 @@ import {
   useIonToast, useIonRouter,
 } from '@ionic/react';
 import {
-  chatbubbleEllipsesOutline, callOutline, checkmarkCircleOutline,
+  chatbubbleEllipsesOutline, chatbubbleEllipses, callOutline, checkmarkCircleOutline,
   closeCircleOutline, briefcaseOutline, locationOutline, timeOutline,
   chevronForward, logoWhatsapp, sendOutline, cashOutline,
 } from 'ionicons/icons';
@@ -106,6 +106,23 @@ const Solicitudes: React.FC = () => {
     const num = Number(val);
     if (isNaN(num)) return null;
     return num.toLocaleString('es-NI', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+
+  const getLastSnippet = (s: any, isClient: boolean) => {
+    if (Array.isArray(s.mensajes) && s.mensajes.length > 0) {
+      const last = s.mensajes[s.mensajes.length - 1];
+      if (last?.mensaje) {
+        const prefix = last.emisor_tipo === (isClient ? 'cliente' : 'prestador') ? 'Tú: ' : '';
+        return `${prefix}${last.mensaje}`;
+      }
+    }
+    if (s.respuesta) {
+      return isClient ? `Prestador: ${s.respuesta}` : `Tú: ${s.respuesta}`;
+    }
+    if (s.mensaje) {
+      return isClient ? `Tú: ${s.mensaje}` : `${s.nombre || 'Cliente'}: ${s.mensaje}`;
+    }
+    return 'Toca para abrir la conversación en el chat';
   };
 
   interface ThreadMessage {
@@ -275,205 +292,126 @@ const Solicitudes: React.FC = () => {
               <div className="empty-box">
                 <IonIcon icon={chatbubbleEllipsesOutline} />
                 <h4>Sin solicitudes recibidas</h4>
-                <p>Cuando un cliente solicite tus servicios en el directorio, aparecerá aquí en estilo chat.</p>
+                <p>Cuando un cliente solicite tus servicios en el directorio, aparecerá aquí en tu lista de conversaciones.</p>
               </div>
             ) : (
-              <div className="sol-list">
+              <div className="sol-list cx-inbox-list">
                 {recibidas.map(s => {
-                  const isReplying = replyingId === s.id;
-                  const hasHistory = (Array.isArray(s.mensajes) && s.mensajes.length > 0) || !!s.respuesta;
+                  const targetName = s.nombre || 'Cliente';
+                  const snippet = getLastSnippet(s, false);
 
                   return (
-                    <IonCard key={s.id} className="sol-card msg-thread-card">
-                      <IonCardContent>
-                        {/* Encabezado Messenger con Avatar ARRIBA */}
-                        <div className="msg-header">
-                          <div className="msg-avatar-wrap">
-                            <div className="msg-avatar client">
-                              {getInitials(s.nombre || 'Cliente')}
-                            </div>
-                            <div className="msg-avatar-dot" />
+                    <div
+                      key={s.id}
+                      className="cx-inbox-item-card"
+                      onClick={() => {
+                        router.push(
+                          `/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(targetName)}&oficio=${encodeURIComponent(s.oficio || '')}&precio=${s.precio_propuesto || ''}`
+                        );
+                      }}
+                    >
+                      <div className="cx-inbox-item-main">
+                        {/* Avatar con iniciales del cliente */}
+                        <div className="cx-inbox-avatar-wrap">
+                          <div className="cx-inbox-avatar client">
+                            {getInitials(targetName)}
                           </div>
-                          <div className="msg-user-info">
-                            <div className="msg-name">
-                              {s.nombre || 'Cliente Interesado'}
-                            </div>
-                            <div className="msg-service-tag">
-                              Servicio: {s.oficio}
-                            </div>
-                            <div className="msg-meta-row">
-                              <IonIcon icon={timeOutline} />
-                              <span>{s.created_at ? s.created_at.slice(0, 16) : 'Reciente'}</span>
-                            </div>
+                          <span className="cx-inbox-dot" />
+                        </div>
+
+                        {/* Cuerpo del Item */}
+                        <div className="cx-inbox-body">
+                          <div className="cx-inbox-header-row">
+                            <strong className="cx-inbox-name">{targetName}</strong>
+                            <span className="cx-inbox-time">
+                              {s.created_at ? s.created_at.slice(0, 10) : 'Hoy'}
+                            </span>
                           </div>
-                          <IonBadge
-                            color={s.estado === 'aceptado' ? 'success' : s.estado === 'rechazado' ? 'danger' : 'warning'}
-                            style={{ textTransform: 'capitalize', fontSize: '11px', padding: '4px 8px' }}
-                          >
+
+                          <div className="cx-inbox-service-tag">
+                            <IonIcon icon={briefcaseOutline} /> {s.oficio}
+                          </div>
+
+                          <div className="cx-inbox-snippet">
+                            {snippet}
+                          </div>
+
+                          {s.precio_propuesto && (
+                            <div className="cx-inbox-deal-badge">
+                              💰 Oferta: C$ {formatPrice(s.precio_propuesto)}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Lado derecho: Estado y Botón con Icono para Abrir Chat */}
+                        <div className="cx-inbox-actions">
+                          <span className={`cx-inbox-status-pill ${s.estado}`}>
                             {s.estado}
-                          </IonBadge>
-                        </div>
+                          </span>
 
-                        {/* Conversación Messenger ABAJO (Sin Duplicados ni Solapamientos) */}
-                        <div className="msg-chat-container">
-                          {(() => {
-                            const thread = getThreadMessages(s, 'recibidas');
-                            if (thread.length === 0) {
-                              return (
-                                <div className="msg-bubble-row incoming">
-                                  <span className="msg-bubble-author">{s.nombre || 'Cliente'}</span>
-                                  <div className="msg-bubble incoming" style={{ fontStyle: 'italic', opacity: 0.85 }}>
-                                    "Solicito contacto para coordinar trabajo de {s.oficio}."
-                                  </div>
-                                </div>
+                          <button
+                            type="button"
+                            className="cx-inbox-open-chat-btn"
+                            title="Abrir Chat"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(
+                                `/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(targetName)}&oficio=${encodeURIComponent(s.oficio || '')}&precio=${s.precio_propuesto || ''}`
                               );
-                            }
-                            return thread.map((m) => {
-                              const isMe = m.emisor_tipo === 'prestador';
-                              return (
-                                <div key={m.id} className={`msg-bubble-row ${isMe ? 'outgoing' : 'incoming'}`}>
-                                  <span className="msg-bubble-author">
-                                    {isMe ? 'Tú (Respuesta / Oferta)' : (m.emisor_nombre || s.nombre || 'Cliente')}
-                                  </span>
-                                  {m.mensaje && (
-                                    <div className={`msg-bubble ${isMe ? 'outgoing' : 'incoming'}`}>
-                                      "{m.mensaje}"
-                                      {m.created_at && (
-                                        <span className="msg-bubble-time">{m.created_at.slice(11, 16)}</span>
-                                      )}
-                                    </div>
-                                  )}
-                                  {renderDealCard(m.precio_propuesto, isMe, s.estado, isMe ? 'Tu Cotización' : 'Oferta del Cliente')}
-                                </div>
-                              );
-                            });
-                          })()}
+                            }}
+                          >
+                            <IonIcon icon={chatbubbleEllipses} />
+                          </button>
                         </div>
+                      </div>
 
-                        {/* Panel de Respuesta y Negociación en la App */}
-                        {isReplying ? (
-                          <div className="msg-composer-box">
-                            <div className="msg-composer-title">
-                              <IonIcon icon={chatbubbleEllipsesOutline} /> Negociación en la App
-                            </div>
-                            <textarea
-                              className="msg-composer-textarea"
-                              placeholder="Escribe tu mensaje, disponibilidad o acuerdo de trabajo..."
-                              value={replyText}
-                              onChange={e => setReplyText(e.target.value)}
-                              rows={2}
-                            />
-                            <div className="msg-composer-price-row">
-                              <IonIcon icon={cashOutline} style={{ fontSize: '20px', color: '#F97316' }} />
-                              <input
-                                type="number"
-                                className="msg-price-input"
-                                placeholder="Cotización / Precio propuesto en C$ (Opcional)"
-                                value={replyPrice}
-                                onChange={e => setReplyPrice(e.target.value)}
-                              />
-                            </div>
-                            <div className="msg-composer-actions">
-                              <IonButton
-                                size="small"
-                                className="msg-send-btn"
-                                disabled={actingId === s.id || (!replyText.trim() && !replyPrice.trim())}
-                                onClick={() => responder(s.id, 'negociar')}
-                              >
-                                <IonIcon icon={sendOutline} slot="start" />
-                                Enviar respuesta
-                              </IonButton>
-                              {s.estado === 'pendiente' && (
-                                <IonButton
-                                  size="small"
-                                  className="msg-accept-btn"
-                                  disabled={actingId === s.id}
-                                  onClick={() => responder(s.id, 'aceptar')}
-                                >
-                                  <IonIcon icon={checkmarkCircleOutline} slot="start" />
-                                  Aceptar trabajo
-                                </IonButton>
-                              )}
-                              <IonButton
-                                size="small"
-                                fill="outline"
-                                color="medium"
-                                onClick={() => {
-                                  setReplyingId(null);
-                                  setReplyText('');
-                                  setReplyPrice('');
-                                }}
-                              >
-                                Cancelar
-                              </IonButton>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="sol-actions" style={{ flexWrap: 'wrap', marginTop: '12px', width: '100%', gap: '8px' }}>
-                            <IonButton
-                              expand="block"
-                              fill="solid"
-                              className="cx-cta-chat-btn"
-                              onClick={() => {
-                                router.push(`/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(s.nombre || 'Cliente')}&oficio=${encodeURIComponent(s.oficio)}`);
-                              }}
+                      {/* Botones de acción rápida si está pendiente */}
+                      {s.estado === 'pendiente' && (
+                        <div className="cx-inbox-quick-actions" onClick={(e) => e.stopPropagation()}>
+                          <IonButton
+                            size="small"
+                            className="sol-btn-accept"
+                            disabled={actingId === s.id}
+                            onClick={() => responder(s.id, 'aceptar')}
+                          >
+                            <IonIcon icon={checkmarkCircleOutline} slot="start" />
+                            Aceptar
+                          </IonButton>
+                          <IonButton
+                            size="small"
+                            fill="outline"
+                            color="danger"
+                            disabled={actingId === s.id}
+                            onClick={() => responder(s.id, 'rechazar')}
+                          >
+                            <IonIcon icon={closeCircleOutline} slot="start" />
+                            Rechazar
+                          </IonButton>
+                        </div>
+                      )}
+
+                      {/* Teléfono y WhatsApp revelados al ser aceptado */}
+                      {s.estado === 'aceptado' && s.telefono && (
+                        <div className="sol-contact-box" onClick={(e) => e.stopPropagation()}>
+                          <span style={{ fontWeight: 600, fontSize: '12px' }}>Teléfono: <strong>{s.telefono}</strong></span>
+                          <div className="sol-contact-btns">
+                            <a href={`tel:${s.telefono}`} className="sol-chip-btn navy">
+                              <IonIcon icon={callOutline} /> Llamar
+                            </a>
+                            <a
+                              href={`https://wa.me/${cleanPhone(s.telefono)}?text=${encodeURIComponent(
+                                `¡Hola ${targetName}! Te escribo sobre el servicio de ${s.oficio} en CONEX.`
+                              )}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="sol-chip-btn whatsapp"
                             >
-                              <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                              Abrir Chat
-                            </IonButton>
-
-                            {s.estado === 'pendiente' && (
-                              <div style={{ display: 'flex', gap: '8px', width: '100%', marginTop: '4px' }}>
-                                <IonButton
-                                  size="small"
-                                  className="sol-btn-accept"
-                                  style={{ flex: 1 }}
-                                  disabled={actingId === s.id}
-                                  onClick={() => responder(s.id, 'aceptar')}
-                                >
-                                  <IonIcon icon={checkmarkCircleOutline} slot="start" />
-                                  Aceptar directo
-                                </IonButton>
-                                <IonButton
-                                  size="small"
-                                  fill="outline"
-                                  color="danger"
-                                  style={{ flex: 1 }}
-                                  disabled={actingId === s.id}
-                                  onClick={() => responder(s.id, 'rechazar')}
-                                >
-                                  <IonIcon icon={closeCircleOutline} slot="start" />
-                                  Rechazar
-                                </IonButton>
-                              </div>
-                            )}
+                              <IonIcon icon={logoWhatsapp} /> WhatsApp
+                            </a>
                           </div>
-                        )}
-
-                        {/* Contacto Directo Telefónico / WhatsApp al ser aceptado */}
-                        {s.estado === 'aceptado' && s.telefono && (
-                          <div className="sol-contact-box">
-                            <span style={{ fontWeight: 600 }}>Contacto acordado: <strong>{s.telefono}</strong></span>
-                            <div className="sol-contact-btns">
-                              <a href={`tel:${s.telefono}`} className="sol-chip-btn navy">
-                                <IonIcon icon={callOutline} /> Llamar
-                              </a>
-                              <a
-                                href={`https://wa.me/${cleanPhone(s.telefono)}?text=${encodeURIComponent(
-                                  `¡Hola ${s.nombre}! Te escribo sobre el servicio de ${s.oficio} en CONEX.` +
-                                    (s.precio_propuesto ? ` Mi cotización acordada es de C$ ${formatPrice(s.precio_propuesto)}.` : '')
-                                )}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="sol-chip-btn whatsapp"
-                              >
-                                <IonIcon icon={logoWhatsapp} /> WhatsApp
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                      </IonCardContent>
-                    </IonCard>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
@@ -486,160 +424,98 @@ const Solicitudes: React.FC = () => {
                 <p>Busca trabajadores en la pestaña Contactos y envíales una solicitud de servicio.</p>
               </div>
             ) : (
-              <div className="sol-list">
+              <div className="sol-list cx-inbox-list">
                 {enviadas.map(s => {
-                  const isReplying = replyingId === s.id;
-                  const hasHistory = (Array.isArray(s.mensajes) && s.mensajes.length > 0) || !!s.respuesta;
+                  const targetName = s.prestador_nombre || 'Prestador del Servicio';
+                  const snippet = getLastSnippet(s, true);
 
                   return (
-                    <IonCard key={s.id} className="sol-card msg-thread-card">
-                      <IonCardContent>
-                        {/* Encabezado Messenger con Avatar ARRIBA */}
-                        <div className="msg-header">
-                          <div className="msg-avatar-wrap">
-                            <div className="msg-avatar">
-                              {getInitials(s.prestador_nombre || s.oficio)}
-                            </div>
-                            <div className="msg-avatar-dot" />
+                    <div
+                      key={s.id}
+                      className="cx-inbox-item-card"
+                      onClick={() => {
+                        router.push(
+                          `/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(targetName)}&oficio=${encodeURIComponent(s.oficio || '')}&precio=${s.precio_propuesto || ''}`
+                        );
+                      }}
+                    >
+                      <div className="cx-inbox-item-main">
+                        {/* Avatar con iniciales del prestador */}
+                        <div className="cx-inbox-avatar-wrap">
+                          <div className="cx-inbox-avatar">
+                            {getInitials(targetName)}
                           </div>
-                          <div className="msg-user-info">
-                            <div className="msg-name">
-                              {s.prestador_nombre || 'Prestador del Servicio'}
-                            </div>
-                            <div className="msg-service-tag">
-                              {s.oficio} · {s.zona || s.ciudad || 'Nicaragua'}
-                            </div>
-                            <div className="msg-meta-row">
-                              <IonIcon icon={timeOutline} />
-                              <span>{s.created_at ? s.created_at.slice(0, 16) : 'Reciente'}</span>
-                            </div>
+                          <span className="cx-inbox-dot" />
+                        </div>
+
+                        {/* Cuerpo del Item */}
+                        <div className="cx-inbox-body">
+                          <div className="cx-inbox-header-row">
+                            <strong className="cx-inbox-name">{targetName}</strong>
+                            <span className="cx-inbox-time">
+                              {s.created_at ? s.created_at.slice(0, 10) : 'Hoy'}
+                            </span>
                           </div>
-                          <IonBadge
-                            color={s.estado === 'aceptado' ? 'success' : s.estado === 'rechazado' ? 'danger' : 'warning'}
-                            style={{ textTransform: 'capitalize', fontSize: '11px', padding: '4px 8px' }}
-                          >
+
+                          <div className="cx-inbox-service-tag">
+                            <IonIcon icon={briefcaseOutline} /> {s.oficio} {s.zona ? `· ${s.zona}` : ''}
+                          </div>
+
+                          <div className="cx-inbox-snippet">
+                            {snippet}
+                          </div>
+
+                          {s.precio_propuesto && (
+                            <div className="cx-inbox-deal-badge">
+                              💰 Cotización: C$ {formatPrice(s.precio_propuesto)}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Lado derecho: Estado y Botón con Icono para Abrir Chat */}
+                        <div className="cx-inbox-actions">
+                          <span className={`cx-inbox-status-pill ${s.estado}`}>
                             {s.estado}
-                          </IonBadge>
-                        </div>
+                          </span>
 
-                        {/* Conversación Messenger ABAJO (Sin Duplicados ni Solapamientos) */}
-                        <div className="msg-chat-container">
-                          {(() => {
-                            const thread = getThreadMessages(s, 'enviadas');
-                            if (thread.length === 0) {
-                              return (
-                                <p style={{ fontStyle: 'italic', fontSize: '12.5px', color: 'var(--cx-muted)', margin: '6px 0' }}>
-                                  Esperando respuesta del prestador...
-                                </p>
+                          <button
+                            type="button"
+                            className="cx-inbox-open-chat-btn"
+                            title="Abrir Chat"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(
+                                `/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(targetName)}&oficio=${encodeURIComponent(s.oficio || '')}&precio=${s.precio_propuesto || ''}`
                               );
-                            }
-                            return thread.map((m) => {
-                              const isMe = m.emisor_tipo === 'cliente';
-                              return (
-                                <div key={m.id} className={`msg-bubble-row ${isMe ? 'outgoing' : 'incoming'}`}>
-                                  <span className="msg-bubble-author">
-                                    {isMe ? 'Tú (Tu solicitud)' : (m.emisor_nombre || s.prestador_nombre || 'Prestador')}
-                                  </span>
-                                  {m.mensaje && (
-                                    <div className={`msg-bubble ${isMe ? 'outgoing' : 'incoming'}`}>
-                                      "{m.mensaje}"
-                                      {m.created_at && (
-                                        <span className="msg-bubble-time">{m.created_at.slice(11, 16)}</span>
-                                      )}
-                                    </div>
-                                  )}
-                                  {renderDealCard(m.precio_propuesto, isMe, s.estado, isMe ? 'Tu Contraoferta' : 'Cotización del Prestador')}
-                                </div>
-                              );
-                            });
-                          })()}
+                            }}
+                          >
+                            <IonIcon icon={chatbubbleEllipses} />
+                          </button>
                         </div>
+                      </div>
 
-                        {/* Responder / Contraofertar desde el cliente */}
-                        {isReplying ? (
-                          <div className="msg-composer-box">
-                            <div className="msg-composer-title">
-                              <IonIcon icon={chatbubbleEllipsesOutline} /> Responder en la Negociación
-                            </div>
-                            <textarea
-                              className="msg-composer-textarea"
-                              placeholder="Escribe tu respuesta o contraoferta al prestador..."
-                              value={replyText}
-                              onChange={e => setReplyText(e.target.value)}
-                              rows={2}
-                            />
-                            <div className="msg-composer-price-row">
-                              <IonIcon icon={cashOutline} style={{ fontSize: '20px', color: '#F97316' }} />
-                              <input
-                                type="number"
-                                className="msg-price-input"
-                                placeholder="Contraoferta C$ (Opcional)"
-                                value={replyPrice}
-                                onChange={e => setReplyPrice(e.target.value)}
-                              />
-                            </div>
-                            <div className="msg-composer-actions">
-                              <IonButton
-                                size="small"
-                                className="msg-send-btn"
-                                disabled={actingId === s.id || (!replyText.trim() && !replyPrice.trim())}
-                                onClick={() => responder(s.id, 'mensaje')}
-                              >
-                                <IonIcon icon={sendOutline} slot="start" />
-                                Enviar mensaje
-                              </IonButton>
-                              <IonButton
-                                size="small"
-                                fill="outline"
-                                color="medium"
-                                onClick={() => {
-                                  setReplyingId(null);
-                                  setReplyText('');
-                                  setReplyPrice('');
-                                }}
-                              >
-                                Cancelar
-                              </IonButton>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="sol-actions" style={{ flexWrap: 'wrap', marginTop: '12px', width: '100%' }}>
-                            <IonButton
-                              expand="block"
-                              fill="solid"
-                              className="cx-cta-chat-btn"
-                              onClick={() => {
-                                router.push(`/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(s.prestador_nombre || 'Prestador')}&oficio=${encodeURIComponent(s.oficio || '')}`);
-                              }}
+                      {/* Contacto telefónico acordado */}
+                      {s.estado === 'aceptado' && s.prestador_telefono && (
+                        <div className="sol-contact-box" onClick={(e) => e.stopPropagation()}>
+                          <span style={{ fontWeight: 600, fontSize: '12px' }}>Prestador: <strong>{s.prestador_telefono}</strong></span>
+                          <div className="sol-contact-btns">
+                            <a href={`tel:${s.prestador_telefono}`} className="sol-chip-btn navy">
+                              <IonIcon icon={callOutline} /> Llamar
+                            </a>
+                            <a
+                              href={`https://wa.me/${cleanPhone(s.prestador_telefono)}?text=${encodeURIComponent(
+                                `¡Hola! Te contacto desde la app CONEX sobre tu servicio de ${s.oficio}.`
+                              )}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="sol-chip-btn whatsapp"
                             >
-                              <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                              Abrir Chat
-                            </IonButton>
+                              <IonIcon icon={logoWhatsapp} /> WhatsApp
+                            </a>
                           </div>
-                        )}
-
-                        {s.estado === 'aceptado' && s.prestador_telefono && (
-                          <div className="sol-contact-box">
-                            <span style={{ fontWeight: 600 }}>Contacto directo: <strong>{s.prestador_telefono}</strong></span>
-                            <div className="sol-contact-btns">
-                              <a href={`tel:${s.prestador_telefono}`} className="sol-chip-btn navy">
-                                <IonIcon icon={callOutline} /> Llamar
-                              </a>
-                              <a
-                                href={`https://wa.me/${cleanPhone(s.prestador_telefono)}?text=${encodeURIComponent(
-                                  `¡Hola! Te contacto desde la app CONEX sobre tu servicio de ${s.oficio}.`
-                                )}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="sol-chip-btn whatsapp"
-                              >
-                                <IonIcon icon={logoWhatsapp} /> WhatsApp
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                      </IonCardContent>
-                    </IonCard>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>

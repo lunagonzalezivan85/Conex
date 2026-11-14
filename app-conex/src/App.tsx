@@ -1,5 +1,5 @@
 import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
+import { Redirect, Route, useLocation } from 'react-router-dom';
 import {
   IonApp, IonIcon, IonLabel, IonRouterOutlet,
   IonTabBar, IonTabButton, IonTabs, setupIonicReact,
@@ -36,44 +36,55 @@ setupIonicReact();
 /**
  * Tabs principales de la app (Inicio + Perfil).
  */
-const AppTabs: React.FC = () => (
-  <IonTabs>
-    <IonRouterOutlet>
-      <Route exact path="/app/dashboard" component={Dashboard} />
-      <Route exact path="/app/buscar" component={Buscar} />
-      <Route exact path="/app/contactos" render={() => <Redirect to="/app/buscar?modo=servicios" />} />
-      <Route exact path="/app/solicitudes" component={Solicitudes} />
-      <Route exact path="/app/categorias" component={Categorias} />
-      <Route exact path="/app/vacante/:slug" component={VacanteDetalle} />
-      <Route exact path="/app/perfil" component={Perfil} />
-      <Route exact path="/app/planes" component={Planes} />
-      <Route exact path="/app" render={() => <Redirect to="/app/dashboard" />} />
-    </IonRouterOutlet>
+const AppTabs: React.FC = () => {
+  const location = useLocation();
+  const isChat = location.pathname.startsWith('/app/chat');
 
-    <IonTabBar slot="bottom">
-      <IonTabButton tab="dashboard" href="/app/dashboard">
-        <IonIcon icon={homeOutline} />
-        <IonLabel>Inicio</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="buscar" href="/app/buscar?modo=vacantes">
-        <IonIcon icon={briefcaseOutline} />
-        <IonLabel>Empleos</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="contactos" href="/app/buscar?modo=servicios">
-        <IonIcon icon={peopleOutline} />
-        <IonLabel>Contactos</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="solicitudes" href="/app/solicitudes">
-        <IonIcon icon={chatbubbleOutline} />
-        <IonLabel>Mensajes</IonLabel>
-      </IonTabButton>
-      <IonTabButton tab="perfil" href="/app/perfil">
-        <IonIcon icon={personOutline} />
-        <IonLabel>Perfil</IonLabel>
-      </IonTabButton>
-    </IonTabBar>
-  </IonTabs>
-);
+  return (
+    <IonTabs>
+      <IonRouterOutlet>
+        <Route exact path="/app/dashboard" component={Dashboard} />
+        <Route exact path="/app/buscar" component={Buscar} />
+        <Route exact path="/app/contactos" render={() => <Redirect to="/app/buscar?modo=servicios" />} />
+        <Route exact path="/app/solicitudes" component={Solicitudes} />
+        <Route exact path="/app/mensajes" component={Solicitudes} />
+        <Route exact path="/app/chat" component={ChatMessenger} />
+        <Route exact path="/app/categorias" component={Categorias} />
+        <Route exact path="/app/vacante/:slug" component={VacanteDetalle} />
+        <Route exact path="/app/perfil" component={Perfil} />
+        <Route exact path="/app/planes" component={Planes} />
+        <Route exact path="/app" render={() => <Redirect to="/app/dashboard" />} />
+      </IonRouterOutlet>
+
+      <IonTabBar
+        slot="bottom"
+        className={isChat ? 'cx-tab-bar-hidden' : ''}
+        style={{ display: isChat ? 'none' : 'flex' }}
+      >
+        <IonTabButton tab="dashboard" href="/app/dashboard">
+          <IonIcon icon={homeOutline} />
+          <IonLabel>Inicio</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="buscar" href="/app/buscar?modo=vacantes">
+          <IonIcon icon={briefcaseOutline} />
+          <IonLabel>Empleos</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="contactos" href="/app/buscar?modo=servicios">
+          <IonIcon icon={peopleOutline} />
+          <IonLabel>Contactos</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="solicitudes" href="/app/solicitudes">
+          <IonIcon icon={chatbubbleOutline} />
+          <IonLabel>Mensajes</IonLabel>
+        </IonTabButton>
+        <IonTabButton tab="perfil" href="/app/perfil">
+          <IonIcon icon={personOutline} />
+          <IonLabel>Perfil</IonLabel>
+        </IonTabButton>
+      </IonTabBar>
+    </IonTabs>
+  );
+};
 
 /**
  * Guard inline: solo deja entrar a /app si hay sesion valida.
@@ -88,14 +99,6 @@ const AppRoutes: React.FC = () => {
         <Route exact path="/" component={Splash} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/registro" component={Registro} />
-        <Route
-          exact
-          path="/app/chat"
-          render={() => {
-            if (loading) return null;
-            return user ? <ChatMessenger /> : <Redirect to="/login" />;
-          }}
-        />
         <Route
           path="/app"
           render={() => {

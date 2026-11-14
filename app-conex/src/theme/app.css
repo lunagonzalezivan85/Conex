@@ -3197,6 +3197,208 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   margin-top: 6px;
 }
 
+/* ============================================================
+   ITEMS DE CONVERSACIÓN / BANDEJA DE ENTRADA (MENSAJES Y NEGOCIACIÓN)
+   ============================================================ */
+.cx-inbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 6px;
+}
+
+.cx-inbox-item-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+}
+
+.cx-inbox-item-card:active {
+  transform: scale(0.99);
+  background-color: #f8fafc;
+}
+
+.cx-inbox-item-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cx-inbox-avatar-wrap {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.cx-inbox-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #1B2A4A;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+  box-shadow: 0 2px 6px rgba(27, 42, 74, 0.2);
+}
+
+.cx-inbox-avatar.client {
+  background: #0284c7;
+}
+
+.cx-inbox-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #ffffff;
+}
+
+.cx-inbox-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cx-inbox-header-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cx-inbox-name {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cx-inbox-time {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.cx-inbox-service-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #F97316;
+}
+
+.cx-inbox-service-tag ion-icon {
+  font-size: 12px;
+}
+
+.cx-inbox-snippet {
+  font-size: 12.5px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+  margin-top: 1px;
+}
+
+.cx-inbox-deal-badge {
+  display: inline-flex;
+  align-items: center;
+  background: #fef3c7;
+  color: #b45309;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  width: fit-content;
+  margin-top: 3px;
+}
+
+.cx-inbox-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cx-inbox-status-pill {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.3px;
+}
+
+.cx-inbox-status-pill.pendiente {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.cx-inbox-status-pill.aceptado {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.cx-inbox-status-pill.rechazado {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+/* Botón con Icono para Abrir Chat en el Item */
+.cx-inbox-open-chat-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #1B2A4A;
+  color: #ffffff;
+  border: none;
+  font-size: 19px;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(27, 42, 74, 0.25);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.cx-inbox-open-chat-btn:active {
+  transform: scale(0.9);
+  background: #111b30;
+}
+
+.cx-inbox-quick-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.cx-tab-bar-hidden {
+  display: none !important;
+}
+
 
 
 

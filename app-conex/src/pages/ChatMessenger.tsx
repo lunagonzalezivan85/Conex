@@ -141,6 +141,24 @@ export const ChatMessenger: React.FC = () => {
           });
 
           setMessages(deduped);
+        } else {
+          // Fallback defensivo con los parámetros de la URL para que NUNCA quede la ventana en blanco
+          setContactoData({
+            nombre: paramNombre,
+            oficio: paramOficio,
+            avatar: paramAvatar,
+            precio_propuesto: paramPrecio ? parseFloat(paramPrecio) : null,
+          });
+          setMessages([
+            {
+              id: `param-${contactoId}`,
+              emisor_tipo: 'cliente',
+              emisor_nombre: paramNombre,
+              mensaje: `Conversación para coordinar el trabajo de ${paramOficio}.`,
+              precio_propuesto: paramPrecio ? parseFloat(paramPrecio) : null,
+              created_at: new Date().toISOString(),
+            },
+          ]);
         }
       } else {
         // Conversación nueva iniciada desde el directorio
@@ -158,6 +176,17 @@ export const ChatMessenger: React.FC = () => {
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn('Error cargando chat:', e);
+      if (messages.length === 0) {
+        setMessages([
+          {
+            id: 'err-fallback',
+            emisor_tipo: 'cliente',
+            emisor_nombre: paramNombre,
+            mensaje: `Conversación sobre el servicio de ${paramOficio}.`,
+            created_at: new Date().toISOString(),
+          },
+        ]);
+      }
     } finally {
       setLoading(false);
       setTimeout(scrollToBottom, 200);
@@ -332,7 +361,10 @@ export const ChatMessenger: React.FC = () => {
 
             {/* Fecha centrada tipo Messenger */}
             <div className="cx-msgr-date-divider">
-              <span>HOY A LAS {new Date().toLocaleTimeString('es-NI', { hour: '2-digit', minute: '2-digit' })}</span>
+              <span>HOY A LAS {(() => {
+                const d = new Date();
+                return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+              })()}</span>
             </div>
 
             {messages.map((m) => {

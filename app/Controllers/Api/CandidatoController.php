@@ -916,6 +916,7 @@ class CandidatoController extends BaseApiController
 
         $sol = $db->table('srv_contacto')
             ->select('srv_contacto.*,
+                srv_servicio.candidato_id AS servicio_candidato_id,
                 srv_servicio.oficio, srv_servicio.ciudad, srv_servicio.zona, srv_servicio.precio_desde,
                 auth_user.nombre AS prestador_nombre, auth_user.avatar AS prestador_avatar,
                 IF(srv_contacto.estado = "aceptado", auth_user.telefono, NULL) AS prestador_telefono,
@@ -930,11 +931,12 @@ class CandidatoController extends BaseApiController
             return $this->fail('Conversación no encontrada', 404);
         }
 
-        // Permiso: solo el cliente solicitante o el prestador del servicio pueden verla
-        $esCliente = ((int)($sol['user_id'] ?? 0) === (int)$user['id']);
+        // Permiso: el cliente solicitante, el prestador del servicio o admin
+        $esAdmin = in_array($user['role'] ?? '', ['admin', 'superadmin']);
+        $esCliente = ((int)($sol['user_id'] ?? 0) === (int)$user['id'] || (isset($user['email']) && !empty($sol['email']) && strtolower($sol['email']) === strtolower($user['email'])));
         $esPrestador = ($candidato && (int)($sol['servicio_candidato_id'] ?? 0) === (int)$candidato['id']);
 
-        if (!$esCliente && !$esPrestador) {
+        if (!$esCliente && !$esPrestador && !$esAdmin) {
             return $this->fail('No tienes permiso para ver esta conversación', 403);
         }
 
