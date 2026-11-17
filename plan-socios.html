@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONEX — Plan de socios y ruta de alianzas</title>
+<style>
+  :root{
+    --navy:#123D73; --navy-2:#1B4F92; --navy-dark:#0d1f3c;
+    --orange:#F97316; --orange-soft:#FFF1E6; --teal:#0FC6C2;
+    --ink:#111827; --ink-2:#4b5563; --ink-3:#9ca3af;
+    --bg:#F6F8FB; --card:#fff; --line:#e5e7eb;
+    --ok:#16a34a; --ok-soft:#dcfce7; --warn:#d97706; --warn-soft:#fef3c7; --bad:#dc2626; --bad-soft:#fee2e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
+
+  /* ===== Deck shell ===== */
+  .deck{max-width:1160px;margin:0 auto;padding:28px 28px 110px}
+  .slide{display:none;animation:fade .25s ease}
+  .slide.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .nav{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
+  .nav-in{max-width:1160px;margin:0 auto;padding:12px 28px;display:flex;align-items:center;gap:14px}
+  .brand{font-weight:800;color:var(--navy);letter-spacing:.5px}
+  .brand b{color:var(--orange)}
+  .counter{font-size:13px;color:var(--ink-3);min-width:90px}
+  .title{flex:1;font-size:13px;color:var(--ink-2);font-weight:600;text-align:center}
+  .btn{border:1.5px solid var(--navy);background:#fff;color:var(--navy);font-weight:700;font-size:13px;border-radius:10px;padding:8px 16px;cursor:pointer;font-family:inherit;transition:all .15s}
+  .btn:hover{background:var(--navy);color:#fff}
+  .btn[disabled]{opacity:.35;pointer-events:none}
+  .btn.primary{background:var(--orange);border-color:var(--orange);color:#fff}
+  .btn.primary:hover{filter:brightness(.95)}
+  .prog{position:fixed;top:0;left:0;height:3px;background:var(--orange);z-index:60;transition:width .25s}
+  .toc{position:fixed;right:18px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:40}
+  .toc i{display:block;width:7px;height:7px;border-radius:50%;background:#cbd5e1;cursor:pointer;transition:all .15s}
+  .toc i.on{background:var(--orange);transform:scale(1.4)}
+
+  /* ===== Typography blocks ===== */
+  .kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);margin-bottom:10px}
+  .kicker .n{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;background:var(--navy);color:#fff;font-size:12px}
+  h1{font-size:44px;line-height:1.1;font-weight:800;color:var(--navy);letter-spacing:-.5px}
+  h2{font-size:30px;line-height:1.15;font-weight:800;color:var(--navy);letter-spacing:-.3px;margin-bottom:8px}
+  h3{font-size:17px;font-weight:700;color:var(--navy)}
+  .lead{font-size:17px;color:var(--ink-2);max-width:760px;margin-bottom:26px}
+  .accent{color:var(--orange)}
+  .muted{color:var(--ink-3);font-size:13px}
+  .foot{margin-top:22px;font-size:12px;color:var(--ink-3);border-top:1px dashed var(--line);padding-top:10px}
+
+  /* ===== Components ===== */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+  .pill{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.3px}
+  .pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+  .pill.navy{background:#E8EEF5;color:var(--navy)} .pill.orange{background:var(--orange-soft);color:var(--orange)}
+  ul.clean{list-style:none} ul.clean li{position:relative;padding-left:18px;margin:6px 0;font-size:14px;color:var(--ink-2)}
+  ul.clean li::before{content:"";position:absolute;left:0;top:9px;width:7px;height:7px;border-radius:50%;background:var(--orange)}
+  ul.clean li b{color:var(--ink)}
+  table{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:13.5px}
+  th{background:var(--navy);color:#fff;text-align:left;padding:12px 14px;font-weight:700;font-size:12.5px;letter-spacing:.3px}
+  td{padding:12px 14px;border-top:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+  td b{color:var(--ink)}
+  tr:hover td{background:#fafbfd}
+  .num{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:var(--navy);color:#fff;font-weight:800;font-size:16px;margin-bottom:12px}
+  .num.o{background:var(--orange)}
+  .quote{background:var(--navy);color:#fff;border-radius:18px;padding:28px 32px;font-size:20px;line-height:1.4;font-weight:600;position:relative;overflow:hidden}
+  .quote::before{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:rgba(249,115,22,.18)}
+  .quote small{display:block;margin-top:10px;font-size:13px;font-weight:500;color:rgba(255,255,255,.7)}
+  .stair{display:flex;align-items:flex-end;gap:10px;margin-top:20px}
+  .step{flex:1;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+  .step b{display:block;color:var(--navy);font-size:14px;margin-bottom:4px}
+  .step span{font-size:12px;color:var(--ink-3)}
+  .step:nth-child(1){min-height:90px}.step:nth-child(2){min-height:110px}.step:nth-child(3){min-height:130px}.step:nth-child(4){min-height:150px;background:var(--navy);border-color:var(--navy)}
+  .step:nth-child(4) b{color:#fff}.step:nth-child(4) span{color:rgba(255,255,255,.75)}
+  .arrow{color:var(--ink-3);font-size:22px;align-self:center}
+  .flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:stretch}
+  .flow .card{padding:16px}
+  .flow h4{font-size:14px;color:var(--navy);margin-bottom:6px}
+  .flow p{font-size:13px;color:var(--ink-2)}
+  .role{border-top:5px solid var(--navy)}
+  .role.o{border-top-color:var(--orange)} .role.t{border-top-color:var(--teal)} .role.d{border-top-color:#6366f1}
+  .role .who{font-size:12px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+  .role h3{font-size:18px;margin-bottom:10px}
+  .role .no{margin-top:12px;padding:10px 12px;background:var(--bad-soft);border-radius:10px;font-size:12.5px;color:#7f1d1d}
+  .role .kpi{margin-top:10px;padding:10px 12px;background:#E8EEF5;border-radius:10px;font-size:12.5px;color:var(--navy)}
+  .kv{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--ink-2);margin:6px 0}
+  .kv b{min-width:120px;color:var(--ink)}
+  .callout{background:var(--orange-soft);border-left:4px solid var(--orange);border-radius:12px;padding:16px 18px;font-size:14px;color:#7c2d12;margin-top:18px}
+  .callout b{color:#9a3412}
+  .cover{min-height:78vh;display:flex;flex-direction:column;justify-content:center}
+  .cover .tag{display:inline-block;background:var(--orange);color:#fff;font-weight:700;font-size:12px;letter-spacing:2px;padding:6px 14px;border-radius:999px;margin-bottom:22px}
+  .cover p{font-size:19px;color:var(--ink-2);max-width:700px;margin:18px 0 30px}
+  .cover .meta{display:flex;gap:28px;font-size:13px;color:var(--ink-3)}
+  .cover .meta b{display:block;color:var(--navy);font-size:14px}
+  .agenda{display:grid;grid-template-columns:repeat(2,1fr);gap:8px 24px;margin-top:30px;max-width:720px}
+  .agenda div{font-size:13.5px;color:var(--ink-2);padding:6px 0;border-bottom:1px solid var(--line)}
+  .agenda div b{color:var(--navy);margin-right:8px}
+  .script{background:var(--navy-dark);color:#e5e7eb;border-radius:16px;padding:22px 26px;font-size:15px;line-height:1.6}
+  .script .lbl{display:inline-block;font-size:11px;letter-spacing:1.5px;font-weight:700;color:var(--orange);text-transform:uppercase;margin-bottom:8px}
+  .script em{color:#fff;font-style:normal;font-weight:700}
+  .obj{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .obj .card{padding:14px 16px}
+  .obj .q{font-weight:700;color:var(--bad);font-size:13.5px;margin-bottom:4px}
+  .obj .a{font-size:13.5px;color:var(--ink-2)}
+  .week{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .week .card h3{display:flex;align-items:center;gap:8px}
+  .week .card h3 span{font-size:11px;font-weight:700;color:var(--orange)}
+  .owner{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:6px;vertical-align:middle}
+  .owner.a{background:var(--orange-soft);color:var(--orange)} .owner.b{background:#E8EEF5;color:var(--navy)} .owner.c{background:#ccfbf1;color:#0f766e} .owner.d{background:#e0e7ff;color:#4338ca}
+
+  @media (max-width:860px){ .g2,.g3,.g4,.week,.obj,.agenda{grid-template-columns:1fr} .flow{grid-template-columns:1fr} .flow .arrow{transform:rotate(90deg);text-align:center} h1{font-size:34px} h2{font-size:24px} .deck{padding:18px 16px 110px} .toc{display:none} .stair{flex-direction:column} .step{min-height:auto!important} }
+  @media print{ .nav,.prog,.toc{display:none} .slide{display:block!important;page-break-after:always;padding:20px 0} .deck{max-width:none;padding:0} }
+</style>
+</head>
+<body>
+
+<div class="prog" id="prog"></div>
+<div class="toc" id="toc"></div>
+
+<div class="deck" id="deck">
+
+<!-- ========== 01 PORTADA ========== -->
+<section class="slide active" data-title="Portada">
+  <div class="cover">
+    <span class="tag">PLAN DE SOCIOS · OCT 2026</span>
+    <h1>CONEX<br><span class="accent">Acercar el empleo informal</span><br>y volverlo formal.</h1>
+    <p>Un electricista en Nicaragua no encuentra trabajo porque <b>no hay dónde encontrarlo</b>. CONEX es ese "dónde". Este documento define el problema, el producto, a quién vamos, la ruta de alianzas y — lo más importante — <b>quién hace qué</b> en los próximos 90 días.</p>
+    <div class="meta">
+      <div><b>Etapa</b>Pre-lanzamiento · plataforma funcional</div>
+      <div><b>Objetivo del deck</b>Alinear roles y arrancar tracción</div>
+      <div><b>Decisión esperada</b>Cada socio sale con un rol y 3 tareas</div>
+    </div>
+    <div class="agenda">
+      <div><b>01</b>El problema en Nicaragua</div><div><b>07</b>Ruta de alianzas (a quién ir primero)</div>
+      <div><b>02</b>Qué es CONEX</div><div><b>08</b>Playbook por tipo de aliado</div>
+      <div><b>03</b>Cómo funciona</div><div><b>09</b>Guion del vendedor</div>
+      <div><b>04</b>A quién va dirigido</div><div><b>10</b>Roles de los socios</div>
+      <div><b>05</b>Dónde estamos hoy</div><div><b>11</b>Plan 90 días</div>
+      <div><b>06</b>Cómo gana dinero</div><div><b>12</b>Compromisos y cierre</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 02 PROBLEMA ========== -->
+<section class="slide" data-title="El problema en Nicaragua">
+  <div class="kicker"><span class="n">01</span> El problema</div>
+  <h2>Cuatro pilares que nadie está resolviendo en Nicaragua</h2>
+  <p class="lead">No competimos contra Tecoloco ni Computrabajo. Competimos contra <b>el papel, el WhatsApp y la desconfianza</b>.</p>
+  <div class="grid g2">
+    <div class="card">
+      <div class="num">1</div>
+      <h3>El trabajador informal es invisible</h3>
+      <p class="muted" style="margin:6px 0 10px">Más de 7 de cada 10 ocupados en Nicaragua trabajan en la informalidad.*</p>
+      <ul class="clean">
+        <li>El electricista, la doméstica, el albañil <b>existen y saben trabajar</b> — pero nadie los puede buscar.</li>
+        <li>Consiguen trabajo solo por recomendación boca a boca. Si no te conocen, no existís.</li>
+        <li>Sin historial ni referencias verificables → el cliente desconfía, el trabajador cobra menos.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="num">2</div>
+      <h3>El CV vive en papel (o en una foto)</h3>
+      <ul class="clean">
+        <li>Las bolsas de empleo piden <b>formularios de 20 minutos</b> en computadora. El operativo no los llena.</li>
+        <li>Resultado: las plataformas solo tienen al candidato de oficina. El 80% restante queda fuera.</li>
+        <li>Registrarse debe tomar <b>30 segundos desde el celular</b>, o no pasa.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="num">3</div>
+      <h3>La oferta está atrapada en Facebook</h3>
+      <ul class="clean">
+        <li>Las PyMEs publican vacantes en grupos de Facebook y estados de WhatsApp — <b>sin filtros, sin seguimiento, sin historial</b>.</li>
+        <li>En 48 horas el post se pierde. La empresa vuelve a publicar. El candidato nunca lo vio.</li>
+        <li>Nadie tiene datos reales de qué oficios se buscan ni dónde.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="num">4</div>
+      <h3>Desconfianza y estafas de empleo</h3>
+      <ul class="clean">
+        <li>"Vacantes" falsas que cobran por aplicar o piden depósito. La gente ya no cree en anuncios.</li>
+        <li>El hogar que necesita un plomero <b>no tiene forma de saber si es confiable</b>.</li>
+        <li>Falta un sello neutral: alguien que diga "este trabajador / esta vacante es real".</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot">* Cifra referencial de informalidad laboral según estimaciones públicas (INIDE / FUNIDES). Verificar y citar la fuente exacta antes de presentar externamente.</div>
+</section>
+
+<!-- ========== 03 QUÉ ES ========== -->
+<section class="slide" data-title="Qué es CONEX">
+  <div class="kicker"><span class="n">02</span> Qué es CONEX</div>
+  <h2>El lugar donde el trabajo operativo se vuelve visible, verificable y formal</h2>
+  <div class="quote">
+    CONEX es una plataforma nicaragüense que conecta <span class="accent">empleos</span> y <span class="accent">oficios</span> con la gente que los necesita — diseñada para el trabajador que tiene el CV en papel y la empresa que publica en Facebook.
+    <small>Una frase para repetir en cada reunión. Si no cabe en un mensaje de WhatsApp, no sirve.</small>
+  </div>
+  <div class="grid g2" style="margin-top:18px">
+    <div class="card">
+      <span class="pill navy">MOTOR 1</span>
+      <h3 style="margin-top:8px">Empleos</h3>
+      <p class="muted" style="margin:4px 0 10px">Vacantes formales + vacantes captadas de redes</p>
+      <ul class="clean">
+        <li>Empresas publican vacantes con filtros reales (oficio, ciudad, modalidad, salario).</li>
+        <li><b>Captación activa:</b> vemos la vacante en Facebook → la llamamos → la publicamos. Oferta desde el día 1 sin esperar a que la empresa se registre.</li>
+        <li>Candidato se registra con <b>foto del CV</b>; la IA arma el perfil. Postula en 1 clic.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <span class="pill orange">MOTOR 2</span>
+      <h3 style="margin-top:8px">Servicios (oficios)</h3>
+      <p class="muted" style="margin:4px 0 10px">Directorio vivo de prestadores por oficio y zona</p>
+      <ul class="clean">
+        <li>Electricistas, plomeros, albañiles, carpinteros, domésticas… <b>buscables por oficio + barrio</b> y en mapa.</li>
+        <li>Contacto protegido (el cliente no ve el teléfono hasta solicitar) y reporte de abuso.</li>
+        <li>Sello <b>"Prestador verificado"</b> — primero por nosotros, después por aliados institucionales.</li>
+      </ul>
+    </div>
+  </div>
+  <h3 style="margin-top:24px">La escalera que construimos para cada trabajador</h3>
+  <div class="stair">
+    <div class="step"><b>Invisible</b><span>Solo lo conocen sus vecinos</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>Visible</b><span>Perfil público, buscable por oficio y zona</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>Verificado</b><span>Sello CONEX / aliado · referencias · historial</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>Formal</b><span>Contratado por empresa · ingresos estables · datos del mercado</span></div>
+  </div>
+  <div class="callout"><b>Esto es lo que vendemos a los aliados:</b> no "una app de empleo", sino el camino de la informalidad a la formalidad para la gente que ellos ya atienden.</div>
+</section>
+
+<!-- ========== 04 CÓMO FUNCIONA ========== -->
+<section class="slide" data-title="Cómo funciona">
+  <div class="kicker"><span class="n">03</span> Cómo funciona</div>
+  <h2>Tres personas, tres flujos — todo desde el celular</h2>
+  <p class="lead">Lo que ya está construido y funcionando en producción.</p>
+
+  <h3 style="margin-bottom:10px">Trabajador que busca empleo</h3>
+  <div class="flow">
+    <div class="card"><h4>1 · Foto del CV</h4><p>Saca foto al CV en papel (o sube PDF). Sin formularios.</p></div>
+    <div class="arrow">→</div>
+    <div class="card"><h4>2 · Perfil en 30 s</h4><p>La IA extrae nombre, experiencia, habilidades y arma el perfil.</p></div>
+    <div class="arrow">→</div>
+    <div class="card"><h4>3 · Postula en 1 clic</h4><p>Ve vacantes cerca de él (mapa), postula, la empresa lo contacta.</p></div>
+  </div>
+
+  <h3 style="margin:22px 0 10px">Prestador de oficio</h3>
+  <div class="flow">
+    <div class="card"><h4>1 · Publica su oficio</h4><p>"Electricista · Ciudad Sandino · desde C$300". Foto, descripción, zona.</p></div>
+    <div class="arrow">→</div>
+    <div class="card"><h4>2 · Aparece en el directorio</h4><p>Cualquier persona lo encuentra por oficio, barrio o en el mapa.</p></div>
+    <div class="arrow">→</div>
+    <div class="card"><h4>3 · Le llaman</h4><p>Contacto protegido → el cliente solicita → él decide responder. Luego, sello verificado.</p></div>
+  </div>
+
+  <h3 style="margin:22px 0 10px">Empresa / empleador</h3>
+  <div class="flow">
+    <div class="card"><h4>1 · Publica (o la captamos)</h4><p>Publica su vacante — o nosotros la vimos en Facebook y la subimos por ella.</p></div>
+    <div class="arrow">→</div>
+    <div class="card"><h4>2 · Recibe postulantes reales</h4><p>Perfiles completos, con experiencia legible, filtrables. No 200 mensajes de WhatsApp.</p></div>
+    <div class="arrow">→</div>
+    <div class="card"><h4>3 · Contrata y paga solo si le sirve</h4><p>Vacante gratis. Paga por destacarla, por plan mensual o por reclutamiento asistido.</p></div>
+  </div>
+  <div class="foot">Regla de oro: <b>el trabajador nunca paga</b>. Ni por registrarse, ni por postular, ni por aparecer en el directorio.</div>
+</section>
+
+<!-- ========== 05 A QUIÉN ========== -->
+<section class="slide" data-title="A quién va dirigido">
+  <div class="kicker"><span class="n">04</span> A quién va dirigido</div>
+  <h2>Cuatro perfiles concretos — y el canal para llegar a ellos</h2>
+  <p class="lead">Si no podés describir a la persona con nombre, barrio y problema, no es un segmento: es una idea.</p>
+  <div class="grid g2">
+    <div class="card">
+      <span class="pill orange">OFERTA · PRIORIDAD 1</span>
+      <h3 style="margin-top:8px">El trabajador operativo</h3>
+      <div class="kv"><b>Quién</b><span>Marvin, 34, electricista en Ciudad Sandino. Aprendió en INATEC. Tiene el CV en una hoja doblada en la billetera.</span></div>
+      <div class="kv"><b>Su dolor</b><span>Trabaja 2 semanas al mes. El resto, espera que alguien lo recomiende.</span></div>
+      <div class="kv"><b>Lo que le damos</b><span>Perfil en 30 segundos, aparece en el directorio, le llaman desde su barrio y desde empresas.</span></div>
+      <div class="kv"><b>Canal</b><span>Centros técnicos, ferias, gremios, registro presencial en eventos.</span></div>
+    </div>
+    <div class="card">
+      <span class="pill orange">OFERTA · PRIORIDAD 2</span>
+      <h3 style="margin-top:8px">El egresado técnico / universitario</h3>
+      <div class="kv"><b>Quién</b><span>Karla, 22, recién graduada de técnico en contabilidad. Primer empleo.</span></div>
+      <div class="kv"><b>Su dolor</b><span>Sin experiencia, sin contactos. Las bolsas grandes piden 3 años.</span></div>
+      <div class="kv"><b>Lo que le damos</b><span>Vacantes de entrada, match por habilidades, sello "Egresado de [Institución]".</span></div>
+      <div class="kv"><b>Canal</b><span>Universidades y centros técnicos — bolsa de empleo institucional dentro de CONEX.</span></div>
+    </div>
+    <div class="card">
+      <span class="pill navy">DEMANDA · PRIORIDAD 1</span>
+      <h3 style="margin-top:8px">La PyME que contrata operativos</h3>
+      <div class="kv"><b>Quién</b><span>Empresa de limpieza, ferretería, restaurante, constructora pequeña. 5 a 50 empleados.</span></div>
+      <div class="kv"><b>Su dolor</b><span>Publica en Facebook, recibe 200 mensajes sin filtro, contrata al primero y rota en 2 meses.</span></div>
+      <div class="kv"><b>Lo que le damos</b><span>Postulantes con perfil completo y filtrable. Vacante gratis; paga solo si quiere destacar o ayuda.</span></div>
+      <div class="kv"><b>Canal</b><span>Captación directa desde Facebook, cámaras de comercio, referidos de aliados.</span></div>
+    </div>
+    <div class="card">
+      <span class="pill navy">DEMANDA · PRIORIDAD 2</span>
+      <h3 style="margin-top:8px">El hogar que necesita un oficio</h3>
+      <div class="kv"><b>Quién</b><span>Doña Rosa, Managua. Se le quemó el breaker un domingo.</span></div>
+      <div class="kv"><b>Su dolor</b><span>No conoce a nadie. Le da miedo meter a un desconocido a la casa.</span></div>
+      <div class="kv"><b>Lo que le damos</b><span>Electricistas de su barrio, en mapa, con sello verificado y contacto protegido.</span></div>
+      <div class="kv"><b>Canal</b><span>Búsqueda en Google, grupos de barrio, boca a boca. Es el que trae tráfico orgánico.</span></div>
+    </div>
+  </div>
+  <div class="callout"><b>Orden de ataque:</b> primero llenamos oferta (trabajadores y prestadores) vía aliados — porque sin oferta, la empresa y el hogar no vuelven. La demanda entra sola cuando hay 300 perfiles buscables en una zona.</div>
+</section>
+
+<!-- ========== 06 DÓNDE ESTAMOS ========== -->
+<section class="slide" data-title="Dónde estamos hoy">
+  <div class="kicker"><span class="n">05</span> Dónde estamos</div>
+  <h2>La tecnología está. Lo que falta no se programa.</h2>
+  <p class="lead">Diagnóstico honesto para tomar decisiones, no para vendernos nada a nosotros mismos.</p>
+  <div class="grid g3">
+    <div class="card" style="border-top:5px solid var(--ok)">
+      <span class="pill ok">LISTO</span>
+      <h3 style="margin-top:8px">Producto</h3>
+      <ul class="clean">
+        <li>Buscador público de vacantes con filtros, mapa y geolocalización</li>
+        <li>Directorio de servicios por oficio/zona con mapa y verificación</li>
+        <li>Captación de vacantes externas (Facebook → publicada)</li>
+        <li>Registro con foto de CV + IA (Gemini)</li>
+        <li>Paneles de candidato, empresa y admin</li>
+        <li>Métricas sociales, compartir con preview, SEO por vacante</li>
+        <li>API lista para app móvil</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:5px solid var(--bad)">
+      <span class="pill bad">EN CERO</span>
+      <h3 style="margin-top:8px">Tracción</h3>
+      <ul class="clean">
+        <li><b>0</b> alianzas institucionales en conversación</li>
+        <li><b>0</b> usuarios reales fuera del equipo</li>
+        <li><b>0</b> empresas activas</li>
+        <li><b>0</b> prestadores verificados</li>
+        <li><b>0</b> ingresos</li>
+        <li>Sin presencia en redes ni marca conocida</li>
+      </ul>
+    </div>
+    <div class="card" style="border-top:5px solid var(--warn)">
+      <span class="pill warn">EL CUELLO DE BOTELLA</span>
+      <h3 style="margin-top:8px">El equipo</h3>
+      <ul class="clean">
+        <li>Hoy <b>una sola persona</b> desarrolla, propone, diseña y decide.</li>
+        <li>Cada hora que el desarrollador dedica a "pensar el negocio" es una hora sin producto — y viceversa.</li>
+        <li>No hay nadie saliendo a la calle a buscar aliados ni trabajadores.</li>
+        <li>No hay nadie llamando empresas para captar vacantes.</li>
+        <li>No hay nadie creando contenido ni comunidad.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="quote" style="margin-top:18px;font-size:18px">
+    Conclusión: no necesitamos más features. Necesitamos <span class="accent">tres personas haciendo tres trabajos distintos</span> durante 90 días, con métricas semanales.
+  </div>
+</section>
+
+<!-- ========== 07 MODELO DE INGRESOS ========== -->
+<section class="slide" data-title="Cómo gana dinero">
+  <div class="kicker"><span class="n">06</span> Modelo de ingresos</div>
+  <h2>Paga quien recibe valor comercial. El trabajador, nunca.</h2>
+  <p class="lead">Precios referenciales para arrancar. Se ajustan con los primeros 10 clientes reales.</p>
+  <table>
+    <thead><tr><th>Fuente</th><th>Quién paga</th><th>Precio ref.</th><th>Cuándo se activa</th><th>Aliado referidor</th></tr></thead>
+    <tbody>
+      <tr><td><b>Vacante publicada</b></td><td>Empresa</td><td><b>$0</b></td><td>Desde el día 1 — es el anzuelo</td><td>—</td></tr>
+      <tr><td><b>Vacante destacada</b></td><td>Empresa</td><td>~$15 / post</td><td>Cuando haya 20+ vacantes activas por ciudad</td><td>20%</td></tr>
+      <tr><td><b>Plan empresa mensual</b></td><td>Empresa</td><td>~$30 / mes</td><td>Cuando una empresa publique 3+ vacantes/mes</td><td>20% recurrente</td></tr>
+      <tr><td><b>Reclutamiento asistido</b></td><td>Empresa</td><td>~$80 / contratación</td><td>Mes 2 — lo opera el socio de Operaciones</td><td>15%</td></tr>
+      <tr><td><b>Prestador destacado</b></td><td>Prestador (opcional)</td><td>~$3 / mes</td><td>Mes 3+, solo si el directorio ya le genera llamadas</td><td>—</td></tr>
+      <tr><td><b>Sello institucional</b></td><td>Aliado (opcional)</td><td>Fee anual</td><td>Fase 2 de cada alianza</td><td>Branding</td></tr>
+      <tr><td><b>Registro, búsqueda, postular</b></td><td>Trabajador</td><td><b>$0 siempre</b></td><td>—</td><td>—</td></tr>
+    </tbody>
+  </table>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card">
+      <h3>Por qué la empresa paga</h3>
+      <p style="font-size:14px;color:var(--ink-2);margin-top:6px">Porque una vacante abierta 30 días le cuesta más que $15. Porque recibir 20 perfiles filtrados vale más que 200 mensajes de WhatsApp. Porque rotar personal cada 2 meses es carísimo.</p>
+    </div>
+    <div class="card">
+      <h3>Por qué el aliado refiere</h3>
+      <p style="font-size:14px;color:var(--ink-2);margin-top:6px">Porque monetiza su red sin construir tecnología. Porque queda como la institución que digitalizó el empleo en su zona. Porque obtiene datos de mercado laboral que hoy no tiene nadie.</p>
+    </div>
+  </div>
+  <div class="callout"><b>Realismo:</b> los primeros 90 días no son para facturar. Son para tener 300 perfiles, 50 vacantes y 5 aliados. El dinero viene cuando una empresa en León busca "soldador" y encuentra 12.</div>
+</section>
+
+<!-- ========== 08 RUTA DE ALIANZAS ========== -->
+<section class="slide" data-title="Ruta de alianzas">
+  <div class="kicker"><span class="n">07</span> Ruta de alianzas</div>
+  <h2>A quién ir primero — y por qué en ese orden</h2>
+  <p class="lead">Las alianzas no son para "tener logos". Son el <b>único canal realista</b> para registrar trabajadores operativos en volumen: donde ya están reunidos, con alguien que los conoce.</p>
+  <table>
+    <thead><tr><th style="width:40px">#</th><th>Tipo de aliado</th><th>Ejemplos</th><th>Por qué en este orden</th><th>Qué nos da</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><b>1</b></td>
+        <td><b>Centros de formación técnica</b></td>
+        <td>INATEC, escuelas de oficios, centros técnicos privados, institutos de la iglesia</td>
+        <td>Concentran <b>exactamente nuestro usuario</b>: electricistas, soldadores, mecánicos en formación. Necesitan colocar egresados y no tienen cómo medirlo.</td>
+        <td>Registro masivo en aula · sello "Egresado de" · credibilidad instantánea</td>
+      </tr>
+      <tr>
+        <td><b>2</b></td>
+        <td><b>Ferias de empleo y eventos municipales</b></td>
+        <td>Ferias de alcaldías, MITRAB, universidades, parroquias, ferias de oficios</td>
+        <td>Volumen en un solo día. La gente <b>va con el CV en la mano</b> — es el demo perfecto de la foto del CV.</td>
+        <td>100–300 perfiles por evento · fotos y testimonios · contactos de empresas asistentes</td>
+      </tr>
+      <tr>
+        <td><b>3</b></td>
+        <td><b>Universidades</b></td>
+        <td>UNAN, UCA, UNI, UAM, UdeM, Keiser, universidades departamentales</td>
+        <td>Tienen "bolsa de empleo" obligatoria que casi nunca funciona. Les ofrecemos operarla. Perfil más digital, menos operativo.</td>
+        <td>Egresados de entrada · prácticas · acceso a empresas que ya reclutan ahí</td>
+      </tr>
+      <tr>
+        <td><b>4</b></td>
+        <td><b>Gremios, cooperativas y asociaciones de oficios</b></td>
+        <td>Cooperativas de transporte, asociaciones de albañiles, sindicatos de oficios, mercados</td>
+        <td>Ya agrupan prestadores. El líder del gremio es el <b>validador natural</b> del sello verificado.</td>
+        <td>Prestadores con respaldo · sello "Validado por [gremio]" · zona completa de una vez</td>
+      </tr>
+      <tr>
+        <td><b>5</b></td>
+        <td><b>Cámaras y redes de PyMEs</b> <span class="pill navy" style="margin-left:6px">demanda</span></td>
+        <td>Cámaras de comercio departamentales, CONIMIPYME, asociaciones de restaurantes/hoteles/construcción</td>
+        <td>Solo <b>después</b> de tener oferta. Si llevamos una empresa a buscar y no hay nadie, la perdimos.</td>
+        <td>Empresas que publican · primeros pagos · validación del precio</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="callout"><b>Regla:</b> una alianza "cerrada" no es una reunión amable. Es una <b>fecha de registro masivo en el calendario</b> con un responsable de su lado. Si no hay fecha, no hay alianza.</div>
+</section>
+
+<!-- ========== 09 PLAYBOOK ========== -->
+<section class="slide" data-title="Playbook por aliado">
+  <div class="kicker"><span class="n">08</span> Playbook</div>
+  <h2>Qué les ofrecemos, qué ganan, qué ganamos, primer paso</h2>
+  <p class="lead">Una tarjeta por tipo de aliado. El vendedor la lleva en el celular.</p>
+  <div class="grid g2">
+    <div class="card role o">
+      <div class="who">Centro técnico / INATEC</div>
+      <h3>"Sus egresados, buscables desde el día que se gradúan"</h3>
+      <div class="kv"><b>Ofrecemos</b><span>Registro de egresados en aula con foto del CV (15 min por grupo). Sello "Egresado de [centro]". Reporte trimestral de colocación.</span></div>
+      <div class="kv"><b>Ellos ganan</b><span>Dato duro de colocación para mostrar a MITRAB/donantes. Egresados que consiguen trabajo = más matrícula. Cero costo, cero tecnología.</span></div>
+      <div class="kv"><b>Ganamos</b><span>Perfiles operativos verificados en volumen. Credibilidad: "los electricistas de INATEC están en CONEX".</span></div>
+      <div class="kv"><b>Primer paso</b><span>Reunión con director/coordinador de vinculación. Pedir <b>un grupo piloto</b> de 30 egresados. Fecha concreta.</span></div>
+      <div class="kpi">Meta 90 días: 3 centros · 200 egresados registrados</div>
+    </div>
+    <div class="card role">
+      <div class="who">Feria de empleo / evento</div>
+      <h3>"Traigan el CV en papel, salen con perfil digital"</h3>
+      <div class="kv"><b>Ofrecemos</b><span>Stand con 2 personas + tablet/celular. Demo en vivo: foto del CV → perfil en 30 s. Banner "Registro gratis".</span></div>
+      <div class="kv"><b>Ellos ganan</b><span>Un stand que funciona (la gente sale con algo). Para la alcaldía/organizador: "digitalizamos a 200 personas". Foto para su reporte.</span></div>
+      <div class="kv"><b>Ganamos</b><span>100–300 perfiles en un día. Contactos de las empresas que exponen al lado. Contenido real para redes.</span></div>
+      <div class="kv"><b>Primer paso</b><span>Calendario de ferias de los próximos 90 días (alcaldías, MITRAB, universidades). Pedir espacio gratis a cambio del servicio de digitalización.</span></div>
+      <div class="kpi">Meta 90 días: 2 ferias · 300 perfiles · 20 contactos de empresas</div>
+    </div>
+    <div class="card role t">
+      <div class="who">Universidad</div>
+      <h3>"Operamos la bolsa de empleo que ustedes no tienen tiempo de operar"</h3>
+      <div class="kv"><b>Ofrecemos</b><span>Portal de empleo de la universidad <i>dentro</i> de CONEX (filtro por institución). Registro en ferias internas. Vacantes de prácticas.</span></div>
+      <div class="kv"><b>Ellos ganan</b><span>Cumplen el requisito de vinculación laboral sin presupuesto. Métricas de empleabilidad para acreditación. Marca "egresado [U]" visible a empresas.</span></div>
+      <div class="kv"><b>Ganamos</b><span>Egresados de entrada (demanda de PyMEs). Acceso a empresas que ya reclutan ahí. Prestigio.</span></div>
+      <div class="kv"><b>Primer paso</b><span>Oficina de vinculación / extensión. Proponer piloto con <b>una facultad</b> (técnica o administrativa). No con rectoría.</span></div>
+      <div class="kpi">Meta 90 días: 1 universidad piloto · 100 egresados</div>
+    </div>
+    <div class="card role d">
+      <div class="who">Gremio / cooperativa / asociación de oficios</div>
+      <h3>"Sus afiliados verificados, con su sello, buscables por barrio"</h3>
+      <div class="kv"><b>Ofrecemos</b><span>Registro de afiliados como prestadores. Sello "Validado por [gremio]" en cada perfil. Panel para el líder: cuántas llamadas reciben sus afiliados.</span></div>
+      <div class="kv"><b>Ellos ganan</b><span>Más trabajo para sus afiliados (eso es su razón de existir). Poder de negociación con datos. El gremio queda como garante.</span></div>
+      <div class="kv"><b>Ganamos</b><span>Directorio completo de una zona de golpe. El sello de verificación lo pone alguien que sí conoce al trabajador.</span></div>
+      <div class="kv"><b>Primer paso</b><span>Identificar 3 gremios activos en Managua (albañiles, electricistas, transporte). Ir a la asamblea, no a la oficina.</span></div>
+      <div class="kpi">Meta 90 días: 2 gremios · 100 prestadores con sello</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 10 GUION ========== -->
+<section class="slide" data-title="Guion del vendedor">
+  <div class="kicker"><span class="n">09</span> Guion del vendedor</div>
+  <h2>Qué decir en 30 segundos, qué responder, cómo cerrar</h2>
+  <div class="script">
+    <span class="lbl">Pitch · 30 segundos</span>
+    "Somos CONEX, una plataforma nicaragüense de empleo y oficios. El problema que resolvemos es simple: <em>un electricista no encuentra trabajo porque no hay dónde encontrarlo</em>. Nosotros lo hacemos visible en 30 segundos — le sacamos foto al CV y listo, queda buscable por oficio y barrio. <em>Para el trabajador es gratis siempre.</em> Lo que les propongo es que registremos a sus [egresados / afiliados / asistentes] en un evento de una mañana — ustedes ponen la gente, nosotros ponemos todo lo demás, y les entregamos el dato de cuántos consiguieron trabajo."
+  </div>
+  <h3 style="margin:22px 0 10px">Objeciones frecuentes y respuesta</h3>
+  <div class="obj">
+    <div class="card"><div class="q">"¿Y esto en qué se diferencia de Tecoloco?"</div><div class="a">Tecoloco es para el que ya tiene computadora y CV en Word. Nosotros somos para el que tiene el CV en papel. Y tenemos oficios — ahí no hay nadie.</div></div>
+    <div class="card"><div class="q">"¿Cuánto nos va a costar?"</div><div class="a">Nada. Ni a ustedes ni al trabajador. Nosotros cobramos a las empresas que quieren destacar vacantes — y si vienen referidas por ustedes, compartimos un porcentaje.</div></div>
+    <div class="card"><div class="q">"¿Cuánta gente tienen registrada?"</div><div class="a">Estamos arrancando, y por eso estamos aquí: queremos que ustedes sean de los primeros aliados y aparezcan como fundadores de esto. Lo que sí tenemos es la plataforma lista — se la muestro ahora mismo.</div></div>
+    <div class="card"><div class="q">"Tenemos que consultarlo arriba"</div><div class="a">Perfecto. ¿Qué necesita llevar a esa reunión? Le preparo una página con el piloto propuesto. ¿Lo vemos el [día concreto]?</div></div>
+    <div class="card"><div class="q">"¿Y la privacidad de los datos?"</div><div class="a">El trabajador decide qué muestra. El teléfono nunca es público: el cliente solicita contacto y el trabajador acepta. Y la ubicación en el mapa es aproximada, nunca la casa exacta.</div></div>
+    <div class="card"><div class="q">"Ya tenemos una bolsa de empleo"</div><div class="a">Excelente — ¿cuántos de sus egresados consiguieron trabajo por ella el último año? Si no tienen el número, eso es exactamente lo que les damos.</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="card">
+      <h3>El cierre siempre es una fecha</h3>
+      <ul class="clean">
+        <li>"¿Qué día de las próximas 2 semanas podemos hacer el registro piloto?"</li>
+        <li>Si no hay fecha, pedir un nombre: "¿Con quién coordino el detalle?"</li>
+        <li>Salir con: fecha, lugar, cantidad esperada de personas, contacto responsable.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Kit del vendedor</h3>
+      <ul class="clean">
+        <li>Celular con CONEX abierta y un CV en papel para el demo en vivo</li>
+        <li>Una página PDF: qué es, qué ganan, piloto propuesto, contacto</li>
+        <li>Tarjeta o QR directo al registro</li>
+        <li>Lista de 10 instituciones objetivo con nombre del contacto</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 11 ROLES ========== -->
+<section class="slide" data-title="Roles de los socios">
+  <div class="kicker"><span class="n">10</span> Roles</div>
+  <h2>Cuatro áreas, cuatro dueños. Nadie hace el trabajo de otro.</h2>
+  <p class="lead">La regla más importante del documento: <b>Tecnología no sale a vender ni genera las ideas de negocio</b>. Si eso sigue pasando, no hay producto ni hay negocio.</p>
+  <div class="grid g4">
+    <div class="card role o">
+      <div class="who">Socio A · por asignar</div>
+      <h3>Alianzas y Ventas</h3>
+      <ul class="clean">
+        <li>Dueño de la ruta de alianzas (slides 07–09)</li>
+        <li>Agenda y asiste a reuniones con centros, ferias, universidades, gremios</li>
+        <li>Cierra fechas de registro masivo</li>
+        <li>Después del mes 2: vende planes a empresas referidas</li>
+      </ul>
+      <div class="no"><b>NO hace:</b> operar el registro en campo, crear contenido, pedir features.</div>
+      <div class="kpi"><b>Métrica semanal:</b> reuniones realizadas · fechas cerradas · aliados activos</div>
+    </div>
+    <div class="card role">
+      <div class="who">Socio B · por asignar</div>
+      <h3>Operaciones y Captación</h3>
+      <ul class="clean">
+        <li>Ejecuta los registros masivos (stand, tablet, demo)</li>
+        <li>Capta vacantes de Facebook/WhatsApp y llama a la empresa (meta: 10/semana)</li>
+        <li>Verifica prestadores (llamada + referencia)</li>
+        <li>Soporte a usuarios por WhatsApp</li>
+      </ul>
+      <div class="no"><b>NO hace:</b> negociar alianzas, decidir precios, tocar código.</div>
+      <div class="kpi"><b>Métrica semanal:</b> perfiles registrados · vacantes captadas · prestadores verificados</div>
+    </div>
+    <div class="card role t">
+      <div class="who">Socio C · por asignar</div>
+      <h3>Comunidad y Contenido</h3>
+      <ul class="clean">
+        <li>Redes: Facebook, TikTok, WhatsApp — 1 historia real por semana ("Marvin consiguió trabajo")</li>
+        <li>Grupos de Facebook de empleo: presencia diaria, responde, publica vacantes de CONEX</li>
+        <li>Material del vendedor (PDF, QR, banner)</li>
+        <li>Mide tráfico y de dónde viene</li>
+      </ul>
+      <div class="no"><b>NO hace:</b> reuniones institucionales, captar vacantes, diseñar producto.</div>
+      <div class="kpi"><b>Métrica semanal:</b> alcance · registros desde redes · piezas publicadas</div>
+    </div>
+    <div class="card role d">
+      <div class="who">Iván · desarrollador</div>
+      <h3>Producto y Tecnología</h3>
+      <ul class="clean">
+        <li>Mantiene la plataforma estable y rápida</li>
+        <li>Construye <b>solo lo que los otros tres piden con datos</b> ("perdimos 5 registros por X")</li>
+        <li>Tablero de métricas semanal para la reunión</li>
+        <li>App móvil cuando haya 500 usuarios web activos — no antes</li>
+      </ul>
+      <div class="no"><b>NO hace:</b> proponer estrategia comercial, salir a vender, decidir a qué aliado ir, crear contenido.</div>
+      <div class="kpi"><b>Métrica semanal:</b> uptime · bugs resueltos · tiempo de registro con foto de CV</div>
+    </div>
+  </div>
+  <div class="callout"><b>Si son más de 4 socios:</b> los extra entran bajo Alianzas (por territorio: Managua / León / Granada…) u Operaciones (por tipo de registro). Nunca se crea un rol de "ideas" ni de "estrategia" sin tareas medibles.</div>
+</section>
+
+<!-- ========== 12 PLAN 90 DÍAS ========== -->
+<section class="slide" data-title="Plan 90 días">
+  <div class="kicker"><span class="n">11</span> Plan 90 días</div>
+  <h2>Qué pasa cada mes, quién lo hace, cómo sabemos si funcionó</h2>
+  <p class="lead">Leyenda: <span class="owner a">A · Alianzas</span> <span class="owner b">B · Operaciones</span> <span class="owner c">C · Comunidad</span> <span class="owner d">D · Tecnología</span></p>
+  <div class="week">
+    <div class="card">
+      <h3><span>MES 1</span> Preparar y abrir puertas</h3>
+      <ul class="clean">
+        <li>Lista de 20 instituciones objetivo con contacto <span class="owner a">A</span></li>
+        <li>10 reuniones agendadas, 5 realizadas <span class="owner a">A</span></li>
+        <li>Calendario de ferias próximos 90 días <span class="owner a">A</span></li>
+        <li>Captar 10 vacantes/semana desde Facebook <span class="owner b">B</span></li>
+        <li>Kit del vendedor: PDF + QR + banner <span class="owner c">C</span></li>
+        <li>Página de Facebook activa, 3 piezas/semana <span class="owner c">C</span></li>
+        <li>Tablero de métricas + flujo de registro en campo probado <span class="owner d">D</span></li>
+      </ul>
+      <div class="kpi" style="margin-top:12px;padding:10px 12px;background:#E8EEF5;border-radius:10px;font-size:12.5px;color:var(--navy)"><b>Meta mes 1:</b> 2 fechas de registro cerradas · 40 vacantes activas · 50 perfiles</div>
+    </div>
+    <div class="card">
+      <h3><span>MES 2</span> Registrar en volumen</h3>
+      <ul class="clean">
+        <li>Primer registro masivo (centro técnico o feria) <span class="owner a">A</span> <span class="owner b">B</span></li>
+        <li>Segundo y tercer evento de registro <span class="owner b">B</span></li>
+        <li>Verificar 50 prestadores (llamada + referencia) <span class="owner b">B</span></li>
+        <li>Primer gremio con sello "Validado por" <span class="owner a">A</span></li>
+        <li>3 historias reales publicadas (video corto) <span class="owner c">C</span></li>
+        <li>Ajustes de producto según lo que falló en campo <span class="owner d">D</span></li>
+      </ul>
+      <div class="kpi" style="margin-top:12px;padding:10px 12px;background:#E8EEF5;border-radius:10px;font-size:12.5px;color:var(--navy)"><b>Meta mes 2:</b> 300 perfiles · 100 prestadores · 3 aliados con fecha cumplida</div>
+    </div>
+    <div class="card">
+      <h3><span>MES 3</span> Activar la demanda</h3>
+      <ul class="clean">
+        <li>Primeras 5 empresas referidas por aliados publican <span class="owner a">A</span></li>
+        <li>Cámara de comercio o red PyME: primera reunión <span class="owner a">A</span></li>
+        <li>Primer reclutamiento asistido cobrado <span class="owner b">B</span></li>
+        <li>Primera vacante destacada pagada <span class="owner a">A</span></li>
+        <li>Campaña "buscá un electricista cerca" en grupos de barrio <span class="owner c">C</span></li>
+        <li>Reporte de 90 días: qué funcionó, qué no, decisión de app móvil <span class="owner d">D</span></li>
+      </ul>
+      <div class="kpi" style="margin-top:12px;padding:10px 12px;background:#E8EEF5;border-radius:10px;font-size:12.5px;color:var(--navy)"><b>Meta mes 3:</b> 500 perfiles · 80 vacantes · 5 aliados · primer ingreso</div>
+    </div>
+  </div>
+  <div class="callout"><b>Reunión semanal obligatoria — 30 minutos, mismo día, misma hora.</b> Cada dueño reporta sus 3 números. Sin números, la reunión no sirve. El tablero lo arma Tecnología; los datos los generan los otros tres.</div>
+</section>
+
+<!-- ========== 13 COMPROMISOS ========== -->
+<section class="slide" data-title="Compromisos">
+  <div class="kicker"><span class="n">12</span> Compromisos</div>
+  <h2>Qué pone cada uno — y qué pasa si no se pone</h2>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Lo que hay hoy</h3>
+      <div class="kv"><b>Inversión</b><span>Alquiler de local (gasto compartido). Es el único costo fijo.</span></div>
+      <div class="kv"><b>Tecnología</b><span>Plataforma completa, construida y pagada con tiempo del desarrollador. Es el activo principal.</span></div>
+      <div class="kv"><b>Costos variables</b><span>Transporte a reuniones/ferias, impresión de kit, pauta mínima en Facebook (~$20–50/mes), hosting.</span></div>
+    </div>
+    <div class="card">
+      <h3>Lo que se pide a cada socio</h3>
+      <div class="kv"><b>Tiempo</b><span>Mínimo <b>10 horas/semana reales</b> en su área durante 90 días. No "cuando pueda".</span></div>
+      <div class="kv"><b>Números</b><span>Reportar sus 3 métricas cada semana. Sin excepción.</span></div>
+      <div class="kv"><b>Un rol</b><span>Elegir uno hoy. Se puede cambiar al día 45 si no funciona — pero se elige hoy.</span></div>
+      <div class="kv"><b>Decisiones</b><span>Las de su área las toma el dueño. Las de dinero, entre todos. Las de producto, Tecnología con datos de los otros.</span></div>
+    </div>
+  </div>
+  <h3 style="margin:22px 0 10px">Reglas del juego</h3>
+  <div class="grid g3">
+    <div class="card"><h3 style="font-size:15px">1 · Día 45: revisión</h3><p style="font-size:13.5px;color:var(--ink-2);margin-top:6px">Si un área no llegó al 50% de su meta, se discute por qué y se reasigna. Sin drama, con números.</p></div>
+    <div class="card"><h3 style="font-size:15px">2 · Día 90: decisión</h3><p style="font-size:13.5px;color:var(--ink-2);margin-top:6px">Con 500 perfiles y 5 aliados, seguimos y buscamos capital. Sin eso, replanteamos el modelo — no el esfuerzo.</p></div>
+    <div class="card"><h3 style="font-size:15px">3 · Las ideas se escriben</h3><p style="font-size:13.5px;color:var(--ink-2);margin-top:6px">Toda idea nueva va a un documento con: qué problema resuelve, qué dato lo respalda, quién la ejecuta. Si no tiene dueño, no se ejecuta.</p></div>
+  </div>
+</section>
+
+<!-- ========== 14 CIERRE ========== -->
+<section class="slide" data-title="Cierre">
+  <div class="cover" style="min-height:70vh">
+    <div class="kicker"><span class="n">→</span> Cierre</div>
+    <h1 style="font-size:38px">Hoy salimos de aquí con <span class="accent">tres cosas</span>.</h1>
+    <div class="grid g3" style="margin-top:28px">
+      <div class="card"><div class="num o">1</div><h3>Un rol por persona</h3><p style="font-size:14px;color:var(--ink-2);margin-top:6px">Alianzas · Operaciones · Comunidad · Tecnología. Escrito, con nombre.</p></div>
+      <div class="card"><div class="num o">2</div><h3>Tres tareas de esta semana</h3><p style="font-size:14px;color:var(--ink-2);margin-top:6px">Concretas. Con fecha. Las del mes 1 del plan, repartidas.</p></div>
+      <div class="card"><div class="num o">3</div><h3>Día y hora de la reunión semanal</h3><p style="font-size:14px;color:var(--ink-2);margin-top:6px">30 minutos. Los 3 números de cada uno. Empieza la próxima semana.</p></div>
+    </div>
+    <div class="quote" style="margin-top:28px">
+      El producto ya existe. Lo que decide si CONEX funciona no es una línea de código más — es <span class="accent">cuántos Marvin están buscables el día 90</span>.
+      <small>CONEX · Plan de socios · Octubre 2026 · Anexo: análisis competitivo (business-canvas.html)</small>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<div class="nav">
+  <div class="nav-in">
+    <span class="brand">CON<b>EX</b></span>
+    <span class="counter" id="counter"></span>
+    <span class="title" id="navTitle"></span>
+    <button class="btn" id="btnPrev">← Anterior</button>
+    <button class="btn primary" id="btnNext">Siguiente →</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var i = 0, n = slides.length;
+  var prog = document.getElementById('prog'), counter = document.getElementById('counter'),
+      navTitle = document.getElementById('navTitle'), toc = document.getElementById('toc'),
+      prev = document.getElementById('btnPrev'), next = document.getElementById('btnNext');
+
+  slides.forEach(function(s, k){
+    var d = document.createElement('i'); d.title = s.dataset.title || ('Slide ' + (k+1));
+    d.addEventListener('click', function(){ go(k); }); toc.appendChild(d);
+  });
+  var dots = toc.querySelectorAll('i');
+
+  function go(k){
+    i = Math.max(0, Math.min(n-1, k));
+    slides.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
+    dots.forEach(function(d, idx){ d.classList.toggle('on', idx === i); });
+    prog.style.width = ((i+1)/n*100) + '%';
+    counter.textContent = (i+1) + ' / ' + n;
+    navTitle.textContent = slides[i].dataset.title || '';
+    prev.disabled = i === 0; next.disabled = i === n-1;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (history.replaceState) history.replaceState(null, '', '#' + (i+1));
+  }
+  prev.addEventListener('click', function(){ go(i-1); });
+  next.addEventListener('click', function(){ go(i+1); });
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(i+1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp') { e.preventDefault(); go(i-1); }
+    if (e.key === 'Home') go(0); if (e.key === 'End') go(n-1);
+  });
+  var h = parseInt((location.hash || '').replace('#',''), 10);
+  go(isNaN(h) ? 0 : h-1);
+})();
+</script>
+</body>
+</html>
