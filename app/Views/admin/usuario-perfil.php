@@ -90,6 +90,10 @@
                     <a href="mailto:<?= esc($usuario['email']) ?>" class="btn btn-outline btn-sm btn-block">
                         Enviar correo electrónico
                     </a>
+                    <button type="button" class="btn btn-warning btn-sm btn-block" id="btnPerfilResetPass" style="margin-top:8px;background:#F59E0B;color:#fff;border:none;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:600;padding:8px 12px;border-radius:8px;cursor:pointer;">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Restablecer Contraseña
+                    </button>
                 </div>
             </div>
         </aside>
@@ -481,4 +485,21 @@
         </main>
     </div>
 </div>
+
+<?= view('admin/partials/modal-reset-password') ?>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.getElementById('btnPerfilResetPass');
+    btn?.addEventListener('click', function() {
+        if (window.openResetPasswordModal) {
+            window.openResetPasswordModal({
+                id: <?= (int)$usuario['id'] ?>,
+                usuario: <?= json_encode($usuario['usuario']) ?>,
+                nombre: <?= json_encode($fullName) ?>
+            });
+        }
+    });
+});
+</script>
 

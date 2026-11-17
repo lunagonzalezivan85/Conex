@@ -254,6 +254,10 @@
 
                 <!-- Action -->
                 <div class="user-action">
+                    <button type="button" class="btn-quick-reset" data-reset-id="<?= (int)$u['id'] ?>" data-reset-user="<?= esc($u['usuario'] ?? '') ?>" data-reset-name="<?= esc($fullName) ?>" title="Restablecer contraseña" style="background:#FEF3C7;border:1px solid #FCD34D;color:#D97706;cursor:pointer;padding:4px 8px;display:inline-flex;align-items:center;gap:4px;border-radius:6px;font-size:12px;font-weight:600;margin-right:4px;">
+                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        Clave
+                    </button>
                     <span class="btn-ver-perfil">
                         <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         Ver perfil
@@ -354,7 +358,11 @@
         <!-- Modal Footer -->
         <div class="user-modal-footer">
             <button type="button" class="btn btn-ghost btn-sm" id="modalCancelBtn">Cerrar</button>
-            <div class="actions-right">
+            <div class="actions-right" style="display:flex;align-items:center;gap:8px;">
+                <button type="button" class="btn btn-warning btn-sm" id="modalResetPasswordBtn" style="background:#F59E0B;color:#fff;border:none;display:inline-flex;align-items:center;gap:4px;font-weight:600;padding:6px 12px;border-radius:6px;cursor:pointer;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Restablecer clave
+                </button>
                 <a href="#" id="modalExtraActionBtn" class="btn btn-outline btn-sm" style="display:none;">Acción Extra</a>
                 <a href="#" id="modalFullProfileBtn" class="btn btn-primary btn-sm">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;vertical-align:middle;"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -364,6 +372,8 @@
         </div>
     </div>
 </div>
+
+<?= view('admin/partials/modal-reset-password') ?>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -512,11 +522,19 @@ document.addEventListener('DOMContentLoaded', function() {
         applyFilters();
     });
 
+    let activeModalUser = null;
+
     // Open Profile Modal for an item
     function openUserProfile(item) {
         const d = item.dataset;
         const userId = d.id;
         const role = d.role;
+
+        activeModalUser = {
+            id: userId,
+            usuario: d.usuario,
+            nombre: d.nombre
+        };
 
         modalUserId.textContent = '#' + userId;
         modalUserName.textContent = d.nombre;
@@ -748,6 +766,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Close modal triggers
     modalClose?.addEventListener('click', closeModal);
     modalCancel?.addEventListener('click', closeModal);
+
+    const modalResetPasswordBtn = document.getElementById('modalResetPasswordBtn');
+    modalResetPasswordBtn?.addEventListener('click', function() {
+        if (activeModalUser && window.openResetPasswordModal) {
+            window.openResetPasswordModal(activeModalUser);
+        }
+    });
+
+    document.querySelectorAll('.btn-quick-reset').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (window.openResetPasswordModal) {
+                window.openResetPasswordModal({
+                    id: this.dataset.resetId,
+                    usuario: this.dataset.resetUser,
+                    nombre: this.dataset.resetName
+                });
+            }
+        });
+    });
     modal?.addEventListener('click', function(e) {
         if (e.target === modal) {
             closeModal();

@@ -109,6 +109,7 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
 
     // CV descarga (candidato dueno o empresa con postulacion)
     $routes->get('cv/(:num)', 'Api\CvController::descargar/$1');
+    $routes->post('admin/usuarios/(:num)/reset-password', 'Api\AuthController::adminResetPassword/$1');
 
     // Vacantes (ambos roles)
     $routes->get('vacantes', 'Api\VacanteController::index');
@@ -165,6 +166,7 @@ $routes->get('/admin', 'AdminController::index');
 $routes->get('/admin/usuarios', 'AdminController::usuarios');
 $routes->get('/admin/usuarios/perfil/(:num)', 'AdminController::perfilUsuario/$1');
 $routes->get('/admin/usuarios/api-detalle/(:num)', 'AdminController::apiDetalleUsuario/$1');
+$routes->post('/admin/usuarios/reset-password/(:num)', 'AdminController::resetPassword/$1');
 $routes->get('/admin/vacantes', 'AdminController::vacantes');
 $routes->get('/admin/vacantes/crear', 'AdminController::crearVacante');
 $routes->post('/admin/vacantes/guardar', 'AdminController::guardarVacante');
