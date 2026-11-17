@@ -6,7 +6,7 @@ import {
 } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import {
-  briefcaseOutline, chatbubbleOutline, homeOutline, peopleOutline, personOutline,
+  briefcaseOutline, businessOutline, chatbubbleOutline, homeOutline, peopleOutline, personOutline,
 } from 'ionicons/icons';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -15,6 +15,7 @@ import Login from './pages/Login';
 import Registro from './pages/Registro';
 import RegistroEmpresa from './pages/RegistroEmpresa';
 import Dashboard from './pages/Dashboard';
+import MisVacantes from './pages/MisVacantes';
 import Perfil from './pages/Perfil';
 import Buscar from './pages/Buscar';
 import Categorias from './pages/Categorias';
@@ -35,16 +36,19 @@ import './theme/variables.css';
 setupIonicReact();
 
 /**
- * Tabs principales de la app (Inicio + Perfil).
+ * Tabs principales de la app (adaptativos según rol Empresa o Candidato).
  */
 const AppTabs: React.FC = () => {
+  const { user } = useAuth();
   const location = useLocation();
   const isChat = location.pathname.startsWith('/app/chat');
+  const isEmpresa = user?.role === 'empresa';
 
   return (
     <IonTabs>
       <IonRouterOutlet>
         <Route exact path="/app/dashboard" component={Dashboard} />
+        <Route exact path="/app/mis-vacantes" component={MisVacantes} />
         <Route exact path="/app/buscar" component={Buscar} />
         <Route exact path="/app/contactos" render={() => <Redirect to="/app/buscar?modo=servicios" />} />
         <Route exact path="/app/solicitudes" component={Solicitudes} />
@@ -66,22 +70,46 @@ const AppTabs: React.FC = () => {
           <IonIcon icon={homeOutline} />
           <IonLabel>Inicio</IonLabel>
         </IonTabButton>
-        <IonTabButton tab="buscar" href="/app/buscar?modo=vacantes">
-          <IonIcon icon={briefcaseOutline} />
-          <IonLabel>Empleos</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="contactos" href="/app/buscar?modo=servicios">
-          <IonIcon icon={peopleOutline} />
-          <IonLabel>Contactos</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="solicitudes" href="/app/solicitudes">
-          <IonIcon icon={chatbubbleOutline} />
-          <IonLabel>Mensajes</IonLabel>
-        </IonTabButton>
-        <IonTabButton tab="perfil" href="/app/perfil">
-          <IonIcon icon={personOutline} />
-          <IonLabel>Perfil</IonLabel>
-        </IonTabButton>
+
+        {isEmpresa ? (
+          <>
+            <IonTabButton tab="mis-vacantes" href="/app/mis-vacantes">
+              <IonIcon icon={briefcaseOutline} />
+              <IonLabel>Mis Vacantes</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="talentos" href="/app/buscar?modo=servicios">
+              <IonIcon icon={peopleOutline} />
+              <IonLabel>Talentos</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="solicitudes" href="/app/solicitudes">
+              <IonIcon icon={chatbubbleOutline} />
+              <IonLabel>Mensajes</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="perfil" href="/app/perfil">
+              <IonIcon icon={businessOutline} />
+              <IonLabel>Empresa</IonLabel>
+            </IonTabButton>
+          </>
+        ) : (
+          <>
+            <IonTabButton tab="buscar" href="/app/buscar?modo=vacantes">
+              <IonIcon icon={briefcaseOutline} />
+              <IonLabel>Empleos</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="contactos" href="/app/buscar?modo=servicios">
+              <IonIcon icon={peopleOutline} />
+              <IonLabel>Contactos</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="solicitudes" href="/app/solicitudes">
+              <IonIcon icon={chatbubbleOutline} />
+              <IonLabel>Mensajes</IonLabel>
+            </IonTabButton>
+            <IonTabButton tab="perfil" href="/app/perfil">
+              <IonIcon icon={personOutline} />
+              <IonLabel>Perfil</IonLabel>
+            </IonTabButton>
+          </>
+        )}
       </IonTabBar>
     </IonTabs>
   );

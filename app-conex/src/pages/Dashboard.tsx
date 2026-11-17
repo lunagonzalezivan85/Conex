@@ -89,7 +89,10 @@ const Dashboard: React.FC = () => {
     router.push(`/app/chat?${params.toString()}`);
   };
 
-  const firstName = user?.nombre?.split(' ')[0] || 'Usuario';
+  const isEmpresa = user?.role === 'empresa';
+  const firstName = isEmpresa
+    ? (user?.empresa?.razon_social || user?.nombre || 'Empresa')
+    : (user?.nombre?.split(' ')[0] || 'Usuario');
   const avatarSrc = user?.avatar_url || user?.avatar || null;
   const perfilPct = user?.role === 'candidato'
     ? Math.min(100, Math.max(0, Number(user?.candidato?.porcentaje_perfil ?? 0)))
@@ -169,12 +172,14 @@ const Dashboard: React.FC = () => {
           <div className="cx-greeting">
             <h1 className="cx-greeting-title">Hola, {firstName}</h1>
             <p className="cx-greeting-sub">
-              Encuentra el talento o la oportunidad que necesitas.
+              {isEmpresa
+                ? 'Panel de reclutamiento y gestión de talento.'
+                : 'Encuentra el talento o la oportunidad que necesitas.'}
             </p>
           </div>
 
           {/* Banner sutil de completitud si el perfil está incompleto */}
-          {user?.role === 'candidato' && perfilPct < 80 && (
+          {!isEmpresa && user?.role === 'candidato' && perfilPct < 80 && (
             <button
               type="button"
               className="cx-profile-nudge"
@@ -196,75 +201,180 @@ const Dashboard: React.FC = () => {
             <IonIcon icon={searchOutline} className="cx-search-icon" />
             <input
               type="search"
-              placeholder="Buscar trabajos, personas o profesiones..."
+              placeholder={isEmpresa ? 'Buscar candidatos, oficios o talentos...' : 'Buscar trabajos, personas o profesiones...'}
               value={query}
               onChange={e => setQuery(e.target.value)}
               aria-label="Buscar trabajos, personas o profesiones"
             />
           </form>
 
-          {/* 2 tarjetas CTA: Busco trabajo / Busco personal */}
-          <div className="cx-dual-cta">
-            <button
-              type="button"
-              className="cx-cta-box cx-cta-navy"
-              onClick={() => router.push('/app/buscar?modo=vacantes')}
+          {/* Tarjeta de Control para Empresas vs CTA de Candidatos */}
+          {isEmpresa ? (
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #1B2A4A, #283e6b)',
+                color: '#fff',
+                borderRadius: 18,
+                padding: '16px 18px',
+                marginBottom: 18,
+                boxShadow: '0 8px 24px rgba(27, 42, 74, 0.28)',
+              }}
             >
-              <div className="cx-cta-icon">
-                <IonIcon icon={briefcaseOutline} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#0FC6C2', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  🎁 Mes de Prueba Gratis (USD)
+                </span>
+                <span style={{ fontSize: 12, background: 'rgba(255,255,255,0.15)', padding: '2px 8px', borderRadius: 10 }}>
+                  30 días activos
+                </span>
               </div>
-              <div className="cx-cta-text">
-                <strong>Busco trabajo</strong>
-                <span>Encuentra tu próxima oportunidad</span>
-              </div>
-              <IonIcon icon={chevronForward} className="cx-cta-arrow" />
-            </button>
 
-            <button
-              type="button"
-              className="cx-cta-box cx-cta-orange"
-              onClick={() => router.push('/app/buscar?modo=servicios')}
-            >
-              <div className="cx-cta-icon">
-                <IonIcon icon={peopleOutline} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
+                <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px' }}>
+                  <div style={{ fontSize: 11, opacity: 0.8 }}>Vacantes Creadas</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#FB923C' }}>
+                    {misVacantes.length} / 5 <span style={{ fontSize: 11, fontWeight: 400, opacity: 0.7 }}>usadas</span>
+                  </div>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.08)', borderRadius: 12, padding: '10px 12px' }}>
+                  <div style={{ fontSize: 11, opacity: 0.8 }}>Candidatos a Consultar</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#0FC6C2' }}>
+                    0 / 8 <span style={{ fontSize: 11, fontWeight: 400, opacity: 0.7 }}>vistos</span>
+                  </div>
+                </div>
               </div>
-              <div className="cx-cta-text">
-                <strong>Busco personal</strong>
-                <span>Publica vacantes y encuentra talento</span>
-              </div>
-              <IonIcon icon={chevronForward} className="cx-cta-arrow" />
-            </button>
-          </div>
+
+              <button
+                type="button"
+                onClick={() => router.push('/app/mis-vacantes')}
+                style={{
+                  width: '100%',
+                  background: 'linear-gradient(135deg, #F97316, #FB923C)',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '12px 14px',
+                  fontWeight: 700,
+                  fontSize: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)',
+                }}
+              >
+                <IonIcon icon={briefcaseOutline} />
+                + Publicar o Administrar Vacantes
+              </button>
+            </div>
+          ) : (
+            <div className="cx-dual-cta">
+              <button
+                type="button"
+                className="cx-cta-box cx-cta-navy"
+                onClick={() => router.push('/app/buscar?modo=vacantes')}
+              >
+                <div className="cx-cta-icon">
+                  <IonIcon icon={briefcaseOutline} />
+                </div>
+                <div className="cx-cta-text">
+                  <strong>Busco trabajo</strong>
+                  <span>Encuentra tu próxima oportunidad</span>
+                </div>
+                <IonIcon icon={chevronForward} className="cx-cta-arrow" />
+              </button>
+
+              <button
+                type="button"
+                className="cx-cta-box cx-cta-orange"
+                onClick={() => router.push('/app/buscar?modo=servicios')}
+              >
+                <div className="cx-cta-icon">
+                  <IonIcon icon={peopleOutline} />
+                </div>
+                <div className="cx-cta-text">
+                  <strong>Busco personal</strong>
+                  <span>Publica vacantes y encuentra talento</span>
+                </div>
+                <IonIcon icon={chevronForward} className="cx-cta-arrow" />
+              </button>
+            </div>
+          )}
 
           {loading ? (
             <div className="dash-loading"><IonSpinner name="crescent" /></div>
           ) : (
             <>
-              {/* Si es empresa, resumen rápido de sus vacantes propias */}
-              {user?.role === 'empresa' && misVacantes.length > 0 && (
+              {/* Si es empresa, sección destacada de sus vacantes */}
+              {isEmpresa && (
                 <section className="cx-section">
                   <div className="section-head">
-                    <h3 className="dash-section">Mis vacantes activas</h3>
+                    <h3 className="dash-section">Mis vacantes y postulantes</h3>
+                    <button
+                      type="button"
+                      className="cx-link-all"
+                      onClick={() => router.push('/app/mis-vacantes')}
+                    >
+                      Gestionar todas <IonIcon icon={chevronForward} />
+                    </button>
                   </div>
-                  {misVacantes.slice(0, 3).map(v => (
-                    <IonItem key={v.id} className="vac-item" routerLink={`/app/vacante/${v.slug}`} detail>
-                      <IonLabel>
-                        <h3>{v.titulo}</h3>
-                        <p><IonIcon icon={locationOutline} /> {v.ciudad || 'Sin ubicación'} · {v.modalidad}</p>
-                        <IonNote><IonIcon icon={timeOutline} /> {v.total_postulantes ?? 0} postulantes</IonNote>
-                      </IonLabel>
-                      <IonBadge color={v.estado === 'publicada' ? 'success' : 'medium'} slot="end">
-                        {v.estado}
-                      </IonBadge>
-                    </IonItem>
-                  ))}
+                  {misVacantes.length === 0 ? (
+                    <div
+                      style={{
+                        background: '#fff',
+                        borderRadius: 14,
+                        padding: '20px 16px',
+                        border: '1.5px dashed #CBD5E1',
+                        textAlign: 'center',
+                      }}
+                    >
+                      <IonIcon icon={briefcaseOutline} style={{ fontSize: 32, color: '#94A3B8', marginBottom: 6 }} />
+                      <p style={{ margin: '0 0 12px', fontSize: 13, color: '#64748B' }}>
+                        Aún no has publicado vacantes. Tienes 5 vacantes gratis en tu mes de prueba.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => router.push('/app/mis-vacantes')}
+                        style={{
+                          background: '#1B2A4A',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: 10,
+                          padding: '8px 16px',
+                          fontSize: 13,
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                        }}
+                      >
+                        + Publicar primera vacante
+                      </button>
+                    </div>
+                  ) : (
+                    misVacantes.slice(0, 4).map(v => (
+                      <IonItem key={v.id} className="vac-item" routerLink="/app/mis-vacantes" detail>
+                        <IonLabel>
+                          <h3>{v.titulo}</h3>
+                          <p><IonIcon icon={locationOutline} /> {v.ciudad || 'Sin ubicación'} · {v.modalidad}</p>
+                          <IonNote style={{ color: '#0F766E', fontWeight: 600 }}>
+                            <IonIcon icon={peopleOutline} /> {v.total_postulantes ?? 0} candidatos postulados
+                          </IonNote>
+                        </IonLabel>
+                        <IonBadge color={v.estado === 'publicada' ? 'success' : 'medium'} slot="end">
+                          {v.estado}
+                        </IonBadge>
+                      </IonItem>
+                    ))
+                  )}
                 </section>
               )}
 
-              {/* 1. Trabajadores destacados (Carrusel horizontal) */}
+              {/* 1. Trabajadores / Talentos destacados (Carrusel horizontal) */}
               <section className="cx-section">
                 <div className="section-head">
-                  <h3 className="dash-section">Trabajadores destacados</h3>
+                  <h3 className="dash-section">
+                    {isEmpresa ? 'Talentos y Profesionales disponibles' : 'Trabajadores destacados'}
+                  </h3>
                   <button
                     type="button"
                     className="cx-link-all"
@@ -341,98 +451,102 @@ const Dashboard: React.FC = () => {
                 )}
               </section>
 
-              {/* 2. Oportunidades laborales */}
-              <section className="cx-section">
-                <div className="section-head">
-                  <h3 className="dash-section">Oportunidades laborales</h3>
-                  <button
-                    type="button"
-                    className="cx-link-all"
-                    onClick={() => router.push('/app/buscar?modo=vacantes')}
-                  >
-                    Ver todos <IonIcon icon={chevronForward} />
-                  </button>
-                </div>
-
-                {oportunidades.length === 0 ? (
-                  <p className="dash-empty">No hay vacantes publicadas en este momento.</p>
-                ) : (
-                  <div className="cx-jobs-stack">
-                    {oportunidades.map((v: any, idx: number) => {
-                      const isUrgente = Number(v.destacada) === 1 || idx === 0;
-                      return (
-                        <IonCard
-                          key={v.id}
-                          className="cx-opp-card"
-                          routerLink={`/app/vacante/${v.slug}`}
-                        >
-                          <IonCardContent className="cx-opp-content">
-                            <div className="cx-opp-left">
-                              <div className="cx-opp-logo">
-                                {v.empresa_logo_url ? (
-                                  <img src={v.empresa_logo_url} alt={v.empresa_nombre} loading="lazy" />
-                                ) : (
-                                  <div className="cx-opp-logo-fallback">
-                                    {(v.empresa_nombre || 'C')[0]}
-                                  </div>
-                                )}
-                              </div>
-                              {v.poster_url ? (
-                                <img src={v.poster_url} alt={v.titulo} className="cx-opp-thumb" loading="lazy" />
-                              ) : (
-                                <div className="cx-opp-thumb cx-opp-thumb-fallback">
-                                  <IonIcon icon={catIcon(v.categoria_nombre || v.titulo || '')} />
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="cx-opp-main">
-                              <div className="cx-opp-top">
-                                <span className="cx-opp-company">{v.empresa_nombre || 'Empresa verificada'}</span>
-                                <span className={`cx-opp-badge ${isUrgente ? 'urgente' : 'nuevo'}`}>
-                                  {isUrgente ? 'URGENTE' : 'NUEVO'}
-                                </span>
-                              </div>
-
-                              <h4 className="cx-opp-title">{v.titulo}</h4>
-
-                              <div className="cx-opp-details">
-                                <div className="cx-opp-detail-line">
-                                  <IonIcon icon={locationOutline} />
-                                  <span>{v.ciudad || 'Managua'}</span>
-                                </div>
-                                <div className="cx-opp-detail-line">
-                                  <IonIcon icon={cashOutline} />
-                                  <span>{formatSalario(v)}</span>
-                                </div>
-                                <div className="cx-opp-detail-line">
-                                  <IonIcon icon={timeOutline} />
-                                  <span>
-                                    {v.tipo_contrato_nombre
-                                      || (v.modalidad === 'presencial' ? 'Tiempo completo' : v.modalidad)}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <IonIcon icon={chevronForward} className="cx-opp-chev" />
-                          </IonCardContent>
-                        </IonCard>
-                      );
-                    })}
-                  </div>
-                )}
-              </section>
-
-              {/* 3. Grupos de trabajo (Categorías con miembros/vacantes) */}
-              {categorias.length > 0 && (
+              {/* 2. Oportunidades laborales (solo para candidatos) */}
+              {!isEmpresa && (
                 <section className="cx-section">
                   <div className="section-head">
-                    <h3 className="dash-section">Grupos de trabajo</h3>
+                    <h3 className="dash-section">Oportunidades laborales</h3>
                     <button
                       type="button"
                       className="cx-link-all"
-                      onClick={() => router.push('/app/categorias')}
+                      onClick={() => router.push('/app/buscar?modo=vacantes')}
+                    >
+                      Ver todos <IonIcon icon={chevronForward} />
+                    </button>
+                  </div>
+
+                  {oportunidades.length === 0 ? (
+                    <p className="dash-empty">No hay vacantes publicadas en este momento.</p>
+                  ) : (
+                    <div className="cx-jobs-stack">
+                      {oportunidades.map((v: any, idx: number) => {
+                        const isUrgente = Number(v.destacada) === 1 || idx === 0;
+                        return (
+                          <IonCard
+                            key={v.id}
+                            className="cx-opp-card"
+                            routerLink={`/app/vacante/${v.slug}`}
+                          >
+                            <IonCardContent className="cx-opp-content">
+                              <div className="cx-opp-left">
+                                <div className="cx-opp-logo">
+                                  {v.empresa_logo_url ? (
+                                    <img src={v.empresa_logo_url} alt={v.empresa_nombre} loading="lazy" />
+                                  ) : (
+                                    <div className="cx-opp-logo-fallback">
+                                      {(v.empresa_nombre || 'C')[0]}
+                                    </div>
+                                  )}
+                                </div>
+                                {v.poster_url ? (
+                                  <img src={v.poster_url} alt={v.titulo} className="cx-opp-thumb" loading="lazy" />
+                                ) : (
+                                  <div className="cx-opp-thumb cx-opp-thumb-fallback">
+                                    <IonIcon icon={catIcon(v.categoria_nombre || v.titulo || '')} />
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="cx-opp-main">
+                                <div className="cx-opp-top">
+                                  <span className="cx-opp-company">{v.empresa_nombre || 'Empresa verificada'}</span>
+                                  <span className={`cx-opp-badge ${isUrgente ? 'urgente' : 'nuevo'}`}>
+                                    {isUrgente ? 'URGENTE' : 'NUEVO'}
+                                  </span>
+                                </div>
+
+                                <h4 className="cx-opp-title">{v.titulo}</h4>
+
+                                <div className="cx-opp-details">
+                                  <div className="cx-opp-detail-line">
+                                    <IonIcon icon={locationOutline} />
+                                    <span>{v.ciudad || 'Managua'}</span>
+                                  </div>
+                                  <div className="cx-opp-detail-line">
+                                    <IonIcon icon={cashOutline} />
+                                    <span>{formatSalario(v)}</span>
+                                  </div>
+                                  <div className="cx-opp-detail-line">
+                                    <IonIcon icon={timeOutline} />
+                                    <span>
+                                      {v.tipo_contrato_nombre
+                                        || (v.modalidad === 'presencial' ? 'Tiempo completo' : v.modalidad)}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <IonIcon icon={chevronForward} className="cx-opp-chev" />
+                            </IonCardContent>
+                          </IonCard>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {/* 3. Grupos de trabajo / Especialidades */}
+              {categorias.length > 0 && (
+                <section className="cx-section">
+                  <div className="section-head">
+                    <h3 className="dash-section">
+                      {isEmpresa ? 'Especialidades de Personal' : 'Grupos de trabajo'}
+                    </h3>
+                    <button
+                      type="button"
+                      className="cx-link-all"
+                      onClick={() => router.push(isEmpresa ? '/app/buscar?modo=servicios' : '/app/categorias')}
                     >
                       Ver todos <IonIcon icon={chevronForward} />
                     </button>
@@ -446,14 +560,14 @@ const Dashboard: React.FC = () => {
                           key={c.id}
                           type="button"
                           className="cx-group-card"
-                          onClick={() => router.push(`/app/buscar?categoria=${c.id}`)}
+                          onClick={() => router.push(isEmpresa ? `/app/buscar?modo=servicios&cat=${c.id}` : `/app/buscar?categoria=${c.id}`)}
                         >
                           <div className="cx-group-icon">
                             <IonIcon icon={catIcon(c.nombre)} />
                           </div>
                           <div className="cx-group-info">
                             <strong>{c.nombre}</strong>
-                            <span>{count} miembros</span>
+                            <span>{isEmpresa ? `${count} disponibles` : `${count} miembros`}</span>
                           </div>
                           <IonIcon icon={chevronForward} className="cx-group-chev" />
                         </button>
@@ -463,8 +577,8 @@ const Dashboard: React.FC = () => {
                 </section>
               )}
 
-              {/* 4. Tablón de anuncios */}
-              {anuncios.length > 0 && (
+              {/* 4. Tablón de anuncios (solo para candidatos) */}
+              {!isEmpresa && anuncios.length > 0 && (
                 <section className="cx-section">
                   <div className="section-head">
                     <h3 className="dash-section">Tablón de anuncios</h3>

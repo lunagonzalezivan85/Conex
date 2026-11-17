@@ -301,6 +301,10 @@ export const empresaApi = {
     Object.entries(params).forEach(([k, v]) => qs.append(k, String(v)));
     return api<{ data: any[]; meta: any }>(`/empresa/vacantes?${qs.toString()}`);
   },
+  crearVacante: (data: Record<string, any>) =>
+    api<{ message: string; vacante_id: number; slug: string }>('/empresa/vacantes', { method: 'POST', body: data }),
+  actualizarVacante: (id: number, data: Record<string, any>) =>
+    api<{ message: string; data: any }>(`/empresa/vacantes/${id}`, { method: 'PUT', body: data }),
   postulaciones: (vacanteId: number) =>
     api<{ data: any[] }>(`/empresa/vacantes/${vacanteId}/postulaciones`),
   cambiarEstadoPostulacion: (id: number, estado: string) =>
