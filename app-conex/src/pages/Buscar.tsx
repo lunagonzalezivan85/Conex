@@ -81,14 +81,18 @@ const Buscar: React.FC = () => {
       .catch(() => {});
   }, []);
 
-  // Deep-link desde el inicio: ?q=, ?categoria=, ?geo=1, ?modo=vacantes|servicios
+  // Deep-link desde el inicio o rutas de tabs: ?q=, ?categoria=, ?geo=1, ?modo=vacantes|servicios
   useEffect(() => {
     const p = new URLSearchParams(location.search);
     const q = p.get('q');
-    const cat = p.get('categoria');
+    const cat = p.get('categoria') || p.get('cat');
     const m = p.get('modo');
     if (m === 'servicios' || m === 'vacantes') {
       setModo(m);
+    } else if (location.pathname.includes('/contactos') || location.pathname.includes('/talentos')) {
+      setModo('servicios');
+    } else if (location.pathname === '/app/buscar') {
+      setModo('vacantes');
     }
     if (q !== null || cat !== null) {
       setFiltros(f => ({
@@ -101,7 +105,7 @@ const Buscar: React.FC = () => {
       activarGeo();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search]);
+  }, [location.search, location.pathname]);
 
   const cargar = async (page = 1, replace = false) => {
     if (page === 1) setLoading(true);

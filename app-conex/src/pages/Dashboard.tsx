@@ -273,7 +273,7 @@ const Dashboard: React.FC = () => {
               <button
                 type="button"
                 className="cx-cta-box cx-cta-navy"
-                onClick={() => router.push('/app/buscar?modo=vacantes')}
+                onClick={() => router.push('/app/buscar')}
               >
                 <div className="cx-cta-icon">
                   <IonIcon icon={briefcaseOutline} />
@@ -288,7 +288,7 @@ const Dashboard: React.FC = () => {
               <button
                 type="button"
                 className="cx-cta-box cx-cta-orange"
-                onClick={() => router.push('/app/buscar?modo=servicios')}
+                onClick={() => router.push('/app/contactos')}
               >
                 <div className="cx-cta-icon">
                   <IonIcon icon={peopleOutline} />
@@ -378,7 +378,7 @@ const Dashboard: React.FC = () => {
                   <button
                     type="button"
                     className="cx-link-all"
-                    onClick={() => router.push('/app/buscar?modo=servicios')}
+                    onClick={() => router.push(isEmpresa ? '/app/talentos' : '/app/contactos')}
                   >
                     Ver todos <IonIcon icon={chevronForward} />
                   </button>
@@ -459,7 +459,7 @@ const Dashboard: React.FC = () => {
                     <button
                       type="button"
                       className="cx-link-all"
-                      onClick={() => router.push('/app/buscar?modo=vacantes')}
+                      onClick={() => router.push('/app/buscar')}
                     >
                       Ver todos <IonIcon icon={chevronForward} />
                     </button>
@@ -546,7 +546,7 @@ const Dashboard: React.FC = () => {
                     <button
                       type="button"
                       className="cx-link-all"
-                      onClick={() => router.push(isEmpresa ? '/app/buscar?modo=servicios' : '/app/categorias')}
+                      onClick={() => router.push(isEmpresa ? '/app/talentos' : '/app/categorias')}
                     >
                       Ver todos <IonIcon icon={chevronForward} />
                     </button>
@@ -560,7 +560,7 @@ const Dashboard: React.FC = () => {
                           key={c.id}
                           type="button"
                           className="cx-group-card"
-                          onClick={() => router.push(isEmpresa ? `/app/buscar?modo=servicios&cat=${c.id}` : `/app/buscar?categoria=${c.id}`)}
+                          onClick={() => router.push(isEmpresa ? `/app/talentos?cat=${c.id}` : `/app/buscar?categoria=${c.id}`)}
                         >
                           <div className="cx-group-icon">
                             <IonIcon icon={catIcon(c.nombre)} />
@@ -585,7 +585,7 @@ const Dashboard: React.FC = () => {
                     <button
                       type="button"
                       className="cx-link-all"
-                      onClick={() => router.push('/app/buscar?modo=vacantes')}
+                      onClick={() => router.push('/app/buscar')}
                     >
                       Ver todos <IonIcon icon={chevronForward} />
                     </button>

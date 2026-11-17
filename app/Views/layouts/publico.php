@@ -124,8 +124,30 @@
                 </a>
             </div>
             <div class="header-actions">
-                <a href="<?= base_url('login') ?>" class="btn btn-ghost">Iniciar Sesion</a>
-                <a href="<?= base_url('registro') ?>" class="btn btn-primary">Registrarse</a>
+                <?php if (session()->get('isLoggedIn')): ?>
+                    <?php
+                    $roleId = (int)session()->get('role_id');
+                    $panelUrl = match ($roleId) {
+                        1 => 'admin',
+                        2 => 'agente',
+                        3 => 'empresa',
+                        4 => 'candidato',
+                        default => 'candidato',
+                    };
+                    $panelLabel = match ($roleId) {
+                        1 => 'Administración',
+                        2 => 'Portal Asesor',
+                        3 => 'Panel Empresa',
+                        4 => 'Mi Panel',
+                        default => 'Mi Panel',
+                    };
+                    ?>
+                    <a href="<?= base_url($panelUrl) ?>" class="btn btn-primary"><?= esc($panelLabel) ?></a>
+                    <a href="<?= base_url('logout') ?>" class="btn btn-ghost">Cerrar Sesión</a>
+                <?php else: ?>
+                    <a href="<?= base_url('login') ?>" class="btn btn-ghost">Iniciar Sesion</a>
+                    <a href="<?= base_url('registro') ?>" class="btn btn-primary">Registrarse</a>
+                <?php endif; ?>
             </div>
         </nav>
     </header>

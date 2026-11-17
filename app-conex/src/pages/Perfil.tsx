@@ -627,7 +627,7 @@ const Perfil: React.FC = () => {
     <IonPage>
       <IonHeader translucent>
         <IonToolbar>
-          <IonTitle>Mi perfil</IonTitle>
+          <IonTitle>{user?.role === 'empresa' ? 'Perfil de Empresa' : 'Mi perfil'}</IonTitle>
         </IonToolbar>
       </IonHeader>
 

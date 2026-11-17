@@ -42,7 +42,8 @@ const AppTabs: React.FC = () => {
   const { user } = useAuth();
   const location = useLocation();
   const isChat = location.pathname.startsWith('/app/chat');
-  const isEmpresa = user?.role === 'empresa';
+  const role = (user?.role || '').toLowerCase().trim();
+  const isEmpresa = role === 'empresa' || (role !== 'candidato' && Boolean(user?.empresa));
 
   return (
     <IonTabs>
@@ -50,7 +51,8 @@ const AppTabs: React.FC = () => {
         <Route exact path="/app/dashboard" component={Dashboard} />
         <Route exact path="/app/mis-vacantes" component={MisVacantes} />
         <Route exact path="/app/buscar" component={Buscar} />
-        <Route exact path="/app/contactos" render={() => <Redirect to="/app/buscar?modo=servicios" />} />
+        <Route exact path="/app/contactos" component={Buscar} />
+        <Route exact path="/app/talentos" component={Buscar} />
         <Route exact path="/app/solicitudes" component={Solicitudes} />
         <Route exact path="/app/mensajes" component={Solicitudes} />
         <Route exact path="/app/chat" component={ChatMessenger} />
@@ -61,56 +63,69 @@ const AppTabs: React.FC = () => {
         <Route exact path="/app" render={() => <Redirect to="/app/dashboard" />} />
       </IonRouterOutlet>
 
-      <IonTabBar
-        slot="bottom"
-        className={isChat ? 'cx-tab-bar-hidden' : ''}
-        style={{ display: isChat ? 'none' : 'flex' }}
-      >
-        <IonTabButton tab="dashboard" href="/app/dashboard">
-          <IonIcon icon={homeOutline} />
-          <IonLabel>Inicio</IonLabel>
-        </IonTabButton>
+      {isEmpresa ? (
+        <IonTabBar
+          slot="bottom"
+          className={isChat ? 'cx-tab-bar-hidden' : ''}
+          style={{ display: isChat ? 'none' : 'flex' }}
+        >
+          <IonTabButton tab="dashboard" href="/app/dashboard">
+            <IonIcon icon={homeOutline} />
+            <IonLabel>Inicio</IonLabel>
+          </IonTabButton>
 
-        {isEmpresa ? (
-          <>
-            <IonTabButton tab="mis-vacantes" href="/app/mis-vacantes">
-              <IonIcon icon={briefcaseOutline} />
-              <IonLabel>Mis Vacantes</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="talentos" href="/app/buscar?modo=servicios">
-              <IonIcon icon={peopleOutline} />
-              <IonLabel>Talentos</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="solicitudes" href="/app/solicitudes">
-              <IonIcon icon={chatbubbleOutline} />
-              <IonLabel>Mensajes</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="perfil" href="/app/perfil">
-              <IonIcon icon={businessOutline} />
-              <IonLabel>Empresa</IonLabel>
-            </IonTabButton>
-          </>
-        ) : (
-          <>
-            <IonTabButton tab="buscar" href="/app/buscar?modo=vacantes">
-              <IonIcon icon={briefcaseOutline} />
-              <IonLabel>Empleos</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="contactos" href="/app/buscar?modo=servicios">
-              <IonIcon icon={peopleOutline} />
-              <IonLabel>Contactos</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="solicitudes" href="/app/solicitudes">
-              <IonIcon icon={chatbubbleOutline} />
-              <IonLabel>Mensajes</IonLabel>
-            </IonTabButton>
-            <IonTabButton tab="perfil" href="/app/perfil">
-              <IonIcon icon={personOutline} />
-              <IonLabel>Perfil</IonLabel>
-            </IonTabButton>
-          </>
-        )}
-      </IonTabBar>
+          <IonTabButton tab="mis-vacantes" href="/app/mis-vacantes">
+            <IonIcon icon={briefcaseOutline} />
+            <IonLabel>Mis Vacantes</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="talentos" href="/app/talentos">
+            <IonIcon icon={peopleOutline} />
+            <IonLabel>Talentos</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="solicitudes" href="/app/solicitudes">
+            <IonIcon icon={chatbubbleOutline} />
+            <IonLabel>Mensajes</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="perfil" href="/app/perfil">
+            <IonIcon icon={businessOutline} />
+            <IonLabel>Empresa</IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      ) : (
+        <IonTabBar
+          slot="bottom"
+          className={isChat ? 'cx-tab-bar-hidden' : ''}
+          style={{ display: isChat ? 'none' : 'flex' }}
+        >
+          <IonTabButton tab="dashboard" href="/app/dashboard">
+            <IonIcon icon={homeOutline} />
+            <IonLabel>Inicio</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="buscar" href="/app/buscar">
+            <IonIcon icon={briefcaseOutline} />
+            <IonLabel>Empleos</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="contactos" href="/app/contactos">
+            <IonIcon icon={peopleOutline} />
+            <IonLabel>Contactos</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="solicitudes" href="/app/solicitudes">
+            <IonIcon icon={chatbubbleOutline} />
+            <IonLabel>Mensajes</IonLabel>
+          </IonTabButton>
+
+          <IonTabButton tab="perfil" href="/app/perfil">
+            <IonIcon icon={personOutline} />
+            <IonLabel>Perfil</IonLabel>
+          </IonTabButton>
+        </IonTabBar>
+      )}
     </IonTabs>
   );
 };
