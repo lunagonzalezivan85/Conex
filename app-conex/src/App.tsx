@@ -13,6 +13,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Splash from './pages/Splash';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
+import RegistroEmpresa from './pages/RegistroEmpresa';
 import Dashboard from './pages/Dashboard';
 import Perfil from './pages/Perfil';
 import Buscar from './pages/Buscar';
@@ -99,6 +100,7 @@ const AppRoutes: React.FC = () => {
         <Route exact path="/" component={Splash} />
         <Route exact path="/login" component={Login} />
         <Route exact path="/registro" component={Registro} />
+        <Route exact path="/registro-empresa" component={RegistroEmpresa} />
         <Route
           path="/app"
           render={() => {

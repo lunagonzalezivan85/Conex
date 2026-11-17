@@ -115,6 +115,19 @@ export interface RegistroAppPayload {
   terminos: 1;
 }
 
+export interface RegistroEmpresaPayload {
+  tipo_cuenta: 'empresa';
+  razon_social: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  telefono: string;
+  password: string;
+  ruc?: string;
+  rubro?: string;
+  ciudad?: string;
+}
+
 export const authApi = {
   login: (usuario: string, password: string) =>
     api<{ token: string; expires_at: string; user: ApiUser }>('/login', {
@@ -124,6 +137,12 @@ export const authApi = {
     }),
   registerApp: (payload: RegistroAppPayload) =>
     api<{ token: string; expires_at: string; user: ApiUser }>('/register', {
+      method: 'POST',
+      auth: false,
+      body: { ...payload, device_name: 'conex-app' },
+    }),
+  registerEmpresa: (payload: RegistroEmpresaPayload) =>
+    api<{ message: string; token: string; expires_at: string; user: ApiUser }>('/register', {
       method: 'POST',
       auth: false,
       body: { ...payload, device_name: 'conex-app' },

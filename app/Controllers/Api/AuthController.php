@@ -28,9 +28,16 @@ class AuthController extends BaseApiController
         $data = $this->body();
         $userModel = new UserModel();
 
-        $user = $userModel->where('usuario', $data['usuario'])
-            ->orWhere('email', $data['usuario'])
-            ->first();
+        $usuario = trim((string)($data['usuario'] ?? ''));
+        $cedulaNorm = strtoupper(preg_replace('/[^0-9A-Za-z]/', '', $usuario));
+
+        $builder = $userModel->groupStart()
+            ->where('usuario', $usuario)
+            ->orWhere('email', $usuario);
+        if (!empty($cedulaNorm)) {
+            $builder->orWhere('usuario', $cedulaNorm);
+        }
+        $user = $builder->groupEnd()->first();
 
         if (!$user || !password_verify($data['password'], $user['password'])) {
             return $this->fail('Credenciales invalidas', 401);
@@ -226,13 +233,133 @@ class AuthController extends BaseApiController
     public function register()
     {
         $data = $this->body();
+        $tipoCuenta = $data['tipo_cuenta'] ?? (!empty($data['razon_social']) ? 'empresa' : 'candidato');
 
-        if (!empty($data['cedula'])) {
+        // Flujo express app para candidato con cedula
+        if (!empty($data['cedula']) && $tipoCuenta === 'candidato') {
             return $this->registerApp($data);
         }
 
-        $tipoCuenta = $data['tipo_cuenta'] ?? '';
+        $userModel = new UserModel();
 
+        if ($tipoCuenta === 'empresa') {
+            $rules = [
+                'razon_social'     => 'required|min_length[3]|max_length[150]',
+                'nombre'           => 'required|min_length[2]|max_length[100]',
+                'apellido'         => 'required|min_length[2]|max_length[100]',
+                'email'            => 'required|valid_email|is_unique[auth_user.email]',
+                'telefono'         => 'required|min_length[8]|max_length[20]',
+                'password'         => 'required|min_length[6]|max_length[100]',
+                'ruc'              => 'permit_empty|max_length[50]',
+                'rubro'            => 'permit_empty|max_length[100]',
+                'ciudad'           => 'permit_empty|max_length[100]',
+            ];
+            if ($res = $this->validateApi($rules)) {
+                return $res;
+            }
+
+            $roleId = $userModel->getRoleIdBySlug('empresa');
+            if (!$roleId) {
+                return $this->fail('Tipo de cuenta no valido', 422);
+            }
+
+            // Generar usuario base si no viene especificado
+            $baseUsuario = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', explode('@', $data['email'])[0]));
+            if (empty($baseUsuario) || strlen($baseUsuario) < 3) {
+                $baseUsuario = 'empresa' . rand(100, 999);
+            }
+            $usuario = $data['usuario'] ?? ($baseUsuario . rand(10, 99));
+
+            // Asegurar unicidad de usuario
+            while ($userModel->where('usuario', $usuario)->first()) {
+                $usuario = $baseUsuario . rand(100, 9999);
+            }
+
+            $userId = $userModel->insert([
+                'role_id'         => $roleId,
+                'nombre'          => $data['nombre'],
+                'apellido'        => $data['apellido'],
+                'usuario'         => $usuario,
+                'email'           => $data['email'],
+                'telefono'        => $data['telefono'],
+                'password'        => $data['password'],
+                'estado'          => 'activo',
+                'perfil_completo' => false,
+            ], true);
+
+            if (!$userId) {
+                return $this->fail('No se pudo crear la cuenta de empresa', 500, $userModel->errors());
+            }
+
+            $empresaModel = new EmpresaModel();
+            $empresaId = $empresaModel->insert([
+                'user_id'      => $userId,
+                'razon_social' => $data['razon_social'],
+                'ruc'          => !empty($data['ruc']) ? trim($data['ruc']) : null,
+                'rubro'        => !empty($data['rubro']) ? trim($data['rubro']) : null,
+                'ciudad'       => !empty($data['ciudad']) ? trim($data['ciudad']) : null,
+                'telefono'     => $data['telefono'],
+                'verificada'   => 0,
+            ], true);
+
+            // Activacion de 1 mes de prueba gratis (30 dias)
+            $db = \Config\Database::connect();
+            $db->table('crm_contrato')->insert([
+                'empresa_id'       => $empresaId,
+                'plan_id'          => 1, // Plan gratis / prueba
+                'codigo'           => 'TRIAL-' . $empresaId . '-' . date('Ymd'),
+                'tipo_facturacion' => 'mensual',
+                'fecha_inicio'     => date('Y-m-d'),
+                'fecha_fin'        => date('Y-m-d', strtotime('+30 days')),
+                'estado'           => 'activo',
+                'auto_renovar'     => 0,
+                'created_at'       => date('Y-m-d H:i:s'),
+                'updated_at'       => date('Y-m-d H:i:s'),
+            ]);
+
+            // Asignacion automatica de lead en CRM
+            $asesor = $userModel->where('role_id', 2)->where('estado', 'activo')->first();
+            $asesorId = $asesor ? (int)$asesor['id'] : 5;
+
+            $db->table('crm_lead')->insert([
+                'empresa_id'        => $empresaId,
+                'tipo'              => 'registro_app',
+                'nombre_contacto'   => trim($data['nombre'] . ' ' . $data['apellido']),
+                'email_contacto'    => $data['email'],
+                'telefono_contacto' => $data['telefono'],
+                'empresa_nombre'    => $data['razon_social'],
+                'rubro'             => $data['rubro'] ?? null,
+                'origen'            => 'app_mobile',
+                'plan_interes_id'   => 1,
+                'estado'            => 'prospecto',
+                'asesor_id'         => $asesorId,
+                'notas'             => 'Registrado desde la app móvil CONEX. 1 mes de prueba gratis activado (5 vacantes, 8 candidatos en USD).',
+                'created_at'        => date('Y-m-d H:i:s'),
+                'updated_at'        => date('Y-m-d H:i:s'),
+            ]);
+
+            // Login automatico: emitir token
+            $tokenModel = new ApiTokenModel();
+            $tokenData = $tokenModel->createToken(
+                $userId,
+                $data['device_name'] ?? 'conex-app',
+                $this->request->getIPAddress(),
+                $this->request->getUserAgent()->getAgentString()
+            );
+
+            $user = $userModel->find($userId);
+            unset($user['password']);
+
+            return $this->ok([
+                'message'    => 'Cuenta de empresa creada con 1 mes de prueba gratis activado.',
+                'token'      => $tokenData['token'],
+                'token_type' => 'Bearer',
+                'expires_at' => $tokenData['expires_at'],
+                'user'       => $this->userPayload($user, 'empresa'),
+            ], 201);
+        }
+
+        // Flujo estandar web para candidato
         $rules = [
             'tipo_cuenta'      => 'required|in_list[candidato,empresa]',
             'nombre'           => 'required|min_length[2]|max_length[100]',
@@ -240,24 +367,19 @@ class AuthController extends BaseApiController
             'usuario'          => 'required|min_length[3]|max_length[100]|is_unique[auth_user.usuario]',
             'email'            => 'required|valid_email|is_unique[auth_user.email]',
             'telefono'         => 'required|min_length[8]|max_length[20]',
-            'password'         => 'required|min_length[10]|regex_match[/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{10,}$/]',
+            'password'         => 'required|min_length[6]',
             'password_confirm' => 'required|matches[password]',
         ];
-        if ($tipoCuenta === 'empresa') {
-            $rules['razon_social'] = 'required|min_length[3]|max_length[150]';
-        }
 
         if ($res = $this->validateApi($rules)) {
             return $res;
         }
 
-        $userModel = new UserModel();
         $roleId = $userModel->getRoleIdBySlug($tipoCuenta);
         if (!$roleId) {
             return $this->fail('Tipo de cuenta no valido', 422);
         }
 
-        // UserModel hashea el password automaticamente (beforeInsert)
         $userId = $userModel->insert([
             'role_id'         => $roleId,
             'nombre'          => $data['nombre'],
@@ -274,19 +396,11 @@ class AuthController extends BaseApiController
             return $this->fail('No se pudo crear la cuenta', 500, $userModel->errors());
         }
 
-        if ($tipoCuenta === 'candidato') {
-            (new CandidatoModel())->insert([
-                'user_id'   => $userId,
-                'apellidos' => $data['apellido'],
-            ]);
-        } else {
-            (new EmpresaModel())->insert([
-                'user_id'      => $userId,
-                'razon_social' => $data['razon_social'],
-            ]);
-        }
+        (new CandidatoModel())->insert([
+            'user_id'   => $userId,
+            'apellidos' => $data['apellido'],
+        ]);
 
-        // Login automatico: emitir token
         $tokenModel = new ApiTokenModel();
         $tokenData = $tokenModel->createToken(
             $userId,
@@ -336,7 +450,7 @@ class AuthController extends BaseApiController
             return $this->fail('Tipo de cuenta no valido', 422);
         }
 
-        $cedula = preg_replace('/\D/', '', (string) $data['cedula']);
+        $cedula = strtoupper(preg_replace('/[^0-9A-Za-z]/', '', (string) $data['cedula']));
         $email  = trim((string) ($data['email'] ?? '')) ?: $cedula . '@conex.local';
 
         // UserModel hashea el password automaticamente (beforeInsert)
