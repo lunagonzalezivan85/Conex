@@ -134,41 +134,62 @@ class EmpresaController extends BaseApiController
             return $this->fail('Completa primero el perfil de tu empresa', 422);
         }
 
+        $data = $this->body();
+
+        // Normalizar strings vacios
+        foreach (['salario_min', 'salario_max', 'region', 'latitud', 'longitud', 'funciones', 'tipo_contrato_id'] as $f) {
+            if (isset($data[$f]) && $data[$f] === '') {
+                $data[$f] = null;
+            }
+        }
+
         $rules = [
-            'titulo'       => 'required|min_length[5]|max_length[150]',
-            'descripcion'  => 'required|min_length[20]',
-            'categoria_id' => 'required|integer',
-            'modalidad'    => 'required|in_list[presencial,remoto,hibrido]',
-            'ciudad'       => 'required|max_length[100]',
-            'region'       => 'permit_empty|max_length[100]',
-            'latitud'      => 'permit_empty|numeric',
-            'longitud'     => 'permit_empty|numeric',
-            'salario_min'  => 'permit_empty|numeric',
-            'salario_max'  => 'permit_empty|numeric|greater_than_equal_to[salario_min]',
+            'titulo'               => 'required|min_length[3]|max_length[150]',
+            'descripcion'          => 'required|min_length[10]',
+            'categoria_id'         => 'required|is_natural_no_zero',
+            'modalidad'            => 'required|in_list[presencial,remoto,hibrido]',
+            'ciudad'               => 'permit_empty|max_length[100]',
+            'region'               => 'permit_empty|max_length[100]',
+            'latitud'              => 'permit_empty|numeric',
+            'longitud'             => 'permit_empty|numeric',
+            'salario_min'          => 'permit_empty|numeric',
+            'salario_max'          => 'permit_empty|numeric',
             'anios_experiencia'    => 'permit_empty|integer|greater_than_equal_to[0]',
             'vacantes_disponibles' => 'permit_empty|integer|greater_than_equal_to[1]',
             'tipo_contrato_id'     => 'permit_empty|integer',
             'funciones'            => 'permit_empty|max_length[5000]',
             'estado'               => 'permit_empty|in_list[borrador,publicada]',
         ];
-        if ($res = $this->validateApi($rules)) {
+        if ($res = $this->validateApi($rules, $data)) {
             return $res;
         }
 
-        $data = $this->body();
+        if (!empty($data['salario_min']) && !empty($data['salario_max']) && (float)$data['salario_max'] < (float)$data['salario_min']) {
+            return $this->fail('El salario máximo no puede ser menor al salario mínimo', 422, [
+                'salario_max' => 'El salario máximo no puede ser menor al salario mínimo.'
+            ]);
+        }
+
+        $vacanteModel = new VacanteModel();
+
+        // Límite de 5 vacantes de prueba
+        $totalVacantes = $vacanteModel->where('empresa_id', $empresa['id'])->where('deleted_at IS NULL')->countAllResults();
+        if ($totalVacantes >= 5) {
+            return $this->fail('Has alcanzado el límite de 5 vacantes de tu periodo de prueba gratuito.', 403);
+        }
+
         $slug = url_title($data['titulo'], '-', true) . '-' . $empresa['id'] . '-' . rand(100, 999);
         $estado = $data['estado'] ?? 'publicada';
 
-        $vacanteModel = new VacanteModel();
-        $vacanteModel->insert([
+        $insertData = [
             'empresa_id'           => $empresa['id'],
             'categoria_id'         => (int)$data['categoria_id'],
             'titulo'               => $data['titulo'],
             'slug'                 => $slug,
             'descripcion'          => $data['descripcion'],
             'funciones'            => $data['funciones'] ?? null,
-            'ciudad'               => $data['ciudad'],
-            'region'               => $data['region'] ?? null,
+            'ciudad'               => !empty($data['ciudad']) ? $data['ciudad'] : ($empresa['ciudad'] ?? 'Managua'),
+            'region'               => $data['region'] ?? ($empresa['region'] ?? null),
             'latitud'              => !empty($data['latitud']) ? (float)$data['latitud'] : null,
             'longitud'             => !empty($data['longitud']) ? (float)$data['longitud'] : null,
             'modalidad'            => $data['modalidad'],
@@ -180,11 +201,16 @@ class EmpresaController extends BaseApiController
             'tipo_contrato_id'     => !empty($data['tipo_contrato_id']) ? (int)$data['tipo_contrato_id'] : null,
             'estado'               => $estado,
             'fecha_publicacion'    => $estado === 'publicada' ? date('Y-m-d H:i:s') : null,
-        ]);
+        ];
+
+        $insertId = $vacanteModel->insert($insertData);
+        if (!$insertId) {
+            return $this->fail('No se pudo guardar la vacante', 500, $vacanteModel->errors());
+        }
 
         return $this->ok([
-            'message'    => 'Vacante creada',
-            'vacante_id' => $vacanteModel->getInsertID(),
+            'message'    => 'Vacante creada con éxito',
+            'vacante_id' => $insertId,
             'slug'       => $slug,
         ], 201);
     }
@@ -208,28 +234,40 @@ class EmpresaController extends BaseApiController
             return $this->fail('Vacante no encontrada', 404);
         }
 
+        $data = $this->body();
+        foreach (['salario_min', 'salario_max', 'region', 'latitud', 'longitud', 'funciones', 'tipo_contrato_id'] as $f) {
+            if (isset($data[$f]) && $data[$f] === '') {
+                $data[$f] = null;
+            }
+        }
+
         $rules = [
-            'titulo'       => 'permit_empty|min_length[5]|max_length[150]',
-            'descripcion'  => 'permit_empty|min_length[20]',
-            'categoria_id' => 'permit_empty|integer',
-            'modalidad'    => 'permit_empty|in_list[presencial,remoto,hibrido]',
-            'ciudad'       => 'permit_empty|max_length[100]',
-            'region'       => 'permit_empty|max_length[100]',
-            'latitud'      => 'permit_empty|numeric',
-            'longitud'     => 'permit_empty|numeric',
-            'salario_min'  => 'permit_empty|numeric',
-            'salario_max'  => 'permit_empty|numeric',
+            'titulo'               => 'permit_empty|min_length[3]|max_length[150]',
+            'descripcion'          => 'permit_empty|min_length[10]',
+            'categoria_id'         => 'permit_empty|is_natural_no_zero',
+            'modalidad'            => 'permit_empty|in_list[presencial,remoto,hibrido]',
+            'ciudad'               => 'permit_empty|max_length[100]',
+            'region'               => 'permit_empty|max_length[100]',
+            'latitud'              => 'permit_empty|numeric',
+            'longitud'             => 'permit_empty|numeric',
+            'salario_min'          => 'permit_empty|numeric',
+            'salario_max'          => 'permit_empty|numeric',
             'anios_experiencia'    => 'permit_empty|integer|greater_than_equal_to[0]',
             'vacantes_disponibles' => 'permit_empty|integer|greater_than_equal_to[1]',
             'tipo_contrato_id'     => 'permit_empty|integer',
             'funciones'            => 'permit_empty|max_length[5000]',
-            'estado'               => 'permit_empty|in_list[borrador,publicada,pausada,cerrada]',
+            'estado'               => 'permit_empty|in_list[borrador,publicada,cerrada,suspendida]',
         ];
-        if ($res = $this->validateApi($rules)) {
+        if ($res = $this->validateApi($rules, $data)) {
             return $res;
         }
 
-        $data = $this->body();
+        if (!empty($data['salario_min']) && !empty($data['salario_max']) && (float)$data['salario_max'] < (float)$data['salario_min']) {
+            return $this->fail('El salario máximo no puede ser menor al salario mínimo', 422, [
+                'salario_max' => 'El salario máximo no puede ser menor al salario mínimo.'
+            ]);
+        }
+
         $campos = [
             'titulo', 'descripcion', 'funciones', 'categoria_id', 'modalidad',
             'ciudad', 'region', 'latitud', 'longitud', 'salario_min', 'salario_max',

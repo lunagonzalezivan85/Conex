@@ -246,7 +246,7 @@ const Dashboard: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() => router.push('/app/mis-vacantes')}
+                onClick={() => router.push('/app/mis-vacantes?crear=1')}
                 style={{
                   width: '100%',
                   background: 'linear-gradient(135deg, #F97316, #FB923C)',
@@ -335,7 +335,7 @@ const Dashboard: React.FC = () => {
                       </p>
                       <button
                         type="button"
-                        onClick={() => router.push('/app/mis-vacantes')}
+                        onClick={() => router.push('/app/mis-vacantes?crear=1')}
                         style={{
                           background: '#1B2A4A',
                           color: '#fff',

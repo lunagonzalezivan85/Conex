@@ -80,13 +80,13 @@ class BaseApiController extends BaseController
     /**
      * Valida input (JSON o POST). Devuelve errores o null.
      */
-    protected function validateApi(array $rules): ?ResponseInterface
+    protected function validateApi(array $rules, ?array $data = null): ?ResponseInterface
     {
-        $data = $this->body();
+        $input = $data ?? $this->body();
         $validation = service('validation');
         $validation->setRules($rules);
 
-        if (!$validation->run($data)) {
+        if (!$validation->run($input)) {
             return $this->fail('Datos invalidos', 422, $validation->getErrors());
         }
         return null;

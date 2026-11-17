@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   IonContent, IonPage, IonHeader, IonToolbar, IonTitle,
   IonButton, IonIcon, IonBadge, IonSpinner, IonItem, IonLabel,
@@ -25,13 +26,32 @@ const CIUDADES = [
   'Matagalpa', 'Estelí', 'Rivas', 'Carazo', 'Chontales',
 ];
 
+const CATEGORIAS_FALLBACK = [
+  { id: 8, nombre: 'Construcción y Obra' },
+  { id: 2, nombre: 'Hostelería y Turismo' },
+  { id: 9, nombre: 'Transporte y Logística' },
+  { id: 5, nombre: 'Ventas y Marketing' },
+  { id: 3, nombre: 'Seguridad' },
+  { id: 12, nombre: 'Agricultura y Ganadería' },
+  { id: 1, nombre: 'Programación y Tecnología' },
+  { id: 4, nombre: 'Administración y Finanzas' },
+  { id: 6, nombre: 'Salud' },
+  { id: 14, nombre: 'Ingeniería' },
+  { id: 15, nombre: 'Atención al Cliente' },
+  { id: 7, nombre: 'Educación' },
+  { id: 10, nombre: 'Diseño y Creatividad' },
+  { id: 11, nombre: 'Recursos Humanos' },
+  { id: 13, nombre: 'Legal y Jurídico' },
+];
+
 const MisVacantes: React.FC = () => {
   const router = useIonRouter();
+  const location = useLocation();
   const [presentToast] = useIonToast();
 
   const [loading, setLoading] = useState(true);
   const [vacantes, setVacantes] = useState<any[]>([]);
-  const [categorias, setCategorias] = useState<any[]>([]);
+  const [categorias, setCategorias] = useState<any[]>(CATEGORIAS_FALLBACK);
 
   // Modal Crear Vacante
   const [showCrear, setShowCrear] = useState(false);
@@ -60,8 +80,11 @@ const MisVacantes: React.FC = () => {
         empresaApi.vacantes({ per_page: 20 }),
         vacantesApi.filtros().catch(() => null),
       ]);
-      setVacantes(res.data || []);
-      setCategorias(f?.categorias || f?.data?.categorias || []);
+      setVacantes(res?.data || []);
+      const cats = f?.categorias || f?.data?.categorias || [];
+      if (cats && cats.length > 0) {
+        setCategorias(cats);
+      }
     } catch {
       presentToast({ message: 'No se pudieron cargar tus vacantes', duration: 2000, color: 'warning' });
     } finally {
@@ -74,44 +97,69 @@ const MisVacantes: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('crear') === '1') {
+      setShowCrear(true);
+    }
+  }, [location.search]);
+
   const onRefresh = async (e: CustomEvent<RefresherEventDetail>) => {
     await cargar();
     e.detail.complete();
   };
 
-  const handleCrearVacante = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleCrearVacante = async (e?: React.FormEvent) => {
+    if (e && e.preventDefault) e.preventDefault();
     setErrorCrear('');
 
     if (vacantes.length >= 5) {
       setErrorCrear('Has alcanzado el límite de 5 vacantes de tu mes de prueba gratuito. Consulta planes para ampliar.');
       return;
     }
-    if (!titulo.trim() || titulo.trim().length < 5) {
-      setErrorCrear('Ingresa un título de al menos 5 caracteres');
+    const t = titulo.trim();
+    if (!t || t.length < 3) {
+      setErrorCrear('Ingresa un título de al menos 3 caracteres');
       return;
     }
     if (!categoriaId) {
       setErrorCrear('Selecciona una categoría para la vacante');
       return;
     }
-    if (!descripcion.trim() || descripcion.trim().length < 20) {
-      setErrorCrear('Ingresa una descripción clara de al menos 20 caracteres');
+    const d = descripcion.trim();
+    if (!d || d.length < 10) {
+      setErrorCrear('Ingresa una descripción clara de al menos 10 caracteres');
+      return;
+    }
+
+    const sMin = salarioMin.trim() !== '' ? Number(salarioMin) : null;
+    const sMax = salarioMax.trim() !== '' ? Number(salarioMax) : null;
+
+    if (sMin !== null && isNaN(sMin)) {
+      setErrorCrear('El salario mínimo debe ser un número válido');
+      return;
+    }
+    if (sMax !== null && isNaN(sMax)) {
+      setErrorCrear('El salario máximo debe ser un número válido');
+      return;
+    }
+    if (sMin !== null && sMax !== null && sMax < sMin) {
+      setErrorCrear('El salario máximo no puede ser menor al salario mínimo');
       return;
     }
 
     setBusyCrear(true);
     try {
       await empresaApi.crearVacante({
-        titulo: titulo.trim(),
+        titulo: t,
         categoria_id: Number(categoriaId),
         modalidad,
         ciudad,
-        salario_min: salarioMin ? Number(salarioMin) : null,
-        salario_max: salarioMax ? Number(salarioMax) : null,
+        salario_min: sMin,
+        salario_max: sMax,
         anios_experiencia: Number(aniosExp) || 0,
         vacantes_disponibles: Number(numVacantes) || 1,
-        descripcion: descripcion.trim(),
+        descripcion: d,
         funciones: funciones.trim() || null,
         estado: 'publicada',
       });
@@ -127,7 +175,15 @@ const MisVacantes: React.FC = () => {
       cargar();
     } catch (err) {
       const e = err as ApiError;
-      setErrorCrear(e.error || 'No se pudo publicar la vacante');
+      let msg = e.error || 'No se pudo publicar la vacante';
+      if (e.errors && typeof e.errors === 'object') {
+        const errorList = Object.values(e.errors);
+        if (errorList.length > 0) {
+          msg = String(errorList[0]);
+        }
+      }
+      setErrorCrear(msg);
+      presentToast({ message: msg, duration: 4000, color: 'danger' });
     } finally {
       setBusyCrear(false);
     }
@@ -386,14 +442,22 @@ const MisVacantes: React.FC = () => {
                   </IonItem>
                 </div>
               </div>
+              <small style={{ color: '#94A3B8', fontSize: 11, display: 'block', marginTop: -4, marginBottom: 8 }}>
+                Opcional. Valores expresados en dólares (USD).
+              </small>
 
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', margin: '8px 0 4px' }}>
-                Descripción de la vacante y requisitos *
-              </label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '8px 0 4px' }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: '#334155' }}>
+                  Descripción de la vacante y requisitos *
+                </label>
+                <small style={{ color: descripcion.trim().length >= 10 ? '#0F766E' : '#94A3B8', fontSize: 11 }}>
+                  {descripcion.trim().length} / 10 mín.
+                </small>
+              </div>
               <IonItem className="auth-item" lines="none">
                 <IonTextarea
                   rows={4}
-                  placeholder="Describe las responsabilidades del puesto y requisitos..."
+                  placeholder="Describe las responsabilidades del puesto, horario y requisitos principales..."
                   value={descripcion}
                   onIonInput={e => setDescripcion(e.detail.value ?? '')}
                   required
@@ -401,12 +465,33 @@ const MisVacantes: React.FC = () => {
               </IonItem>
 
               {errorCrear && (
-                <div style={{ color: '#DC2626', fontSize: 13, margin: '8px 0' }}>
-                  <IonIcon icon={alertCircleOutline} style={{ verticalAlign: -2 }} /> {errorCrear}
+                <div
+                  style={{
+                    color: '#DC2626',
+                    backgroundColor: '#FEF2F2',
+                    border: '1px solid #FCA5A5',
+                    borderRadius: 10,
+                    padding: '10px 12px',
+                    fontSize: 13,
+                    margin: '12px 0 4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <IonIcon icon={alertCircleOutline} style={{ fontSize: 18, flexShrink: 0 }} />
+                  <span>{errorCrear}</span>
                 </div>
               )}
 
-              <IonButton expand="block" type="submit" disabled={busyCrear} className="auth-btn" style={{ marginTop: 16 }}>
+              <IonButton
+                expand="block"
+                type="submit"
+                disabled={busyCrear}
+                className="auth-btn"
+                style={{ marginTop: 16 }}
+                onClick={() => handleCrearVacante()}
+              >
                 {busyCrear ? <IonSpinner name="crescent" /> : 'Publicar Vacante'}
               </IonButton>
             </form>
