@@ -178,7 +178,8 @@ const Buscar: React.FC = () => {
       });
       setPostulantes(res.data || []);
     } catch {
-      presentToast({ message: 'Error cargando postulantes', duration: 2500, color: 'danger' });
+      // Evitar mensaje de error intrusivo al intentar traer postulantes
+      setPostulantes([]);
     } finally {
       setLoading(false);
     }

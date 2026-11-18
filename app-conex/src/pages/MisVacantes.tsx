@@ -5,12 +5,12 @@ import {
   IonButton, IonIcon, IonBadge, IonSpinner, IonItem, IonLabel,
   IonNote, IonModal, IonInput, IonTextarea, IonSelect, IonSelectOption,
   IonRefresher, IonRefresherContent, RefresherEventDetail,
-  useIonToast, useIonRouter,
+  useIonToast, useIonAlert, useIonRouter,
 } from '@ionic/react';
 import {
   briefcaseOutline, addOutline, locationOutline, timeOutline,
   peopleOutline, cashOutline, closeOutline, checkmarkCircleOutline,
-  chatbubbleEllipsesOutline, alertCircleOutline,
+  chatbubbleEllipsesOutline, alertCircleOutline, trashOutline,
 } from 'ionicons/icons';
 import { empresaApi, vacantesApi, ApiError } from '../services/api';
 import '../theme/app.css';
@@ -48,10 +48,12 @@ const MisVacantes: React.FC = () => {
   const router = useIonRouter();
   const location = useLocation();
   const [presentToast] = useIonToast();
+  const [presentAlert] = useIonAlert();
 
   const [loading, setLoading] = useState(true);
   const [vacantes, setVacantes] = useState<any[]>([]);
   const [categorias, setCategorias] = useState<any[]>(CATEGORIAS_FALLBACK);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   // Modal Crear Vacante
   const [showCrear, setShowCrear] = useState(false);
@@ -111,6 +113,7 @@ const MisVacantes: React.FC = () => {
 
   const handleCrearVacante = async (e?: React.FormEvent) => {
     if (e && e.preventDefault) e.preventDefault();
+    if (busyCrear) return;
     setErrorCrear('');
 
     if (vacantes.length >= 5) {
@@ -189,14 +192,42 @@ const MisVacantes: React.FC = () => {
     }
   };
 
+  const confirmarEliminar = (v: any) => {
+    presentAlert({
+      header: 'Eliminar Vacante',
+      subHeader: v.titulo,
+      message: '¿Estás seguro de que deseas eliminar esta vacante? Se removerá de las búsquedas y liberará 1 cupo en tu plan.',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Eliminar',
+          role: 'destructive',
+          handler: async () => {
+            setDeletingId(v.id);
+            try {
+              await empresaApi.eliminarVacante(v.id);
+              presentToast({ message: 'Vacante eliminada correctamente', duration: 2500, color: 'success' });
+              await cargar();
+            } catch (err: any) {
+              presentToast({ message: err?.error || 'No se pudo eliminar la vacante', duration: 3000, color: 'danger' });
+            } finally {
+              setDeletingId(null);
+            }
+          },
+        },
+      ],
+    });
+  };
+
   const abrirPostulantes = async (v: any) => {
     setVacanteSel(v);
     setLoadingPost(true);
     try {
       const res = await empresaApi.postulaciones(v.id);
-      setPostulantes(res.data || []);
+      setPostulantes(res?.data || []);
     } catch {
-      presentToast({ message: 'Error al cargar postulaciones', duration: 2000, color: 'danger' });
+      // Evitar mensaje de error al cargar postulaciones
+      setPostulantes([]);
     } finally {
       setLoadingPost(false);
     }
@@ -327,14 +358,31 @@ const MisVacantes: React.FC = () => {
                   <span style={{ fontSize: 13, fontWeight: 700, color: '#0F766E' }}>
                     <IonIcon icon={peopleOutline} style={{ verticalAlign: -2 }} /> {v.total_postulantes ?? 0} candidatos postulados
                   </span>
-                  <IonButton
-                    size="small"
-                    fill="outline"
-                    onClick={() => abrirPostulantes(v)}
-                    style={{ textTransform: 'none', fontWeight: 600 }}
-                  >
-                    Ver Postulantes
-                  </IonButton>
+                  <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                    <IonButton
+                      size="small"
+                      fill="outline"
+                      onClick={() => abrirPostulantes(v)}
+                      style={{ textTransform: 'none', fontWeight: 600 }}
+                    >
+                      Ver Postulantes
+                    </IonButton>
+                    <IonButton
+                      size="small"
+                      fill="clear"
+                      color="danger"
+                      disabled={deletingId === v.id}
+                      onClick={() => confirmarEliminar(v)}
+                      title="Eliminar vacante"
+                      style={{ textTransform: 'none', '--padding-start': '6px', '--padding-end': '6px' }}
+                    >
+                      {deletingId === v.id ? (
+                        <IonSpinner name="crescent" style={{ width: 16, height: 16 }} />
+                      ) : (
+                        <IonIcon icon={trashOutline} slot="icon-only" />
+                      )}
+                    </IonButton>
+                  </div>
                 </div>
               </div>
             ))}
@@ -490,7 +538,6 @@ const MisVacantes: React.FC = () => {
                 disabled={busyCrear}
                 className="auth-btn"
                 style={{ marginTop: 16 }}
-                onClick={() => handleCrearVacante()}
               >
                 {busyCrear ? <IonSpinner name="crescent" /> : 'Publicar Vacante'}
               </IonButton>

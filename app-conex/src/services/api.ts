@@ -305,6 +305,8 @@ export const empresaApi = {
     api<{ message: string; vacante_id: number; slug: string }>('/empresa/vacantes', { method: 'POST', body: data }),
   actualizarVacante: (id: number, data: Record<string, any>) =>
     api<{ message: string; data: any }>(`/empresa/vacantes/${id}`, { method: 'PUT', body: data }),
+  eliminarVacante: (id: number) =>
+    api<{ message: string; vacante_id?: number }>(`/empresa/vacantes/${id}`, { method: 'DELETE' }),
   postulaciones: (vacanteId: number) =>
     api<{ data: any[] }>(`/empresa/vacantes/${vacanteId}/postulaciones`),
   todosPostulantes: (params: { q?: string; vacante_id?: number; estado?: string } = {}) => {

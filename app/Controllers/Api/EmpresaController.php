@@ -86,7 +86,7 @@ class EmpresaController extends BaseApiController
         }
         $empresa = $this->getEmpresa();
         if (!$empresa) {
-            return $this->fail('Completa primero el perfil de tu empresa', 422);
+            return $this->ok(['data' => []]);
         }
 
         $estado = $this->request->getGet('estado');
@@ -171,6 +171,22 @@ class EmpresaController extends BaseApiController
         }
 
         $vacanteModel = new VacanteModel();
+
+        // Idempotencia: evitar publicaciones duplicadas en caso de doble clic o reintentos
+        $reciente = $vacanteModel
+            ->where('empresa_id', $empresa['id'])
+            ->where('titulo', trim($data['titulo']))
+            ->where('categoria_id', (int)$data['categoria_id'])
+            ->where('created_at >=', date('Y-m-d H:i:s', time() - 60))
+            ->orderBy('id', 'DESC')
+            ->first();
+        if ($reciente) {
+            return $this->ok([
+                'message'    => 'Vacante creada con éxito',
+                'vacante_id' => (int)$reciente['id'],
+                'slug'       => $reciente['slug'],
+            ], 200);
+        }
 
         // Límite de 5 vacantes de prueba
         $totalVacantes = $vacanteModel->where('empresa_id', $empresa['id'])->where('deleted_at IS NULL')->countAllResults();
@@ -292,9 +308,9 @@ class EmpresaController extends BaseApiController
     }
 
     /**
-     * GET /api/empresa/vacantes/{id}/postulaciones
+     * DELETE /api/empresa/vacantes/{id} — eliminar vacante propia (soft-delete).
      */
-    public function postulaciones($vacanteId)
+    public function eliminarVacante($id)
     {
         if ($res = $this->requireRole(['empresa'])) {
             return $res;
@@ -304,9 +320,36 @@ class EmpresaController extends BaseApiController
             return $this->fail('Completa primero el perfil de tu empresa', 422);
         }
 
+        $vacanteModel = new VacanteModel();
+        $vacante = $vacanteModel->find((int)$id);
+        if (!$vacante || (int)$vacante['empresa_id'] !== (int)$empresa['id']) {
+            return $this->fail('Vacante no encontrada o no pertenece a tu empresa', 404);
+        }
+
+        $vacanteModel->delete((int)$id);
+
+        return $this->ok([
+            'message'    => 'Vacante eliminada correctamente',
+            'vacante_id' => (int)$id,
+        ]);
+    }
+
+    /**
+     * GET /api/empresa/vacantes/{id}/postulaciones
+     */
+    public function postulaciones($vacanteId)
+    {
+        if ($res = $this->requireRole(['empresa'])) {
+            return $res;
+        }
+        $empresa = $this->getEmpresa();
+        if (!$empresa) {
+            return $this->ok(['data' => []]);
+        }
+
         $vacante = (new VacanteModel())->find((int)$vacanteId);
         if (!$vacante || (int)$vacante['empresa_id'] !== (int)$empresa['id']) {
-            return $this->fail('Vacante no encontrada', 404);
+            return $this->ok(['data' => []]);
         }
 
         $postulaciones = (new PostulacionModel())
@@ -368,7 +411,7 @@ class EmpresaController extends BaseApiController
         }
         $empresa = $this->getEmpresa();
         if (!$empresa) {
-            return $this->fail('Completa primero el perfil de tu empresa', 422);
+            return $this->ok(['data' => []]);
         }
         $db = \Config\Database::connect();
         $q = trim((string)($this->request->getGet('q') ?? ''));
