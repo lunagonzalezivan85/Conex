@@ -164,7 +164,7 @@ export const vacantesApi = {
 };
 
 export const serviciosApi = {
-  list: (params: { q?: string; page?: number; per_page?: number } = {}) => {
+  list: (params: { q?: string; categoria?: string | number; categoria_id?: string | number; cat?: string | number; page?: number; per_page?: number } = {}) => {
     const qs = new URLSearchParams();
     Object.entries(params).forEach(([k, v]) => {
       if (v !== undefined && v !== '') qs.append(k, String(v));
@@ -307,6 +307,23 @@ export const empresaApi = {
     api<{ message: string; data: any }>(`/empresa/vacantes/${id}`, { method: 'PUT', body: data }),
   postulaciones: (vacanteId: number) =>
     api<{ data: any[] }>(`/empresa/vacantes/${vacanteId}/postulaciones`),
+  todosPostulantes: (params: { q?: string; vacante_id?: number; estado?: string } = {}) => {
+    const qs = new URLSearchParams();
+    Object.entries(params).forEach(([k, v]) => {
+      if (v !== undefined && v !== '') qs.append(k, String(v));
+    });
+    return api<{ data: any[] }>(`/empresa/postulantes?${qs.toString()}`);
+  },
+  iniciarChatPostulante: (postulacionId: number, mensaje?: string) =>
+    api<{ contacto_id: number; nombre: string; oficio: string; avatar_url?: string; telefono?: string }>(
+      '/empresa/iniciar-chat-postulante',
+      { method: 'POST', body: { postulacion_id: postulacionId, mensaje } }
+    ),
   cambiarEstadoPostulacion: (id: number, estado: string) =>
     api(`/empresa/postulaciones/${id}/estado`, { method: 'POST', body: { estado } }),
+};
+
+export const notificacionesApi = {
+  resumen: () => api<{ unread_count: number; notificaciones: any[] }>('/notificaciones'),
+  marcarLeidas: () => api<{ ok: boolean }>('/notificaciones/leer', { method: 'POST' }),
 };

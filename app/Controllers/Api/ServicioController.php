@@ -15,6 +15,7 @@ class ServicioController extends BaseApiController
         $db = \Config\Database::connect();
 
         $q    = trim((string)($this->request->getGet('q') ?? ''));
+        $catParam = trim((string)($this->request->getGet('categoria') ?? $this->request->getGet('categoria_id') ?? $this->request->getGet('cat') ?? ''));
         $page = max(1, (int)($this->request->getGet('page') ?? 1));
         $per  = min(30, max(1, (int)($this->request->getGet('per_page') ?? 15)));
 
@@ -36,11 +37,65 @@ class ServicioController extends BaseApiController
             ->where('srv_servicio.deleted_at IS NULL')
             ->where('cand_candidato.deleted_at IS NULL')
             ->where('cand_candidato.ofrece_servicios', 1)
-            // Mismo filtro antifraaude del sitio publico
+            // Mismo filtro antifraude del sitio publico
             ->where('(SELECT COUNT(*) FROM srv_reporte r WHERE r.servicio_id = srv_servicio.id) <', 3);
 
         if ($q !== '') {
             $builder->like('srv_servicio.oficio', $q);
+        }
+
+        if ($catParam !== '') {
+            $catRow = null;
+            if (is_numeric($catParam)) {
+                $catRow = $db->table('cat_categoria')->where('id', (int)$catParam)->get()->getRowArray();
+            } else {
+                $catRow = $db->table('cat_categoria')->where('slug', $catParam)->orWhere('nombre', $catParam)->get()->getRowArray();
+            }
+
+            $catId = $catRow ? (int)$catRow['id'] : (is_numeric($catParam) ? (int)$catParam : 0);
+            $catNombre = $catRow ? $catRow['nombre'] : $catParam;
+
+            // Palabras clave asociadas por categoria para oficios tipicos
+            $mapKeywords = [
+                1  => ['program', 'desarroll', 'tecnolog', 'sistem', 'web', 'comput', 'software', 'informatic', 'it', 'frontend', 'backend', 'fullstack'],
+                2  => ['hotel', 'turism', 'cocin', 'chef', 'meser', 'camarer', 'barista', 'bartender', 'hosped', 'guia turistic'],
+                3  => ['seguridad', 'vigilan', 'guarda', 'custodi', 'sereno', 'portero'],
+                4  => ['admin', 'finanz', 'contad', 'auditor', 'cajer', 'asistent', 'secretari', 'factur'],
+                5  => ['ventas', 'marketing', 'comercial', 'vended', 'promot', 'mercadeo', 'kiosko', 'publicidad'],
+                6  => ['salud', 'enferm', 'medic', 'farmac', 'terapia', 'cuidador', 'odontolog', 'clinica'],
+                7  => ['educac', 'profesor', 'docent', 'tutor', 'maestr', 'pedagog', 'capacitad'],
+                8  => ['construc', 'obra', 'albañil', 'albanil', 'pintor', 'electric', 'fontaner', 'plomer', 'carpinter', 'soldad', 'maestro de obra', 'ingeniero civil', 'arquitect'],
+                9  => ['transport', 'logistic', 'conduct', 'chofer', 'motoriz', 'delivery', 'repartid', 'bodeg', 'almacen', 'flete'],
+                10 => ['diseñ', 'disen', 'creativid', 'grafic', 'editor', 'fotograf', 'video', 'ilustrad'],
+                11 => ['recursos humanos', 'rrhh', 'talento', 'reclut'],
+                12 => ['agric', 'ganader', 'jardin', 'campo', 'finca', 'agronom', 'veterinari'],
+                13 => ['legal', 'juridic', 'abogad', 'notario'],
+                14 => ['ingenier', 'mecanic', 'electromecanic', 'mantenimient', 'industrial'],
+                15 => ['atencion al cliente', 'servicio al cliente', 'call center', 'recepcionista', 'atencion'],
+            ];
+
+            $keywords = $mapKeywords[$catId] ?? [];
+            if (!empty($catNombre)) {
+                $words = preg_split('/\s+/', mb_strtolower($catNombre));
+                foreach ($words as $w) {
+                    $cleanW = trim($w, " \t\n\r\0\x0B,.-");
+                    if (mb_strlen($cleanW) >= 4 && !in_array($cleanW, ['para', 'sobre', 'este', 'esta'])) {
+                        $keywords[] = $cleanW;
+                    }
+                }
+            }
+            $keywords = array_unique(array_filter($keywords));
+
+            $builder->groupStart();
+            if ($catId > 0 && $db->tableExists('cand_puesto_deseado')) {
+                $builder->where("cand_candidato.id IN (SELECT candidato_id FROM cand_puesto_deseado WHERE categoria_id = {$catId})");
+            }
+            foreach ($keywords as $kw) {
+                $builder->orLike('srv_servicio.oficio', $kw);
+                $builder->orLike('srv_servicio.descripcion', $kw);
+                $builder->orLike('cand_candidato.profesion', $kw);
+            }
+            $builder->groupEnd();
         }
 
         $total = $builder->countAllResults(false);

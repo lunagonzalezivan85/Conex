@@ -601,6 +601,54 @@ class AuthController extends BaseApiController
         ]);
     }
 
+    /**
+     * GET /api/notificaciones — lista de notificaciones del usuario y contador de no leidas.
+     */
+    public function notificaciones()
+    {
+        $user = $this->authUser();
+        if (!$user) {
+            return $this->fail('Token requerido', 401);
+        }
+        $db = \Config\Database::connect();
+        if (!$db->tableExists('not_notificacion')) {
+            return $this->ok(['unread_count' => 0, 'notificaciones' => []]);
+        }
+        $notificaciones = $db->table('not_notificacion')
+            ->where('user_id', $user['id'])
+            ->orderBy('created_at', 'DESC')
+            ->limit(30)
+            ->get()->getResultArray();
+
+        $unread = 0;
+        foreach ($notificaciones as $n) {
+            if ((int)$n['leida'] === 0) $unread++;
+        }
+
+        return $this->ok([
+            'unread_count'   => $unread,
+            'notificaciones' => $notificaciones,
+        ]);
+    }
+
+    /**
+     * POST /api/notificaciones/leer — marca todas las notificaciones como leidas.
+     */
+    public function leerNotificaciones()
+    {
+        $user = $this->authUser();
+        if (!$user) {
+            return $this->fail('Token requerido', 401);
+        }
+        $db = \Config\Database::connect();
+        if ($db->tableExists('not_notificacion')) {
+            $db->table('not_notificacion')
+                ->where('user_id', $user['id'])
+                ->update(['leida' => 1]);
+        }
+        return $this->ok(['ok' => true]);
+    }
+
     private function userPayload(array $user, ?string $roleSlug): array
     {
         return [

@@ -12,13 +12,13 @@ import {
   filterOutline, locationOutline, navigateOutline,
   chevronForward, businessOutline, cashOutline, closeOutline,
   mapOutline, listOutline, appsOutline, searchOutline, constructOutline,
-  chatbubbleOutline, chatbubbleEllipsesOutline,
+  chatbubbleOutline, chatbubbleEllipsesOutline, callOutline, logoWhatsapp,
 } from 'ionicons/icons';
 import { Geolocation } from '@capacitor/geolocation';
 import { CAT_STYLES, catIcon } from '../utils/categoriaIcons';
 import * as maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { vacantesApi, serviciosApi } from '../services/api';
+import { vacantesApi, serviciosApi, empresaApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ChatContactModal } from '../components/ChatContactModal';
 import '../theme/app.css';
@@ -57,9 +57,14 @@ const Buscar: React.FC = () => {
   const [geoLoading, setGeoLoading] = useState(false);
   const [vista, setVista] = useState<'lista' | 'mapa'>('lista');
   const [mapError, setMapError] = useState<string | null>(null);
-  const [modo, setModo] = useState<'vacantes' | 'servicios'>('vacantes');
+  const [modo, setModo] = useState<'vacantes' | 'servicios' | 'postulantes'>('vacantes');
   const [servicios, setServicios] = useState<any[]>([]);
   const [servMeta, setServMeta] = useState<any>({ current_page: 1, last_page: 1, total: 0 });
+  const [postulantes, setPostulantes] = useState<any[]>([]);
+  const [filtroEstado, setFiltroEstado] = useState<string>('');
+  const [postulanteModal, setPostulanteModal] = useState<any | null>(null);
+  const [chatLoadingId, setChatLoadingId] = useState<number | null>(null);
+  const [catNombre, setCatNombre] = useState<string>('');
   const [selectedItem, setSelectedItem] = useState<{
     tipo: 'vacante' | 'servicio';
     data: any;
@@ -75,25 +80,33 @@ const Buscar: React.FC = () => {
   const mapRef = useRef<maplibregl.Map | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
 
+  const isEmpresa = user?.role === 'empresa';
+
   useEffect(() => {
     vacantesApi.filtros()
       .then(r => setCategorias(r.categorias || r.data?.categorias || []))
       .catch(() => {});
   }, []);
 
-  // Deep-link desde el inicio o rutas de tabs: ?q=, ?categoria=, ?geo=1, ?modo=vacantes|servicios
+  // Deep-link desde el inicio o rutas de tabs: ?q=, ?categoria=, ?geo=1, ?modo=vacantes|servicios|postulantes
   useEffect(() => {
     const p = new URLSearchParams(location.search);
     const q = p.get('q');
     const cat = p.get('categoria') || p.get('cat');
+    const nombre = p.get('cat_nombre');
     const m = p.get('modo');
-    if (m === 'servicios' || m === 'vacantes') {
-      setModo(m);
-    } else if (location.pathname.includes('/contactos') || location.pathname.includes('/talentos')) {
+    if (nombre) setCatNombre(nombre);
+
+    if (m === 'servicios' || m === 'vacantes' || m === 'postulantes') {
+      setModo(m as any);
+    } else if (isEmpresa || location.pathname.includes('/talentos')) {
+      setModo('postulantes');
+    } else if (location.pathname.includes('/contactos')) {
       setModo('servicios');
     } else if (location.pathname === '/app/buscar') {
       setModo('vacantes');
     }
+
     if (q !== null || cat !== null) {
       setFiltros(f => ({
         ...f,
@@ -105,7 +118,7 @@ const Buscar: React.FC = () => {
       activarGeo();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search, location.pathname]);
+  }, [location.search, location.pathname, isEmpresa]);
 
   const cargar = async (page = 1, replace = false) => {
     if (page === 1) setLoading(true);
@@ -134,11 +147,18 @@ const Buscar: React.FC = () => {
     }
   };
 
-  // Directorio de prestadores: q busca en oficio (ej: electricista)
+  // Directorio de prestadores: q busca en oficio, categoria filtra por especialidad
   const cargarServicios = async (page = 1, replace = false) => {
     if (page === 1) setLoading(true);
     try {
-      const res = await serviciosApi.list({ q: filtros.q, page, per_page: 15 });
+      const res = await serviciosApi.list({
+        q: filtros.q,
+        categoria: filtros.categoria || undefined,
+        categoria_id: filtros.categoria || undefined,
+        cat: filtros.categoria || undefined,
+        page,
+        per_page: 15,
+      });
       setServicios(prev => (replace || page === 1 ? res.data : [...prev, ...res.data]));
       setServMeta(res.meta);
     } catch {
@@ -148,16 +168,53 @@ const Buscar: React.FC = () => {
     }
   };
 
+  // Postulantes a vacantes de la empresa
+  const cargarPostulantes = async () => {
+    setLoading(true);
+    try {
+      const res = await empresaApi.todosPostulantes({
+        q: filtros.q || undefined,
+        estado: filtroEstado || undefined,
+      });
+      setPostulantes(res.data || []);
+    } catch {
+      presentToast({ message: 'Error cargando postulantes', duration: 2500, color: 'danger' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const contactarPostulante = async (p: any) => {
+    if (p.contacto_id) {
+      router.push(
+        `/app/chat?contacto_id=${p.contacto_id}&nombre=${encodeURIComponent(p.nombre_completo || p.nombre)}&oficio=${encodeURIComponent(p.vacante_titulo || p.profesion || '')}&avatar=${encodeURIComponent(p.avatar_url || '')}&telefono=${encodeURIComponent(p.telefono || '')}`
+      );
+      return;
+    }
+    setChatLoadingId(p.id);
+    try {
+      const res = await empresaApi.iniciarChatPostulante(p.id);
+      router.push(
+        `/app/chat?contacto_id=${res.contacto_id}&nombre=${encodeURIComponent(res.nombre)}&oficio=${encodeURIComponent(res.oficio || '')}&avatar=${encodeURIComponent(res.avatar_url || '')}&telefono=${encodeURIComponent(res.telefono || '')}`
+      );
+    } catch {
+      presentToast({ message: 'No se pudo iniciar el chat con el candidato', duration: 2500, color: 'danger' });
+    } finally {
+      setChatLoadingId(null);
+    }
+  };
+
   // Recarga al cambiar filtros (debounce para el texto)
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       if (modo === 'servicios') cargarServicios(1, true);
+      else if (modo === 'postulantes') cargarPostulantes();
       else cargar(1, true);
     }, 400);
     return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filtros, coords, modo]);
+  }, [filtros, coords, modo, filtroEstado]);
 
   const activarGeo = () => {
     presentAlert({
@@ -192,6 +249,7 @@ const Buscar: React.FC = () => {
 
   const onRefresh = async (e: CustomEvent<RefresherEventDetail>) => {
     if (modo === 'servicios') await cargarServicios(1, true);
+    else if (modo === 'postulantes') await cargarPostulantes();
     else await cargar(1, true);
     e.detail.complete();
   };
@@ -408,7 +466,13 @@ const Buscar: React.FC = () => {
             <input
               type="text"
               inputMode="search"
-              placeholder={modo === 'servicios' ? 'Buscar servicio: electricista, plomero...' : 'Buscar empleo, empresa...'}
+              placeholder={
+                modo === 'postulantes'
+                  ? 'Buscar candidato, vacante...'
+                  : modo === 'servicios'
+                  ? 'Buscar servicio: electricista, plomero...'
+                  : 'Buscar empleo, empresa...'
+              }
               value={filtros.q}
               onChange={e => setFiltros(f => ({ ...f, q: e.target.value }))}
             />
@@ -433,31 +497,48 @@ const Buscar: React.FC = () => {
           <IonRefresherContent />
         </IonRefresher>
 
-        {/* Toggle Vacantes / Servicios (directorio de prestadores) */}
+        {/* Toggle Vacantes / Servicios / Postulantes */}
         <div className="buscar-modo-wrap">
-          <IonSegment
-            className="dash-segment"
-            value={modo}
-            onIonChange={e => setModo(e.detail.value as 'vacantes' | 'servicios')}
-          >
-            <IonSegmentButton value="vacantes">
-              <IonLabel>Vacantes</IonLabel>
-            </IonSegmentButton>
-            <IonSegmentButton value="servicios">
-              <IonLabel>Servicios</IonLabel>
-            </IonSegmentButton>
-          </IonSegment>
+          {isEmpresa ? (
+            <IonSegment
+              className="dash-segment"
+              value={modo === 'vacantes' ? 'postulantes' : modo}
+              onIonChange={e => setModo(e.detail.value as any)}
+            >
+              <IonSegmentButton value="postulantes">
+                <IonLabel>Postulantes</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="servicios">
+                <IonLabel>Servicios</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+          ) : (
+            <IonSegment
+              className="dash-segment"
+              value={modo === 'postulantes' ? 'vacantes' : modo}
+              onIonChange={e => setModo(e.detail.value as any)}
+            >
+              <IonSegmentButton value="vacantes">
+                <IonLabel>Vacantes</IonLabel>
+              </IonSegmentButton>
+              <IonSegmentButton value="servicios">
+                <IonLabel>Servicios</IonLabel>
+              </IonSegmentButton>
+            </IonSegment>
+          )}
         </div>
 
-        {/* Fila de filtros rapidos + toggle lista/mapa (solo vacantes) */}
+        {/* Fila de filtros rapidos + toggle lista/mapa */}
         <div className="buscar-chips">
-          <button
-            className={`filter-pill vista-toggle ${vista === 'mapa' ? 'active' : ''}`}
-            onClick={() => setVista(v => (v === 'mapa' ? 'lista' : 'mapa'))}
-          >
-            <IonIcon icon={vista === 'mapa' ? listOutline : mapOutline} />
-            {vista === 'mapa' ? 'Lista' : 'Mapa'}
-          </button>
+          {modo !== 'postulantes' && (
+            <button
+              className={`filter-pill vista-toggle ${vista === 'mapa' ? 'active' : ''}`}
+              onClick={() => setVista(v => (v === 'mapa' ? 'lista' : 'mapa'))}
+            >
+              <IonIcon icon={vista === 'mapa' ? listOutline : mapOutline} />
+              {vista === 'mapa' ? 'Lista' : 'Mapa'}
+            </button>
+          )}
           {modo === 'vacantes' && (
             <button
               className={`filter-pill ${filtros.geo ? 'active' : ''}`}
@@ -472,8 +553,64 @@ const Buscar: React.FC = () => {
               {f}
             </button>
           ))}
-          <span className="filter-count">{modo === 'servicios' ? servMeta.total : meta.total} resultados</span>
+          <span className="filter-count">
+            {modo === 'postulantes'
+              ? `${postulantes.length} postulante${postulantes.length === 1 ? '' : 's'}`
+              : modo === 'servicios'
+              ? `${servMeta.total} resultados`
+              : `${meta.total} resultados`}
+          </span>
         </div>
+
+        {/* Filtros de estado para postulantes */}
+        {modo === 'postulantes' && (
+          <div className="buscar-chips" style={{ paddingTop: 0, paddingBottom: 6 }}>
+            {[
+              { id: '', label: 'Todos' },
+              { id: 'enviada', label: 'Nuevos' },
+              { id: 'en_revision', label: 'En revisión' },
+              { id: 'entrevista', label: 'Entrevista' },
+              { id: 'aceptada', label: 'Contratados' },
+            ].map(est => (
+              <button
+                key={est.id}
+                type="button"
+                className={`filter-pill ${filtroEstado === est.id ? 'active' : ''}`}
+                onClick={() => setFiltroEstado(est.id)}
+              >
+                {est.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Chip de especialidad activa en servicios */}
+        {modo === 'servicios' && filtros.categoria && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 16px 8px' }}>
+            <span style={{ fontSize: 12, color: '#64748B' }}>Especialidad:</span>
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: '#0F766E',
+              color: '#fff',
+              borderRadius: 16,
+              padding: '4px 10px',
+              fontSize: 12,
+              fontWeight: 600,
+            }}>
+              {catNombre || categorias.find(c => String(c.id) === String(filtros.categoria))?.nombre || `Categoría #${filtros.categoria}`}
+              <IonIcon
+                icon={closeOutline}
+                style={{ fontSize: 16, cursor: 'pointer' }}
+                onClick={() => {
+                  setFiltros(f => ({ ...f, categoria: '' }));
+                  setCatNombre('');
+                }}
+              />
+            </span>
+          </div>
+        )}
 
         {/* Vista mapa (vacantes o prestadores disponibles) */}
         <div className="buscar-map" style={{ display: vista === 'mapa' ? 'block' : 'none' }}>
@@ -565,6 +702,134 @@ const Buscar: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Modo postulantes: candidatos postulados a las vacantes de la empresa */}
+        {modo === 'postulantes' && (
+          loading ? (
+            <div className="dash-loading"><IonSpinner name="crescent" /></div>
+          ) : postulantes.length === 0 ? (
+            <div className="buscar-empty">
+              <IonIcon icon={businessOutline} />
+              <p>No se encontraron postulantes con esos filtros</p>
+            </div>
+          ) : (
+            <div className="buscar-list">
+              {postulantes.map(p => (
+                <IonCard key={p.id} className="job-card" style={{ marginBottom: 12 }}>
+                  <IonCardContent>
+                    <div className="job-row" style={{ alignItems: 'flex-start' }}>
+                      <IonAvatar className="job-logo" style={{ width: 48, height: 48 }}>
+                        {p.avatar_url
+                          ? <img src={p.avatar_url} alt={p.nombre_completo} />
+                          : <div className="job-logo-fallback">{(p.nombre_completo || 'C')[0]}</div>}
+                      </IonAvatar>
+                      <div className="job-info" style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <span style={{ fontWeight: 700, fontSize: 15, color: '#1B2A4A' }}>
+                            {p.nombre_completo}
+                          </span>
+                          {p.nueva && (
+                            <span style={{ background: '#EF4444', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 8 }}>
+                              🔔 Nueva
+                            </span>
+                          )}
+                          <span style={{
+                            fontSize: 11,
+                            padding: '2px 8px',
+                            borderRadius: 10,
+                            fontWeight: 600,
+                            background: p.estado === 'aceptada' ? '#DCFCE7' : p.estado === 'rechazada' ? '#FEE2E2' : '#E0F2FE',
+                            color: p.estado === 'aceptada' ? '#166534' : p.estado === 'rechazada' ? '#991B1B' : '#0369A1',
+                          }}>
+                            {p.estado === 'enviada' ? 'Pendiente' : p.estado}
+                          </span>
+                        </div>
+
+                        <div style={{ fontSize: 13, color: '#0F766E', fontWeight: 600, marginTop: 2 }}>
+                          {p.profesion || 'Candidato'}
+                        </div>
+
+                        <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
+                          🎯 <strong>Vacante:</strong> {p.vacante_titulo}
+                        </div>
+
+                        <div className="job-meta" style={{ marginTop: 4 }}>
+                          <IonIcon icon={locationOutline} />
+                          <span>{p.ciudad || 'Nicaragua'}</span>
+                          {p.created_at && (
+                            <span style={{ fontSize: 11, color: '#94A3B8', marginLeft: 6 }}>
+                              · {p.created_at.slice(0, 10)}
+                            </span>
+                          )}
+                        </div>
+
+                        {p.mensaje && (
+                          <div style={{
+                            background: '#F8FAFC',
+                            borderLeft: '3px solid #0FC6C2',
+                            padding: '6px 8px',
+                            borderRadius: 4,
+                            fontSize: 12,
+                            color: '#334155',
+                            marginTop: 6,
+                            fontStyle: 'italic',
+                          }}>
+                            "{p.mensaje}"
+                          </div>
+                        )}
+
+                        <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => contactarPostulante(p)}
+                            disabled={chatLoadingId === p.id}
+                            style={{
+                              background: '#1B2A4A',
+                              color: '#fff',
+                              border: 'none',
+                              borderRadius: 8,
+                              padding: '7px 12px',
+                              fontSize: 12,
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 6,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            {chatLoadingId === p.id ? (
+                              <IonSpinner name="crescent" style={{ width: 14, height: 14 }} />
+                            ) : (
+                              <IonIcon icon={chatbubbleEllipsesOutline} />
+                            )}
+                            {p.contacto_id ? 'Abrir Chat' : 'Enviar Mensaje'}
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setPostulanteModal(p)}
+                            style={{
+                              background: '#F1F5F9',
+                              color: '#1B2A4A',
+                              border: '1px solid #CBD5E1',
+                              borderRadius: 8,
+                              padding: '7px 12px',
+                              fontSize: 12,
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                            }}
+                          >
+                            Ver Perfil
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </IonCardContent>
+                </IonCard>
+              ))}
+            </div>
+          )
+        )}
 
         {/* Modo servicios: directorio de prestadores por oficio */}
         {modo === 'servicios' && vista === 'lista' && (
@@ -806,6 +1071,168 @@ const Buscar: React.FC = () => {
         isOpen={!!prestadorChat}
         onClose={() => setPrestadorChat(null)}
       />
+
+      {/* Modal de Detalle de Postulante */}
+      <IonModal
+        isOpen={!!postulanteModal}
+        onDidDismiss={() => setPostulanteModal(null)}
+        initialBreakpoint={0.75}
+        breakpoints={[0, 0.75, 0.95]}
+      >
+        {postulanteModal && (
+          <IonContent className="ion-padding">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1B2A4A' }}>Perfil del Postulante</h3>
+              <button
+                type="button"
+                onClick={() => setPostulanteModal(null)}
+                style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#64748B' }}
+                aria-label="Cerrar perfil"
+              >
+                <IonIcon icon={closeOutline} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+              <IonAvatar style={{ width: 56, height: 56 }}>
+                {postulanteModal.avatar_url ? (
+                  <img src={postulanteModal.avatar_url} alt={postulanteModal.nombre_completo} />
+                ) : (
+                  <div className="job-logo-fallback" style={{ width: 56, height: 56, fontSize: 22 }}>
+                    {(postulanteModal.nombre_completo || 'C')[0]}
+                  </div>
+                )}
+              </IonAvatar>
+              <div>
+                <h4 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700, color: '#1B2A4A' }}>
+                  {postulanteModal.nombre_completo}
+                </h4>
+                <div style={{ fontSize: 13, color: '#0F766E', fontWeight: 600 }}>
+                  {postulanteModal.profesion || 'Candidato'}
+                </div>
+                <div style={{ fontSize: 12, color: '#64748B' }}>
+                  📍 {postulanteModal.ciudad || 'Nicaragua'}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 12, marginBottom: 16 }}>
+              <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4 }}>Postulado a la vacante:</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#1B2A4A' }}>
+                {postulanteModal.vacante_titulo}
+              </div>
+              <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                Fecha: {postulanteModal.created_at?.slice(0, 10) || 'Reciente'} · Estado: {postulanteModal.estado}
+              </div>
+            </div>
+
+            {postulanteModal.mensaje && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  Mensaje del candidato:
+                </div>
+                <div style={{
+                  background: '#FFF',
+                  border: '1px solid #E2E8F0',
+                  borderRadius: 10,
+                  padding: 10,
+                  fontSize: 13,
+                  color: '#334155',
+                  fontStyle: 'italic',
+                }}>
+                  "{postulanteModal.mensaje}"
+                </div>
+              </div>
+            )}
+
+            {postulanteModal.sobre_mi && (
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                  Sobre el candidato:
+                </div>
+                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.4 }}>
+                  {postulanteModal.sobre_mi}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  const p = postulanteModal;
+                  setPostulanteModal(null);
+                  contactarPostulante(p);
+                }}
+                style={{
+                  background: '#1B2A4A',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: 12,
+                  padding: '13px 16px',
+                  fontWeight: 700,
+                  fontSize: 14,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                <IonIcon icon={chatbubbleEllipsesOutline} />
+                {postulanteModal.contacto_id ? 'Abrir Chat' : 'Iniciar Conversación y Negociar'}
+              </button>
+
+              {postulanteModal.telefono && (
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <a
+                    href={`tel:${postulanteModal.telefono}`}
+                    style={{
+                      flex: 1,
+                      background: '#F1F5F9',
+                      color: '#1B2A4A',
+                      borderRadius: 10,
+                      padding: '10px',
+                      textAlign: 'center',
+                      textDecoration: 'none',
+                      fontWeight: 600,
+                      fontSize: 13,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <IonIcon icon={callOutline} /> Llamar
+                  </a>
+                  <a
+                    href={`https://wa.me/505${postulanteModal.telefono.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${postulanteModal.nombre_completo}, te contactamos de CONEX sobre tu postulación a ${postulanteModal.vacante_titulo}.`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      flex: 1,
+                      background: '#25D366',
+                      color: '#fff',
+                      borderRadius: 10,
+                      padding: '10px',
+                      textAlign: 'center',
+                      textDecoration: 'none',
+                      fontWeight: 700,
+                      fontSize: 13,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                    }}
+                  >
+                    <IonIcon icon={logoWhatsapp} /> WhatsApp
+                  </a>
+                </div>
+              )}
+            </div>
+          </IonContent>
+        )}
+      </IonModal>
     </IonPage>
   );
 };

@@ -158,7 +158,13 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
     $routes->put('empresa/vacantes/(:num)', 'Api\EmpresaController::actualizarVacante/$1');
     $routes->post('empresa/vacantes/(:num)', 'Api\EmpresaController::actualizarVacante/$1');
     $routes->get('empresa/vacantes/(:num)/postulaciones', 'Api\EmpresaController::postulaciones/$1');
+    $routes->get('empresa/postulantes', 'Api\EmpresaController::todosPostulantes');
     $routes->post('empresa/postulaciones/(:num)/estado', 'Api\EmpresaController::cambiarEstadoPostulacion/$1');
+    $routes->post('empresa/iniciar-chat-postulante', 'Api\EmpresaController::iniciarChatPostulante');
+
+    // Notificaciones
+    $routes->get('notificaciones', 'Api\AuthController::notificaciones');
+    $routes->post('notificaciones/leer', 'Api\AuthController::leerNotificaciones');
 });
 
 // Panel admin

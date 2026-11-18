@@ -13,7 +13,7 @@ import {
   personOutline, shieldCheckmark, chatbubbleEllipsesOutline,
 } from 'ionicons/icons';
 import { useAuth } from '../context/AuthContext';
-import { empresaApi, serviciosApi, vacantesApi } from '../services/api';
+import { empresaApi, serviciosApi, vacantesApi, notificacionesApi } from '../services/api';
 import { catIcon } from '../utils/categoriaIcons';
 import { ChatContactModal } from '../components/ChatContactModal';
 import '../theme/app.css';
@@ -30,29 +30,39 @@ const Dashboard: React.FC = () => {
   const [categorias, setCategorias] = useState<any[]>([]);
   const [prestadores, setPrestadores] = useState<any[]>([]);
   const [prestadorChat, setPrestadorChat] = useState<any | null>(null);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
 
   const load = async () => {
     try {
+      const notifPromise = notificacionesApi.resumen().catch(() => null);
       if (user?.role === 'empresa') {
-        const [res, s, f, vPub] = await Promise.all([
+        const [res, s, f, vPub, notifs] = await Promise.all([
           empresaApi.vacantes({ per_page: 5 }).catch(() => ({ data: [] })),
           serviciosApi.list({ per_page: 8 }).catch(() => null),
           vacantesApi.filtros().catch(() => null),
           vacantesApi.list({ per_page: 6 }).catch(() => ({ data: [] })),
+          notifPromise,
         ]);
         setMisVacantes(res.data || []);
         setVacantes(vPub.data || []);
         if (s) setPrestadores(s.data || []);
         setCategorias(f?.categorias || f?.data?.categorias || []);
+        if (notifs && typeof notifs.unread_count === 'number') {
+          setUnreadCount(notifs.unread_count);
+        }
       } else {
-        const [v, f, s] = await Promise.all([
+        const [v, f, s, notifs] = await Promise.all([
           vacantesApi.list({ per_page: 8 }),
           vacantesApi.filtros().catch(() => null),
           serviciosApi.list({ per_page: 8 }).catch(() => null),
+          notifPromise,
         ]);
         setVacantes(v.data || []);
         setCategorias(f?.categorias || f?.data?.categorias || []);
         if (s) setPrestadores(s.data || []);
+        if (notifs && typeof notifs.unread_count === 'number') {
+          setUnreadCount(notifs.unread_count);
+        }
       }
     } catch {
       presentToast({ message: 'No se pudo actualizar el inicio', duration: 2200, color: 'warning' });
@@ -141,9 +151,34 @@ const Dashboard: React.FC = () => {
                 className="cx-icon-btn"
                 aria-label="Notificaciones"
                 onClick={() => router.push('/app/solicitudes')}
+                style={{ position: 'relative' }}
               >
                 <IonIcon icon={notificationsOutline} />
-                <span className="cx-notif-dot" />
+                {unreadCount > 0 ? (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: 4,
+                      right: 4,
+                      background: '#EF4444',
+                      color: '#ffffff',
+                      borderRadius: 10,
+                      fontSize: 10,
+                      fontWeight: 800,
+                      minWidth: 16,
+                      height: 16,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 3px',
+                      boxShadow: '0 0 0 2px #fff',
+                    }}
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                ) : (
+                  <span className="cx-notif-dot" />
+                )}
               </button>
               <button
                 type="button"
@@ -378,7 +413,7 @@ const Dashboard: React.FC = () => {
                   <button
                     type="button"
                     className="cx-link-all"
-                    onClick={() => router.push(isEmpresa ? '/app/talentos' : '/app/contactos')}
+                    onClick={() => router.push(isEmpresa ? '/app/talentos?modo=servicios' : '/app/contactos')}
                   >
                     Ver todos <IonIcon icon={chevronForward} />
                   </button>
@@ -546,7 +581,7 @@ const Dashboard: React.FC = () => {
                     <button
                       type="button"
                       className="cx-link-all"
-                      onClick={() => router.push(isEmpresa ? '/app/talentos' : '/app/categorias')}
+                      onClick={() => router.push(isEmpresa ? '/app/talentos?modo=servicios' : '/app/categorias')}
                     >
                       Ver todos <IonIcon icon={chevronForward} />
                     </button>
@@ -560,7 +595,13 @@ const Dashboard: React.FC = () => {
                           key={c.id}
                           type="button"
                           className="cx-group-card"
-                          onClick={() => router.push(isEmpresa ? `/app/talentos?cat=${c.id}` : `/app/buscar?categoria=${c.id}`)}
+                          onClick={() => {
+                            if (isEmpresa) {
+                              router.push(`/app/talentos?modo=servicios&cat=${c.id}&cat_nombre=${encodeURIComponent(c.nombre)}`);
+                            } else {
+                              router.push(`/app/contactos?modo=servicios&cat=${c.id}&cat_nombre=${encodeURIComponent(c.nombre)}`);
+                            }
+                          }}
                         >
                           <div className="cx-group-icon">
                             <IonIcon icon={catIcon(c.nombre)} />

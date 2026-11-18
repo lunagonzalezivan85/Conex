@@ -12,13 +12,14 @@ import {
   chevronForward, logoWhatsapp, sendOutline, cashOutline,
 } from 'ionicons/icons';
 import { useAuth } from '../context/AuthContext';
-import { candidatoApi } from '../services/api';
+import { candidatoApi, empresaApi, notificacionesApi } from '../services/api';
 import '../theme/app.css';
 
 const Solicitudes: React.FC = () => {
   const { user } = useAuth();
   const router = useIonRouter();
   const [presentToast] = useIonToast();
+  const isEmpresa = user?.role === 'empresa';
   const [tab, setTab] = useState<'recibidas' | 'enviadas' | 'postulaciones'>('recibidas');
   const [loading, setLoading] = useState(true);
   const [recibidas, setRecibidas] = useState<any[]>([]);
@@ -36,6 +37,7 @@ const Solicitudes: React.FC = () => {
       const [solRes, postRes] = await Promise.all([
         candidatoApi.solicitudes().catch(() => null),
         user?.role === 'candidato' ? candidatoApi.postulaciones().catch(() => null) : Promise.resolve(null),
+        notificacionesApi.marcarLeidas().catch(() => null),
       ]);
       if (solRes?.data) {
         setRecibidas(solRes.data.recibidas || []);
@@ -48,6 +50,26 @@ const Solicitudes: React.FC = () => {
       presentToast({ message: 'No se pudieron cargar tus mensajes', duration: 2500, color: 'danger' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const abrirChatPostulante = async (s: any) => {
+    if (s.contacto_id) {
+      router.push(
+        `/app/chat?contacto_id=${s.contacto_id}&nombre=${encodeURIComponent(s.nombre)}&oficio=${encodeURIComponent(s.oficio || s.vacante_titulo || '')}&avatar=${encodeURIComponent(s.avatar_url || '')}&telefono=${encodeURIComponent(s.telefono || '')}`
+      );
+      return;
+    }
+    setActingId(s.id);
+    try {
+      const res = await empresaApi.iniciarChatPostulante(s.postulacion_id);
+      router.push(
+        `/app/chat?contacto_id=${res.contacto_id}&nombre=${encodeURIComponent(res.nombre)}&oficio=${encodeURIComponent(res.oficio || '')}&avatar=${encodeURIComponent(res.avatar_url || '')}&telefono=${encodeURIComponent(res.telefono || '')}`
+      );
+    } catch {
+      presentToast({ message: 'No se pudo iniciar la conversación con el postulante', duration: 2500, color: 'danger' });
+    } finally {
+      setActingId(null);
     }
   };
 
@@ -265,17 +287,17 @@ const Solicitudes: React.FC = () => {
           >
             <IonSegmentButton value="recibidas">
               <IonLabel className="msg-tab-label">
-                <span>Recibidas</span>
+                <span>{isEmpresa ? 'Postulaciones' : 'Recibidas'}</span>
                 <span className="msg-tab-count">{recibidas.length}</span>
               </IonLabel>
             </IonSegmentButton>
             <IonSegmentButton value="enviadas">
               <IonLabel className="msg-tab-label">
-                <span>Enviadas</span>
+                <span>{isEmpresa ? 'Contactados' : 'Enviadas'}</span>
                 <span className="msg-tab-count">{enviadas.length}</span>
               </IonLabel>
             </IonSegmentButton>
-            {user?.role === 'candidato' && (
+            {!isEmpresa && (
               <IonSegmentButton value="postulaciones">
                 <IonLabel className="msg-tab-label">
                   <span>Empleos</span>
@@ -291,8 +313,12 @@ const Solicitudes: React.FC = () => {
             recibidas.length === 0 ? (
               <div className="empty-box">
                 <IonIcon icon={chatbubbleEllipsesOutline} />
-                <h4>Sin solicitudes recibidas</h4>
-                <p>Cuando un cliente solicite tus servicios en el directorio, aparecerá aquí en tu lista de conversaciones.</p>
+                <h4>{isEmpresa ? 'Sin postulaciones recibidas' : 'Sin solicitudes recibidas'}</h4>
+                <p>
+                  {isEmpresa
+                    ? 'Cuando los candidatos se postulen a tus vacantes, aparecerán aquí con notificación y podrás coordinar por chat.'
+                    : 'Cuando un cliente solicite tus servicios en el directorio, aparecerá aquí en tu lista de conversaciones.'}
+                </p>
               </div>
             ) : (
               <div className="sol-list cx-inbox-list">
@@ -305,18 +331,32 @@ const Solicitudes: React.FC = () => {
                       key={s.id}
                       className="cx-inbox-item-card"
                       onClick={() => {
-                        router.push(
-                          `/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(targetName)}&oficio=${encodeURIComponent(s.oficio || '')}&precio=${s.precio_propuesto || ''}`
-                        );
+                        if (s.es_postulacion) {
+                          abrirChatPostulante(s);
+                        } else {
+                          router.push(
+                            `/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(targetName)}&oficio=${encodeURIComponent(s.oficio || '')}&precio=${s.precio_propuesto || ''}`
+                          );
+                        }
                       }}
                     >
                       <div className="cx-inbox-item-main">
-                        {/* Avatar con iniciales del cliente */}
+                        {/* Avatar con iniciales o foto */}
                         <div className="cx-inbox-avatar-wrap">
-                          <div className="cx-inbox-avatar client">
-                            {getInitials(targetName)}
-                          </div>
-                          <span className="cx-inbox-dot" />
+                          {s.avatar_url ? (
+                            <img
+                              src={s.avatar_url}
+                              alt={targetName}
+                              style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            <div className="cx-inbox-avatar client">
+                              {getInitials(targetName)}
+                            </div>
+                          )}
+                          {(s.nueva || s.estado === 'enviada') && (
+                            <span className="cx-inbox-dot" style={{ background: '#EF4444' }} />
+                          )}
                         </div>
 
                         {/* Cuerpo del Item */}
@@ -328,9 +368,15 @@ const Solicitudes: React.FC = () => {
                             </span>
                           </div>
 
-                          <div className="cx-inbox-service-tag">
-                            <IonIcon icon={briefcaseOutline} /> {s.oficio}
-                          </div>
+                          {s.es_postulacion ? (
+                            <div className="cx-inbox-service-tag" style={{ color: '#0F766E', fontWeight: 600 }}>
+                              🎯 Postulante: {s.vacante_titulo || s.oficio}
+                            </div>
+                          ) : (
+                            <div className="cx-inbox-service-tag">
+                              <IonIcon icon={briefcaseOutline} /> {s.oficio}
+                            </div>
+                          )}
 
                           <div className="cx-inbox-snippet">
                             {snippet}
@@ -343,30 +389,45 @@ const Solicitudes: React.FC = () => {
                           )}
                         </div>
 
-                        {/* Lado derecho: Estado y Botón con Icono para Abrir Chat */}
+                        {/* Lado derecho: Estado y Botón para Abrir Chat */}
                         <div className="cx-inbox-actions">
-                          <span className={`cx-inbox-status-pill ${s.estado}`}>
-                            {s.estado}
-                          </span>
+                          {s.nueva || s.estado === 'enviada' ? (
+                            <span className="cx-inbox-status-pill" style={{ background: '#FEE2E2', color: '#991B1B' }}>
+                              🔔 Nueva
+                            </span>
+                          ) : (
+                            <span className={`cx-inbox-status-pill ${s.estado}`}>
+                              {s.estado}
+                            </span>
+                          )}
 
                           <button
                             type="button"
                             className="cx-inbox-open-chat-btn"
                             title="Abrir Chat"
+                            disabled={actingId === s.id}
                             onClick={(e) => {
                               e.stopPropagation();
-                              router.push(
-                                `/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(targetName)}&oficio=${encodeURIComponent(s.oficio || '')}&precio=${s.precio_propuesto || ''}`
-                              );
+                              if (s.es_postulacion) {
+                                abrirChatPostulante(s);
+                              } else {
+                                router.push(
+                                  `/app/chat?contacto_id=${s.id}&nombre=${encodeURIComponent(targetName)}&oficio=${encodeURIComponent(s.oficio || '')}&precio=${s.precio_propuesto || ''}`
+                                );
+                              }
                             }}
                           >
-                            <IonIcon icon={chatbubbleEllipses} />
+                            {actingId === s.id ? (
+                              <IonSpinner name="crescent" style={{ width: 16, height: 16 }} />
+                            ) : (
+                              <IonIcon icon={chatbubbleEllipses} />
+                            )}
                           </button>
                         </div>
                       </div>
 
-                      {/* Botones de acción rápida si está pendiente */}
-                      {s.estado === 'pendiente' && (
+                      {/* Botones de acción rápida si está pendiente (solo para servicios) */}
+                      {!s.es_postulacion && s.estado === 'pendiente' && (
                         <div className="cx-inbox-quick-actions" onClick={(e) => e.stopPropagation()}>
                           <IonButton
                             size="small"
@@ -420,8 +481,12 @@ const Solicitudes: React.FC = () => {
             enviadas.length === 0 ? (
               <div className="empty-box">
                 <IonIcon icon={chatbubbleEllipsesOutline} />
-                <h4>No has enviado solicitudes</h4>
-                <p>Busca trabajadores en la pestaña Contactos y envíales una solicitud de servicio.</p>
+                <h4>{isEmpresa ? 'No has enviado mensajes de contacto' : 'No has enviado solicitudes'}</h4>
+                <p>
+                  {isEmpresa
+                    ? 'Cuando contactes a postulantes o prestadores en Talentos, aquí verás tus mensajes y conversaciones activas.'
+                    : 'Busca trabajadores en la pestaña Contactos y envíales una solicitud de servicio.'}
+                </p>
               </div>
             ) : (
               <div className="sol-list cx-inbox-list">

@@ -357,6 +357,206 @@ class EmpresaController extends BaseApiController
         return $this->ok(['message' => 'Estado actualizado', 'estado' => $this->body()['estado']]);
     }
 
+    /**
+     * GET /api/empresa/postulantes — lista global de todos los candidatos postulados
+     * a cualquiera de las vacantes de la empresa.
+     */
+    public function todosPostulantes()
+    {
+        if ($res = $this->requireRole(['empresa'])) {
+            return $res;
+        }
+        $empresa = $this->getEmpresa();
+        if (!$empresa) {
+            return $this->fail('Completa primero el perfil de tu empresa', 422);
+        }
+        $db = \Config\Database::connect();
+        $q = trim((string)($this->request->getGet('q') ?? ''));
+        $vacanteId = (int)($this->request->getGet('vacante_id') ?? 0);
+        $estado = trim((string)($this->request->getGet('estado') ?? ''));
+
+        $builder = $db->table('post_postulacion')
+            ->select('post_postulacion.*,
+                vac_vacante.titulo as vacante_titulo, vac_vacante.slug as vacante_slug,
+                auth_user.id as user_id, auth_user.nombre, auth_user.apellido, auth_user.email, auth_user.avatar,
+                cand_candidato.profesion, cand_candidato.ciudad, cand_candidato.telefono,
+                cand_candidato.latitud, cand_candidato.longitud, cand_candidato.porcentaje_perfil,
+                cand_candidato.sobre_mi')
+            ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id')
+            ->join('cand_candidato', 'cand_candidato.id = post_postulacion.candidato_id')
+            ->join('auth_user', 'auth_user.id = cand_candidato.user_id')
+            ->where('vac_vacante.empresa_id', (int)$empresa['id'])
+            ->where('post_postulacion.deleted_at IS NULL');
+
+        if ($vacanteId > 0) {
+            $builder->where('post_postulacion.vacante_id', $vacanteId);
+        }
+        if ($estado !== '') {
+            $builder->where('post_postulacion.estado', $estado);
+        }
+        if ($q !== '') {
+            $builder->groupStart()
+                ->like('auth_user.nombre', $q)
+                ->orLike('auth_user.apellido', $q)
+                ->orLike('cand_candidato.profesion', $q)
+                ->orLike('vac_vacante.titulo', $q)
+                ->groupEnd();
+        }
+
+        $postulantes = $builder->orderBy('post_postulacion.created_at', 'DESC')->get()->getResultArray();
+
+        // Buscar si ya tienen conversacion activa en srv_contacto
+        $empUser = $this->authUser();
+        $candIds = array_unique(array_filter(array_column($postulantes, 'candidato_id')));
+        $contactosMap = [];
+        if (!empty($candIds) && $db->tableExists('srv_contacto') && $db->tableExists('srv_servicio')) {
+            $contacts = $db->table('srv_contacto')
+                ->select('srv_contacto.id as contacto_id, srv_servicio.candidato_id')
+                ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
+                ->where('srv_contacto.user_id', $empUser['id'])
+                ->whereIn('srv_servicio.candidato_id', $candIds)
+                ->get()->getResultArray();
+            foreach ($contacts as $c) {
+                $contactosMap[(int)$c['candidato_id']] = (int)$c['contacto_id'];
+            }
+        }
+
+        foreach ($postulantes as &$p) {
+            $p['nombre_completo'] = trim($p['nombre'] . ' ' . $p['apellido']);
+            $p['avatar_url'] = !empty($p['avatar']) ? (str_starts_with($p['avatar'], 'http') ? $p['avatar'] : base_url('uploads/' . $p['avatar'])) : null;
+            $p['nueva'] = ($p['estado'] === 'enviada');
+            $p['contacto_id'] = $contactosMap[(int)$p['candidato_id']] ?? null;
+        }
+        unset($p);
+
+        return $this->ok(['data' => $postulantes]);
+    }
+
+    /**
+     * POST /api/empresa/iniciar-chat-postulante — abre o inicia una conversación
+     * directa con un postulante desde la app móvil.
+     * Body: { postulacion_id: number, mensaje?: string }
+     */
+    public function iniciarChatPostulante()
+    {
+        if ($res = $this->requireRole(['empresa'])) {
+            return $res;
+        }
+        $empresa = $this->getEmpresa();
+        if (!$empresa) {
+            return $this->fail('Completa el perfil de tu empresa', 422);
+        }
+        $db = \Config\Database::connect();
+        $body = $this->body();
+        $postulacionId = (int)($body['postulacion_id'] ?? 0);
+        $candidatoId = (int)($body['candidato_id'] ?? 0);
+        $vacanteTitulo = '';
+
+        if ($postulacionId > 0) {
+            $postulacion = $db->table('post_postulacion')
+                ->select('post_postulacion.*, vac_vacante.titulo as vacante_titulo, vac_vacante.empresa_id')
+                ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id')
+                ->where('post_postulacion.id', $postulacionId)
+                ->get()->getRowArray();
+
+            if (!$postulacion || (int)$postulacion['empresa_id'] !== (int)$empresa['id']) {
+                return $this->fail('Postulación no encontrada', 404);
+            }
+            $candidatoId = (int)$postulacion['candidato_id'];
+            $vacanteTitulo = $postulacion['vacante_titulo'];
+        }
+
+        $candidato = $db->table('cand_candidato')->where('id', $candidatoId)->get()->getRowArray();
+        if (!$candidato) {
+            return $this->fail('Candidato no encontrado', 404);
+        }
+        $candUser = $db->table('auth_user')->where('id', $candidato['user_id'])->get()->getRowArray();
+        $empUser = $this->authUser();
+
+        // Buscar o crear servicio para este candidato
+        $servicio = $db->table('srv_servicio')->where('candidato_id', $candidatoId)->get()->getRowArray();
+        if (!$servicio) {
+            $db->table('srv_servicio')->insert([
+                'candidato_id' => $candidatoId,
+                'oficio'       => $candidato['profesion'] ?: 'Perfil profesional',
+                'descripcion'  => 'Servicios y postulación de ' . ($candUser['nombre'] ?? 'candidato'),
+                'ciudad'       => $candidato['ciudad'] ?: 'Managua',
+                'precio_tipo'  => 'a_convenir',
+                'estado'       => 'activo',
+                'created_at'   => date('Y-m-d H:i:s'),
+                'updated_at'   => date('Y-m-d H:i:s'),
+            ]);
+            $servicioId = $db->insertID();
+        } else {
+            $servicioId = (int)$servicio['id'];
+        }
+
+        // Buscar si ya existe conversacion / srv_contacto entre la empresa y este servicio
+        $contacto = $db->table('srv_contacto')
+            ->where('servicio_id', $servicioId)
+            ->where('user_id', $empUser['id'])
+            ->get()->getRowArray();
+
+        $vacTxt = !empty($vacanteTitulo) ? " sobre tu postulación a {$vacanteTitulo}" : "";
+        $initMsg = !empty($body['mensaje']) ? trim($body['mensaje']) : "Hola {$candUser['nombre']}, te contactamos de {$empresa['razon_social']}{$vacTxt}. Queremos coordinar contigo.";
+
+        if (!$contacto) {
+            $db->table('srv_contacto')->insert([
+                'servicio_id' => $servicioId,
+                'user_id'     => $empUser['id'],
+                'nombre'      => $empresa['razon_social'] ?: ($empUser['nombre'] . ' ' . $empUser['apellido']),
+                'telefono'    => $empUser['telefono'] ?: ($empresa['telefono'] ?: '505-8888-8888'),
+                'mensaje'     => $initMsg,
+                'estado'      => 'aceptado',
+                'ip_hash'     => hash('sha256', $this->request->getIPAddress()),
+                'created_at'  => date('Y-m-d H:i:s'),
+                'updated_at'  => date('Y-m-d H:i:s'),
+            ]);
+            $contactoId = $db->insertID();
+
+            if ($db->tableExists('srv_contacto_mensaje')) {
+                $db->table('srv_contacto_mensaje')->insert([
+                    'contacto_id'   => $contactoId,
+                    'emisor_tipo'   => 'cliente',
+                    'emisor_nombre' => $empresa['razon_social'] ?: $empUser['nombre'],
+                    'mensaje'       => $initMsg,
+                    'created_at'    => date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            if ($db->tableExists('not_notificacion')) {
+                $db->table('not_notificacion')->insert([
+                    'user_id'    => (int)$candUser['id'],
+                    'tipo'       => 'mensaje',
+                    'titulo'     => 'Mensaje de empresa',
+                    'mensaje'    => "{$empresa['razon_social']} te ha enviado un mensaje de contacto",
+                    'url'        => '/app/solicitudes',
+                    'leida'      => 0,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+        } else {
+            $contactoId = (int)$contacto['id'];
+            if (!empty($body['mensaje']) && $db->tableExists('srv_contacto_mensaje')) {
+                $db->table('srv_contacto_mensaje')->insert([
+                    'contacto_id'   => $contactoId,
+                    'emisor_tipo'   => 'cliente',
+                    'emisor_nombre' => $empresa['razon_social'] ?: $empUser['nombre'],
+                    'mensaje'       => trim($body['mensaje']),
+                    'created_at'    => date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+
+        return $this->ok([
+            'contacto_id' => $contactoId,
+            'nombre'      => trim($candUser['nombre'] . ' ' . $candUser['apellido']),
+            'oficio'      => !empty($vacanteTitulo) ? $vacanteTitulo : ($candidato['profesion'] ?: 'Candidato'),
+            'avatar_url'  => !empty($candUser['avatar']) ? (str_starts_with($candUser['avatar'], 'http') ? $candUser['avatar'] : base_url('uploads/' . $candUser['avatar'])) : null,
+            'telefono'    => $candidato['telefono'] ?: ($candUser['telefono'] ?: ''),
+        ]);
+    }
+
     private function getEmpresa(): ?array
     {
         return (new EmpresaModel())->where('user_id', $this->authUser()['id'] ?? 0)->first();

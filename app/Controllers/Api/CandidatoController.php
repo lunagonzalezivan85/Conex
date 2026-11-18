@@ -739,6 +739,64 @@ class CandidatoController extends BaseApiController
                 ->get()->getResultArray();
         }
 
+        // Si es empresa, sus "recibidas" principales son las postulaciones a sus vacantes
+        $empresa = (new \App\Models\EmpresaModel())->where('user_id', $user['id'])->first();
+        if ($empresa) {
+            $postulacionesRecibidas = $db->table('post_postulacion')
+                ->select('post_postulacion.id, post_postulacion.candidato_id, post_postulacion.vacante_id,
+                    post_postulacion.mensaje, post_postulacion.estado, post_postulacion.created_at,
+                    vac_vacante.titulo as vacante_titulo,
+                    auth_user.id as cand_user_id, auth_user.nombre, auth_user.apellido, auth_user.avatar,
+                    cand_candidato.profesion, cand_candidato.ciudad, cand_candidato.telefono')
+                ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id')
+                ->join('cand_candidato', 'cand_candidato.id = post_postulacion.candidato_id')
+                ->join('auth_user', 'auth_user.id = cand_candidato.user_id')
+                ->where('vac_vacante.empresa_id', (int)$empresa['id'])
+                ->where('post_postulacion.deleted_at IS NULL')
+                ->orderBy('post_postulacion.created_at', 'DESC')
+                ->limit(100)
+                ->get()->getResultArray();
+
+            $candIds = array_unique(array_filter(array_column($postulacionesRecibidas, 'candidato_id')));
+            $contactosMap = [];
+            if (!empty($candIds) && $db->tableExists('srv_contacto') && $db->tableExists('srv_servicio')) {
+                $contacts = $db->table('srv_contacto')
+                    ->select('srv_contacto.id as contacto_id, srv_servicio.candidato_id')
+                    ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
+                    ->where('srv_contacto.user_id', $user['id'])
+                    ->whereIn('srv_servicio.candidato_id', $candIds)
+                    ->get()->getResultArray();
+                foreach ($contacts as $c) {
+                    $contactosMap[(int)$c['candidato_id']] = (int)$c['contacto_id'];
+                }
+            }
+
+            foreach ($postulacionesRecibidas as $p) {
+                $candName = trim($p['nombre'] . ' ' . $p['apellido']);
+                $recibidas[] = [
+                    'id'               => (int)$p['id'],
+                    'postulacion_id'   => (int)$p['id'],
+                    'nombre'           => $candName,
+                    'oficio'           => $p['vacante_titulo'],
+                    'vacante_titulo'   => $p['vacante_titulo'],
+                    'profesion'        => $p['profesion'] ?: 'Candidato',
+                    'ciudad'           => $p['ciudad'],
+                    'avatar_url'       => !empty($p['avatar']) ? (str_starts_with($p['avatar'], 'http') ? $p['avatar'] : base_url('uploads/' . $p['avatar'])) : null,
+                    'mensaje'          => !empty($p['mensaje']) ? $p['mensaje'] : "Nueva postulación para: {$p['vacante_titulo']}",
+                    'respuesta'        => null,
+                    'precio_propuesto' => null,
+                    'fecha_respuesta'  => null,
+                    'estado'           => $p['estado'],
+                    'created_at'       => $p['created_at'],
+                    'telefono'         => $p['telefono'],
+                    'es_postulacion'   => true,
+                    'nueva'            => ($p['estado'] === 'enviada'),
+                    'contacto_id'      => $contactosMap[(int)$p['candidato_id']] ?? null,
+                    'candidato_id'     => (int)$p['candidato_id'],
+                ];
+            }
+        }
+
         $enviadas = [];
         if ($db->tableExists('srv_contacto')) {
             $enviadas = $db->table('srv_contacto')
@@ -870,6 +928,39 @@ class CandidatoController extends BaseApiController
                 'precio_propuesto' => $precioPropuesto,
                 'created_at'       => date('Y-m-d H:i:s'),
             ]);
+
+            // Notificar al destinatario
+            try {
+                if ($db->tableExists('not_notificacion')) {
+                    $destinatarioUserId = null;
+                    if ($esPrestador) {
+                        $destinatarioUserId = (int)$sol['user_id'];
+                    } else {
+                        $srvCand = $db->table('srv_servicio')
+                            ->select('cand_candidato.user_id')
+                            ->join('cand_candidato', 'cand_candidato.id = srv_servicio.candidato_id')
+                            ->where('srv_servicio.id', (int)$sol['servicio_id'])
+                            ->get()->getRowArray();
+                        if ($srvCand && !empty($srvCand['user_id'])) {
+                            $destinatarioUserId = (int)$srvCand['user_id'];
+                        }
+                    }
+                    if ($destinatarioUserId && $destinatarioUserId !== (int)$user['id']) {
+                        $senderName = trim(($user['nombre'] ?? '') . ' ' . ($user['apellido'] ?? '')) ?: 'Un usuario';
+                        $db->table('not_notificacion')->insert([
+                            'user_id'    => $destinatarioUserId,
+                            'tipo'       => 'mensaje',
+                            'titulo'     => "Nuevo mensaje de {$senderName}",
+                            'mensaje'    => mb_substr($mensajeTexto, 0, 150),
+                            'url'        => '/app/solicitudes',
+                            'leida'      => 0,
+                            'created_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            } catch (\Throwable $th) {
+                // ignorar error de notificación
+            }
         }
 
         // Obtener historial completo de mensajes actualizado
@@ -1177,7 +1268,7 @@ class CandidatoController extends BaseApiController
             $cvId = (int)$data['cv_id'];
         }
 
-        $postulacionModel->insert([
+        $postulacionId = $postulacionModel->insert([
             'vacante_id'   => (int)$vacanteId,
             'candidato_id' => $candidato['id'],
             'cv_id'        => $cvId,
@@ -1185,9 +1276,30 @@ class CandidatoController extends BaseApiController
             'estado'       => 'enviada',
         ]);
 
+        // Notificar a la empresa de la vacante que alguien se postuló
+        try {
+            $db = \Config\Database::connect();
+            $empresa = (new \App\Models\EmpresaModel())->find((int)$vacante['empresa_id']);
+            if ($empresa && !empty($empresa['user_id']) && $db->tableExists('not_notificacion')) {
+                $userCand = $this->authUser();
+                $candNombre = trim(($userCand['nombre'] ?? '') . ' ' . ($userCand['apellido'] ?? '')) ?: 'Un candidato';
+                $db->table('not_notificacion')->insert([
+                    'user_id'    => (int)$empresa['user_id'],
+                    'tipo'       => 'postulacion',
+                    'titulo'     => '¡Nueva postulación recibida!',
+                    'mensaje'    => "{$candNombre} se ha postulado a tu vacante '{$vacante['titulo']}'",
+                    'url'        => '/app/solicitudes',
+                    'leida'      => 0,
+                    'created_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+        } catch (\Throwable $th) {
+            // No romper el flujo si falla la notificación
+        }
+
         return $this->ok([
             'message'        => 'Te has postulado correctamente',
-            'postulacion_id' => $postulacionModel->getInsertID(),
+            'postulacion_id' => $postulacionId ?: $postulacionModel->getInsertID(),
         ], 201);
     }
 
