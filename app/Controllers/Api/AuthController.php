@@ -3,6 +3,7 @@
 namespace App\Controllers\Api;
 
 use App\Libraries\ApiAuth;
+use App\Libraries\AccountPurgeService;
 use App\Models\ApiTokenModel;
 use App\Models\CandidatoModel;
 use App\Models\EmpresaModel;
@@ -508,7 +509,8 @@ class AuthController extends BaseApiController
     }
 
     /**
-     * POST /api/usuario/eliminar-cuenta — baja y borrado de cuenta del usuario actual.
+     * POST /api/usuario/eliminar-cuenta — baja y borrado definitivo de cuenta del usuario actual.
+     * En estricto cumplimiento de la Cláusula 6 de la Política de Privacidad de CONEX.
      */
     public function eliminarCuenta()
     {
@@ -518,21 +520,16 @@ class AuthController extends BaseApiController
         }
 
         $userId = (int)$user['id'];
-        $userModel = new UserModel();
+        $res = AccountPurgeService::purgeUser($userId, 'Baja y eliminación voluntaria desde la app móvil');
 
-        // Desactivar tokens activos
-        $token = ApiAuth::token();
-        if ($token) {
-            (new ApiTokenModel())->delete($token['id']);
+        if (!$res['success']) {
+            return $this->fail($res['error'] ?? 'No se pudo procesar la eliminación', 500);
         }
 
-        // Marcar inactivo y soft-delete
-        $userModel->update($userId, ['estado' => 'inactivo']);
-        $userModel->delete($userId);
-
-        log_message('info', 'Usuario ' . $userId . ' elimino su cuenta desde la app movil.');
-
-        return $this->ok(['message' => 'Tu cuenta ha sido eliminada correctamente']);
+        return $this->ok([
+            'message' => 'Tu cuenta y todos tus datos personales asociados han sido eliminados de forma definitiva.',
+            'summary' => $res['summary'] ?? [],
+        ]);
     }
 
     /**

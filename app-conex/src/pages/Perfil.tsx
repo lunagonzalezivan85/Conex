@@ -988,6 +988,9 @@ const Perfil: React.FC = () => {
         )}
 
         <div style={{ padding: '8px 16px 36px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
+            Configuración de Cuenta y Privacidad
+          </div>
           <IonButton
             expand="block"
             fill="clear"

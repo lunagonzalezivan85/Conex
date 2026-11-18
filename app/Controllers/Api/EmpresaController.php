@@ -468,7 +468,15 @@ class EmpresaController extends BaseApiController
             $p['nombre_completo'] = trim($p['nombre'] . ' ' . $p['apellido']);
             $p['avatar_url'] = !empty($p['avatar']) ? (str_starts_with($p['avatar'], 'http') ? $p['avatar'] : base_url('uploads/' . $p['avatar'])) : null;
             $p['nueva'] = ($p['estado'] === 'enviada');
-            $p['contacto_id'] = $contactosMap[(int)$p['candidato_id']] ?? null;
+            $contactoId = $contactosMap[(int)$p['candidato_id']] ?? null;
+            $p['contacto_id'] = $contactoId;
+
+            // Cláusula 4 Política de Privacidad: "El número de teléfono solo se revela entre postulante y
+            // empleador / cliente cuando una solicitud de contacto ha sido formalmente aceptada por ambas partes."
+            $contactoAceptado = !empty($contactoId) || in_array($p['estado'], ['en_revision', 'entrevista', 'oferta', 'contratado'], true);
+            if (!$contactoAceptado) {
+                $p['telefono'] = null;
+            }
         }
         unset($p);
 

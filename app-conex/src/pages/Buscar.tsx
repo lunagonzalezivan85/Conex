@@ -1184,7 +1184,7 @@ const Buscar: React.FC = () => {
                 {postulanteModal.contacto_id ? 'Abrir Chat' : 'Iniciar Conversación y Negociar'}
               </button>
 
-              {postulanteModal.telefono && (
+              {postulanteModal.telefono ? (
                 <div style={{ display: 'flex', gap: 10 }}>
                   <a
                     href={`tel:${postulanteModal.telefono}`}
@@ -1229,6 +1229,10 @@ const Buscar: React.FC = () => {
                     <IonIcon icon={logoWhatsapp} /> WhatsApp
                   </a>
                 </div>
+              ) : (
+                <p style={{ margin: '4px 0 0', fontSize: 11, color: '#64748B', textAlign: 'center' }}>
+                  🔒 El teléfono directo se revela al iniciar conversación o coordinar con el postulante.
+                </p>
               )}
             </div>
           </IonContent>

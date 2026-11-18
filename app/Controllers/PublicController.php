@@ -4,6 +4,8 @@ namespace App\Controllers;
 
 use App\Models\VacanteModel;
 use App\Models\CategoriaModel;
+use App\Models\UserModel;
+use App\Libraries\AccountPurgeService;
 
 class PublicController extends BaseController
 {
@@ -707,23 +709,44 @@ class PublicController extends BaseController
     public function procesarEliminarCuenta()
     {
         $idOrEmail = trim($this->request->getPost('identificador') ?? '');
+        $password = (string)($this->request->getPost('password') ?? '');
+        $confirmacion = $this->request->getPost('confirmacion_terminos');
+        $motivo = trim((string)($this->request->getPost('motivo') ?? ''));
+
         if ($idOrEmail === '') {
-            return redirect()->back()->with('error', 'Por favor ingresa tu correo electronico o numero de telefono.');
+            return redirect()->back()->withInput()->with('error', 'Por favor ingresa tu correo electrónico o número de teléfono registrado.');
         }
 
-        $userModel = new \App\Models\UserModel();
+        if ($password === '') {
+            return redirect()->back()->withInput()->with('error', 'Por motivos de seguridad y privacidad, debes ingresar tu contraseña para verificar que eres el titular de la cuenta.');
+        }
+
+        if (empty($confirmacion)) {
+            return redirect()->back()->withInput()->with('error', 'Debes confirmar que comprendes que la eliminación de tus datos es irreversible.');
+        }
+
+        $userModel = new UserModel();
         $user = $userModel->where('email', $idOrEmail)
             ->orWhere('telefono', $idOrEmail)
             ->orWhere('usuario', $idOrEmail)
             ->first();
 
-        if ($user) {
-            $userModel->update($user['id'], ['estado' => 'inactivo']);
-            $userModel->delete($user['id']);
-            log_message('info', 'Usuario ' . $user['id'] . ' solicito eliminacion de cuenta via web.');
+        if (!$user || !password_verify($password, $user['password'])) {
+            return redirect()->back()->withInput()->with('error', 'Las credenciales ingresadas son incorrectas. No se pudo verificar la titularidad de la cuenta.');
         }
 
-        return redirect()->back()->with('success', 'Tu solicitud de eliminacion ha sido procesada. Tu cuenta y datos han sido dados de baja de la plataforma.');
+        $res = AccountPurgeService::purgeUser((int)$user['id'], 'Baja confirmada vía web: ' . ($motivo ?: 'Sin motivo especificado'));
+
+        if (!$res['success']) {
+            return redirect()->back()->withInput()->with('error', 'Ocurrió un error al procesar la baja. Por favor intenta nuevamente o contacta a soporte@softlutionic.com');
+        }
+
+        // Si el usuario tenía sesión iniciada en el navegador, cerrarla
+        if (session()->get('user_id') == $user['id']) {
+            session()->destroy();
+        }
+
+        return redirect()->to(base_url('eliminar-cuenta'))->with('success', 'Tu cuenta, currículums, fotografías y fichas de servicios han sido dados de baja y eliminados permanentemente de nuestra base de datos activa.');
     }
 
     public function descargarApp(): string
