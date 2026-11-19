@@ -111,14 +111,14 @@ export function parsearCedula(raw: string): CedulaData {
     if (match) cedula = match[0];
   }
 
-  // 3) Ultimo recurso: secuencia larga de digitos
+  // 3) Ultimo recurso: secuencia larga de caracteres alfanumericos
   if (!cedula) {
-    const digits = raw.replace(/\D/g, '');
-    if (digits.length >= 6) cedula = digits.slice(0, 20);
+    const alphanumeric = raw.replace(/[^0-9A-Za-z]/g, '');
+    if (alphanumeric.length >= 6) cedula = alphanumeric.slice(0, 20);
   }
 
   return {
-    cedula: cedula.replace(/[^0-9A-Za-z]/g, ''),
+    cedula: cedula.replace(/[^0-9A-Za-z]/g, '').toUpperCase(),
     nombres: nombres?.trim() || undefined,
     apellidos: apellidos?.trim() || undefined,
     municipio: municipio?.trim() || undefined,
@@ -130,12 +130,12 @@ export function parsearCedula(raw: string): CedulaData {
  * Solo formatea; al enviar se quita todo lo no alfanumerico.
  */
 export function formatearCedula(cedula: string): string {
-  const limpia = cedula.replace(/[^0-9A-Za-z]/g, '');
+  const limpia = cedula.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
   const m = limpia.match(/^(\d{3})(\d{6})(.+)$/);
   return m ? `${m[1]}-${m[2]}-${m[3]}` : limpia;
 }
 
 /** Normaliza para enviar al backend (mismo preg_replace del servidor). */
 export function normalizarCedula(cedula: string): string {
-  return cedula.replace(/[^0-9A-Za-z]/g, '');
+  return cedula.replace(/[^0-9A-Za-z]/g, '').toUpperCase();
 }

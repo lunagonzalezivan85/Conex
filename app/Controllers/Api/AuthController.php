@@ -429,8 +429,13 @@ class AuthController extends BaseApiController
      */
     private function registerApp(array $data)
     {
+        // Normalizar cedula/documento (alfanumerico en mayusculas, permite letras de IDs de cualquier pais)
+        if (isset($data['cedula'])) {
+            $data['cedula'] = strtoupper(preg_replace('/[^0-9A-Za-z]/', '', (string) $data['cedula']));
+        }
+
         $rules = [
-            'cedula'   => 'required|min_length[6]|max_length[20]|is_unique[auth_user.usuario]',
+            'cedula'   => 'required|min_length[5]|max_length[30]|is_unique[auth_user.usuario]',
             'nombre'   => 'required|min_length[2]|max_length[100]',
             'apellido' => 'required|min_length[2]|max_length[100]',
             'telefono' => 'required|min_length[8]|max_length[20]',
@@ -451,7 +456,7 @@ class AuthController extends BaseApiController
             return $this->fail('Tipo de cuenta no valido', 422);
         }
 
-        $cedula = strtoupper(preg_replace('/[^0-9A-Za-z]/', '', (string) $data['cedula']));
+        $cedula = $data['cedula'];
         $email  = trim((string) ($data['email'] ?? '')) ?: $cedula . '@conex.local';
 
         // UserModel hashea el password automaticamente (beforeInsert)

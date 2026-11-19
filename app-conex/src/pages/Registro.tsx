@@ -104,8 +104,8 @@ const Registro: React.FC = () => {
   };
 
   const validarCedula = () => {
-    if (normalizarCedula(cedula).length < 6) {
-      setError('Ingresa un numero de cedula valido');
+    if (normalizarCedula(cedula).length < 5) {
+      setError('Ingresa una cédula o documento de identidad válido');
       return;
     }
     if (!nombre.trim() || !apellido.trim()) {
@@ -153,7 +153,7 @@ const Registro: React.FC = () => {
     } catch (err) {
       const e = err as ApiError;
       if (e.status === 422 && e.errors?.cedula) {
-        setError('Esa cedula ya tiene cuenta. Inicia sesion.');
+        setError('Esa cédula o documento ya tiene cuenta registrada. Inicia sesión.');
       } else if (e.status === 422 && e.errors) {
         setError(Object.values(e.errors)[0]);
       } else {
@@ -264,11 +264,13 @@ const Registro: React.FC = () => {
 
                 <IonItem className="auth-item" lines="full">
                   <IonInput
-                    label="Numero de cedula"
+                    label="Cédula o documento de identidad"
                     labelPlacement="floating"
-                    inputmode="numeric"
+                    type="text"
+                    autocapitalize="characters"
+                    placeholder="Ej. 001-101191-0019M o Pasaporte / DNI"
                     value={cedula}
-                    onIonInput={e => setCedula(e.detail.value ?? '')}
+                    onIonInput={e => setCedula((e.detail.value ?? '').toUpperCase())}
                   />
                 </IonItem>
                 <IonItem className="auth-item" lines="full">
