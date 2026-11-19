@@ -220,7 +220,29 @@ class EmpresaController extends BaseApiController
             return $this->fail('Has alcanzado el límite de 5 vacantes de tu periodo de prueba gratuito.', 403);
         }
 
-        $slug = url_title($data['titulo'], '-', true) . '-' . $empresa['id'] . '-' . rand(100, 999);
+        $ciudad = !empty($data['ciudad']) ? trim($data['ciudad']) : ($empresa['ciudad'] ?? 'Managua');
+        $coordsCity = [
+            'Managua'     => ['lat' => 12.1364, 'lng' => -86.2514],
+            'Masaya'      => ['lat' => 11.9744, 'lng' => -86.0942],
+            'Granada'     => ['lat' => 11.9299, 'lng' => -85.9560],
+            'León'        => ['lat' => 12.4379, 'lng' => -86.8780],
+            'Chinandega'  => ['lat' => 12.6294, 'lng' => -87.1311],
+            'Matagalpa'   => ['lat' => 12.9256, 'lng' => -85.9175],
+            'Estelí'      => ['lat' => 13.0919, 'lng' => -86.3538],
+            'Rivas'       => ['lat' => 11.4372, 'lng' => -85.8263],
+            'Carazo'      => ['lat' => 11.8500, 'lng' => -86.1990],
+            'Chontales'   => ['lat' => 12.1063, 'lng' => -85.3645],
+        ];
+
+        $lat = !empty($data['latitud']) ? (float)$data['latitud'] : ($coordsCity[$ciudad]['lat'] ?? null);
+        $lng = !empty($data['longitud']) ? (float)$data['longitud'] : ($coordsCity[$ciudad]['lng'] ?? null);
+
+        $tituloClean = strtr($data['titulo'], [
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
+            'Á' => 'a', 'É' => 'e', 'Í' => 'i', 'Ó' => 'o', 'Ú' => 'u',
+            'ñ' => 'n', 'Ñ' => 'n', 'ü' => 'u', 'Ü' => 'u',
+        ]);
+        $slug = url_title($tituloClean, '-', true) . '-' . $empresa['id'] . '-' . rand(100, 999);
         $estado = $data['estado'] ?? 'publicada';
 
         $insertData = [
@@ -230,10 +252,10 @@ class EmpresaController extends BaseApiController
             'slug'                 => $slug,
             'descripcion'          => $data['descripcion'],
             'funciones'            => $data['funciones'] ?? null,
-            'ciudad'               => !empty($data['ciudad']) ? $data['ciudad'] : ($empresa['ciudad'] ?? 'Managua'),
+            'ciudad'               => $ciudad,
             'region'               => $data['region'] ?? ($empresa['region'] ?? null),
-            'latitud'              => !empty($data['latitud']) ? (float)$data['latitud'] : null,
-            'longitud'             => !empty($data['longitud']) ? (float)$data['longitud'] : null,
+            'latitud'              => $lat,
+            'longitud'             => $lng,
             'modalidad'            => $data['modalidad'],
             'salario_min'          => !empty($data['salario_min']) ? (float)$data['salario_min'] : null,
             'salario_max'          => !empty($data['salario_max']) ? (float)$data['salario_max'] : null,
@@ -422,7 +444,7 @@ class EmpresaController extends BaseApiController
 
         $postulacionModel = new PostulacionModel();
         $postulacion = $postulacionModel
-            ->select('post_postulacion.*')
+            ->select('post_postulacion.*, vac_vacante.titulo as vacante_titulo, vac_vacante.empresa_id')
             ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id')
             ->where('post_postulacion.id', (int)$id)
             ->where('vac_vacante.empresa_id', $empresa['id'])
@@ -432,9 +454,98 @@ class EmpresaController extends BaseApiController
             return $this->fail('Postulacion no encontrada', 404);
         }
 
-        $postulacionModel->update($postulacion['id'], ['estado' => $this->body()['estado']]);
+        $nuevoEstado = $this->body()['estado'];
+        $postulacionModel->update($postulacion['id'], ['estado' => $nuevoEstado]);
 
-        return $this->ok(['message' => 'Estado actualizado', 'estado' => $this->body()['estado']]);
+        $db = \Config\Database::connect();
+        $empUser = $this->authUser();
+        $candidato = $db->table('cand_candidato')->where('id', (int)$postulacion['candidato_id'])->get()->getRowArray();
+        $candUserId = $candidato ? (int)$candidato['user_id'] : 0;
+
+        // 1. Notificación al candidato en not_notificacion
+        if ($candUserId > 0 && $db->tableExists('not_notificacion')) {
+            $tituloNotif = 'Actualización de tu postulación';
+            $msgNotif = "Tu postulación para la vacante '{$postulacion['vacante_titulo']}' ha sido actualizada a {$nuevoEstado}.";
+
+            if ($nuevoEstado === 'contratado') {
+                $tituloNotif = '¡Felicitaciones! Has sido contratado 🎉';
+                $msgNotif = "¡Buenas noticias! {$empresa['razon_social']} te ha seleccionado y marcado como CONTRATADO para la vacante '{$postulacion['vacante_titulo']}'. Revisa tu chat para coordinar los detalles.";
+            } elseif ($nuevoEstado === 'en_revision') {
+                $tituloNotif = 'Tu postulación está en revisión 👀';
+                $msgNotif = "{$empresa['razon_social']} está revisando tu postulación para la vacante '{$postulacion['vacante_titulo']}'.";
+            } elseif ($nuevoEstado === 'rechazada') {
+                $tituloNotif = 'Estado de tu postulación';
+                $msgNotif = "Tu postulación para la vacante '{$postulacion['vacante_titulo']}' no continuará en este proceso. ¡Sigue explorando más oportunidades!";
+            }
+
+            $db->table('not_notificacion')->insert([
+                'user_id'    => $candUserId,
+                'tipo'       => 'postulacion',
+                'titulo'     => $tituloNotif,
+                'mensaje'    => $msgNotif,
+                'url'        => '/app/solicitudes',
+                'leida'      => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        // 2. Mensaje en el chat de la conversación srv_contacto_mensaje
+        if ($candidato && $db->tableExists('srv_contacto') && $db->tableExists('srv_servicio')) {
+            $servicio = $db->table('srv_servicio')->where('candidato_id', (int)$candidato['id'])->get()->getRowArray();
+            if ($servicio) {
+                $contacto = $db->table('srv_contacto')
+                    ->where('servicio_id', (int)$servicio['id'])
+                    ->where('user_id', (int)$empUser['id'])
+                    ->get()->getRowArray();
+
+                $contactoId = null;
+                if (!$contacto) {
+                    $db->table('srv_contacto')->insert([
+                        'servicio_id' => (int)$servicio['id'],
+                        'user_id'     => (int)$empUser['id'],
+                        'nombre'      => $empresa['razon_social'] ?: 'Empresa',
+                        'telefono'    => $empresa['telefono'] ?: '505-8888-8888',
+                        'mensaje'     => "Postulación para '{$postulacion['vacante_titulo']}'",
+                        'estado'      => $nuevoEstado === 'contratado' ? 'aceptado' : 'en_revision',
+                        'ip_hash'     => hash('sha256', $this->request->getIPAddress()),
+                        'created_at'  => date('Y-m-d H:i:s'),
+                        'updated_at'  => date('Y-m-d H:i:s'),
+                    ]);
+                    $contactoId = $db->insertID();
+                } else {
+                    $contactoId = (int)$contacto['id'];
+                    if ($nuevoEstado === 'contratado') {
+                        $db->table('srv_contacto')->where('id', $contactoId)->update([
+                            'estado'     => 'aceptado',
+                            'updated_at' => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+
+                if ($contactoId && $db->tableExists('srv_contacto_mensaje')) {
+                    $chatMsg = '';
+                    if ($nuevoEstado === 'contratado') {
+                        $chatMsg = "🎉 ¡Felicitaciones! Te hemos marcado como CONTRATADO para la vacante '{$postulacion['vacante_titulo']}'. Podemos coordinar por aquí los detalles de tu contratación e inicio.";
+                    } elseif ($nuevoEstado === 'en_revision') {
+                        $chatMsg = "👀 Tu postulación para '{$postulacion['vacante_titulo']}' ha sido pasada a etapa de revisión.";
+                    } elseif ($nuevoEstado === 'rechazada') {
+                        $chatMsg = "ℹ️ Tu postulación para '{$postulacion['vacante_titulo']}' no continuará en el proceso.";
+                    }
+
+                    if (!empty($chatMsg)) {
+                        $db->table('srv_contacto_mensaje')->insert([
+                            'contacto_id'   => $contactoId,
+                            'emisor_tipo'   => 'cliente',
+                            'emisor_nombre' => $empresa['razon_social'] ?: 'Empresa',
+                            'mensaje'       => $chatMsg,
+                            'created_at'    => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+            }
+        }
+
+        return $this->ok(['message' => 'Estado actualizado', 'estado' => $nuevoEstado]);
     }
 
     /**
@@ -547,11 +658,23 @@ class EmpresaController extends BaseApiController
                 ->where('post_postulacion.id', $postulacionId)
                 ->get()->getRowArray();
 
-            if (!$postulacion || (int)$postulacion['empresa_id'] !== (int)$empresa['id']) {
-                return $this->fail('Postulación no encontrada', 404);
+            if ($postulacion && (int)$postulacion['empresa_id'] === (int)$empresa['id']) {
+                $candidatoId = (int)$postulacion['candidato_id'];
+                $vacanteTitulo = $postulacion['vacante_titulo'];
+            } else {
+                // Verificar si $postulacionId fue enviado como ID de candidato directo
+                $candCheck = $db->table('cand_candidato')->where('id', $postulacionId)->get()->getRowArray();
+                if ($candCheck) {
+                    $candidatoId = (int)$candCheck['id'];
+                }
             }
-            $candidatoId = (int)$postulacion['candidato_id'];
-            $vacanteTitulo = $postulacion['vacante_titulo'];
+        }
+
+        if (!$candidatoId && !empty($body['user_id'])) {
+            $candCheck = $db->table('cand_candidato')->where('user_id', (int)$body['user_id'])->get()->getRowArray();
+            if ($candCheck) {
+                $candidatoId = (int)$candCheck['id'];
+            }
         }
 
         $candidato = $db->table('cand_candidato')->where('id', $candidatoId)->get()->getRowArray();

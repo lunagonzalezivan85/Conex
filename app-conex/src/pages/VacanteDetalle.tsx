@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   IonContent, IonPage, IonHeader, IonToolbar,
   IonButtons, IonBackButton, IonButton, IonIcon, IonSpinner,
-  useIonAlert, useIonToast,
+  useIonAlert, useIonToast, useIonRouter,
   IonModal, IonTextarea,
 } from '@ionic/react';
 import { useParams } from 'react-router-dom';
@@ -10,6 +10,7 @@ import {
   locationOutline, cashOutline, briefcaseOutline, timeOutline,
   checkmarkCircle, businessOutline, globeOutline, sendOutline,
   peopleOutline, closeOutline, documentTextOutline, checkmarkDoneOutline,
+  chatbubbleEllipsesOutline,
 } from 'ionicons/icons';
 import { useAuth } from '../context/AuthContext';
 import { candidatoApi, vacantesApi } from '../services/api';
@@ -21,6 +22,7 @@ import '../theme/buscar.css';
  * secciones con acento, CTA con gradiente y modal de postulacion.
  */
 const VacanteDetalle: React.FC = () => {
+  const router = useIonRouter();
   const { slug } = useParams<{ slug: string }>();
   const { user } = useAuth();
   const [vacante, setVacante] = useState<any>(null);
@@ -30,6 +32,7 @@ const VacanteDetalle: React.FC = () => {
   const [cvSel, setCvSel] = useState<number | null>(null);
   const [mensaje, setMensaje] = useState('');
   const [enviando, setEnviando] = useState(false);
+  const [chateando, setChateando] = useState(false);
   const [yaPostulado, setYaPostulado] = useState(false);
   const [presentAlert] = useIonAlert();
   const [presentToast] = useIonToast();
@@ -83,6 +86,21 @@ const VacanteDetalle: React.FC = () => {
       }
     } finally {
       setEnviando(false);
+    }
+  };
+
+  const abrirChatEmpresa = async () => {
+    if (!vacante?.id) return;
+    setChateando(true);
+    try {
+      const res = await candidatoApi.iniciarChatEmpresa({ vacante_id: vacante.id });
+      router.push(
+        `/app/chat?contacto_id=${res.contacto_id}&nombre=${encodeURIComponent(res.nombre)}&oficio=${encodeURIComponent(res.oficio || vacante.titulo || '')}&avatar=${encodeURIComponent(res.avatar_url || '')}&telefono=${encodeURIComponent(res.telefono || '')}`
+      );
+    } catch {
+      presentToast({ message: 'No se pudo abrir el chat con la empresa', duration: 2500, color: 'danger' });
+    } finally {
+      setChateando(false);
     }
   };
 
@@ -247,16 +265,53 @@ const VacanteDetalle: React.FC = () => {
 
         {/* CTA postularse inline - solo candidato */}
         {user?.role === 'candidato' && (
-          <div className="vd-cta-inline">
-            <button
-              className={`vd-apply ${yaPostulado ? 'done' : ''}`}
-              onClick={yaPostulado
-                ? () => presentAlert({ header: 'Ya postulado', message: 'Ya te postulaste a esta vacante', buttons: ['OK'] })
-                : abrirPostular}
-            >
-              <IonIcon icon={yaPostulado ? checkmarkCircle : sendOutline} />
-              {yaPostulado ? 'Postulacion enviada' : 'Postularme ahora'}
-            </button>
+          <div className="vd-cta-inline" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {yaPostulado ? (
+              <>
+                <button
+                  type="button"
+                  className="vd-apply done"
+                  style={{ background: '#10B981', color: '#ffffff' }}
+                  onClick={abrirChatEmpresa}
+                >
+                  <IonIcon icon={checkmarkCircle} />
+                  <span>Postulación enviada · Abrir Chat con la Empresa</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="vd-apply"
+                  onClick={abrirPostular}
+                >
+                  <IonIcon icon={sendOutline} />
+                  <span>Postularme ahora</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={abrirChatEmpresa}
+                  disabled={chateando}
+                  style={{
+                    background: '#F1F5F9',
+                    color: '#1B2A4A',
+                    border: '1px solid #CBD5E1',
+                    borderRadius: 14,
+                    padding: '12px 16px',
+                    fontWeight: 700,
+                    fontSize: 14,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {chateando ? <IonSpinner name="crescent" style={{ width: 20, height: 20 }} /> : <IonIcon icon={chatbubbleEllipsesOutline} />}
+                  <span>Consultar o enviar mensaje a la empresa</span>
+                </button>
+              </>
+            )}
           </div>
         )}
 
@@ -275,11 +330,14 @@ const VacanteDetalle: React.FC = () => {
           </div>
 
           <section className="fm-section">
-            <h4>Elige tu CV</h4>
+            <h4>Currículum Vitae (CV)</h4>
             {cvs.length === 0 ? (
-              <div className="vd-empty-cv">
-                <IonIcon icon={documentTextOutline} />
-                <p>No tienes CVs subidos.<br />Ve a Perfil para subir uno primero.</p>
+              <div className="vd-empty-cv" style={{ background: '#F0FDF4', border: '1px solid #BBF7D0', padding: 14, borderRadius: 12 }}>
+                <IonIcon icon={checkmarkCircle} style={{ color: '#16A34A', fontSize: 30 }} />
+                <p style={{ margin: '6px 0 0', color: '#166534', fontSize: 13, lineHeight: 1.4 }}>
+                  <strong>¡Te postularás con tu Perfil Digital CONEX!</strong><br />
+                  No tienes un archivo PDF subido, pero la empresa recibirá tu perfil completo: datos de contacto, profesión, experiencia y tu carta de presentación.
+                </p>
               </div>
             ) : (
               <div className="vd-cv-list">
@@ -302,10 +360,10 @@ const VacanteDetalle: React.FC = () => {
           </section>
 
           <section className="fm-section">
-            <h4>Mensaje (opcional)</h4>
+            <h4>Mensaje o Carta de Presentación (opcional)</h4>
             <div className="fm-field vd-msg-field">
               <textarea
-                placeholder="Presentate brevemente a la empresa..."
+                placeholder="Preséntate brevemente a la empresa o destaca tu experiencia..."
                 rows={3}
                 value={mensaje}
                 onChange={e => setMensaje(e.target.value)}
@@ -317,8 +375,8 @@ const VacanteDetalle: React.FC = () => {
         </IonContent>
 
         <div className="fm-footer">
-          <button className="fm-apply" onClick={postular} disabled={enviando || cvs.length === 0}>
-            {enviando ? <IonSpinner name="crescent" /> : 'Enviar postulacion'}
+          <button className="fm-apply" onClick={postular} disabled={enviando}>
+            {enviando ? <IonSpinner name="crescent" /> : cvs.length > 0 ? 'Enviar postulación con CV' : 'Postularme con mi Perfil CONEX'}
           </button>
         </div>
       </IonModal>

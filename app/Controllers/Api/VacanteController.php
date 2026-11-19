@@ -109,13 +109,33 @@ class VacanteController extends BaseApiController
     public function show($slug)
     {
         $vacanteModel = new VacanteModel();
-        $vacante = $vacanteModel
+        $slugRaw = (string)$slug;
+        $slugDecoded = urldecode($slugRaw);
+
+        $builder = $vacanteModel
             ->select('vac_vacante.*, emp_empresa.razon_social AS empresa_nombre, emp_empresa.logo AS empresa_logo, emp_empresa.sitio_web AS empresa_sitio_web, emp_empresa.verificada AS empresa_verificada, cat_categoria.nombre AS categoria_nombre')
             ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left')
-            ->join('cat_categoria', 'cat_categoria.id = vac_vacante.categoria_id', 'left')
-            ->where('vac_vacante.slug', $slug)
-            ->where('vac_vacante.estado', 'publicada')
-            ->first();
+            ->join('cat_categoria', 'cat_categoria.id = vac_vacante.categoria_id', 'left');
+
+        $builder->groupStart();
+        if (is_numeric($slugRaw)) {
+            $builder->where('vac_vacante.id', (int)$slugRaw);
+        }
+        $builder->orWhere('vac_vacante.slug', $slugRaw)
+            ->orWhere('vac_vacante.slug', $slugDecoded);
+
+        // Por si fue guardada con o sin acentos en el slug
+        $slugTranslit = strtr($slugDecoded, [
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
+            'Á' => 'a', 'É' => 'e', 'Í' => 'i', 'Ó' => 'o', 'Ú' => 'u',
+            'ñ' => 'n', 'Ñ' => 'n', 'ü' => 'u', 'Ü' => 'u',
+        ]);
+        if ($slugTranslit !== $slugDecoded) {
+            $builder->orWhere('vac_vacante.slug', $slugTranslit);
+        }
+        $builder->groupEnd();
+
+        $vacante = $builder->where('vac_vacante.deleted_at IS NULL')->first();
 
         if (!$vacante) {
             return $this->fail('Vacante no encontrada', 404);

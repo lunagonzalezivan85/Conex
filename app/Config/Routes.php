@@ -149,6 +149,7 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
     $routes->post('candidato/solicitudes/(:num)', 'Api\CandidatoController::responderSolicitud/$1');
     $routes->get('candidato/postulaciones', 'Api\CandidatoController::postulaciones');
     $routes->post('candidato/postularse/(:num)', 'Api\CandidatoController::postularse/$1');
+    $routes->post('candidato/iniciar-chat-empresa', 'Api\CandidatoController::iniciarChatEmpresa');
 
     // Empresa
     $routes->get('empresa/perfil', 'Api\EmpresaController::perfil');

@@ -1413,6 +1413,127 @@ class CandidatoController extends BaseApiController
         ], 201);
     }
 
+    /**
+     * POST /api/candidato/iniciar-chat-empresa
+     * Body: { vacante_id?: number, empresa_id?: number, mensaje?: string }
+     */
+    public function iniciarChatEmpresa()
+    {
+        if ($res = $this->requireRole(['candidato'])) {
+            return $res;
+        }
+        $candidato = $this->getCandidato();
+        if ($res = $this->requireCandidato($candidato)) {
+            return $res;
+        }
+
+        $db = \Config\Database::connect();
+        $body = $this->body();
+        $userCand = $this->authUser();
+        $candNombre = trim(($userCand['nombre'] ?? '') . ' ' . ($userCand['apellido'] ?? '')) ?: 'Candidato';
+
+        $vacanteId = (int)($body['vacante_id'] ?? 0);
+        $empresaId = (int)($body['empresa_id'] ?? 0);
+        $vacanteTitulo = '';
+
+        if ($vacanteId > 0) {
+            $vacante = $db->table('vac_vacante')->where('id', $vacanteId)->get()->getRowArray();
+            if ($vacante) {
+                $empresaId = (int)$vacante['empresa_id'];
+                $vacanteTitulo = $vacante['titulo'];
+            }
+        }
+
+        $empresa = (new \App\Models\EmpresaModel())->find($empresaId);
+        if (!$empresa || empty($empresa['user_id'])) {
+            return $this->fail('Empresa no encontrada', 404);
+        }
+
+        // 1. Servicio del candidato
+        $servicio = $db->table('srv_servicio')->where('candidato_id', (int)$candidato['id'])->get()->getRowArray();
+        if (!$servicio) {
+            $db->table('srv_servicio')->insert([
+                'candidato_id' => (int)$candidato['id'],
+                'oficio'       => $candidato['profesion'] ?: 'Perfil profesional',
+                'descripcion'  => 'Servicios y postulación de ' . $candNombre,
+                'ciudad'       => $candidato['ciudad'] ?: 'Managua',
+                'precio_tipo'  => 'a_convenir',
+                'estado'       => 'activo',
+                'created_at'   => date('Y-m-d H:i:s'),
+                'updated_at'   => date('Y-m-d H:i:s'),
+            ]);
+            $servicioId = $db->insertID();
+        } else {
+            $servicioId = (int)$servicio['id'];
+        }
+
+        // 2. Buscar o crear srv_contacto
+        $contacto = $db->table('srv_contacto')
+            ->where('servicio_id', $servicioId)
+            ->where('user_id', (int)$empresa['user_id'])
+            ->get()->getRowArray();
+
+        $vacTxt = !empty($vacanteTitulo) ? " sobre la vacante '{$vacanteTitulo}'" : "";
+        $initMsg = !empty($body['mensaje']) ? trim($body['mensaje']) : "Hola, quisiera consultarles{$vacTxt}.";
+
+        if (!$contacto) {
+            $db->table('srv_contacto')->insert([
+                'servicio_id' => $servicioId,
+                'user_id'     => (int)$empresa['user_id'],
+                'nombre'      => $empresa['razon_social'] ?: 'Empresa',
+                'telefono'    => $empresa['telefono'] ?: '505-8888-8888',
+                'mensaje'     => $initMsg,
+                'estado'      => 'en_revision',
+                'ip_hash'     => hash('sha256', $this->request->getIPAddress()),
+                'created_at'  => date('Y-m-d H:i:s'),
+                'updated_at'  => date('Y-m-d H:i:s'),
+            ]);
+            $contactoId = $db->insertID();
+
+            if ($db->tableExists('srv_contacto_mensaje')) {
+                $db->table('srv_contacto_mensaje')->insert([
+                    'contacto_id'   => $contactoId,
+                    'emisor_tipo'   => 'prestador',
+                    'emisor_nombre' => $candNombre,
+                    'mensaje'       => $initMsg,
+                    'created_at'    => date('Y-m-d H:i:s'),
+                ]);
+            }
+        } else {
+            $contactoId = (int)$contacto['id'];
+            if (!empty($body['mensaje']) && $db->tableExists('srv_contacto_mensaje')) {
+                $db->table('srv_contacto_mensaje')->insert([
+                    'contacto_id'   => $contactoId,
+                    'emisor_tipo'   => 'prestador',
+                    'emisor_nombre' => $candNombre,
+                    'mensaje'       => trim($body['mensaje']),
+                    'created_at'    => date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+
+        // Notificar a la empresa
+        if ($db->tableExists('not_notificacion')) {
+            $db->table('not_notificacion')->insert([
+                'user_id'    => (int)$empresa['user_id'],
+                'tipo'       => 'mensaje',
+                'titulo'     => "Nuevo mensaje de {$candNombre}",
+                'mensaje'    => mb_substr($initMsg, 0, 150),
+                'url'        => '/app/solicitudes',
+                'leida'      => 0,
+                'created_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return $this->ok([
+            'contacto_id' => $contactoId,
+            'nombre'      => $empresa['razon_social'],
+            'oficio'      => !empty($vacanteTitulo) ? $vacanteTitulo : 'Empresa',
+            'avatar_url'  => !empty($empresa['logo']) ? (str_starts_with($empresa['logo'], 'http') ? $empresa['logo'] : base_url('uploads/' . $empresa['logo'])) : null,
+            'telefono'    => $empresa['telefono'] ?: '',
+        ]);
+    }
+
     private function calcularPorcentajePerfil(int $candidatoId): int
     {
         $db = \Config\Database::connect();

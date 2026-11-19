@@ -286,6 +286,11 @@ export const candidatoApi = {
       method: 'POST',
       body: { cv_id: cvId, mensaje },
     }),
+  iniciarChatEmpresa: (params: { vacante_id?: number; empresa_id?: number; mensaje?: string }) =>
+    api<{ contacto_id: number; nombre: string; oficio: string; avatar_url?: string; telefono?: string }>(
+      '/candidato/iniciar-chat-empresa',
+      { method: 'POST', body: params }
+    ),
 };
 
 export const usuarioApi = {
