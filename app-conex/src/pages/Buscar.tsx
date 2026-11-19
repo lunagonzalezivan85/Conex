@@ -916,7 +916,7 @@ const Buscar: React.FC = () => {
                         <div className="job-company">{v.empresa_nombre}</div>
                         <div className="job-meta">
                           <IonIcon icon={locationOutline} />
-                          {v.ciudad || 'Sin ubicacion'} · {v.modalidad}
+                          {v.ciudad || 'Sin ubicación'} · {v.modalidad}
                           {v.distancia_km !== undefined && (
                             <IonBadge color="primary" className="job-badge">
                               {Math.round(v.distancia_km)} km
@@ -973,16 +973,16 @@ const Buscar: React.FC = () => {
             </div>
           </section>
 
-          {/* Ubicacion */}
+          {/* Ubicación */}
           <section className="fm-section">
-            <h4>Ubicacion</h4>
+            <h4>Ubicación</h4>
             <button
               className={`fm-geo ${filtros.geo ? 'active' : ''}`}
               onClick={filtros.geo ? quitarGeo : activarGeo}
             >
               <IonIcon icon={navigateOutline} />
               <span className="fm-geo-text">
-                <strong>{geoLoading ? 'Obteniendo ubicacion...' : filtros.geo ? 'Usando mi ubicacion' : 'Cerca de mi'}</strong>
+                <strong>{geoLoading ? 'Obteniendo ubicación...' : filtros.geo ? 'Usando mi ubicación' : 'Cerca de mí'}</strong>
                 <small>{filtros.geo ? `${coords?.lat.toFixed(3)}, ${coords?.lng.toFixed(3)}` : 'GPS del dispositivo'}</small>
               </span>
               <span className={`fm-geo-dot ${filtros.geo ? 'on' : ''}`} />
@@ -1009,9 +1009,9 @@ const Buscar: React.FC = () => {
             </div>
           </section>
 
-          {/* Categoria: carrusel de iconos como el inicio */}
+          {/* Categoría: carrusel de iconos como el inicio */}
           <section className="fm-section">
-            <h4>Categoria</h4>
+            <h4>Categoría</h4>
             <div className="cat-grid fm-cats">
               <button
                 type="button"

@@ -34,12 +34,24 @@ class EmpresaController extends BaseApiController
             return $res;
         }
 
+        $user = $this->authUser();
+        $userId = (int)$user['id'];
+        $data = $this->body();
+
+        if (isset($data['email'])) {
+            $data['email'] = strtolower(trim((string)$data['email']));
+        }
+        if (!empty($data['sitio_web']) && !preg_match('#^https?://#i', (string)$data['sitio_web'])) {
+            $data['sitio_web'] = 'https://' . ltrim((string)$data['sitio_web'], '/');
+        }
+
         $rules = [
             'razon_social' => 'permit_empty|min_length[3]|max_length[150]',
+            'email'        => "permit_empty|valid_email|is_unique[auth_user.email,id,{$userId}]",
             'ruc'          => 'permit_empty|max_length[50]',
             'rubro'        => 'permit_empty|max_length[100]',
             'descripcion'  => 'permit_empty|max_length[2000]',
-            'sitio_web'    => 'permit_empty|valid_url_strict|max_length[255]',
+            'sitio_web'    => 'permit_empty|valid_url|max_length[255]',
             'telefono'     => 'permit_empty|min_length[8]|max_length[20]',
             'direccion'    => 'permit_empty|max_length[255]',
             'ciudad'       => 'permit_empty|max_length[100]',
@@ -48,11 +60,12 @@ class EmpresaController extends BaseApiController
             'latitud'      => 'permit_empty|numeric',
             'longitud'     => 'permit_empty|numeric',
         ];
-        if ($res = $this->validateApi($rules)) {
-            return $res;
+        $validation = service('validation');
+        $validation->setRules($rules);
+        if (!$validation->run($data)) {
+            return $this->fail('Datos inválidos', 422, $validation->getErrors());
         }
 
-        $data = $this->body();
         $empresa = $this->getEmpresa();
         if (!$empresa) {
             return $this->fail('Completa primero el perfil de tu empresa', 422);
@@ -69,8 +82,21 @@ class EmpresaController extends BaseApiController
             (new EmpresaModel())->update($empresa['id'], $update);
         }
 
+        // Actualizar auth_user si viene email o telefono
+        $userModel = new UserModel();
+        $updateUser = [];
+        if (!empty($data['email']))    $updateUser['email'] = $data['email'];
+        if (!empty($data['telefono'])) $updateUser['telefono'] = $data['telefono'];
+        if (!empty($updateUser)) {
+            $userModel->update($userId, $updateUser);
+        }
+
+        $updatedUser = $userModel->find($userId);
+        unset($updatedUser['password']);
+
         return $this->ok([
             'message' => 'Perfil actualizado',
+            'user'    => $this->userPayload($updatedUser, 'empresa'),
             'empresa' => (new EmpresaModel())->find($empresa['id']),
         ]);
     }

@@ -133,9 +133,34 @@ class CandidatoController extends BaseApiController
             return $res;
         }
 
+        $user = $this->authUser();
+        $data = $this->body();
+        $userId = (int)$user['id'];
+
+        // Normalizar correo si viene
+        if (isset($data['email'])) {
+            $data['email'] = strtolower(trim((string)$data['email']));
+        }
+        // Normalizar cedula/usuario si viene
+        $cedulaNorm = null;
+        if (isset($data['usuario'])) {
+            $cedulaNorm = strtoupper(preg_replace('/[^0-9A-Za-z]/', '', (string)$data['usuario']));
+            $data['usuario'] = $cedulaNorm;
+        }
+
+        // Normalizar URLs si vienen sin protocolo
+        if (!empty($data['linkedin_url']) && !preg_match('#^https?://#i', (string)$data['linkedin_url'])) {
+            $data['linkedin_url'] = 'https://' . ltrim((string)$data['linkedin_url'], '/');
+        }
+        if (!empty($data['portafolio_url']) && !preg_match('#^https?://#i', (string)$data['portafolio_url'])) {
+            $data['portafolio_url'] = 'https://' . ltrim((string)$data['portafolio_url'], '/');
+        }
+
         $rules = [
             'nombre'      => 'permit_empty|min_length[2]|max_length[100]',
             'apellidos'   => 'permit_empty|min_length[2]|max_length[150]',
+            'email'       => "permit_empty|valid_email|is_unique[auth_user.email,id,{$userId}]",
+            'usuario'     => "permit_empty|min_length[5]|max_length[30]|is_unique[auth_user.usuario,id,{$userId}]",
             'telefono'    => 'permit_empty|min_length[8]|max_length[20]',
             'profesion'   => 'permit_empty|max_length[150]',
             'sobre_mi'    => 'permit_empty|max_length[2000]',
@@ -150,16 +175,15 @@ class CandidatoController extends BaseApiController
             'ofrece_servicios'      => 'permit_empty|in_list[0,1]',
             'zona_servicio'         => 'permit_empty|max_length[150]',
             'salario_esperado_usd'  => 'permit_empty|numeric',
-            'portafolio_url'        => 'permit_empty|valid_url_strict|max_length[255]',
-            'linkedin_url'          => 'permit_empty|valid_url_strict|max_length[255]',
+            'portafolio_url'        => 'permit_empty|valid_url|max_length[255]',
+            'linkedin_url'          => 'permit_empty|valid_url|max_length[255]',
             'fecha_nacimiento'      => 'permit_empty|valid_date[Y-m-d]',
         ];
-        if ($res = $this->validateApi($rules)) {
-            return $res;
+        $validation = service('validation');
+        $validation->setRules($rules);
+        if (!$validation->run($data)) {
+            return $this->fail('Datos inválidos', 422, $validation->getErrors());
         }
-
-        $data = $this->body();
-        $user = $this->authUser();
 
         $candidatoModel = new CandidatoModel();
         $candidato = $candidatoModel->where('user_id', $user['id'])->first();
@@ -197,15 +221,20 @@ class CandidatoController extends BaseApiController
         if (isset($data['nombre']))   $updateUser['nombre'] = $data['nombre'];
         if (isset($data['apellido'])) $updateUser['apellido'] = $data['apellido'];
         if (isset($data['telefono'])) $updateUser['telefono'] = $data['telefono'];
+        if (!empty($data['email']))   $updateUser['email'] = $data['email'];
+        if (!empty($cedulaNorm))      $updateUser['usuario'] = $cedulaNorm;
         if (!empty($updateUser)) {
             $userModel->update($user['id'], $updateUser);
         }
 
         $pct = $this->calcularPorcentajePerfil((int)$candidato['id']);
+        $updatedUser = $userModel->find($user['id']);
+        unset($updatedUser['password']);
 
         return $this->ok([
             'message'           => 'Perfil actualizado',
             'porcentaje_perfil' => $pct,
+            'user'              => $this->userPayload($updatedUser, 'candidato'),
             'candidato'         => $candidatoModel->where('user_id', $user['id'])->first(),
         ]);
     }

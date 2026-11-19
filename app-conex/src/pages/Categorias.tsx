@@ -36,7 +36,7 @@ const Categorias: React.FC = () => {
           {categorias === null ? (
             <div className="dash-loading"><IonSpinner name="crescent" /></div>
           ) : categorias.length === 0 ? (
-            <p className="dash-empty">No hay categorias disponibles.</p>
+            <p className="dash-empty">No hay categorías disponibles.</p>
           ) : (
             <div className="cat-page-grid">
               {categorias.map((c: any, i: number) => (

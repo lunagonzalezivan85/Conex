@@ -91,7 +91,7 @@ const Registro: React.FC = () => {
     try {
       const data = await escanearCedula();
       if (!data) {
-        setError('No se pudo escanear. Escribi el numero a mano.');
+        setError('No se pudo escanear. Escribe el número o documento a mano.');
       } else {
         if (data.cedula) setCedula(formatearCedula(data.cedula));
         if (data.nombres) setNombre(data.nombres);
@@ -109,7 +109,7 @@ const Registro: React.FC = () => {
       return;
     }
     if (!nombre.trim() || !apellido.trim()) {
-      setError('Escribi tu nombre y apellido');
+      setError('Escribe tu nombre y apellido');
       return;
     }
     setError('');
@@ -119,11 +119,11 @@ const Registro: React.FC = () => {
   /* ---------- Paso 2: contacto + crear cuenta ---------- */
   const crearCuenta = async () => {
     if (telefono.replace(/\D/g, '').length < 8) {
-      setError('Ingresa un telefono valido');
+      setError('Ingresa un teléfono válido');
       return;
     }
     if (!/^\d{4}$/.test(pin)) {
-      setError('El PIN debe ser de 4 numeros');
+      setError('El PIN debe ser de 4 números');
       return;
     }
     if (pin !== pin2) {
@@ -131,7 +131,7 @@ const Registro: React.FC = () => {
       return;
     }
     if (!terminos) {
-      setError('Debes aceptar los terminos y condiciones');
+      setError('Debes aceptar los términos y condiciones');
       return;
     }
 
@@ -246,8 +246,8 @@ const Registro: React.FC = () => {
             {paso === 'cedula' && (
               <>
                 <div className="auth-logo">C<span>x</span></div>
-                <h1 className="reg-title">Tu cedula, tu perfil</h1>
-                <p className="reg-sub">Apunta la camara a tu cedula y arrancamos</p>
+                <h1 className="reg-title">Tu cédula o documento</h1>
+                <p className="reg-sub">Apunta la cámara a tu cédula y arrancamos</p>
 
                 <IonButton
                   expand="block"
@@ -257,10 +257,10 @@ const Registro: React.FC = () => {
                 >
                   {escaneando
                     ? <IonSpinner name="crescent" />
-                    : <><IonIcon icon={scanOutline} slot="start" /> Escanear cedula</>}
+                    : <><IonIcon icon={scanOutline} slot="start" /> Escanear cédula</>}
                 </IonButton>
 
-                <div className="reg-divider"><span>o escribilo a mano</span></div>
+                <div className="reg-divider"><span>o escríbelo a mano</span></div>
 
                 <IonItem className="auth-item" lines="full">
                   <IonInput
@@ -304,11 +304,11 @@ const Registro: React.FC = () => {
             {paso === 'contacto' && (
               <>
                 <h2 className="reg-title">Tu contacto</h2>
-                <p className="reg-sub">Con tu telefono y un PIN entras siempre</p>
+                <p className="reg-sub">Con tu teléfono y un PIN entras siempre</p>
 
                 <IonItem className="auth-item" lines="full">
                   <IonInput
-                    label="Telefono (WhatsApp)"
+                    label="Teléfono (WhatsApp)"
                     labelPlacement="floating"
                     inputmode="tel"
                     value={telefono}
@@ -326,7 +326,7 @@ const Registro: React.FC = () => {
                 </IonItem>
                 <IonItem className="auth-item" lines="full">
                   <IonInput
-                    label="PIN de 4 numeros"
+                    label="PIN de 4 números"
                     labelPlacement="floating"
                     type="password"
                     inputmode="numeric"
@@ -337,7 +337,7 @@ const Registro: React.FC = () => {
                 </IonItem>
                 <IonItem className="auth-item" lines="full">
                   <IonInput
-                    label="Repeti tu PIN"
+                    label="Repite tu PIN"
                     labelPlacement="floating"
                     type="password"
                     inputmode="numeric"
@@ -401,21 +401,21 @@ const Registro: React.FC = () => {
 
             {paso === 'preguntas' && (
               <>
-                <h2 className="reg-title">Contanos de vos</h2>
+                <h2 className="reg-title">Cuéntanos de ti</h2>
                 <p className="reg-sub">Con esto ya te podemos buscar trabajo</p>
 
                 <IonItem className="auth-item" lines="full">
                   <IonInput
-                    label="¿A que te dedicas?"
+                    label="¿A qué te dedicas?"
                     labelPlacement="floating"
-                    placeholder="Ej: albanil, cocinera, electricista"
+                    placeholder="Ej: albañil, cocinera, electricista"
                     value={profesion}
                     onIonInput={e => setProfesion(e.detail.value ?? '')}
                   />
                 </IonItem>
                 <IonItem className="auth-item" lines="full">
                   <IonInput
-                    label="¿En que ciudad?"
+                    label="¿En qué ciudad?"
                     labelPlacement="floating"
                     value={ciudad}
                     onIonInput={e => setCiudad(e.detail.value ?? '')}
@@ -423,7 +423,7 @@ const Registro: React.FC = () => {
                 </IonItem>
                 <IonItem className="auth-item" lines="full">
                   <IonInput
-                    label="¿Cuanto esperas ganar? ($/mes)"
+                    label="¿Cuánto esperas ganar? ($/mes)"
                     labelPlacement="floating"
                     inputmode="numeric"
                     value={salario}
@@ -431,7 +431,7 @@ const Registro: React.FC = () => {
                   />
                 </IonItem>
 
-                <p className="reg-label">¿Cuando podes empezar?</p>
+                <p className="reg-label">¿Cuándo puedes empezar?</p>
                 <div className="reg-chips">
                   {DISPONIBILIDAD.map(d => (
                     <IonChip
@@ -445,7 +445,7 @@ const Registro: React.FC = () => {
                   ))}
                 </div>
 
-                <p className="reg-label">¿Como preferis trabajar?</p>
+                <p className="reg-label">¿Cómo prefieres trabajar?</p>
                 <div className="reg-chips">
                   {MODALIDAD.map(m => (
                     <IonChip
@@ -550,8 +550,8 @@ const Registro: React.FC = () => {
                 <IonIcon icon={checkmarkCircle} className="reg-ok-icon" />
                 <h2 className="reg-title">Listo</h2>
                 <p className="reg-sub">
-                  Tu perfil ya esta buscandote trabajo.
-                  Entras con tu cedula y tu PIN.
+                  Tu perfil ya está buscándote trabajo.
+                  Entras con tu cédula o documento y tu PIN.
                 </p>
                 <IonButton expand="block" onClick={irDashboard} className="auth-btn">
                   Ver vacantes
@@ -567,12 +567,12 @@ const Registro: React.FC = () => {
 
         <IonModal isOpen={verTerminos} onDidDismiss={() => setVerTerminos(false)}>
           <div className="reg-terminos-modal">
-            <h2>Terminos y condiciones</h2>
+            <h2>Términos y condiciones</h2>
             <div className="reg-terminos-texto">
-              <p><strong>1. El servicio.</strong> CONEX es una bolsa de trabajo y directorio de servicios de Nicaragua. Conectamos personas que buscan empleo o que ofrecen servicios con empresas y clientes. No somos empleadores ni garantizamos contratacion.</p>
-              <p><strong>2. Tus datos.</strong> Usamos tu cedula, nombre, telefono y los datos de tu perfil para crear tu cuenta, mostrarte a empresas y contactarte por WhatsApp. Tu telefono solo se revela a una empresa cuando vos aceptas una postulacion o solicitud.</p>
-              <p><strong>3. Prestadores.</strong> Si ofreces servicios, tu perfil aparece en el directorio publico. La insignia de "verificado" se otorga despues de una verificacion por llamada; no garantiza la calidad del trabajo ni crea relacion laboral con CONEX.</p>
-              <p><strong>4. Conducta.</strong> Es prohibido publicar informacion falsa, suplantar identidades o usar la plataforma para fraudes. Las cuentas que lo hagan seran suspendidas.</p>
+              <p><strong>1. El servicio.</strong> CONEX es una bolsa de trabajo y directorio de servicios. Conectamos personas que buscan empleo o que ofrecen servicios con empresas y clientes. No somos empleadores ni garantizamos contratación.</p>
+              <p><strong>2. Tus datos.</strong> Usamos tu cédula o documento de identidad, nombre, teléfono y los datos de tu perfil para crear tu cuenta, mostrarte a empresas y contactarte por WhatsApp. Tu teléfono solo se revela a una empresa cuando aceptas una postulación o solicitud.</p>
+              <p><strong>3. Prestadores.</strong> Si ofreces servicios, tu perfil aparece en el directorio público. La insignia de "verificado" se otorga después de una verificación por llamada; no garantiza la calidad del trabajo ni crea relación laboral con CONEX.</p>
+              <p><strong>4. Conducta.</strong> Es prohibido publicar información falsa, suplantar identidades o usar la plataforma para fraudes. Las cuentas que lo hagan serán suspendidas.</p>
               <p><strong>5. Privacidad.</strong> No vendemos tus datos. Puedes solicitar la eliminación definitiva de tu cuenta y datos en cualquier momento desde tu Perfil o en nuestro portal web.</p>
               <p>Consulta nuestra <a href="https://conex.softlutionic.com/politica-privacidad" target="_blank" rel="noopener noreferrer" style={{ color: '#F97316', fontWeight: 700 }}>Política de Privacidad completa aquí</a>.</p>
               <p><strong>6. Edad.</strong> Debes ser mayor de edad para registrarte.</p>

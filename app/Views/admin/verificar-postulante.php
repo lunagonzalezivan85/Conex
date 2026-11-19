@@ -205,13 +205,13 @@
                     $promedioEntrevista = $totalCriteriosEntrevista > 0 ? round($promedioEntrevista / $totalCriteriosEntrevista, 1) : 0;
                     $pctEntrevista = $totalCriteriosEntrevista > 0 ? round(($promedioEntrevista / 5) * 100) : 0;
 
-                    // Criterios de evaluacion final
+                    // Criterios de evaluación final
                     $criteriosFinal = [
                         'match_perfil' => 'Match del perfil con la vacante',
                         'puntaje_entrevista' => 'Puntaje de entrevista (auto-calculado)',
-                        'anos_experiencia' => 'Anos de experiencia (cumple o no)',
+                        'anos_experiencia' => 'Años de experiencia (cumple o no)',
                         'disponibilidad' => 'Disponibilidad para iniciar',
-                        'ubicacion' => 'Ubicacion geografica',
+                        'ubicacion' => 'Ubicación geográfica',
                     ];
                     $autoKeys = ['match_perfil', 'puntaje_entrevista', 'anos_experiencia', 'disponibilidad', 'ubicacion'];
                     ?>

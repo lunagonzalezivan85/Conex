@@ -58,10 +58,13 @@ const Perfil: React.FC = () => {
   const [personalForm, setPersonalForm] = useState({
     nombre: '',
     apellidos: '',
+    usuario: '',
+    email: '',
     telefono: '',
     fecha_nacimiento: '',
     ciudad: '',
     region: '',
+    pais: '',
     direccion: '',
   });
 
@@ -112,12 +115,14 @@ const Perfil: React.FC = () => {
 
   const [empForm, setEmpForm] = useState({
     razon_social: '',
+    email: '',
     ruc: '',
     rubro: '',
     descripcion: '',
     telefono: '',
     ciudad: '',
     region: '',
+    pais: '',
     direccion: '',
     sitio_web: '',
   });
@@ -142,10 +147,13 @@ const Perfil: React.FC = () => {
         setPersonalForm({
           nombre: u.nombre || '',
           apellidos: c.apellidos || u.apellido || '',
+          usuario: u.usuario || '',
+          email: u.email || '',
           telefono: u.telefono || '',
           fecha_nacimiento: c.fecha_nacimiento || '',
           ciudad: c.ciudad || '',
           region: c.region || '',
+          pais: c.pais || 'Nicaragua',
           direccion: c.direccion || '',
         });
 
@@ -195,12 +203,14 @@ const Perfil: React.FC = () => {
         const emp = res?.data?.empresa || user.empresa || {};
         setEmpForm({
           razon_social: emp.razon_social || '',
+          email: user.email || '',
           ruc: emp.ruc || '',
           rubro: emp.rubro || '',
           descripcion: emp.descripcion || '',
           telefono: emp.telefono || user.telefono || '',
           ciudad: emp.ciudad || '',
           region: emp.region || '',
+          pais: emp.pais || 'Nicaragua',
           direccion: emp.direccion || '',
           sitio_web: emp.sitio_web || '',
         });
@@ -315,10 +325,13 @@ const Perfil: React.FC = () => {
         nombre: personalForm.nombre.trim(),
         apellido: personalForm.apellidos.trim(),
         apellidos: personalForm.apellidos.trim(),
+        usuario: personalForm.usuario.trim(),
+        email: personalForm.email.trim(),
         telefono: personalForm.telefono.trim(),
         fecha_nacimiento: personalForm.fecha_nacimiento || null,
         ciudad: personalForm.ciudad.trim(),
         region: personalForm.region.trim(),
+        pais: personalForm.pais.trim(),
         direccion: personalForm.direccion.trim(),
       });
       presentToast({ message: 'Datos personales guardados', duration: 2200, color: 'success' });
@@ -706,11 +719,12 @@ const Perfil: React.FC = () => {
                 </button>
               </div>
               <div className="pf-sec-body">
+                <div className="pf-kv"><span>Cédula / Documento:</span> <strong>{uInfo.usuario || 'Sin registrar'}</strong></div>
                 <div className="pf-kv"><span>Teléfono:</span> <strong>{uInfo.telefono || 'Sin registrar'}</strong></div>
-                <div className="pf-kv"><span>Email:</span> <strong>{uInfo.email}</strong></div>
+                <div className="pf-kv"><span>Email:</span> <strong>{uInfo.email || 'Sin registrar'}</strong></div>
                 <div className="pf-kv">
                   <span>Ubicación:</span>
-                  <strong>{[cand.ciudad, cand.region].filter(Boolean).join(', ') || 'Agregar ciudad'}</strong>
+                  <strong>{[cand.ciudad, cand.region, cand.pais].filter(Boolean).join(', ') || 'Agregar ciudad'}</strong>
                 </div>
                 {cand.direccion && <div className="pf-kv"><span>Dirección:</span> <strong>{cand.direccion}</strong></div>}
               </div>
@@ -858,14 +872,36 @@ const Perfil: React.FC = () => {
                             {exp.fecha_inicio} — {Number(exp.actual) === 1 ? 'Actualidad' : (exp.fecha_fin || '')}
                           </small>
                         </div>
-                        <button
-                          type="button"
-                          className="pf-del-btn"
-                          onClick={() => deleteExperiencia(exp.id)}
-                          aria-label="Eliminar experiencia"
-                        >
-                          <IonIcon icon={trashOutline} />
-                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <button
+                            type="button"
+                            className="pf-edit-btn"
+                            style={{ padding: '6px 8px' }}
+                            onClick={() => {
+                              setExpForm({
+                                id: exp.id,
+                                empresa: exp.empresa || '',
+                                cargo: exp.cargo || '',
+                                descripcion: exp.descripcion || '',
+                                fecha_inicio: exp.fecha_inicio || '',
+                                fecha_fin: exp.fecha_fin || '',
+                                actual: Number(exp.actual) === 1,
+                              });
+                              setActiveModal('experiencia');
+                            }}
+                            aria-label="Editar experiencia"
+                          >
+                            <IonIcon icon={createOutline} />
+                          </button>
+                          <button
+                            type="button"
+                            className="pf-del-btn"
+                            onClick={() => deleteExperiencia(exp.id)}
+                            aria-label="Eliminar experiencia"
+                          >
+                            <IonIcon icon={trashOutline} />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -903,14 +939,36 @@ const Perfil: React.FC = () => {
                           <span>{edu.institucion}</span>
                           <small>{edu.nivel_nombre || 'Formación'}</small>
                         </div>
-                        <button
-                          type="button"
-                          className="pf-del-btn"
-                          onClick={() => deleteEducacion(edu.id)}
-                          aria-label="Eliminar educación"
-                        >
-                          <IonIcon icon={trashOutline} />
-                        </button>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <button
+                            type="button"
+                            className="pf-edit-btn"
+                            style={{ padding: '6px 8px' }}
+                            onClick={() => {
+                              setEduForm({
+                                id: edu.id,
+                                nivel_educacion_id: Number(edu.nivel_educacion_id) || 1,
+                                institucion: edu.institucion || '',
+                                titulo: edu.titulo || '',
+                                fecha_inicio: edu.fecha_inicio || '',
+                                fecha_fin: edu.fecha_fin || '',
+                                en_curso: Number(edu.en_curso) === 1,
+                              });
+                              setActiveModal('educacion');
+                            }}
+                            aria-label="Editar educación"
+                          >
+                            <IonIcon icon={createOutline} />
+                          </button>
+                          <button
+                            type="button"
+                            className="pf-del-btn"
+                            onClick={() => deleteEducacion(edu.id)}
+                            aria-label="Eliminar educación"
+                          >
+                            <IonIcon icon={trashOutline} />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1033,6 +1091,12 @@ const Perfil: React.FC = () => {
               <label className="pf-label">Apellidos *
                 <input type="text" required value={personalForm.apellidos} onChange={e => setPersonalForm(f => ({ ...f, apellidos: e.target.value }))} />
               </label>
+              <label className="pf-label">Cédula o Documento de Identidad
+                <input type="text" placeholder="Ej: 001-101191-0019M o Pasaporte / DNI" value={personalForm.usuario} onChange={e => setPersonalForm(f => ({ ...f, usuario: e.target.value.toUpperCase() }))} />
+              </label>
+              <label className="pf-label">Correo electrónico *
+                <input type="email" required placeholder="correo@ejemplo.com" value={personalForm.email} onChange={e => setPersonalForm(f => ({ ...f, email: e.target.value }))} />
+              </label>
               <label className="pf-label">Teléfono / WhatsApp *
                 <input type="tel" required value={personalForm.telefono} onChange={e => setPersonalForm(f => ({ ...f, telefono: e.target.value }))} />
               </label>
@@ -1043,10 +1107,13 @@ const Perfil: React.FC = () => {
                 <label className="pf-label">Ciudad
                   <input type="text" placeholder="Ej: Managua" value={personalForm.ciudad} onChange={e => setPersonalForm(f => ({ ...f, ciudad: e.target.value }))} />
                 </label>
-                <label className="pf-label">Departamento
+                <label className="pf-label">Departamento / Región
                   <input type="text" placeholder="Ej: Managua" value={personalForm.region} onChange={e => setPersonalForm(f => ({ ...f, region: e.target.value }))} />
                 </label>
               </div>
+              <label className="pf-label">País
+                <input type="text" placeholder="Ej: Nicaragua" value={personalForm.pais} onChange={e => setPersonalForm(f => ({ ...f, pais: e.target.value }))} />
+              </label>
               <label className="pf-label">Dirección / Barrio
                 <input type="text" placeholder="Barrio, reparto o referencia" value={personalForm.direccion} onChange={e => setPersonalForm(f => ({ ...f, direccion: e.target.value }))} />
               </label>
@@ -1311,7 +1378,7 @@ const Perfil: React.FC = () => {
           <IonContent>
             <div className="fm-head">
               <button className="fm-close" onClick={() => setActiveModal(null)}><IonIcon icon={closeOutline} /></button>
-              <span className="fm-title">Agregar experiencia</span>
+              <span className="fm-title">{expForm.id ? 'Editar experiencia' : 'Agregar experiencia'}</span>
               <span style={{ width: 36 }} />
             </div>
             <form className="pf-form" onSubmit={saveExperiencia}>
@@ -1371,7 +1438,7 @@ const Perfil: React.FC = () => {
               </label>
 
               <button type="submit" className="fm-apply" disabled={saving}>
-                {saving ? 'Guardando...' : 'Guardar experiencia'}
+                {saving ? 'Guardando...' : expForm.id ? 'Actualizar experiencia' : 'Guardar experiencia'}
               </button>
             </form>
           </IonContent>
@@ -1382,7 +1449,7 @@ const Perfil: React.FC = () => {
           <IonContent>
             <div className="fm-head">
               <button className="fm-close" onClick={() => setActiveModal(null)}><IonIcon icon={closeOutline} /></button>
-              <span className="fm-title">Agregar formación</span>
+              <span className="fm-title">{eduForm.id ? 'Editar formación' : 'Agregar formación'}</span>
               <span style={{ width: 36 }} />
             </div>
             <form className="pf-form" onSubmit={saveEducacion}>
@@ -1448,7 +1515,7 @@ const Perfil: React.FC = () => {
               </IonItem>
 
               <button type="submit" className="fm-apply" disabled={saving}>
-                {saving ? 'Guardando...' : 'Guardar estudio'}
+                {saving ? 'Guardando...' : eduForm.id ? 'Actualizar estudio' : 'Guardar estudio'}
               </button>
             </form>
           </IonContent>
@@ -1572,6 +1639,9 @@ const Perfil: React.FC = () => {
             <form className="pf-form" onSubmit={saveEmpresa}>
               <label className="pf-label">Razón Social *
                 <input type="text" required value={empForm.razon_social} onChange={e => setEmpForm(f => ({ ...f, razon_social: e.target.value }))} />
+              </label>
+              <label className="pf-label">Correo electrónico corporativo *
+                <input type="email" required placeholder="correo@empresa.com" value={empForm.email} onChange={e => setEmpForm(f => ({ ...f, email: e.target.value }))} />
               </label>
               <div className="pf-row-2">
                 <label className="pf-label">RUC

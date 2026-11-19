@@ -90,7 +90,7 @@ const VacanteDetalle: React.FC = () => {
 
   const metaCards = [
     (vacante?.ciudad || vacante?.region) && {
-      icon: locationOutline, label: 'Ubicacion',
+      icon: locationOutline, label: 'Ubicación',
       value: [vacante.ciudad, vacante.region].filter(Boolean).join(', '),
     },
     (vacante?.salario_min || vacante?.salario_max) && {
@@ -99,7 +99,7 @@ const VacanteDetalle: React.FC = () => {
     },
     vacante?.anios_experiencia !== undefined && vacante?.anios_experiencia !== null && {
       icon: briefcaseOutline, label: 'Experiencia',
-      value: Number(vacante.anios_experiencia) === 0 ? 'No requerida' : `${vacante.anios_experiencia}+ anos`,
+      value: Number(vacante.anios_experiencia) === 0 ? 'No requerida' : `${vacante.anios_experiencia} ${Number(vacante.anios_experiencia) === 1 ? 'año' : 'años'}`,
     },
     vacante?.fecha_cierre && {
       icon: timeOutline, label: 'Cierre',
@@ -189,9 +189,9 @@ const VacanteDetalle: React.FC = () => {
           </div>
         )}
 
-        {/* Descripcion */}
+        {/* Descripción */}
         <section className="vd-seccion">
-          <h3 className="vd-seccion-title">Descripcion</h3>
+          <h3 className="vd-seccion-title">Descripción</h3>
           <p className="vd-texto">{vacante.descripcion}</p>
         </section>
 

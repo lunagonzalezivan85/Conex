@@ -494,6 +494,35 @@ const MisVacantes: React.FC = () => {
                 Opcional. Valores expresados en dólares (USD).
               </small>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4, marginBottom: 8 }}>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                    Años de experiencia
+                  </label>
+                  <IonItem className="auth-item" lines="none">
+                    <IonInput
+                      type="number"
+                      placeholder="0 (Sin experiencia)"
+                      value={aniosExp}
+                      onIonInput={e => setAniosExp(e.detail.value ?? '0')}
+                    />
+                  </IonItem>
+                </div>
+                <div>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                    Plazas vacantes
+                  </label>
+                  <IonItem className="auth-item" lines="none">
+                    <IonInput
+                      type="number"
+                      placeholder="1"
+                      value={numVacantes}
+                      onIonInput={e => setNumVacantes(e.detail.value ?? '1')}
+                    />
+                  </IonItem>
+                </div>
+              </div>
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '8px 0 4px' }}>
                 <label style={{ fontSize: 13, fontWeight: 700, color: '#334155' }}>
                   Descripción de la vacante y requisitos *
