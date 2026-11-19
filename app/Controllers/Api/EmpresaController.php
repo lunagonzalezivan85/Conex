@@ -462,7 +462,75 @@ class EmpresaController extends BaseApiController
         $candidato = $db->table('cand_candidato')->where('id', (int)$postulacion['candidato_id'])->get()->getRowArray();
         $candUserId = $candidato ? (int)$candidato['user_id'] : 0;
 
-        // 1. Notificación al candidato en not_notificacion
+        // 1. Asegurar conversación en srv_contacto y enviar mensaje en srv_contacto_mensaje
+        $contactoId = null;
+        if ($candidato && $db->tableExists('srv_contacto') && $db->tableExists('srv_servicio')) {
+            $servicio = $db->table('srv_servicio')->where('candidato_id', (int)$candidato['id'])->get()->getRowArray();
+            if (!$servicio) {
+                $db->table('srv_servicio')->insert([
+                    'candidato_id' => (int)$candidato['id'],
+                    'oficio'       => !empty($candidato['profesion']) ? $candidato['profesion'] : 'Perfil profesional',
+                    'descripcion'  => 'Servicios y postulación de candidato',
+                    'ciudad'       => !empty($candidato['ciudad']) ? $candidato['ciudad'] : 'Managua',
+                    'precio_tipo'  => 'a_convenir',
+                    'estado'       => 'activo',
+                    'created_at'   => date('Y-m-d H:i:s'),
+                    'updated_at'   => date('Y-m-d H:i:s'),
+                ]);
+                $servicioId = $db->insertID();
+            } else {
+                $servicioId = (int)$servicio['id'];
+            }
+
+            $contacto = $db->table('srv_contacto')
+                ->where('servicio_id', $servicioId)
+                ->where('user_id', (int)$empUser['id'])
+                ->get()->getRowArray();
+
+            if (!$contacto) {
+                $db->table('srv_contacto')->insert([
+                    'servicio_id' => $servicioId,
+                    'user_id'     => (int)$empUser['id'],
+                    'nombre'      => $empresa['razon_social'] ?: 'Empresa',
+                    'telefono'    => $empresa['telefono'] ?: '505-8888-8888',
+                    'mensaje'     => "Postulación para '{$postulacion['vacante_titulo']}'",
+                    'estado'      => 'aceptado',
+                    'ip_hash'     => hash('sha256', $this->request->getIPAddress()),
+                    'created_at'  => date('Y-m-d H:i:s'),
+                    'updated_at'  => date('Y-m-d H:i:s'),
+                ]);
+                $contactoId = $db->insertID();
+            } else {
+                $contactoId = (int)$contacto['id'];
+                $db->table('srv_contacto')->where('id', $contactoId)->update([
+                    'estado'     => 'aceptado',
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+
+            if ($contactoId && $db->tableExists('srv_contacto_mensaje')) {
+                $chatMsg = '';
+                if ($nuevoEstado === 'contratado') {
+                    $chatMsg = "🎉 ¡Felicitaciones! Te hemos marcado como CONTRATADO para la vacante '{$postulacion['vacante_titulo']}'. Podemos coordinar por aquí los detalles de tu contratación e inicio.";
+                } elseif ($nuevoEstado === 'en_revision') {
+                    $chatMsg = "👀 Tu postulación para '{$postulacion['vacante_titulo']}' ha sido pasada a etapa de revisión.";
+                } elseif ($nuevoEstado === 'rechazada') {
+                    $chatMsg = "ℹ️ Tu postulación para '{$postulacion['vacante_titulo']}' no continuará en el proceso.";
+                }
+
+                if (!empty($chatMsg)) {
+                    $db->table('srv_contacto_mensaje')->insert([
+                        'contacto_id'   => $contactoId,
+                        'emisor_tipo'   => 'cliente',
+                        'emisor_nombre' => $empresa['razon_social'] ?: 'Empresa',
+                        'mensaje'       => $chatMsg,
+                        'created_at'    => date('Y-m-d H:i:s'),
+                    ]);
+                }
+            }
+        }
+
+        // 2. Notificación al candidato en not_notificacion
         if ($candUserId > 0 && $db->tableExists('not_notificacion')) {
             $tituloNotif = 'Actualización de tu postulación';
             $msgNotif = "Tu postulación para la vacante '{$postulacion['vacante_titulo']}' ha sido actualizada a {$nuevoEstado}.";
@@ -483,69 +551,13 @@ class EmpresaController extends BaseApiController
                 'tipo'       => 'postulacion',
                 'titulo'     => $tituloNotif,
                 'mensaje'    => $msgNotif,
-                'url'        => '/app/solicitudes',
+                'url'        => $contactoId ? ('/app/chat?contacto_id=' . $contactoId) : '/app/solicitudes',
                 'leida'      => 0,
                 'created_at' => date('Y-m-d H:i:s'),
             ]);
         }
 
-        // 2. Mensaje en el chat de la conversación srv_contacto_mensaje
-        if ($candidato && $db->tableExists('srv_contacto') && $db->tableExists('srv_servicio')) {
-            $servicio = $db->table('srv_servicio')->where('candidato_id', (int)$candidato['id'])->get()->getRowArray();
-            if ($servicio) {
-                $contacto = $db->table('srv_contacto')
-                    ->where('servicio_id', (int)$servicio['id'])
-                    ->where('user_id', (int)$empUser['id'])
-                    ->get()->getRowArray();
-
-                $contactoId = null;
-                if (!$contacto) {
-                    $db->table('srv_contacto')->insert([
-                        'servicio_id' => (int)$servicio['id'],
-                        'user_id'     => (int)$empUser['id'],
-                        'nombre'      => $empresa['razon_social'] ?: 'Empresa',
-                        'telefono'    => $empresa['telefono'] ?: '505-8888-8888',
-                        'mensaje'     => "Postulación para '{$postulacion['vacante_titulo']}'",
-                        'estado'      => $nuevoEstado === 'contratado' ? 'aceptado' : 'en_revision',
-                        'ip_hash'     => hash('sha256', $this->request->getIPAddress()),
-                        'created_at'  => date('Y-m-d H:i:s'),
-                        'updated_at'  => date('Y-m-d H:i:s'),
-                    ]);
-                    $contactoId = $db->insertID();
-                } else {
-                    $contactoId = (int)$contacto['id'];
-                    if ($nuevoEstado === 'contratado') {
-                        $db->table('srv_contacto')->where('id', $contactoId)->update([
-                            'estado'     => 'aceptado',
-                            'updated_at' => date('Y-m-d H:i:s'),
-                        ]);
-                    }
-                }
-
-                if ($contactoId && $db->tableExists('srv_contacto_mensaje')) {
-                    $chatMsg = '';
-                    if ($nuevoEstado === 'contratado') {
-                        $chatMsg = "🎉 ¡Felicitaciones! Te hemos marcado como CONTRATADO para la vacante '{$postulacion['vacante_titulo']}'. Podemos coordinar por aquí los detalles de tu contratación e inicio.";
-                    } elseif ($nuevoEstado === 'en_revision') {
-                        $chatMsg = "👀 Tu postulación para '{$postulacion['vacante_titulo']}' ha sido pasada a etapa de revisión.";
-                    } elseif ($nuevoEstado === 'rechazada') {
-                        $chatMsg = "ℹ️ Tu postulación para '{$postulacion['vacante_titulo']}' no continuará en el proceso.";
-                    }
-
-                    if (!empty($chatMsg)) {
-                        $db->table('srv_contacto_mensaje')->insert([
-                            'contacto_id'   => $contactoId,
-                            'emisor_tipo'   => 'cliente',
-                            'emisor_nombre' => $empresa['razon_social'] ?: 'Empresa',
-                            'mensaje'       => $chatMsg,
-                            'created_at'    => date('Y-m-d H:i:s'),
-                        ]);
-                    }
-                }
-            }
-        }
-
-        return $this->ok(['message' => 'Estado actualizado', 'estado' => $nuevoEstado]);
+        return $this->ok(['message' => 'Estado actualizado', 'estado' => $nuevoEstado, 'contacto_id' => $contactoId]);
     }
 
     /**

@@ -10,12 +10,25 @@ import {
   locationOutline, cashOutline, briefcaseOutline, timeOutline,
   checkmarkCircle, businessOutline, globeOutline, sendOutline,
   peopleOutline, closeOutline, documentTextOutline, checkmarkDoneOutline,
-  chatbubbleEllipsesOutline,
+  chatbubbleEllipsesOutline, logoWhatsapp, callOutline, helpCircleOutline,
 } from 'ionicons/icons';
 import { useAuth } from '../context/AuthContext';
 import { candidatoApi, vacantesApi } from '../services/api';
 import '../theme/app.css';
 import '../theme/buscar.css';
+
+const cleanPhone = (tel?: string | null) => {
+  if (!tel) return '';
+  const digits = tel.replace(/\D/g, '');
+  return digits.length === 8 ? `505${digits}` : digits;
+};
+
+const PREGUNTAS_RAPIDAS = [
+  '👋 Hola, ¿esta vacante sigue disponible?',
+  '🕒 ¿Cuáles son los horarios laborales del puesto?',
+  '📍 ¿El puesto es presencial, remoto o híbrido?',
+  '💼 ¿Aceptan postulantes sin experiencia previa?',
+];
 
 /**
  * Detalle de vacante con diseno de marca: hero, meta-cards,
@@ -28,6 +41,8 @@ const VacanteDetalle: React.FC = () => {
   const [vacante, setVacante] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [modalPostular, setModalPostular] = useState(false);
+  const [modalConsulta, setModalConsulta] = useState(false);
+  const [mensajeConsulta, setMensajeConsulta] = useState('');
   const [cvs, setCvs] = useState<any[]>([]);
   const [cvSel, setCvSel] = useState<number | null>(null);
   const [mensaje, setMensaje] = useState('');
@@ -57,14 +72,25 @@ const VacanteDetalle: React.FC = () => {
   }, [slug]);
 
   const abrirPostular = async () => {
+    if (!user) {
+      presentToast({
+        message: 'Inicia sesión para postularte a esta vacante',
+        duration: 2500,
+        color: 'warning',
+      });
+      router.push('/auth/login');
+      return;
+    }
     try {
       const res = await candidatoApi.cvs();
       setCvs(res.data || []);
       const principal = (res.data || []).find((c: any) => Number(c.es_principal) === 1);
       setCvSel(principal?.id ?? res.data?.[0]?.id ?? null);
-      setModalPostular(true);
     } catch {
-      presentToast({ message: 'No se pudieron cargar tus CVs', duration: 2500, color: 'warning' });
+      setCvs([]);
+      setCvSel(null);
+    } finally {
+      setModalPostular(true);
     }
   };
 
@@ -75,7 +101,7 @@ const VacanteDetalle: React.FC = () => {
       await candidatoApi.postularse(vacante.id, cvSel ?? undefined, mensaje || undefined);
       setYaPostulado(true);
       setModalPostular(false);
-      presentToast({ message: 'Postulacion enviada!', duration: 2500, color: 'success' });
+      presentToast({ message: '¡Postulación enviada con éxito!', duration: 2500, color: 'success' });
     } catch (e: any) {
       if (e.status === 409) {
         setYaPostulado(true);
@@ -89,16 +115,36 @@ const VacanteDetalle: React.FC = () => {
     }
   };
 
-  const abrirChatEmpresa = async () => {
+  const abrirConsulta = () => {
+    if (!user) {
+      presentToast({
+        message: 'Inicia sesión para consultar o chatear con la empresa',
+        duration: 2500,
+        color: 'warning',
+      });
+      router.push('/auth/login');
+      return;
+    }
+    setModalConsulta(true);
+  };
+
+  const enviarConsultaYChat = async (textoMsg?: string) => {
     if (!vacante?.id) return;
     setChateando(true);
+    const msgToSend = (textoMsg ?? mensajeConsulta).trim();
     try {
-      const res = await candidatoApi.iniciarChatEmpresa({ vacante_id: vacante.id });
+      const res = await candidatoApi.iniciarChatEmpresa({
+        vacante_id: vacante.id,
+        mensaje: msgToSend || undefined,
+      });
+      setModalConsulta(false);
+      setMensajeConsulta('');
       router.push(
         `/app/chat?contacto_id=${res.contacto_id}&nombre=${encodeURIComponent(res.nombre)}&oficio=${encodeURIComponent(res.oficio || vacante.titulo || '')}&avatar=${encodeURIComponent(res.avatar_url || '')}&telefono=${encodeURIComponent(res.telefono || '')}`
       );
-    } catch {
-      presentToast({ message: 'No se pudo abrir el chat con la empresa', duration: 2500, color: 'danger' });
+    } catch (e: any) {
+      const errMsg = e?.error || e?.message || 'No se pudo abrir el chat con la empresa';
+      presentToast({ message: errMsg, duration: 3500, color: 'warning' });
     } finally {
       setChateando(false);
     }
@@ -263,8 +309,8 @@ const VacanteDetalle: React.FC = () => {
           </section>
         )}
 
-        {/* CTA postularse inline - solo candidato */}
-        {user?.role === 'candidato' && (
+        {/* CTA postularse inline */}
+        {(!user || user?.role === 'candidato' || user?.role === 'empresa' || user?.role === 'admin') && (
           <div className="vd-cta-inline" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {yaPostulado ? (
               <>
@@ -272,10 +318,10 @@ const VacanteDetalle: React.FC = () => {
                   type="button"
                   className="vd-apply done"
                   style={{ background: '#10B981', color: '#ffffff' }}
-                  onClick={abrirChatEmpresa}
+                  onClick={abrirConsulta}
                 >
                   <IonIcon icon={checkmarkCircle} />
-                  <span>Postulación enviada · Abrir Chat con la Empresa</span>
+                  <span>Postulación enviada · Consultar a la Empresa</span>
                 </button>
               </>
             ) : (
@@ -290,7 +336,7 @@ const VacanteDetalle: React.FC = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={abrirChatEmpresa}
+                  onClick={abrirConsulta}
                   disabled={chateando}
                   style={{
                     background: '#F1F5F9',
@@ -317,6 +363,232 @@ const VacanteDetalle: React.FC = () => {
 
         <div style={{ height: 40 }} />
       </IonContent>
+
+      {/* Modal Consulta a la Empresa */}
+      <IonModal
+        isOpen={modalConsulta}
+        onDidDismiss={() => setModalConsulta(false)}
+        initialBreakpoint={0.78}
+        breakpoints={[0, 0.78, 0.95]}
+        className="filtros-modal"
+      >
+        <IonContent>
+          <div className="fm-head">
+            <button className="fm-close" onClick={() => setModalConsulta(false)} aria-label="Cerrar">
+              <IonIcon icon={closeOutline} />
+            </button>
+            <span className="fm-title">Consultar a la Empresa</span>
+            <span style={{ width: 52 }} />
+          </div>
+
+          <div style={{ padding: '16px 20px' }}>
+            {/* Tarjeta de Empresa y Vacante */}
+            <div
+              style={{
+                background: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                borderRadius: 14,
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                marginBottom: 14,
+              }}
+            >
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  background: '#1B2A4A',
+                  color: '#fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontWeight: 800,
+                  fontSize: 16,
+                  overflow: 'hidden',
+                  flexShrink: 0,
+                }}
+              >
+                {vacante?.empresa_logo_url ? (
+                  <img src={vacante.empresa_logo_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  (vacante?.empresa_nombre || 'E').slice(0, 2).toUpperCase()
+                )}
+              </div>
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ fontWeight: 800, fontSize: 14, color: '#1B2A4A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {vacante?.empresa_nombre || 'Empresa Reclutadora'}
+                </div>
+                <div style={{ fontSize: 12, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  Vacante: {vacante?.titulo}
+                </div>
+              </div>
+            </div>
+
+            {/* Aviso si la vacante es externa */}
+            {(!vacante?.empresa_id || vacante?.empresa_externa) && (
+              <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 12, padding: 12, marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#92400E', fontWeight: 700, fontSize: 13 }}>
+                  <IonIcon icon={helpCircleOutline} />
+                  <span>Publicación de Reclutador Externo</span>
+                </div>
+                <p style={{ margin: '6px 0 0', fontSize: 12, color: '#78350F', lineHeight: 1.4 }}>
+                  Esta vacante fue provista por <strong>{vacante?.empresa_externa || 'fuente externa'}</strong>.
+                  {vacante?.contacto_externo || vacante?.empresa_telefono ? (
+                    <> Puedes contactar directamente al: <strong>{vacante?.contacto_externo || vacante?.empresa_telefono}</strong></>
+                  ) : (
+                    <> Para más información consulta la descripción de la vacante.</>
+                  )}
+                </p>
+              </div>
+            )}
+
+            {/* Preguntas rápidas sugeridas */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Preguntas sugeridas (toca para seleccionar)
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                {PREGUNTAS_RAPIDAS.map((p, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setMensajeConsulta(p)}
+                    style={{
+                      background: mensajeConsulta === p ? '#EEF2FF' : '#FFFFFF',
+                      border: mensajeConsulta === p ? '1.5px solid #4F46E5' : '1px solid #E2E8F0',
+                      borderRadius: 10,
+                      padding: '8px 12px',
+                      fontSize: 13,
+                      color: mensajeConsulta === p ? '#4338CA' : '#334155',
+                      textAlign: 'left',
+                      fontWeight: mensajeConsulta === p ? 600 : 500,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Mensaje personalizado */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                Tu mensaje o consulta
+              </label>
+              <textarea
+                placeholder="Escribe tu consulta sobre la vacante, turnos, requisitos..."
+                rows={3}
+                value={mensajeConsulta}
+                onChange={(e) => setMensajeConsulta(e.target.value)}
+                style={{
+                  width: '100%',
+                  borderRadius: 12,
+                  border: '1px solid #CBD5E1',
+                  padding: '10px 12px',
+                  fontSize: 14,
+                  fontFamily: 'inherit',
+                  outline: 'none',
+                  resize: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            {/* Botón principal enviar consulta y abrir chat */}
+            <button
+              type="button"
+              className="fm-apply"
+              onClick={() => enviarConsultaYChat()}
+              disabled={chateando}
+              style={{
+                width: '100%',
+                background: 'linear-gradient(135deg, #1B2A4A 0%, #2563EB 100%)',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 14,
+                padding: '14px',
+                fontWeight: 700,
+                fontSize: 15,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+                cursor: 'pointer',
+                boxShadow: '0 4px 12px rgba(37, 99, 235, 0.25)',
+              }}
+            >
+              {chateando ? (
+                <IonSpinner name="crescent" style={{ width: 20, height: 20 }} />
+              ) : (
+                <>
+                  <IonIcon icon={chatbubbleEllipsesOutline} style={{ fontSize: 18 }} />
+                  <span>{mensajeConsulta.trim() ? 'Enviar Consulta y Abrir Chat' : 'Abrir Chat con la Empresa'}</span>
+                </>
+              )}
+            </button>
+
+            {/* Alternativas de contacto directo si hay teléfono */}
+            {vacante?.empresa_telefono && (
+              <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid #E2E8F0' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: 8 }}>
+                  Contacto directo con reclutamiento
+                </div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <a
+                    href={`https://wa.me/${cleanPhone(vacante.empresa_telefono)}?text=${encodeURIComponent(`Hola, vi su vacante de ${vacante.titulo} en CONEX y me gustaría consultarles:`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      background: '#25D366',
+                      color: '#ffffff',
+                      borderRadius: 12,
+                      padding: '10px 12px',
+                      fontWeight: 700,
+                      fontSize: 13,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <IonIcon icon={logoWhatsapp} style={{ fontSize: 18 }} />
+                    <span>WhatsApp</span>
+                  </a>
+                  <a
+                    href={`tel:${vacante.empresa_telefono}`}
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      background: '#F1F5F9',
+                      color: '#1B2A4A',
+                      border: '1px solid #CBD5E1',
+                      borderRadius: 12,
+                      padding: '10px 12px',
+                      fontWeight: 700,
+                      fontSize: 13,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    <IonIcon icon={callOutline} style={{ fontSize: 18 }} />
+                    <span>Llamar</span>
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+          <div style={{ height: 40 }} />
+        </IonContent>
+      </IonModal>
 
       {/* Modal postularse */}
       <IonModal isOpen={modalPostular} onDidDismiss={() => setModalPostular(false)} initialBreakpoint={0.7} breakpoints={[0, 0.7, 0.95]} className="filtros-modal">

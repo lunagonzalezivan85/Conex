@@ -1419,34 +1419,67 @@ class CandidatoController extends BaseApiController
      */
     public function iniciarChatEmpresa()
     {
-        if ($res = $this->requireRole(['candidato'])) {
+        if ($res = $this->requireRole(['candidato', 'empresa', 'admin'])) {
             return $res;
         }
+
+        $userCand = $this->authUser();
+        if (empty($userCand['id'])) {
+            return $this->fail('Debes iniciar sesión para consultar a la empresa', 401);
+        }
+
         $candidato = $this->getCandidato();
-        if ($res = $this->requireCandidato($candidato)) {
-            return $res;
+        if (!$candidato) {
+            $candModel = new CandidatoModel();
+            $newCandId = $candModel->insert([
+                'user_id'   => $userCand['id'],
+                'apellidos' => $userCand['apellido'] ?? '',
+                'ciudad'    => 'Managua',
+                'pais'      => 'Nicaragua',
+            ]);
+            $candidato = $candModel->find($newCandId);
         }
 
         $db = \Config\Database::connect();
         $body = $this->body();
-        $userCand = $this->authUser();
         $candNombre = trim(($userCand['nombre'] ?? '') . ' ' . ($userCand['apellido'] ?? '')) ?: 'Candidato';
 
         $vacanteId = (int)($body['vacante_id'] ?? 0);
         $empresaId = (int)($body['empresa_id'] ?? 0);
         $vacanteTitulo = '';
+        $vacante = null;
 
         if ($vacanteId > 0) {
             $vacante = $db->table('vac_vacante')->where('id', $vacanteId)->get()->getRowArray();
             if ($vacante) {
-                $empresaId = (int)$vacante['empresa_id'];
-                $vacanteTitulo = $vacante['titulo'];
+                if ($empresaId <= 0) {
+                    $empresaId = (int)($vacante['empresa_id'] ?? 0);
+                }
+                $vacanteTitulo = $vacante['titulo'] ?? '';
             }
         }
 
-        $empresa = (new \App\Models\EmpresaModel())->find($empresaId);
+        $empresa = null;
+        if ($empresaId > 0) {
+            $empresa = (new \App\Models\EmpresaModel())->find($empresaId);
+        }
+
         if (!$empresa || empty($empresa['user_id'])) {
-            return $this->fail('Empresa no encontrada', 404);
+            if ($vacante && (!empty($vacante['empresa_externa']) || !empty($vacante['contacto_externo']))) {
+                $extNombre = $vacante['empresa_externa'] ?: 'Empresa externa';
+                $extContacto = $vacante['contacto_externo'] ?: 'contacto indicado';
+                return $this->fail(
+                    "Esta vacante es una publicación de {$extNombre}. Puedes comunicarte directamente al: {$extContacto}",
+                    422,
+                    ['es_externa' => true, 'contacto_externo' => $extContacto, 'empresa_externa' => $extNombre]
+                );
+            }
+            return $this->fail('La empresa de esta vacante no tiene habilitado el chat directo en la plataforma.', 404);
+        }
+
+        // Si el usuario es el mismo dueño de la vacante
+        if ((int)$empresa['user_id'] === (int)$userCand['id']) {
+            return $this->fail('Esta vacante fue publicada por tu propia cuenta de empresa', 400);
         }
 
         // 1. Servicio del candidato
@@ -1454,9 +1487,9 @@ class CandidatoController extends BaseApiController
         if (!$servicio) {
             $db->table('srv_servicio')->insert([
                 'candidato_id' => (int)$candidato['id'],
-                'oficio'       => $candidato['profesion'] ?: 'Perfil profesional',
+                'oficio'       => !empty($candidato['profesion']) ? $candidato['profesion'] : 'Perfil profesional',
                 'descripcion'  => 'Servicios y postulación de ' . $candNombre,
-                'ciudad'       => $candidato['ciudad'] ?: 'Managua',
+                'ciudad'       => !empty($candidato['ciudad']) ? $candidato['ciudad'] : 'Managua',
                 'precio_tipo'  => 'a_convenir',
                 'estado'       => 'activo',
                 'created_at'   => date('Y-m-d H:i:s'),
@@ -1483,7 +1516,7 @@ class CandidatoController extends BaseApiController
                 'nombre'      => $empresa['razon_social'] ?: 'Empresa',
                 'telefono'    => $empresa['telefono'] ?: '505-8888-8888',
                 'mensaje'     => $initMsg,
-                'estado'      => 'en_revision',
+                'estado'      => 'aceptado',
                 'ip_hash'     => hash('sha256', $this->request->getIPAddress()),
                 'created_at'  => date('Y-m-d H:i:s'),
                 'updated_at'  => date('Y-m-d H:i:s'),
@@ -1501,6 +1534,9 @@ class CandidatoController extends BaseApiController
             }
         } else {
             $contactoId = (int)$contacto['id'];
+            if ($contacto['estado'] !== 'aceptado') {
+                $db->table('srv_contacto')->where('id', $contactoId)->update(['estado' => 'aceptado']);
+            }
             if (!empty($body['mensaje']) && $db->tableExists('srv_contacto_mensaje')) {
                 $db->table('srv_contacto_mensaje')->insert([
                     'contacto_id'   => $contactoId,
@@ -1512,14 +1548,14 @@ class CandidatoController extends BaseApiController
             }
         }
 
-        // Notificar a la empresa
+        // 3. Notificar a la empresa
         if ($db->tableExists('not_notificacion')) {
             $db->table('not_notificacion')->insert([
                 'user_id'    => (int)$empresa['user_id'],
                 'tipo'       => 'mensaje',
                 'titulo'     => "Nuevo mensaje de {$candNombre}",
                 'mensaje'    => mb_substr($initMsg, 0, 150),
-                'url'        => '/app/solicitudes',
+                'url'        => '/app/chat?contacto_id=' . $contactoId,
                 'leida'      => 0,
                 'created_at' => date('Y-m-d H:i:s'),
             ]);

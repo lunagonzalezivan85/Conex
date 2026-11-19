@@ -621,23 +621,32 @@ const Solicitudes: React.FC = () => {
                         </IonBadge>
                         <IonIcon icon={chevronForward} className="job-chevron" />
                       </div>
-                      {p.contacto_id && (
-                        <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
-                          <IonButton
-                            size="small"
-                            fill="outline"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                      <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                        <IonButton
+                          size="small"
+                          fill="outline"
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (p.contacto_id) {
                               router.push(
                                 `/app/chat?contacto_id=${p.contacto_id}&nombre=${encodeURIComponent(p.empresa_nombre || 'Empresa')}&oficio=${encodeURIComponent(p.titulo || 'Vacante')}&avatar=${encodeURIComponent(p.empresa_logo ? `/uploads/${p.empresa_logo}` : '')}`
                               );
-                            }}
-                          >
-                            <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                            Chat con la empresa
-                          </IonButton>
-                        </div>
-                      )}
+                              return;
+                            }
+                            try {
+                              const res = await candidatoApi.iniciarChatEmpresa({ vacante_id: p.vacante_id });
+                              router.push(
+                                `/app/chat?contacto_id=${res.contacto_id}&nombre=${encodeURIComponent(res.nombre)}&oficio=${encodeURIComponent(res.oficio || p.titulo || '')}&avatar=${encodeURIComponent(res.avatar_url || '')}&telefono=${encodeURIComponent(res.telefono || '')}`
+                              );
+                            } catch (err: any) {
+                              presentToast({ message: err?.error || 'No se pudo iniciar el chat con la empresa', duration: 2500, color: 'warning' });
+                            }
+                          }}
+                        >
+                          <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
+                          {p.contacto_id ? 'Chat con la empresa' : 'Consultar a la empresa'}
+                        </IonButton>
+                      </div>
                     </IonCardContent>
                   </IonCard>
                 ))}

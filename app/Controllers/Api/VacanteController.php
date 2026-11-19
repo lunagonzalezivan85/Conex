@@ -16,14 +16,14 @@ class VacanteController extends BaseApiController
     {
         $vacanteModel = new VacanteModel();
 
-        $q           = trim((string)$this->request->getGet('q'));
-        $categoria   = $this->request->getGet('categoria');
-        $modalidad   = $this->request->getGet('modalidad');
-        $ciudad      = trim((string)$this->request->getGet('ciudad'));
-        $orden       = $this->request->getGet('orden') ?: 'reciente';
-        $lat         = $this->request->getGet('lat');
-        $lng         = $this->request->getGet('lng');
-        $radio       = (float)($this->request->getGet('radio') ?: 50);
+        $q = trim((string) $this->request->getGet('q'));
+        $categoria = $this->request->getGet('categoria');
+        $modalidad = $this->request->getGet('modalidad');
+        $ciudad = trim((string) $this->request->getGet('ciudad'));
+        $orden = $this->request->getGet('orden') ?: 'reciente';
+        $lat = $this->request->getGet('lat');
+        $lng = $this->request->getGet('lng');
+        $radio = (float) ($this->request->getGet('radio') ?: 50);
         [$page, $perPage] = $this->paginationParams();
 
         $builder = $vacanteModel->where('vac_vacante.estado', 'publicada')
@@ -39,7 +39,7 @@ class VacanteController extends BaseApiController
                 ->groupEnd();
         }
         if (!empty($categoria)) {
-            $builder->where('vac_vacante.categoria_id', (int)$categoria);
+            $builder->where('vac_vacante.categoria_id', (int) $categoria);
         }
         if (!empty($modalidad)) {
             $builder->where('vac_vacante.modalidad', $modalidad);
@@ -52,8 +52,8 @@ class VacanteController extends BaseApiController
 
         $geoActivo = is_numeric($lat) && is_numeric($lng);
         if ($geoActivo) {
-            $lat = (float)$lat;
-            $lng = (float)$lng;
+            $lat = (float) $lat;
+            $lng = (float) $lng;
             $radio = max(1, min(500, $radio));
             $distanciaExpr = "6371 * acos(LEAST(1, cos(radians({$lat})) * cos(radians(vac_vacante.latitud)) * cos(radians(vac_vacante.longitud) - radians({$lng})) + sin(radians({$lat})) * sin(radians(vac_vacante.latitud))))";
             $builder->where('vac_vacante.latitud IS NOT NULL')
@@ -96,9 +96,9 @@ class VacanteController extends BaseApiController
             'data' => $vacantes,
             'meta' => [
                 'current_page' => $pager->getCurrentPage(),
-                'per_page'     => $perPage,
-                'total'        => $pager->getTotal(),
-                'last_page'    => $pager->getPageCount(),
+                'per_page' => $perPage,
+                'total' => $pager->getTotal(),
+                'last_page' => $pager->getPageCount(),
             ],
         ]);
     }
@@ -109,26 +109,37 @@ class VacanteController extends BaseApiController
     public function show($slug)
     {
         $vacanteModel = new VacanteModel();
-        $slugRaw = (string)$slug;
+        $slugRaw = (string) $slug;
         $slugDecoded = urldecode($slugRaw);
 
         $builder = $vacanteModel
-            ->select('vac_vacante.*, emp_empresa.razon_social AS empresa_nombre, emp_empresa.logo AS empresa_logo, emp_empresa.sitio_web AS empresa_sitio_web, emp_empresa.verificada AS empresa_verificada, cat_categoria.nombre AS categoria_nombre')
+            ->select('vac_vacante.*, emp_empresa.razon_social AS empresa_nombre, emp_empresa.logo AS empresa_logo, emp_empresa.sitio_web AS empresa_sitio_web, emp_empresa.verificada AS empresa_verificada, emp_empresa.telefono AS empresa_telefono, emp_empresa.user_id AS empresa_user_id, cat_categoria.nombre AS categoria_nombre')
             ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left')
             ->join('cat_categoria', 'cat_categoria.id = vac_vacante.categoria_id', 'left');
 
         $builder->groupStart();
         if (is_numeric($slugRaw)) {
-            $builder->where('vac_vacante.id', (int)$slugRaw);
+            $builder->where('vac_vacante.id', (int) $slugRaw);
         }
         $builder->orWhere('vac_vacante.slug', $slugRaw)
             ->orWhere('vac_vacante.slug', $slugDecoded);
 
         // Por si fue guardada con o sin acentos en el slug
         $slugTranslit = strtr($slugDecoded, [
-            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
-            'Á' => 'a', 'É' => 'e', 'Í' => 'i', 'Ó' => 'o', 'Ú' => 'u',
-            'ñ' => 'n', 'Ñ' => 'n', 'ü' => 'u', 'Ü' => 'u',
+            'á' => 'a',
+            'é' => 'e',
+            'í' => 'i',
+            'ó' => 'o',
+            'ú' => 'u',
+            'Á' => 'a',
+            'É' => 'e',
+            'Í' => 'i',
+            'Ó' => 'o',
+            'Ú' => 'u',
+            'ñ' => 'n',
+            'Ñ' => 'n',
+            'ü' => 'u',
+            'Ü' => 'u',
         ]);
         if ($slugTranslit !== $slugDecoded) {
             $builder->orWhere('vac_vacante.slug', $slugTranslit);
@@ -144,9 +155,13 @@ class VacanteController extends BaseApiController
         // Contar vista (una por request de detalle)
         $db = \Config\Database::connect();
         $db->table('vac_vacante')->where('id', $vacante['id'])->set('vistas', 'vistas+1', false)->update();
-        $vacante['vistas'] = (int)$vacante['vistas'] + 1;
+        $vacante['vistas'] = (int) $vacante['vistas'] + 1;
 
         $vacante['empresa_nombre'] = $vacante['empresa_nombre'] ?? $vacante['empresa_externa'];
+        if (empty($vacante['empresa_telefono']) && !empty($vacante['contacto_externo'])) {
+            $vacante['empresa_telefono'] = $vacante['contacto_externo'];
+        }
+        $vacante['tiene_chat'] = !empty($vacante['empresa_user_id']);
         $vacante['empresa_logo_url'] = !empty($vacante['empresa_logo'])
             ? base_url('uploads/' . $vacante['empresa_logo'])
             : null;
@@ -183,7 +198,7 @@ class VacanteController extends BaseApiController
         }
 
         $db = \Config\Database::connect();
-        $vacante = $db->table('vac_vacante')->where('id', (int)$id)->get()->getRowArray();
+        $vacante = $db->table('vac_vacante')->where('id', (int) $id)->get()->getRowArray();
         if (!$vacante) {
             return $this->fail('Vacante no encontrada', 404);
         }
@@ -192,7 +207,7 @@ class VacanteController extends BaseApiController
         $identificador = 'u' . ($user['id'] ?? 0);
 
         $existente = $db->table('vac_reaccion')
-            ->where('vacante_id', (int)$id)
+            ->where('vacante_id', (int) $id)
             ->where('identificador', $identificador)
             ->get()->getRowArray();
 
@@ -204,20 +219,20 @@ class VacanteController extends BaseApiController
             $miReaccion = $tipo;
         } else {
             $db->table('vac_reaccion')->insert([
-                'vacante_id'   => (int)$id,
-                'user_id'      => $user['id'] ?? null,
+                'vacante_id' => (int) $id,
+                'user_id' => $user['id'] ?? null,
                 'identificador' => $identificador,
-                'tipo'         => $tipo,
-                'created_at'   => date('Y-m-d H:i:s'),
+                'tipo' => $tipo,
+                'created_at' => date('Y-m-d H:i:s'),
             ]);
             $miReaccion = $tipo;
         }
 
-        $conteos = $this->conteosReaccion((int)$id);
-        $db->table('vac_vacante')->where('id', (int)$id)->update($conteos);
+        $conteos = $this->conteosReaccion((int) $id);
+        $db->table('vac_vacante')->where('id', (int) $id)->update($conteos);
 
         return $this->ok([
-            'me_gusta'    => $conteos['me_gusta'],
+            'me_gusta' => $conteos['me_gusta'],
             'no_me_gusta' => $conteos['no_me_gusta'],
             'mi_reaccion' => $miReaccion,
         ]);
@@ -229,12 +244,12 @@ class VacanteController extends BaseApiController
     public function compartir($id)
     {
         $db = \Config\Database::connect();
-        $existe = $db->table('vac_vacante')->where('id', (int)$id)->countAllResults();
+        $existe = $db->table('vac_vacante')->where('id', (int) $id)->countAllResults();
         if (!$existe) {
             return $this->fail('Vacante no encontrada', 404);
         }
-        $db->table('vac_vacante')->where('id', (int)$id)->set('compartidos', 'compartidos+1', false)->update();
-        $total = (int)$db->table('vac_vacante')->where('id', (int)$id)->get()->getRowArray()['compartidos'];
+        $db->table('vac_vacante')->where('id', (int) $id)->set('compartidos', 'compartidos+1', false)->update();
+        $total = (int) $db->table('vac_vacante')->where('id', (int) $id)->get()->getRowArray()['compartidos'];
         return $this->ok(['compartidos' => $total]);
     }
 
@@ -258,8 +273,8 @@ class VacanteController extends BaseApiController
     {
         $db = \Config\Database::connect();
         return [
-            'me_gusta'    => (int)$db->table('vac_reaccion')->where('vacante_id', $vacanteId)->where('tipo', 'me_gusta')->countAllResults(),
-            'no_me_gusta' => (int)$db->table('vac_reaccion')->where('vacante_id', $vacanteId)->where('tipo', 'no_me_gusta')->countAllResults(),
+            'me_gusta' => (int) $db->table('vac_reaccion')->where('vacante_id', $vacanteId)->where('tipo', 'me_gusta')->countAllResults(),
+            'no_me_gusta' => (int) $db->table('vac_reaccion')->where('vacante_id', $vacanteId)->where('tipo', 'no_me_gusta')->countAllResults(),
         ];
     }
 
@@ -283,10 +298,10 @@ class VacanteController extends BaseApiController
             ->orderBy('nombre', 'ASC')
             ->get()->getResultArray();
         return $this->ok([
-            'categorias'  => $categorias,
+            'categorias' => $categorias,
             'habilidades' => $habilidades,
             'modalidades' => ['presencial', 'remoto', 'hibrido'],
-            'ordenes'     => ['reciente', 'antigua', 'salario', 'distancia'],
+            'ordenes' => ['reciente', 'antigua', 'salario', 'distancia'],
         ]);
     }
 }
