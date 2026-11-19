@@ -378,13 +378,24 @@ class EmpresaController extends BaseApiController
             return $this->ok(['data' => []]);
         }
 
-        $postulaciones = (new PostulacionModel())
-            ->select('post_postulacion.*, auth_user.nombre, auth_user.apellido, auth_user.email, auth_user.avatar, cand_candidato.profesion, cand_candidato.ciudad')
+        $empUser = $this->authUser();
+        $builder = (new PostulacionModel())
+            ->select('post_postulacion.*,
+                auth_user.nombre, auth_user.apellido, auth_user.email, auth_user.avatar,
+                auth_user.telefono AS auth_telefono,
+                cand_candidato.profesion, cand_candidato.ciudad, cand_candidato.telefono AS cand_telefono,
+                cand_candidato.sobre_mi, cand_candidato.anios_experiencia, cand_candidato.salario_deseado,
+                cand_candidato.titulo_academico, cand_candidato.cv_url,
+                sc.id AS contacto_id')
             ->join('cand_candidato', 'cand_candidato.id = post_postulacion.candidato_id', 'left')
             ->join('auth_user', 'auth_user.id = cand_candidato.user_id', 'left')
+            ->join('srv_servicio ss', 'ss.candidato_id = cand_candidato.id', 'left')
+            ->join('srv_contacto sc', 'sc.servicio_id = ss.id AND sc.user_id = ' . (int)$empUser['id'], 'left')
             ->where('post_postulacion.vacante_id', (int)$vacanteId)
-            ->orderBy('post_postulacion.created_at', 'DESC')
-            ->findAll();
+            ->groupBy('post_postulacion.id')
+            ->orderBy('post_postulacion.created_at', 'DESC');
+
+        $postulaciones = $builder->findAll();
 
         return $this->ok(['data' => $postulaciones]);
     }

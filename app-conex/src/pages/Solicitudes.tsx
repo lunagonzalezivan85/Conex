@@ -324,7 +324,7 @@ const Solicitudes: React.FC = () => {
               <div className="sol-list cx-inbox-list">
                 {recibidas.map(s => {
                   const targetName = s.nombre || 'Cliente';
-                  const snippet = getLastSnippet(s, false);
+                  const snippet = getLastSnippet(s, isEmpresa);
 
                   return (
                     <div
@@ -621,6 +621,23 @@ const Solicitudes: React.FC = () => {
                         </IonBadge>
                         <IonIcon icon={chevronForward} className="job-chevron" />
                       </div>
+                      {p.contacto_id && (
+                        <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
+                          <IonButton
+                            size="small"
+                            fill="outline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              router.push(
+                                `/app/chat?contacto_id=${p.contacto_id}&nombre=${encodeURIComponent(p.empresa_nombre || 'Empresa')}&oficio=${encodeURIComponent(p.titulo || 'Vacante')}&avatar=${encodeURIComponent(p.empresa_logo ? `/uploads/${p.empresa_logo}` : '')}`
+                              );
+                            }}
+                          >
+                            <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
+                            Chat con la empresa
+                          </IonButton>
+                        </div>
+                      )}
                     </IonCardContent>
                   </IonCard>
                 ))}

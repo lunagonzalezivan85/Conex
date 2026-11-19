@@ -422,7 +422,8 @@ export const ChatMessenger: React.FC = () => {
             </div>
 
             {messages.map((m) => {
-              const isMe = m.emisor_tipo === 'cliente';
+              const userIsCliente = contactoData ? contactoData.es_cliente : (user?.role === 'empresa');
+              const isMe = userIsCliente ? (m.emisor_tipo === 'cliente') : (m.emisor_tipo === 'prestador');
 
               return (
                 <React.Fragment key={m.id}>

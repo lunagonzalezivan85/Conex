@@ -845,15 +845,25 @@ class CandidatoController extends BaseApiController
         }
 
         // Cargar historial de conversacion / mensajes estilo Messenger si existe la tabla
-        $allIds = array_filter(array_unique(array_merge(
-            array_column($recibidas, 'id'),
-            array_column($enviadas, 'id')
-        )));
+        $allContactoIds = [];
+        foreach ($recibidas as $r) {
+            if (!empty($r['contacto_id'])) {
+                $allContactoIds[] = (int)$r['contacto_id'];
+            } elseif (!empty($r['id']) && empty($r['es_postulacion'])) {
+                $allContactoIds[] = (int)$r['id'];
+            }
+        }
+        foreach ($enviadas as $e) {
+            if (!empty($e['id'])) {
+                $allContactoIds[] = (int)$e['id'];
+            }
+        }
+        $allContactoIds = array_filter(array_unique($allContactoIds));
 
         $mensajesPorContacto = [];
-        if (!empty($allIds) && $db->tableExists('srv_contacto_mensaje')) {
+        if (!empty($allContactoIds) && $db->tableExists('srv_contacto_mensaje')) {
             $msgs = $db->table('srv_contacto_mensaje')
-                ->whereIn('contacto_id', $allIds)
+                ->whereIn('contacto_id', $allContactoIds)
                 ->orderBy('created_at', 'ASC')
                 ->get()->getResultArray();
             foreach ($msgs as $m) {
@@ -862,7 +872,8 @@ class CandidatoController extends BaseApiController
         }
 
         foreach ($recibidas as &$r) {
-            $r['mensajes'] = $mensajesPorContacto[$r['id']] ?? [];
+            $cId = !empty($r['contacto_id']) ? $r['contacto_id'] : $r['id'];
+            $r['mensajes'] = $mensajesPorContacto[$cId] ?? [];
         }
         unset($r);
 
@@ -1047,11 +1058,11 @@ class CandidatoController extends BaseApiController
                 cand_candidato.disponible_ahora AS prestador_disponible_ahora,
                 cand_candidato.ciudad AS prestador_ciudad,
                 cand_candidato.region AS prestador_region,
-                auth_user.nombre AS prestador_nombre,
+                TRIM(CONCAT(auth_user.nombre, " ", COALESCE(auth_user.apellido, ""))) AS prestador_nombre,
                 auth_user.avatar AS prestador_avatar,
                 auth_user.created_at AS prestador_miembro_desde,
-                IF(srv_contacto.estado = "aceptado", auth_user.telefono, NULL) AS prestador_telefono,
-                IF(srv_contacto.estado = "aceptado", srv_contacto.telefono, NULL) AS cliente_telefono_revelado')
+                IF(srv_contacto.estado = "aceptado" OR srv_contacto.estado = "en_revision", COALESCE(cand_candidato.telefono, auth_user.telefono), NULL) AS prestador_telefono,
+                IF(srv_contacto.estado = "aceptado" OR srv_contacto.estado = "en_revision", srv_contacto.telefono, NULL) AS cliente_telefono_revelado')
             ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
             ->join('cand_candidato', 'cand_candidato.id = srv_servicio.candidato_id')
             ->join('auth_user', 'auth_user.id = cand_candidato.user_id')
@@ -1248,10 +1259,16 @@ class CandidatoController extends BaseApiController
         }
 
         $postulaciones = (new PostulacionModel())
-            ->select('post_postulacion.*, vac_vacante.titulo, vac_vacante.slug, vac_vacante.ciudad, vac_vacante.modalidad, vac_vacante.estado AS vacante_estado, emp_empresa.razon_social AS empresa_nombre')
+            ->select('post_postulacion.*,
+                vac_vacante.titulo, vac_vacante.slug, vac_vacante.ciudad, vac_vacante.modalidad, vac_vacante.estado AS vacante_estado,
+                emp_empresa.razon_social AS empresa_nombre, emp_empresa.logo AS empresa_logo,
+                sc.id AS contacto_id')
             ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id', 'left')
             ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left')
+            ->join('srv_servicio ss', 'ss.candidato_id = post_postulacion.candidato_id', 'left')
+            ->join('srv_contacto sc', 'sc.servicio_id = ss.id AND sc.user_id = emp_empresa.user_id', 'left')
             ->where('post_postulacion.candidato_id', $candidato['id'])
+            ->groupBy('post_postulacion.id')
             ->orderBy('post_postulacion.created_at', 'DESC')
             ->findAll();
 
@@ -1305,25 +1322,89 @@ class CandidatoController extends BaseApiController
             'estado'       => 'enviada',
         ]);
 
-        // Notificar a la empresa de la vacante que alguien se postuló
+        // Notificar a la empresa y crear/vincular conversación de mensajería directa
         try {
             $db = \Config\Database::connect();
             $empresa = (new \App\Models\EmpresaModel())->find((int)$vacante['empresa_id']);
-            if ($empresa && !empty($empresa['user_id']) && $db->tableExists('not_notificacion')) {
+            if ($empresa && !empty($empresa['user_id'])) {
                 $userCand = $this->authUser();
-                $candNombre = trim(($userCand['nombre'] ?? '') . ' ' . ($userCand['apellido'] ?? '')) ?: 'Un candidato';
-                $db->table('not_notificacion')->insert([
-                    'user_id'    => (int)$empresa['user_id'],
-                    'tipo'       => 'postulacion',
-                    'titulo'     => '¡Nueva postulación recibida!',
-                    'mensaje'    => "{$candNombre} se ha postulado a tu vacante '{$vacante['titulo']}'",
-                    'url'        => '/app/solicitudes',
-                    'leida'      => 0,
-                    'created_at' => date('Y-m-d H:i:s'),
-                ]);
+                $candNombre = trim(($userCand['nombre'] ?? '') . ' ' . ($userCand['apellido'] ?? '')) ?: 'Candidato';
+                $postMsg = !empty($data['mensaje']) ? trim($data['mensaje']) : "Hola, me he postulado a la vacante '{$vacante['titulo']}'.";
+
+                // Asegurar o buscar servicio del candidato
+                $servicio = $db->table('srv_servicio')->where('candidato_id', (int)$candidato['id'])->get()->getRowArray();
+                if (!$servicio) {
+                    $db->table('srv_servicio')->insert([
+                        'candidato_id' => (int)$candidato['id'],
+                        'oficio'       => $candidato['profesion'] ?: 'Perfil profesional',
+                        'descripcion'  => 'Servicios y postulación de ' . $candNombre,
+                        'ciudad'       => $candidato['ciudad'] ?: 'Managua',
+                        'precio_tipo'  => 'a_convenir',
+                        'estado'       => 'activo',
+                        'created_at'   => date('Y-m-d H:i:s'),
+                        'updated_at'   => date('Y-m-d H:i:s'),
+                    ]);
+                    $servicioId = $db->insertID();
+                } else {
+                    $servicioId = (int)$servicio['id'];
+                }
+
+                // Asegurar o buscar conversación srv_contacto entre la empresa y el candidato
+                $contacto = $db->table('srv_contacto')
+                    ->where('servicio_id', $servicioId)
+                    ->where('user_id', (int)$empresa['user_id'])
+                    ->get()->getRowArray();
+
+                if (!$contacto) {
+                    $db->table('srv_contacto')->insert([
+                        'servicio_id' => $servicioId,
+                        'user_id'     => (int)$empresa['user_id'],
+                        'nombre'      => $empresa['razon_social'] ?: 'Empresa',
+                        'telefono'    => $empresa['telefono'] ?: '505-8888-8888',
+                        'mensaje'     => $postMsg,
+                        'estado'      => 'en_revision',
+                        'ip_hash'     => hash('sha256', $this->request->getIPAddress()),
+                        'created_at'  => date('Y-m-d H:i:s'),
+                        'updated_at'  => date('Y-m-d H:i:s'),
+                    ]);
+                    $contactoId = $db->insertID();
+
+                    if ($db->tableExists('srv_contacto_mensaje')) {
+                        $db->table('srv_contacto_mensaje')->insert([
+                            'contacto_id'   => $contactoId,
+                            'emisor_tipo'   => 'prestador',
+                            'emisor_nombre' => $candNombre,
+                            'mensaje'       => $postMsg,
+                            'created_at'    => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                } else {
+                    $contactoId = (int)$contacto['id'];
+                    if (!empty($data['mensaje']) && $db->tableExists('srv_contacto_mensaje')) {
+                        $db->table('srv_contacto_mensaje')->insert([
+                            'contacto_id'   => $contactoId,
+                            'emisor_tipo'   => 'prestador',
+                            'emisor_nombre' => $candNombre,
+                            'mensaje'       => $postMsg,
+                            'created_at'    => date('Y-m-d H:i:s'),
+                        ]);
+                    }
+                }
+
+                if ($db->tableExists('not_notificacion')) {
+                    $db->table('not_notificacion')->insert([
+                        'user_id'    => (int)$empresa['user_id'],
+                        'tipo'       => 'postulacion',
+                        'titulo'     => '¡Nueva postulación recibida!',
+                        'mensaje'    => "{$candNombre} se ha postulado a tu vacante '{$vacante['titulo']}'",
+                        'url'        => '/app/solicitudes',
+                        'leida'      => 0,
+                        'created_at' => date('Y-m-d H:i:s'),
+                    ]);
+                }
             }
         } catch (\Throwable $th) {
-            // No romper el flujo si falla la notificación
+            // No romper el flujo si falla la notificación o sincronización de chat
         }
 
         return $this->ok([
