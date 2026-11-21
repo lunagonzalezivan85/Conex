@@ -234,8 +234,8 @@ const Registro: React.FC = () => {
   };
 
   const volverLogin = () => router.push('/login', 'back');
-  const irDashboard = () => router.push('/app/dashboard', 'root', 'replace');
-  const irPerfil = () => router.push('/app/perfil', 'root', 'replace');
+  const irDashboard = () => router.push('/app/dashboard', 'none', 'replace');
+  const irPerfil = () => router.push('/app/perfil', 'none', 'replace');
 
   return (
     <IonPage>

@@ -4163,6 +4163,15 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   transform: scale(0.98);
 }
 
+/* Prevenir bloqueo táctil o congelamiento de pointer-events tras transiciones de login a tabs */
+ion-router-outlet > .ion-page:not(.ion-page-hidden),
+#main-tabs-page,
+ion-tabs,
+ion-tabs ion-content,
+ion-tabs .ion-page:not(.ion-page-hidden) {
+  pointer-events: auto !important;
+}
+
 
 
 

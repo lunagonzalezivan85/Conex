@@ -9,6 +9,7 @@ import {
   chevronBackOutline,
 } from 'ionicons/icons';
 import { useLocation } from 'react-router-dom';
+import { Keyboard } from '@capacitor/keyboard';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../services/api';
 import '../theme/auth.css';
@@ -42,10 +43,18 @@ const Login: React.FC = () => {
       return;
     }
 
+    // Des-enfocar campo activo y cerrar teclado para liberar foco en Android
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+    Keyboard.hide().catch(() => {});
+
     setBusy(true);
     try {
       await login(usuario.trim(), password);
-      router.push('/app/dashboard', 'root', 'replace');
+      setTimeout(() => {
+        router.push('/app/dashboard', 'none', 'replace');
+      }, 30);
     } catch (err) {
       const e = err as ApiError;
       if (e.status === 429) {

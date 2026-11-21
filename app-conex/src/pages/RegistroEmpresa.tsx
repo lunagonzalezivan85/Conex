@@ -200,7 +200,7 @@ const RegistroEmpresa: React.FC = () => {
                     border: 'none',
                     cursor: 'pointer',
                   }}
-                  onClick={() => router.push('/app/perfil', 'root', 'replace')}
+                  onClick={() => router.push('/app/perfil', 'none', 'replace')}
                 >
                   <div
                     style={{
@@ -239,7 +239,7 @@ const RegistroEmpresa: React.FC = () => {
                     border: 'none',
                     cursor: 'pointer',
                   }}
-                  onClick={() => router.push('/app/dashboard', 'root', 'replace')}
+                  onClick={() => router.push('/app/dashboard', 'none', 'replace')}
                 >
                   <div
                     style={{
@@ -278,7 +278,7 @@ const RegistroEmpresa: React.FC = () => {
                     border: '1px solid #CBD5E1',
                     cursor: 'pointer',
                   }}
-                  onClick={() => router.push('/app/buscar', 'root', 'replace')}
+                  onClick={() => router.push('/app/buscar', 'none', 'replace')}
                 >
                   <div
                     style={{

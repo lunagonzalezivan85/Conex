@@ -32,7 +32,7 @@ const Splash: React.FC = () => {
     const t = setTimeout(() => {
       if (!cancelled) {
         setNavDone(true);
-        router.push(user ? '/app/dashboard' : '/login', 'root', 'replace');
+        router.push(user ? '/app/dashboard' : '/login', 'none', 'replace');
       }
     }, MIN_ANIM_MS);
     return () => { cancelled = true; clearTimeout(t); };
@@ -54,7 +54,7 @@ const Splash: React.FC = () => {
             <IonButton
               className="splash-retry"
               fill="outline"
-              onClick={() => router.push('/login', 'root', 'replace')}
+              onClick={() => router.push('/login', 'none', 'replace')}
             >
               Continuar
             </IonButton>
