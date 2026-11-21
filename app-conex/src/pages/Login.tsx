@@ -17,13 +17,20 @@ import '../theme/auth.css';
 const Login: React.FC = () => {
   const router = useIonRouter();
   const location = useLocation();
-  const { login } = useAuth();
+  const { user, login } = useAuth();
 
   const [vista, setVista] = useState<'opciones' | 'login'>('opciones');
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+
+  // Redirigir al dashboard si ya hay sesión activa
+  useEffect(() => {
+    if (user) {
+      router.push('/app/dashboard', 'root', 'replace');
+    }
+  }, [user, router]);
 
   // Si llega con ?modo=login, abrir directo el formulario
   useEffect(() => {
@@ -52,7 +59,7 @@ const Login: React.FC = () => {
     setBusy(true);
     try {
       await login(usuario.trim(), password);
-      router.push('/app/dashboard', 'forward', 'replace');
+      router.push('/app/dashboard', 'root', 'replace');
     } catch (err) {
       const e = err as ApiError;
       if (e.status === 429) {

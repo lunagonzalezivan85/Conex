@@ -141,7 +141,11 @@ const AppRoutes: React.FC = () => {
     <IonReactRouter>
       <IonRouterOutlet>
         <Route exact path="/" component={Splash} />
-        <Route exact path="/login" component={Login} />
+        <Route
+          exact
+          path="/login"
+          render={() => (user ? <Redirect to="/app/dashboard" /> : <Login />)}
+        />
         <Route exact path="/registro" component={Registro} />
         <Route exact path="/registro-empresa" component={RegistroEmpresa} />
         <Route

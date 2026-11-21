@@ -46,10 +46,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = useCallback(async (usuario: string, password: string) => {
     const res = await authApi.login(usuario, password);
     await saveToken(res.token);
-    const me = await authApi.me();
-    setUser(me.user);
+    let currentUser = res.user;
+    try {
+      const me = await authApi.me();
+      if (me?.user) currentUser = me.user;
+    } catch {
+      // Usar usuario retornado en res.user como fallback
+    }
+    setUser(currentUser);
     setLoading(false);
-    return me.user;
+    return currentUser;
   }, []);
 
   const logout = useCallback(async () => {
