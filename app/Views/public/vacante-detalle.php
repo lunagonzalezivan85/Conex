@@ -6,9 +6,29 @@
 
     <div class="card vd-header-card reveal">
         <div class="vd-header-top">
-            <div class="vd-header-icon"><?= strtoupper(substr($vacante['titulo'], 0, 1)) ?></div>
+            <div class="vd-header-icon">
+                <?php if (!empty($vacante['empresa_logo'])): ?>
+                    <img src="<?= base_url('uploads/' . $vacante['empresa_logo']) ?>" alt="<?= esc($vacante['empresa_nombre'] ?? '') ?>" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+                <?php else: ?>
+                    <?= strtoupper(substr($vacante['empresa_nombre'] ?? $vacante['titulo'], 0, 1)) ?>
+                <?php endif; ?>
+            </div>
             <div class="vd-header-info">
                 <h1 class="vd-title"><?= esc($vacante['titulo']) ?></h1>
+                <?php if (!empty($vacante['empresa_nombre'])): ?>
+                    <p class="vd-company">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        <strong><?= esc($vacante['empresa_nombre']) ?></strong>
+                        <?php if (!empty($vacante['empresa_verificada'])): ?>
+                            <span class="vd-badge-verified" title="Empresa verificada" style="display:inline-flex;align-items:center;margin-left:4px;color:#0FC6C2;">
+                                <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            </span>
+                        <?php endif; ?>
+                        <?php if (!empty($vacante['empresa_rubro'])): ?>
+                            <span class="vd-rubro"> · <?= esc($vacante['empresa_rubro']) ?></span>
+                        <?php endif; ?>
+                    </p>
+                <?php endif; ?>
                 <p class="vd-location">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                     <?= esc($vacante['ciudad'] ?? 'Ubicacion no especificada') ?><?= isset($vacante['region']) ? ' · ' . esc($vacante['region']) : '' ?>
@@ -97,6 +117,34 @@
     <div class="card vd-section">
         <h2 class="vd-section-title">Funciones</h2>
         <div class="vd-section-content"><?= nl2br(esc($vacante['funciones'])) ?></div>
+    </div>
+    <?php endif; ?>
+
+    <?php if (!empty($vacante['empresa_nombre'])): ?>
+    <div class="card vd-section">
+        <h2 class="vd-section-title">Sobre la Empresa</h2>
+        <div class="vd-section-content" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <div style="width:48px;height:48px;border-radius:12px;background:#1B2A4A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex-shrink:0;">
+                <?php if (!empty($vacante['empresa_logo'])): ?>
+                    <img src="<?= base_url('uploads/' . $vacante['empresa_logo']) ?>" alt="<?= esc($vacante['empresa_nombre']) ?>" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">
+                <?php else: ?>
+                    <?= strtoupper(substr($vacante['empresa_nombre'], 0, 1)) ?>
+                <?php endif; ?>
+            </div>
+            <div>
+                <strong style="font-size:16px;color:#1B2A4A;display:block;"><?= esc($vacante['empresa_nombre']) ?></strong>
+                <span style="font-size:13px;color:#64748B;">
+                    <?= !empty($vacante['empresa_rubro']) ? esc($vacante['empresa_rubro']) . ' · ' : '' ?>Publicada en CONEX
+                </span>
+                <?php if (!empty($vacante['empresa_sitio_web'])): ?>
+                    <div style="margin-top:4px;">
+                        <a href="<?= esc($vacante['empresa_sitio_web']) ?>" target="_blank" rel="noopener noreferrer" style="font-size:13px;color:#0F766E;font-weight:600;text-decoration:none;">
+                            Sitio web &rarr;
+                        </a>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
     </div>
     <?php endif; ?>
 

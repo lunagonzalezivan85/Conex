@@ -220,7 +220,7 @@ class PublicController extends BaseController
     {
         $vacanteModel = new VacanteModel();
         $vacante = $vacanteModel
-            ->select('vac_vacante.*, emp_empresa.razon_social as empresa_nombre_db, emp_empresa.logo as empresa_logo')
+            ->select('vac_vacante.*, emp_empresa.razon_social as empresa_nombre_db, emp_empresa.logo as empresa_logo, emp_empresa.verificada as empresa_verificada, emp_empresa.rubro as empresa_rubro, emp_empresa.sitio_web as empresa_sitio_web')
             ->join('emp_empresa', 'emp_empresa.id = vac_vacante.empresa_id', 'left')
             ->where('slug', $slug)->first();
 
@@ -232,7 +232,7 @@ class PublicController extends BaseController
         $db = \Config\Database::connect();
         $db->table('vac_vacante')->where('id', $vacante['id'])->set('vistas', 'vistas+1', false)->update();
         $vacante['vistas'] = (int)$vacante['vistas'] + 1;
-        $vacante['empresa_nombre'] = $vacante['empresa_nombre_db'] ?? $vacante['empresa_externa'];
+        $vacante['empresa_nombre'] = !empty($vacante['empresa_nombre_db']) ? $vacante['empresa_nombre_db'] : ($vacante['empresa_externa'] ?? null);
         $vacante['poster_url'] = !empty($vacante['poster']) ? base_url('uploads/' . $vacante['poster']) : null;
         $vacante['mi_reaccion'] = $this->reaccionWeb($vacante['id']);
 
