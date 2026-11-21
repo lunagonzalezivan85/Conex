@@ -3,7 +3,7 @@
         <div class="text-center mb-4">
             <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-2">Transparencia y Seguridad</span>
             <h1 class="fw-bold" style="color: #1B2A4A;">Política de Privacidad</h1>
-            <p class="text-muted">Última actualización: 8 de noviembre de 2026</p>
+            <p class="text-muted">Última actualización: 21 de noviembre de 2026</p>
         </div>
 
         <div class="content" style="color: #334155; line-height: 1.75; font-size: 15px;">
@@ -18,7 +18,8 @@
                 <li><strong>Perfil profesional y laboral:</strong> Profesión u oficio, nivel de experiencia, resumen profesional ("Sobre mí"), habilidades técnicas, historial de empleos anteriores y formación académica.</li>
                 <li><strong>Verificación de identidad:</strong> Número de cédula de identidad y fecha de nacimiento. En la app móvil, el usuario puede escanear su cédula para autocompletar su registro de forma segura.</li>
                 <li><strong>Documentos y archivos:</strong> Currículum Vitae (CV) en formato PDF o Word y fotografía de perfil (avatar).</li>
-                <li><strong>Ubicación geográfica:</strong> Datos de ubicación aproximada o precisa (coordenadas GPS) proporcionados por el dispositivo móvil cuando el usuario activa la búsqueda por cercanía o el mapa interactivo.</li>
+                <li><strong>Comunicaciones dentro de la app:</strong> Mensajes enviados y recibidos en el chat interno entre empresas y candidatos / clientes y prestadores, incluyendo propuestas económicas (cotizaciones) y mensajes automáticos del sistema (ej. aviso de conversación finalizada). Los mensajes quedan almacenados en nuestros servidores para mantener el historial de la conversación.</li>
+                <li><strong>Ubicación geográfica:</strong> Datos de ubicación aproximada o precisa (coordenadas GPS) proporcionados por el dispositivo móvil cuando el usuario activa la búsqueda por cercanía o el mapa interactivo, o cuando el usuario decide compartir su ubicación actual dentro de una conversación de chat.</li>
             </ul>
 
             <h3 class="fw-bold mt-4 mb-3" style="color: #1B2A4A;">2. Uso de Permisos en la Aplicación Móvil</h3>
@@ -34,13 +35,25 @@
             <ul>
                 <li>Conectar postulantes con vacantes de empleo publicadas por empresas verificadas.</li>
                 <li>Permitir que clientes encuentren y contacten a prestadores de servicios independientes y oficios calificados.</li>
-                <li>Gestionar solicitudes de contacto y postulaciones.</li>
+                <li>Gestionar solicitudes de contacto, postulaciones y la mensajería interna entre las partes.</li>
+                <li>Enviar notificaciones dentro de la app sobre postulaciones, mensajes y cambios de estado.</li>
                 <li>Garantizar la autenticidad y seguridad de las cuentas de usuario.</li>
             </ul>
 
             <h3 class="fw-bold mt-4 mb-3" style="color: #1B2A4A;">4. Privacidad del Prestador y Contacto Seguro</h3>
             <p>
                 CONEX protege el número de teléfono del usuario: en el directorio y mapa público solo se muestra el nombre público (ej. "Juan P.") y oficio. El número de teléfono solo se revela entre postulante y empleador / cliente cuando una solicitud de contacto ha sido formalmente aceptada por ambas partes.
+            </p>
+            <p>
+                Toda la comunicación inicial se realiza a través del <strong>chat interno de la plataforma</strong>, sin necesidad de compartir datos de contacto. La empresa puede <strong>finalizar una conversación</strong> en cualquier momento; al hacerlo, la conversación queda cerrada de forma permanente, se registra un aviso automático en el hilo y ninguna de las partes puede seguir enviando mensajes. El historial de mensajes se conserva para la seguridad y trazabilidad de ambas partes.
+            </p>
+            <p>
+                Cuando el usuario elige contactar por <strong>WhatsApp o llamada telefónica</strong>, la app abre el servicio externo correspondiente; a partir de ese momento la comunicación queda fuera de la plataforma y se rige por las políticas del proveedor externo.
+            </p>
+
+            <h3 class="fw-bold mt-4 mb-3" style="color: #1B2A4A;">4.1 Postulación con Perfil Digital</h3>
+            <p>
+                El candidato puede postularse a una vacante <strong>sin subir un CV</strong>, utilizando su Perfil Digital CONEX. En ese caso, la empresa reclutadora recibe los datos del perfil profesional del candidato (nombre, profesión, experiencia, formación académica y habilidades) tal como fueron registrados en la plataforma. Al postularse, el candidato acepta compartir dicha información con la empresa que publicó la vacante.
             </p>
 
             <h3 class="fw-bold mt-4 mb-3" style="color: #1B2A4A;">5. Seguridad y Cifrado</h3>

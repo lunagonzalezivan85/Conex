@@ -625,7 +625,7 @@
   padding: 8px 18px;
 }
 .vd-meta-card {
-  border: 1.5px solid rgba(128, 128, 128, 0.18);
+  border: 1.5px solid var(--cx-border, rgba(128, 128, 128, 0.18));
   border-radius: 16px;
   padding: 12px 14px;
   display: flex;
@@ -691,7 +691,7 @@
   display: flex; align-items: center; gap: 12px;
   padding: 14px 16px;
   border-radius: 16px;
-  border: 1.5px solid rgba(128, 128, 128, 0.18);
+  border: 1.5px solid var(--cx-border, rgba(128, 128, 128, 0.18));
 }
 .vd-empresa-card > ion-icon { font-size: 24px; color: #1B2A4A; }
 .vd-empresa-card-text { display: flex; flex-direction: column; gap: 2px; }
@@ -782,3 +782,25 @@
   resize: none;
 }
 .vd-msg-field textarea::placeholder { color: #9aa0a6; }
+
+/* ============ Tema oscuro ============ */
+@media (prefers-color-scheme: dark) {
+  /* Elementos que usan navy fijo sobre superficies oscuras */
+  .buscar-map-error ion-icon { color: var(--ion-text-color); }
+  .buscar-empty ion-icon { color: var(--ion-text-color); }
+  .fm-cats .cat-btn.sel .cat-label { color: var(--ion-text-color); }
+  .fm-cats .cat-btn.sel .cat-icon { box-shadow: 0 0 0 2.5px var(--cx-turq, #0FC6C2); }
+  .fm-clear { color: var(--cx-muted); }
+  .fm-pill.active {
+    background: var(--ion-color-primary);
+    border-color: var(--ion-color-primary);
+    color: var(--ion-color-primary-contrast);
+  }
+  .fm-geo ion-icon { color: var(--ion-text-color); }
+  .fm-geo.active { border-color: var(--cx-turq, #0FC6C2); background: rgba(15, 198, 194, 0.08); }
+  .fm-geo-dot.on { border-color: var(--cx-turq, #0FC6C2); }
+  .fm-radio-label strong { color: var(--ion-text-color); }
+  .fm-range { --bar-background-active: var(--cx-turq, #0FC6C2); --knob-background: var(--cx-turq, #0FC6C2); }
+  .fm-field ion-icon { color: var(--cx-muted); }
+  .fm-field:focus-within { border-color: var(--cx-turq, #0FC6C2); box-shadow: 0 0 0 3px rgba(15, 198, 194, 0.15); }
+}

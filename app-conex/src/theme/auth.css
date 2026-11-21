@@ -153,3 +153,26 @@
   color: #64748B;
 }
 
+
+/* ============ Tema oscuro ============ */
+@media (prefers-color-scheme: dark) {
+  /* Card "Ya tengo una cuenta": navy fijo sobre card oscura = ilegible */
+  .portal-btn-cuenta {
+    color: var(--ion-text-color);
+    border-color: var(--cx-border, rgba(255, 255, 255, 0.16));
+    box-shadow: none;
+  }
+  .portal-btn-cuenta .portal-btn-icon {
+    background: var(--cx-surface, rgba(255, 255, 255, 0.07));
+    color: var(--ion-text-color);
+  }
+  .portal-btn-cuenta .portal-btn-sub {
+    color: var(--cx-muted, #8a92a6);
+  }
+  .auth-sub { color: var(--cx-muted, #8a92a6); }
+}
+
+/* Link de texto bajo formularios (¿No tienes cuenta? Crear cuenta) */
+.login-registro-link {
+  --color: var(--cx-turq-text, #0A8F8C);
+}

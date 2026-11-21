@@ -776,7 +776,7 @@ class CandidatoController extends BaseApiController
                     post_postulacion.mensaje, post_postulacion.estado, post_postulacion.created_at,
                     vac_vacante.titulo as vacante_titulo,
                     auth_user.id as cand_user_id, auth_user.nombre, auth_user.apellido, auth_user.avatar,
-                    cand_candidato.profesion, cand_candidato.ciudad, cand_candidato.telefono')
+                    cand_candidato.profesion, cand_candidato.ciudad, auth_user.telefono')
                 ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id')
                 ->join('cand_candidato', 'cand_candidato.id = post_postulacion.candidato_id')
                 ->join('auth_user', 'auth_user.id = cand_candidato.user_id')
@@ -932,8 +932,13 @@ class CandidatoController extends BaseApiController
             $accion = 'negociar';
         }
 
-        if (!in_array($accion, ['aceptar', 'rechazar', 'negociar', 'mensaje'], true) && empty($mensajeTexto)) {
+        if (!in_array($accion, ['aceptar', 'rechazar', 'negociar', 'mensaje', 'finalizar'], true) && empty($mensajeTexto)) {
             return $this->fail('Debes indicar una acción o escribir un mensaje de respuesta', 422);
+        }
+
+        // Conversación cerrada: nadie puede volver a escribir ni cambiar estado
+        if (($sol['estado'] ?? '') === 'finalizado') {
+            return $this->fail('Esta conversación fue finalizada. Ya no se pueden enviar mensajes.', 423);
         }
 
         $nuevoEstado = $sol['estado'];
@@ -941,6 +946,8 @@ class CandidatoController extends BaseApiController
             $nuevoEstado = 'aceptado';
         } elseif ($accion === 'rechazar') {
             $nuevoEstado = 'rechazado';
+        } elseif ($accion === 'finalizar') {
+            $nuevoEstado = 'finalizado';
         }
 
         // Actualizar registro principal
@@ -1012,11 +1019,24 @@ class CandidatoController extends BaseApiController
                 ->get()->getResultArray();
         }
 
+        // Si la empresa finaliza el contacto, dejar constancia en el hilo
+        if ($accion === 'finalizar' && $db->tableExists('srv_contacto_mensaje')) {
+            $db->table('srv_contacto_mensaje')->insert([
+                'contacto_id'   => (int)$id,
+                'emisor_tipo'   => 'sistema',
+                'emisor_nombre' => 'CONEX',
+                'mensaje'       => 'La empresa finalizó esta conversación. Ya no se pueden enviar mensajes.',
+                'created_at'    => date('Y-m-d H:i:s'),
+            ]);
+        }
+
         $msgRetorno = 'Respuesta enviada con éxito.';
         if ($accion === 'aceptar') {
             $msgRetorno = 'Solicitud aceptada. Ya puedes coordinar con el cliente.';
         } elseif ($accion === 'rechazar') {
             $msgRetorno = 'Solicitud rechazada.';
+        } elseif ($accion === 'finalizar') {
+            $msgRetorno = 'Conversación finalizada. El candidato ya no puede responder.';
         } elseif ($precioPropuesto !== null) {
             $msgRetorno = 'Propuesta de negociación enviada al cliente.';
         }
@@ -1061,7 +1081,7 @@ class CandidatoController extends BaseApiController
                 TRIM(CONCAT(auth_user.nombre, " ", COALESCE(auth_user.apellido, ""))) AS prestador_nombre,
                 auth_user.avatar AS prestador_avatar,
                 auth_user.created_at AS prestador_miembro_desde,
-                IF(srv_contacto.estado = "aceptado" OR srv_contacto.estado = "en_revision", COALESCE(cand_candidato.telefono, auth_user.telefono), NULL) AS prestador_telefono,
+                IF(srv_contacto.estado = "aceptado" OR srv_contacto.estado = "en_revision", auth_user.telefono, NULL) AS prestador_telefono,
                 IF(srv_contacto.estado = "aceptado" OR srv_contacto.estado = "en_revision", srv_contacto.telefono, NULL) AS cliente_telefono_revelado')
             ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
             ->join('cand_candidato', 'cand_candidato.id = srv_servicio.candidato_id')

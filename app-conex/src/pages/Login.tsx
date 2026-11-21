@@ -167,7 +167,7 @@ const Login: React.FC = () => {
                       alignItems: 'center',
                       gap: 4,
                       fontSize: 14,
-                      color: '#1B2A4A',
+                      color: 'var(--ion-text-color)',
                       fontWeight: 600,
                       cursor: 'pointer',
                       padding: 4,

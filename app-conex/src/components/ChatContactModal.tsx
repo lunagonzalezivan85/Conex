@@ -4,7 +4,6 @@ import {
   IonButton,
   IonIcon,
   IonSpinner,
-  useIonToast,
   useIonRouter,
 } from '@ionic/react';
 import {
@@ -20,6 +19,7 @@ import {
 } from 'ionicons/icons';
 import { useAuth } from '../context/AuthContext';
 import { serviciosApi } from '../services/api';
+import { useCxToast } from '../utils/cxFeedback';
 
 export interface PrestadorChatInfo {
   id: number;
@@ -49,7 +49,7 @@ export const ChatContactModal: React.FC<ChatContactModalProps> = ({
 }) => {
   const { user } = useAuth();
   const router = useIonRouter();
-  const [presentToast] = useIonToast();
+  const [presentToast] = useCxToast();
 
   const [nombre, setNombre] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -247,7 +247,7 @@ export const ChatContactModal: React.FC<ChatContactModalProps> = ({
                 <div className="cx-deal-card outgoing">
                   <div className="cx-deal-header">
                     <div className="cx-deal-title-box">
-                      <span className="cx-deal-icon">💰</span>
+                      <span className="cx-deal-icon"><IonIcon icon={cashOutline} /></span>
                       <span>Tu Presupuesto Estimado</span>
                     </div>
                     <span className="cx-deal-status pendiente">Pendiente</span>

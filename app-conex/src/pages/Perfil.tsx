@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   IonContent, IonPage, IonHeader, IonToolbar, IonTitle,
   IonList, IonItem, IonLabel, IonIcon, IonButton, IonSpinner,
-  IonToggle, IonModal, IonBadge, IonRefresher, IonRefresherContent,
-  useIonAlert, useIonToast, useIonRouter, RefresherEventDetail,
+  IonToggle, IonModal, IonBadge, IonRefresher, IonRefresherContent, useIonRouter, RefresherEventDetail,
 } from '@ionic/react';
 import {
   personOutline, mailOutline, callOutline, briefcaseOutline,
@@ -18,6 +17,8 @@ import { Geolocation } from '@capacitor/geolocation';
 import { useAuth } from '../context/AuthContext';
 import { candidatoApi, empresaApi, vacantesApi, usuarioApi, CandidatoPerfilFull } from '../services/api';
 import '../theme/app.css';
+import { toNameCase, toSentenceCase, toUpperName } from '../utils/text';
+import { useCxToast, useCxAlert } from '../utils/cxFeedback';
 
 type EditModalType =
   | null
@@ -31,11 +32,24 @@ type EditModalType =
   | 'cvs'
   | 'empresa';
 
+const DISPONIBILIDAD_LABELS: Record<string, string> = {
+  inmediata: 'Inmediata',
+  '15_dias': 'En 15 días',
+  '30_dias': 'En 30 días',
+  a_convenir: 'A convenir',
+};
+const MODALIDAD_LABELS: Record<string, string> = {
+  presencial: 'Presencial',
+  remoto: 'Remoto',
+  hibrido: 'Híbrido',
+  indiferente: 'Cualquiera',
+};
+
 const Perfil: React.FC = () => {
   const { user, logout, refresh } = useAuth();
   const router = useIonRouter();
-  const [presentAlert] = useIonAlert();
-  const [presentToast] = useIonToast();
+  const [presentAlert] = useCxAlert();
+  const [presentToast] = useCxToast();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const cvInputRef = useRef<HTMLInputElement>(null);
 
@@ -322,17 +336,17 @@ const Perfil: React.FC = () => {
     setSaving(true);
     try {
       await candidatoApi.actualizarPerfil({
-        nombre: personalForm.nombre.trim(),
-        apellido: personalForm.apellidos.trim(),
-        apellidos: personalForm.apellidos.trim(),
+        nombre: toUpperName(personalForm.nombre),
+        apellido: toUpperName(personalForm.apellidos),
+        apellidos: toUpperName(personalForm.apellidos),
         usuario: personalForm.usuario.trim(),
         email: personalForm.email.trim(),
         telefono: personalForm.telefono.trim(),
         fecha_nacimiento: personalForm.fecha_nacimiento || null,
-        ciudad: personalForm.ciudad.trim(),
-        region: personalForm.region.trim(),
-        pais: personalForm.pais.trim(),
-        direccion: personalForm.direccion.trim(),
+        ciudad: toNameCase(personalForm.ciudad),
+        region: toNameCase(personalForm.region),
+        pais: toNameCase(personalForm.pais),
+        direccion: toSentenceCase(personalForm.direccion),
       });
       presentToast({ message: 'Datos personales guardados', duration: 2200, color: 'success' });
       setActiveModal(null);
@@ -350,7 +364,7 @@ const Perfil: React.FC = () => {
     setSaving(true);
     try {
       await candidatoApi.actualizarPerfil({
-        profesion: profForm.profesion.trim(),
+        profesion: toSentenceCase(profForm.profesion),
         nivel_experiencia_id: profForm.nivel_experiencia_id ? Number(profForm.nivel_experiencia_id) : null,
         sobre_mi: profForm.sobre_mi.trim(),
         disponibilidad: profForm.disponibilidad,
@@ -743,8 +757,8 @@ const Perfil: React.FC = () => {
               </div>
               <div className="pf-sec-body">
                 <div className="pf-kv"><span>Profesión / Oficio:</span> <strong>{cand.profesion || 'Sin definir'}</strong></div>
-                <div className="pf-kv"><span>Disponibilidad:</span> <strong>{cand.disponibilidad || 'Inmediata'}</strong></div>
-                <div className="pf-kv"><span>Modalidad:</span> <strong>{cand.modalidad_preferida || 'Presencial'}</strong></div>
+                <div className="pf-kv"><span>Disponibilidad:</span> <strong>{DISPONIBILIDAD_LABELS[cand.disponibilidad] || cand.disponibilidad || 'Inmediata'}</strong></div>
+                <div className="pf-kv"><span>Modalidad:</span> <strong>{MODALIDAD_LABELS[cand.modalidad_preferida] || cand.modalidad_preferida || 'Presencial'}</strong></div>
                 {cand.salario_esperado_usd && (
                   <div className="pf-kv"><span>Expectativa salarial:</span> <strong>${cand.salario_esperado_usd}</strong></div>
                 )}
@@ -1046,7 +1060,7 @@ const Perfil: React.FC = () => {
         )}
 
         <div style={{ padding: '8px 16px 36px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--cx-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>
             Configuración de Cuenta y Privacidad
           </div>
           <IonButton

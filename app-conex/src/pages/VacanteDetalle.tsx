@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   IonContent, IonPage, IonHeader, IonToolbar,
-  IonButtons, IonBackButton, IonButton, IonIcon, IonSpinner,
-  useIonAlert, useIonToast, useIonRouter,
+  IonButtons, IonBackButton, IonButton, IonIcon, IonSpinner, useIonRouter,
   IonModal, IonTextarea,
 } from '@ionic/react';
 import { useParams } from 'react-router-dom';
@@ -15,7 +14,9 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { candidatoApi, vacantesApi } from '../services/api';
 import '../theme/app.css';
+import { toSentenceCase, toUpperName } from '../utils/text';
 import '../theme/buscar.css';
+import { useCxToast, useCxAlert } from '../utils/cxFeedback';
 
 const cleanPhone = (tel?: string | null) => {
   if (!tel) return '';
@@ -24,10 +25,10 @@ const cleanPhone = (tel?: string | null) => {
 };
 
 const PREGUNTAS_RAPIDAS = [
-  '👋 Hola, ¿esta vacante sigue disponible?',
-  '🕒 ¿Cuáles son los horarios laborales del puesto?',
-  '📍 ¿El puesto es presencial, remoto o híbrido?',
-  '💼 ¿Aceptan postulantes sin experiencia previa?',
+  'Hola, ¿esta vacante sigue disponible?',
+  '¿Cuáles son los horarios laborales del puesto?',
+  '¿El puesto es presencial, remoto o híbrido?',
+  '¿Aceptan postulantes sin experiencia previa?',
 ];
 
 /**
@@ -49,8 +50,8 @@ const VacanteDetalle: React.FC = () => {
   const [enviando, setEnviando] = useState(false);
   const [chateando, setChateando] = useState(false);
   const [yaPostulado, setYaPostulado] = useState(false);
-  const [presentAlert] = useIonAlert();
-  const [presentToast] = useIonToast();
+  const [presentAlert] = useCxAlert();
+  const [presentToast] = useCxToast();
 
   useEffect(() => {
     (async () => {
@@ -159,7 +160,7 @@ const VacanteDetalle: React.FC = () => {
     },
     (vacante?.salario_min || vacante?.salario_max) && {
       icon: cashOutline, label: 'Salario',
-      value: `$${vacante.salario_min} - $${vacante.salario_max}`,
+      value: `${vacante.moneda === 'USD' ? '$' : 'C$'}${Number(vacante.salario_min || 0).toLocaleString()} - ${vacante.moneda === 'USD' ? '$' : 'C$'}${Number(vacante.salario_max || 0).toLocaleString()}`,
     },
     vacante?.anios_experiencia !== undefined && vacante?.anios_experiencia !== null && {
       icon: briefcaseOutline, label: 'Experiencia',
@@ -224,10 +225,10 @@ const VacanteDetalle: React.FC = () => {
               ? <img src={vacante.empresa_logo_url} alt={vacante.empresa_nombre} />
               : <span className="vd-logo-letter">{(vacante.empresa_nombre || 'E')[0].toUpperCase()}</span>}
           </div>
-          <h1 className="vd-titulo">{vacante.titulo}</h1>
+          <h1 className="vd-titulo">{toSentenceCase(vacante.titulo)}</h1>
           <div className="vd-empresa">
             <IonIcon icon={businessOutline} />
-            <span>{vacante.empresa_nombre}</span>
+            <span>{toUpperName(vacante.empresa_nombre)}</span>
             {Number(vacante.empresa_verificada) === 1 && (
               <IonIcon icon={checkmarkCircle} className="vd-verified" />
             )}
@@ -298,7 +299,7 @@ const VacanteDetalle: React.FC = () => {
             <div className="vd-empresa-card">
               <IonIcon icon={businessOutline} />
               <div className="vd-empresa-card-text">
-                <strong>{vacante.empresa_nombre}</strong>
+                <strong>{toUpperName(vacante.empresa_nombre)}</strong>
                 {vacante.empresa_sitio_web && (
                   <a href={vacante.empresa_sitio_web} target="_blank" rel="noreferrer">
                     <IonIcon icon={globeOutline} /> {vacante.empresa_sitio_web}
@@ -339,9 +340,9 @@ const VacanteDetalle: React.FC = () => {
                   onClick={abrirConsulta}
                   disabled={chateando}
                   style={{
-                    background: '#F1F5F9',
-                    color: '#1B2A4A',
-                    border: '1px solid #CBD5E1',
+                    background: 'var(--cx-surface)',
+                    color: 'var(--ion-text-color)',
+                    border: '1px solid var(--cx-border)',
                     borderRadius: 14,
                     padding: '12px 16px',
                     fontWeight: 700,
@@ -385,8 +386,8 @@ const VacanteDetalle: React.FC = () => {
             {/* Tarjeta de Empresa y Vacante */}
             <div
               style={{
-                background: '#F8FAFC',
-                border: '1px solid #E2E8F0',
+                background: 'var(--cx-surface)',
+                border: '1px solid var(--cx-border)',
                 borderRadius: 14,
                 padding: '12px 14px',
                 display: 'flex',
@@ -418,10 +419,10 @@ const VacanteDetalle: React.FC = () => {
                 )}
               </div>
               <div style={{ minWidth: 0, flex: 1 }}>
-                <div style={{ fontWeight: 800, fontSize: 14, color: '#1B2A4A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {vacante?.empresa_nombre || 'Empresa Reclutadora'}
+                <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--ion-text-color)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {toUpperName(vacante?.empresa_nombre) || 'Empresa Reclutadora'}
                 </div>
-                <div style={{ fontSize: 12, color: '#64748B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ fontSize: 12, color: 'var(--cx-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   Vacante: {vacante?.titulo}
                 </div>
               </div>
@@ -447,7 +448,7 @@ const VacanteDetalle: React.FC = () => {
 
             {/* Preguntas rápidas sugeridas */}
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cx-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Preguntas sugeridas (toca para seleccionar)
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -458,7 +459,7 @@ const VacanteDetalle: React.FC = () => {
                     onClick={() => setMensajeConsulta(p)}
                     style={{
                       background: mensajeConsulta === p ? '#EEF2FF' : '#FFFFFF',
-                      border: mensajeConsulta === p ? '1.5px solid #4F46E5' : '1px solid #E2E8F0',
+                      border: mensajeConsulta === p ? '1.5px solid #4F46E5' : '1px solid var(--cx-border)',
                       borderRadius: 10,
                       padding: '8px 12px',
                       fontSize: 13,
@@ -477,7 +478,7 @@ const VacanteDetalle: React.FC = () => {
 
             {/* Mensaje personalizado */}
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#475569', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--cx-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Tu mensaje o consulta
               </label>
               <textarea
@@ -488,7 +489,7 @@ const VacanteDetalle: React.FC = () => {
                 style={{
                   width: '100%',
                   borderRadius: 12,
-                  border: '1px solid #CBD5E1',
+                  border: '1px solid var(--cx-border)',
                   padding: '10px 12px',
                   fontSize: 14,
                   fontFamily: 'inherit',
@@ -534,8 +535,8 @@ const VacanteDetalle: React.FC = () => {
 
             {/* Alternativas de contacto directo si hay teléfono */}
             {vacante?.empresa_telefono && (
-              <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid #E2E8F0' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: 8 }}>
+              <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid var(--cx-border)' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cx-muted)', textTransform: 'uppercase', marginBottom: 8 }}>
                   Contacto directo con reclutamiento
                 </div>
                 <div style={{ display: 'flex', gap: 10 }}>
@@ -569,9 +570,9 @@ const VacanteDetalle: React.FC = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: 6,
-                      background: '#F1F5F9',
-                      color: '#1B2A4A',
-                      border: '1px solid #CBD5E1',
+                      background: 'var(--cx-surface)',
+                      color: 'var(--ion-text-color)',
+                      border: '1px solid var(--cx-border)',
                       borderRadius: 12,
                       padding: '10px 12px',
                       fontWeight: 700,

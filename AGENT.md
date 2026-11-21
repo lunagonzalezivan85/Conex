@@ -35,6 +35,16 @@ Vars disponibles: `--cx-navy`, `--cx-orange`, `--cx-turq`, `--cx-grad`, `--cx-gr
 - Footer CTAs naranja con sombra `rgba(249,115,22,.4)`
 - Radius: inputs/pills 14–20px, cards 16–24px, modales bottom-sheet 24px top
 
+## Regla de texto — normalización de input libre (OBLIGATORIA)
+
+La gente escribe "a como quiere". Toda la app normaliza con `src/utils/text.ts`:
+
+- **Nombres de persona y empresa → TODO MAYÚSCULAS** con `toUpperName()` ("ux empresa test sa" → "UX EMPRESA TEST SA"). Aplica en display (chat header, items, cards) y al guardar (registro, perfil, razón social).
+- **Títulos de vacante, profesiones y oficios → Primera mayúscula, resto minúscula** con `toSentenceCase()` ("maestro de obra"/"MAESTRO DE OBRA" → "Maestro de obra").
+- **Lugares (ciudad/región/país) → por palabra** con `toNameCase()` ("managua" → "Managua"; conectores de/del/la/y quedan en minúscula).
+- `toSentenceCase`/`toNameCase` solo transforman si el texto está TODO en minúsculas o TODO en mayúsculas — el mixed-case bien escrito se respeta.
+- Al mostrar o guardar cualquier campo de texto libre nuevo, pasarlo por la función correcta. NO usar `text-transform` CSS para esto (capitalize pone "Maestro De Obra").
+
 ## Regla obligatoria — evaluar UX + diseño en TODO cambio
 
 Antes de proponer o implementar cualquier cambio visual o de flujo:

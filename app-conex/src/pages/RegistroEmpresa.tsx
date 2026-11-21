@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import {
   IonContent, IonPage, IonInput, IonButton, IonIcon, IonText,
-  IonSpinner, IonItem, IonToggle, IonSelect, IonSelectOption,
+  IonSpinner, IonItem, IonToggle,
   IonInputPasswordToggle, useIonRouter,
 } from '@ionic/react';
 import {
   businessOutline, personOutline, mailOutline, callOutline,
   lockClosedOutline, chevronBackOutline, checkmarkCircle,
   sparklesOutline, cardOutline, briefcaseOutline, searchOutline,
-  imageOutline, arrowForwardOutline,
+  imageOutline, arrowForwardOutline, locationOutline, gridOutline,
 } from 'ionicons/icons';
+import { toUpperName } from '../utils/text';
 import { authApi, saveToken, ApiError } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import CxAutocomplete from '../components/CxAutocomplete';
 import '../theme/auth.css';
 
 const RUBROS = [
@@ -102,9 +104,9 @@ const RegistroEmpresa: React.FC = () => {
     try {
       const res = await authApi.registerEmpresa({
         tipo_cuenta: 'empresa',
-        razon_social: razonSocial.trim(),
-        nombre: nombre.trim(),
-        apellido: apellido.trim(),
+        razon_social: toUpperName(razonSocial),
+        nombre: toUpperName(nombre),
+        apellido: toUpperName(apellido),
         email: email.trim().toLowerCase(),
         telefono: telefono.trim(),
         password,
@@ -170,17 +172,17 @@ const RegistroEmpresa: React.FC = () => {
                   textAlign: 'left',
                 }}
               >
-                <div style={{ fontWeight: 700, color: '#0F766E', fontSize: 13, marginBottom: 4 }}>
+                <div style={{ fontWeight: 700, color: 'var(--cx-turq-text)', fontSize: 13, marginBottom: 4 }}>
                   🎁 BENEFICIOS DE TU PRUEBA GRATUITA:
                 </div>
-                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: '#334155', lineHeight: '1.6' }}>
+                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: 'var(--ion-text-color)', lineHeight: '1.6' }}>
                   <li>5 vacantes activas simultáneas</li>
                   <li>Acceso a 8 candidatos completos</li>
                   <li>30 días sin costo (Planes en USD)</li>
                 </ul>
               </div>
 
-              <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 14px', color: '#1B2A4A' }}>
+              <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 14px', color: 'var(--ion-text-color)' }}>
                 ¿Cómo quieres armar tu perfil o razón social?
               </h2>
 
@@ -267,15 +269,15 @@ const RegistroEmpresa: React.FC = () => {
                   type="button"
                   className="portal-btn"
                   style={{
-                    background: '#F1F5F9',
-                    color: '#1B2A4A',
+                    background: 'var(--cx-surface)',
+                    color: 'var(--ion-text-color)',
                     textAlign: 'left',
                     padding: '14px 16px',
                     borderRadius: 14,
                     display: 'flex',
                     alignItems: 'center',
                     gap: 12,
-                    border: '1px solid #CBD5E1',
+                    border: '1px solid var(--cx-border)',
                     cursor: 'pointer',
                   }}
                   onClick={() => router.push('/app/buscar', 'none', 'replace')}
@@ -285,12 +287,12 @@ const RegistroEmpresa: React.FC = () => {
                       width: 40,
                       height: 40,
                       borderRadius: 10,
-                      background: '#E2E8F0',
+                      background: 'var(--cx-surface)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: 20,
-                      color: '#0F766E',
+                      color: 'var(--cx-turq-text)',
                       flexShrink: 0,
                     }}
                   >
@@ -298,7 +300,7 @@ const RegistroEmpresa: React.FC = () => {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: 14 }}>Explorar candidatos disponibles</div>
-                    <div style={{ fontSize: 12, color: '#64748B' }}>Consulta hasta 8 perfiles completos</div>
+                    <div style={{ fontSize: 12, color: 'var(--cx-muted)' }}>Consulta hasta 8 perfiles completos</div>
                   </div>
                   <IonIcon icon={arrowForwardOutline} />
                 </button>
@@ -327,7 +329,7 @@ const RegistroEmpresa: React.FC = () => {
                   alignItems: 'center',
                   gap: 4,
                   fontSize: 14,
-                  color: '#1B2A4A',
+                  color: 'var(--ion-text-color)',
                   fontWeight: 600,
                   cursor: 'pointer',
                   padding: 4,
@@ -370,7 +372,7 @@ const RegistroEmpresa: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="auth-form">
               {/* Razón Social */}
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                 Nombre de la Empresa o Razón Social *
               </label>
               <IonItem className="auth-item" lines="none">
@@ -384,8 +386,8 @@ const RegistroEmpresa: React.FC = () => {
               </IonItem>
 
               {/* RUC (Opcional) */}
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                Número RUC <small style={{ color: '#94A3B8' }}>(Opcional)</small>
+              <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--cx-muted)', display: 'block', marginBottom: 4 }}>
+                Número RUC <small style={{ color: 'var(--cx-muted)' }}>(Opcional)</small>
               </label>
               <IonItem className="auth-item" lines="none">
                 <IonIcon icon={cardOutline} slot="start" />
@@ -397,9 +399,9 @@ const RegistroEmpresa: React.FC = () => {
               </IonItem>
 
               {/* Nombre y Apellido del Contacto */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                     Nombre Contacto *
                   </label>
                   <IonItem className="auth-item" lines="none">
@@ -413,7 +415,7 @@ const RegistroEmpresa: React.FC = () => {
                   </IonItem>
                 </div>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                     Apellido Contacto *
                   </label>
                   <IonItem className="auth-item" lines="none">
@@ -428,8 +430,8 @@ const RegistroEmpresa: React.FC = () => {
               </div>
 
               {/* Cédula del Contacto (Opcional, acepta letras) */}
-              <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                Cédula del Representante <small style={{ color: '#94A3B8' }}>(Opcional — acepta letras)</small>
+              <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--cx-muted)', display: 'block', marginBottom: 4 }}>
+                Cédula del Representante <small style={{ color: 'var(--cx-muted)' }}>(Opcional — acepta letras)</small>
               </label>
               <IonItem className="auth-item" lines="none">
                 <IonIcon icon={cardOutline} slot="start" />
@@ -441,7 +443,7 @@ const RegistroEmpresa: React.FC = () => {
               </IonItem>
 
               {/* Teléfono / WhatsApp */}
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                 Teléfono o WhatsApp corporativo *
               </label>
               <IonItem className="auth-item" lines="none">
@@ -456,7 +458,7 @@ const RegistroEmpresa: React.FC = () => {
               </IonItem>
 
               {/* Correo Electrónico */}
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                 Correo electrónico corporativo *
               </label>
               <IonItem className="auth-item" lines="none">
@@ -471,7 +473,7 @@ const RegistroEmpresa: React.FC = () => {
               </IonItem>
 
               {/* Contraseña */}
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                 Contraseña de acceso *
               </label>
               <IonItem className="auth-item" lines="none">
@@ -488,42 +490,30 @@ const RegistroEmpresa: React.FC = () => {
               </IonItem>
 
               {/* Rubro y Ciudad */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginTop: 4 }}>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--cx-muted)', display: 'block', marginBottom: 4 }}>
                     Rubro / Sector
                   </label>
-                  <IonItem className="auth-item" lines="none">
-                    <IonSelect
-                      placeholder="Seleccionar"
-                      value={rubro}
-                      onIonChange={e => setRubro(e.detail.value)}
-                    >
-                      {RUBROS.map(r => (
-                        <IonSelectOption key={r} value={r}>
-                          {r}
-                        </IonSelectOption>
-                      ))}
-                    </IonSelect>
-                  </IonItem>
+                  <CxAutocomplete
+                    value={rubro}
+                    onChange={v => setRubro(String(v))}
+                    options={RUBROS}
+                    placeholder="Ej: Comercio y Ventas"
+                    icon={gridOutline}
+                  />
                 </div>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--cx-muted)', display: 'block', marginBottom: 4 }}>
                     Departamento / Ciudad
                   </label>
-                  <IonItem className="auth-item" lines="none">
-                    <IonSelect
-                      placeholder="Seleccionar"
-                      value={ciudad}
-                      onIonChange={e => setCiudad(e.detail.value)}
-                    >
-                      {CIUDADES.map(c => (
-                        <IonSelectOption key={c} value={c}>
-                          {c}
-                        </IonSelectOption>
-                      ))}
-                    </IonSelect>
-                  </IonItem>
+                  <CxAutocomplete
+                    value={ciudad}
+                    onChange={v => setCiudad(String(v))}
+                    options={CIUDADES}
+                    placeholder="Ej: Managua"
+                    icon={locationOutline}
+                  />
                 </div>
               </div>
 
@@ -533,7 +523,7 @@ const RegistroEmpresa: React.FC = () => {
                   checked={terminos}
                   onIonChange={e => setTerminos(e.detail.checked)}
                 />
-                <span style={{ fontSize: 12, color: '#475569' }}>
+                <span style={{ fontSize: 12, color: 'var(--cx-muted)' }}>
                   Acepto los términos y la activación del <strong>mes de prueba gratis</strong> en CONEX.
                 </span>
               </div>
@@ -559,7 +549,7 @@ const RegistroEmpresa: React.FC = () => {
                   fill="clear"
                   size="small"
                   onClick={() => router.push('/login?modo=login')}
-                  style={{ fontSize: 13, textTransform: 'none', color: '#1B2A4A' }}
+                  style={{ fontSize: 13, textTransform: 'none', color: 'var(--ion-text-color)' }}
                 >
                   ¿Ya tienes una cuenta de empresa? <strong>Iniciar sesión</strong>
                 </IonButton>

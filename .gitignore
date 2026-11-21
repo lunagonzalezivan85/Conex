@@ -132,3 +132,7 @@ business-canvas.html
 test.md
 
 .ftp-config
+
+# Artefactos de verificacion UX (Playwright)
+.playwright-mcp/
+ux-shots/

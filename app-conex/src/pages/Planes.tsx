@@ -1,13 +1,14 @@
 import React from 'react';
 import {
   IonContent, IonPage, IonHeader, IonToolbar, IonTitle, IonButtons,
-  IonBackButton, IonIcon, IonButton, useIonToast,
+  IonBackButton, IonIcon, IonButton,
 } from '@ionic/react';
 import {
   starOutline, rocketOutline, checkmarkCircle, personOutline,
   sparklesOutline,
 } from 'ionicons/icons';
 import '../theme/app.css';
+import { useCxToast } from '../utils/cxFeedback';
 
 /**
  * Mockup de planes para destacar servicios en el directorio.
@@ -59,7 +60,7 @@ const PLANES = [
 ];
 
 const Planes: React.FC = () => {
-  const [presentToast] = useIonToast();
+  const [presentToast] = useCxToast();
 
   const proximamente = () =>
     presentToast({ message: 'Disponible pronto — esta vista es un adelanto', duration: 2200, color: 'warning' });

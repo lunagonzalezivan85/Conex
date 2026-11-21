@@ -265,7 +265,7 @@ export const candidatoApi = {
     api<{ data: any }>(`/candidato/solicitudes/${id}`),
   responderSolicitud: (
     id: number,
-    payloadOrAccion: 'aceptar' | 'rechazar' | 'negociar' | 'mensaje' | { accion?: string; mensaje?: string; precio_propuesto?: number | string }
+    payloadOrAccion: 'aceptar' | 'rechazar' | 'negociar' | 'mensaje' | 'finalizar' | { accion?: string; mensaje?: string; precio_propuesto?: number | string }
   ) => {
     const body = typeof payloadOrAccion === 'string' ? { accion: payloadOrAccion } : payloadOrAccion;
     return api<{

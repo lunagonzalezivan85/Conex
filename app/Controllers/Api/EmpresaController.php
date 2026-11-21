@@ -184,6 +184,7 @@ class EmpresaController extends BaseApiController
             'vacantes_disponibles' => 'permit_empty|integer|greater_than_equal_to[1]',
             'tipo_contrato_id'     => 'permit_empty|integer',
             'funciones'            => 'permit_empty|max_length[5000]',
+            'moneda'               => 'permit_empty|in_list[NIO,USD]',
             'estado'               => 'permit_empty|in_list[borrador,publicada]',
         ];
         if ($res = $this->validateApi($rules, $data)) {
@@ -259,7 +260,7 @@ class EmpresaController extends BaseApiController
             'modalidad'            => $data['modalidad'],
             'salario_min'          => !empty($data['salario_min']) ? (float)$data['salario_min'] : null,
             'salario_max'          => !empty($data['salario_max']) ? (float)$data['salario_max'] : null,
-            'moneda'               => 'USD',
+            'moneda'               => in_array($data['moneda'] ?? '', ['NIO', 'USD']) ? $data['moneda'] : 'USD',
             'anios_experiencia'    => (int)($data['anios_experiencia'] ?? 0),
             'vacantes_disponibles' => (int)($data['vacantes_disponibles'] ?? 1),
             'tipo_contrato_id'     => !empty($data['tipo_contrato_id']) ? (int)$data['tipo_contrato_id'] : null,
@@ -320,6 +321,7 @@ class EmpresaController extends BaseApiController
             'vacantes_disponibles' => 'permit_empty|integer|greater_than_equal_to[1]',
             'tipo_contrato_id'     => 'permit_empty|integer',
             'funciones'            => 'permit_empty|max_length[5000]',
+            'moneda'               => 'permit_empty|in_list[NIO,USD]',
             'estado'               => 'permit_empty|in_list[borrador,publicada,cerrada,suspendida]',
         ];
         if ($res = $this->validateApi($rules, $data)) {
@@ -336,6 +338,7 @@ class EmpresaController extends BaseApiController
             'titulo', 'descripcion', 'funciones', 'categoria_id', 'modalidad',
             'ciudad', 'region', 'latitud', 'longitud', 'salario_min', 'salario_max',
             'anios_experiencia', 'vacantes_disponibles', 'tipo_contrato_id', 'estado',
+            'moneda',
         ];
         $update = [];
         foreach ($campos as $campo) {
@@ -405,12 +408,16 @@ class EmpresaController extends BaseApiController
             ->select('post_postulacion.*,
                 auth_user.nombre, auth_user.apellido, auth_user.email, auth_user.avatar,
                 auth_user.telefono AS auth_telefono,
-                cand_candidato.profesion, cand_candidato.ciudad, cand_candidato.telefono AS cand_telefono,
-                cand_candidato.sobre_mi, cand_candidato.anios_experiencia, cand_candidato.salario_deseado,
-                cand_candidato.titulo_academico, cand_candidato.cv_url,
-                sc.id AS contacto_id')
+                cand_candidato.profesion, cand_candidato.ciudad,
+                cand_candidato.sobre_mi, cand_candidato.salario_esperado_usd AS salario_deseado,
+                ne.anios_minimos AS anios_experiencia, ne.nombre AS nivel_experiencia,
+                (SELECT e.titulo FROM cand_educacion e WHERE e.candidato_id = cand_candidato.id ORDER BY e.id DESC LIMIT 1) AS titulo_academico,
+                (SELECT cv.archivo_path FROM cand_cv cv WHERE cv.candidato_id = cand_candidato.id ORDER BY cv.es_principal DESC, cv.id DESC LIMIT 1) AS cv_url,
+                sc.id AS contacto_id, sc.estado AS contacto_estado,
+                EXISTS(SELECT 1 FROM srv_contacto_mensaje cm WHERE cm.contacto_id = sc.id AND cm.emisor_tipo = \'cliente\') AS contactado')
             ->join('cand_candidato', 'cand_candidato.id = post_postulacion.candidato_id', 'left')
             ->join('auth_user', 'auth_user.id = cand_candidato.user_id', 'left')
+            ->join('cat_nivel_experiencia ne', 'ne.id = cand_candidato.nivel_experiencia_id', 'left')
             ->join('srv_servicio ss', 'ss.candidato_id = cand_candidato.id', 'left')
             ->join('srv_contacto sc', 'sc.servicio_id = ss.id AND sc.user_id = ' . (int)$empUser['id'], 'left')
             ->where('post_postulacion.vacante_id', (int)$vacanteId)
@@ -582,7 +589,7 @@ class EmpresaController extends BaseApiController
             ->select('post_postulacion.*,
                 vac_vacante.titulo as vacante_titulo, vac_vacante.slug as vacante_slug,
                 auth_user.id as user_id, auth_user.nombre, auth_user.apellido, auth_user.email, auth_user.avatar,
-                cand_candidato.profesion, cand_candidato.ciudad, cand_candidato.telefono,
+                cand_candidato.profesion, cand_candidato.ciudad, auth_user.telefono,
                 cand_candidato.latitud, cand_candidato.longitud, cand_candidato.porcentaje_perfil,
                 cand_candidato.sobre_mi')
             ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id')
@@ -760,6 +767,9 @@ class EmpresaController extends BaseApiController
             }
         } else {
             $contactoId = (int)$contacto['id'];
+            if (($contacto['estado'] ?? '') === 'finalizado') {
+                return $this->fail('Esta conversación fue finalizada. Ya no se pueden enviar mensajes.', 423);
+            }
             if (!empty($body['mensaje']) && $db->tableExists('srv_contacto_mensaje')) {
                 $db->table('srv_contacto_mensaje')->insert([
                     'contacto_id'   => $contactoId,
@@ -776,7 +786,7 @@ class EmpresaController extends BaseApiController
             'nombre'      => trim($candUser['nombre'] . ' ' . $candUser['apellido']),
             'oficio'      => !empty($vacanteTitulo) ? $vacanteTitulo : ($candidato['profesion'] ?: 'Candidato'),
             'avatar_url'  => !empty($candUser['avatar']) ? (str_starts_with($candUser['avatar'], 'http') ? $candUser['avatar'] : base_url('uploads/' . $candUser['avatar'])) : null,
-            'telefono'    => $candidato['telefono'] ?: ($candUser['telefono'] ?: ''),
+            'telefono'    => $candUser['telefono'] ?? '',
         ]);
     }
 

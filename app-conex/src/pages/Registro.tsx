@@ -11,6 +11,7 @@ import { authApi, candidatoApi, vacantesApi, saveToken, ApiError } from '../serv
 import { escanearCedula, formatearCedula, normalizarCedula } from '../services/cedulaScan';
 import { useAuth } from '../context/AuthContext';
 import '../theme/registro.css';
+import { toUpperName } from '../utils/text';
 
 type Paso = 'cedula' | 'contacto' | 'modo' | 'preguntas' | 'servicio' | 'listo';
 
@@ -140,8 +141,8 @@ const Registro: React.FC = () => {
     try {
       const res = await authApi.registerApp({
         cedula: normalizarCedula(cedula),
-        nombre: nombre.trim(),
-        apellido: apellido.trim(),
+        nombre: toUpperName(nombre),
+        apellido: toUpperName(apellido),
         telefono: telefono.trim(),
         pin,
         email: email.trim() || undefined,

@@ -9,7 +9,6 @@ import {
   IonIcon,
   IonSpinner,
   IonModal,
-  useIonToast,
   useIonRouter,
 } from '@ionic/react';
 import {
@@ -27,15 +26,18 @@ import {
   logoWhatsapp,
   briefcaseOutline,
   timeOutline,
+  handRightOutline,
 } from 'ionicons/icons';
 import { Geolocation } from '@capacitor/geolocation';
 import { useAuth } from '../context/AuthContext';
 import { candidatoApi, serviciosApi } from '../services/api';
 import '../theme/app.css';
+import { toSentenceCase, toUpperName } from '../utils/text';
+import { useCxToast, useCxAlert } from '../utils/cxFeedback';
 
 interface MessageItem {
   id: string | number;
-  emisor_tipo: 'cliente' | 'prestador';
+  emisor_tipo: 'cliente' | 'prestador' | 'sistema';
   emisor_nombre?: string;
   mensaje: string;
   precio_propuesto?: number | null;
@@ -46,7 +48,8 @@ export const ChatMessenger: React.FC = () => {
   const { user } = useAuth();
   const router = useIonRouter();
   const location = useLocation();
-  const [presentToast] = useIonToast();
+  const [presentToast] = useCxToast();
+  const [presentAlert] = useCxAlert();
 
   const queryParams = new URLSearchParams(location.search);
   const paramContactoId = queryParams.get('contacto_id');
@@ -90,7 +93,7 @@ export const ChatMessenger: React.FC = () => {
             res.data.mensajes.forEach((m: any, idx: number) => {
               rawMsgs.push({
                 id: m.id || `m-${idx}`,
-                emisor_tipo: m.emisor_tipo === 'prestador' ? 'prestador' : 'cliente',
+                emisor_tipo: m.emisor_tipo === 'prestador' ? 'prestador' : m.emisor_tipo === 'sistema' ? 'sistema' : 'cliente',
                 emisor_nombre: m.emisor_nombre,
                 mensaje: m.mensaje,
                 precio_propuesto: m.precio_propuesto ? Number(m.precio_propuesto) : null,
@@ -325,9 +328,36 @@ export const ChatMessenger: React.FC = () => {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
-  const targetName = getTargetName();
-  const targetOficio = getTargetOficio();
+  const targetName = toUpperName(getTargetName());
+  const targetOficio = toSentenceCase(getTargetOficio());
   const isAccepted = contactoData?.estado === 'aceptado';
+  const isFinalizado = contactoData?.estado === 'finalizado';
+  const soyCliente = contactoData ? !!contactoData.es_cliente : user?.role === 'empresa';
+
+  const finalizarContacto = () => {
+    if (!contactoId || isFinalizado) return;
+    presentAlert({
+      header: 'Finalizar contacto',
+      message: 'El candidato ya no podrá enviarte mensajes en esta conversación. ¿Finalizar?',
+      buttons: [
+        { text: 'Cancelar', role: 'cancel' },
+        {
+          text: 'Finalizar',
+          role: 'destructive',
+          handler: async () => {
+            try {
+              await candidatoApi.responderSolicitud(contactoId, 'finalizar');
+              setContactoData((prev: any) => ({ ...(prev || {}), estado: 'finalizado' }));
+              presentToast({ message: 'Conversación finalizada', duration: 2200, color: 'success' });
+              loadConversation();
+            } catch (err: any) {
+              presentToast({ message: err?.error || 'No se pudo finalizar', duration: 2500, color: 'danger' });
+            }
+          },
+        },
+      ],
+    });
+  };
   const directPhone = contactoData?.es_cliente
     ? contactoData?.prestador_telefono
     : contactoData?.cliente_telefono_revelado;
@@ -387,6 +417,19 @@ export const ChatMessenger: React.FC = () => {
             >
               <IonIcon icon={personCircleOutline} />
             </button>
+
+            {/* Empresa: finalizar contacto */}
+            {soyCliente && contactoId && !isFinalizado && (
+              <button
+                type="button"
+                className="cx-msgr-head-icon"
+                title="Finalizar contacto (el candidato ya no podrá escribir)"
+                onClick={finalizarContacto}
+                aria-label="Finalizar contacto"
+              >
+                <IonIcon icon={handRightOutline} />
+              </button>
+            )}
           </div>
         </IonToolbar>
       </IonHeader>
@@ -427,8 +470,13 @@ export const ChatMessenger: React.FC = () => {
 
               return (
                 <React.Fragment key={m.id}>
+                  {/* Mensaje de sistema (p. ej. conversación finalizada) */}
+                  {m.emisor_tipo === 'sistema' && m.mensaje && (
+                    <div className="cx-msgr-sys-msg"><span>{m.mensaje}</span></div>
+                  )}
+
                   {/* Fila de Burbuja de Mensaje (Azul Marino para salientes) */}
-                  {m.mensaje && (
+                  {m.mensaje && m.emisor_tipo !== 'sistema' && (
                     <div className={`cx-msgr-bubble-row ${isMe ? 'outgoing' : 'incoming'}`}>
                       {!isMe && (
                         <div className="cx-msgr-bubble-avatar">
@@ -457,7 +505,7 @@ export const ChatMessenger: React.FC = () => {
                     <div className="cx-msgr-plan-wrap">
                       <div className="cx-msgr-plan-card">
                         <div className="cx-msgr-plan-header">
-                          <span className="cx-msgr-plan-badge-dot">💰</span>
+                          <span className="cx-msgr-plan-badge-dot"><IonIcon icon={cashOutline} /></span>
                           <span className="cx-msgr-plan-title">
                             {isMe ? 'Propuesta económica del cliente' : 'Cotización del prestador'}: C$ {formatPrice(m.precio_propuesto)}
                           </span>
@@ -487,6 +535,14 @@ export const ChatMessenger: React.FC = () => {
 
       {/* 3. Footer / Input Bar sin choque con la navegación */}
       <IonFooter className="cx-msgr-footer">
+        {isFinalizado ? (
+          <div className="cx-msgr-finalized">
+            <IonIcon icon={handRightOutline} />
+            {soyCliente
+              ? 'Finalizaste esta conversación. El candidato ya no puede responder.'
+              : 'La empresa finalizó esta conversación. Ya no puedes enviar mensajes.'}
+          </div>
+        ) : (
         <form onSubmit={handleSendMessage} className="cx-msgr-input-bar">
           {/* Opción de agregar: Compartir ubicación actual */}
           <button
@@ -519,6 +575,7 @@ export const ChatMessenger: React.FC = () => {
             <IonIcon icon={send} />
           </button>
         </form>
+        )}
       </IonFooter>
 
       {/* 4. Modal de Solo Lectura: Perfil del Contacto */}

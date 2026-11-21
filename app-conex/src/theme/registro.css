@@ -107,3 +107,8 @@
   margin-bottom: 20px;
 }
 .reg-terminos-texto p { margin: 0 0 12px; }
+
+/* ============ Tema oscuro ============ */
+@media (prefers-color-scheme: dark) {
+  .reg-sub { color: var(--cx-muted, #8a92a6); }
+}

@@ -3,25 +3,36 @@ import { useLocation } from 'react-router-dom';
 import {
   IonContent, IonPage, IonHeader, IonToolbar, IonTitle,
   IonButton, IonIcon, IonBadge, IonSpinner, IonItem, IonLabel,
-  IonNote, IonModal, IonInput, IonTextarea, IonSelect, IonSelectOption,
-  IonRefresher, IonRefresherContent, RefresherEventDetail,
-  useIonToast, useIonAlert, useIonRouter,
+  IonNote, IonModal, IonInput, IonTextarea,
+  IonRefresher, IonRefresherContent, RefresherEventDetail, useIonRouter,
 } from '@ionic/react';
 import {
   briefcaseOutline, addOutline, locationOutline, timeOutline,
   peopleOutline, cashOutline, closeOutline, checkmarkCircleOutline,
   chatbubbleEllipsesOutline, alertCircleOutline, trashOutline,
   chevronForward, eyeOutline, logoWhatsapp, documentTextOutline,
-  callOutline, checkmarkOutline,
+  callOutline, checkmarkOutline, gridOutline, laptopOutline,
 } from 'ionicons/icons';
 import { empresaApi, vacantesApi, ApiError } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import '../theme/app.css';
+import { useCxToast, useCxAlert } from '../utils/cxFeedback';
+import { toSentenceCase, toUpperName } from '../utils/text';
+import CxAutocomplete from '../components/CxAutocomplete';
 
 const cleanPhone = (tel?: string | null) => {
   if (!tel) return '';
   const digits = tel.replace(/\D/g, '');
   return digits.length === 8 ? `505${digits}` : digits;
 };
+
+/** 6000 → "6,000" mientras escribe */
+const formatMiles = (v: string) => {
+  const digits = v.replace(/\D/g, '').slice(0, 9);
+  return digits ? Number(digits).toLocaleString('en-US') : '';
+};
+
+const monedaSimbolo = (m?: string) => (m === 'USD' ? '$' : 'C$');
 
 const getInitials = (name?: string) => {
   if (!name) return 'CX';
@@ -62,8 +73,16 @@ const CATEGORIAS_FALLBACK = [
 const MisVacantes: React.FC = () => {
   const router = useIonRouter();
   const location = useLocation();
-  const [presentToast] = useIonToast();
-  const [presentAlert] = useIonAlert();
+  const { user } = useAuth();
+  const [presentToast] = useCxToast();
+  const [presentAlert] = useCxAlert();
+
+  // Guard: esta pantalla es solo para rol empresa
+  const role = (user?.role || '').toLowerCase().trim();
+  const isEmpresa = role === 'empresa' || (role !== 'candidato' && Boolean(user?.empresa));
+  useEffect(() => {
+    if (user && !isEmpresa) router.push('/app/dashboard', 'root', 'replace');
+  }, [user, isEmpresa, router]);
 
   const [loading, setLoading] = useState(true);
   const [vacantes, setVacantes] = useState<any[]>([]);
@@ -81,6 +100,7 @@ const MisVacantes: React.FC = () => {
   const [ciudad, setCiudad] = useState('Managua');
   const [salarioMin, setSalarioMin] = useState('');
   const [salarioMax, setSalarioMax] = useState('');
+  const [moneda, setMoneda] = useState<'NIO' | 'USD'>('NIO');
   const [aniosExp, setAniosExp] = useState('0');
   const [numVacantes, setNumVacantes] = useState('1');
   const [descripcion, setDescripcion] = useState('');
@@ -112,9 +132,9 @@ const MisVacantes: React.FC = () => {
   };
 
   useEffect(() => {
-    cargar();
+    if (isEmpresa) cargar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isEmpresa]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -152,8 +172,8 @@ const MisVacantes: React.FC = () => {
       return;
     }
 
-    const sMin = salarioMin.trim() !== '' ? Number(salarioMin) : null;
-    const sMax = salarioMax.trim() !== '' ? Number(salarioMax) : null;
+    const sMin = salarioMin.trim() !== '' ? Number(salarioMin.replace(/,/g, '')) : null;
+    const sMax = salarioMax.trim() !== '' ? Number(salarioMax.replace(/,/g, '')) : null;
 
     if (sMin !== null && isNaN(sMin)) {
       setErrorCrear('El salario mínimo debe ser un número válido');
@@ -171,12 +191,13 @@ const MisVacantes: React.FC = () => {
     setBusyCrear(true);
     try {
       await empresaApi.crearVacante({
-        titulo: t,
+        titulo: toSentenceCase(t),
         categoria_id: Number(categoriaId),
         modalidad,
         ciudad,
         salario_min: sMin,
         salario_max: sMax,
+        moneda,
         anios_experiencia: Number(aniosExp) || 0,
         vacantes_disponibles: Number(numVacantes) || 1,
         descripcion: d,
@@ -260,9 +281,9 @@ const MisVacantes: React.FC = () => {
         setPostulanteSel((prev: any) => (prev ? { ...prev, estado: nuevoEstado } : null));
       }
       const labels: Record<string, string> = {
-        contratado: 'Contratado 🎉',
-        en_revision: 'En revisión 👀',
-        rechazada: 'Descartado ❌',
+        contratado: 'Contratado',
+        en_revision: 'En revisión',
+        rechazada: 'Descartado',
       };
       presentToast({
         message: `Postulante marcado como ${labels[nuevoEstado] || nuevoEstado}`,
@@ -306,7 +327,7 @@ const MisVacantes: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar className="cx-home-toolbar">
-          <IonTitle style={{ fontWeight: 800, fontSize: 18, color: '#1B2A4A' }}>
+          <IonTitle style={{ fontWeight: 800, fontSize: 18, color: 'var(--ion-text-color)' }}>
             Mis Vacantes
           </IonTitle>
         </IonToolbar>
@@ -358,23 +379,23 @@ const MisVacantes: React.FC = () => {
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40 }}>
             <IonSpinner name="crescent" />
-            <p style={{ color: '#64748B', fontSize: 13 }}>Cargando vacantes...</p>
+            <p style={{ color: 'var(--cx-muted)', fontSize: 13 }}>Cargando vacantes...</p>
           </div>
         ) : vacantes.length === 0 ? (
           <div
             style={{
               textAlign: 'center',
               padding: '40px 20px',
-              background: '#F8FAFC',
+              background: 'var(--cx-surface)',
               borderRadius: 16,
-              border: '1.5px dashed #CBD5E1',
+              border: '1.5px dashed var(--cx-border)',
             }}
           >
-            <IonIcon icon={briefcaseOutline} style={{ fontSize: 48, color: '#94A3B8', marginBottom: 10 }} />
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: '#1B2A4A', margin: '0 0 6px' }}>
+            <IonIcon icon={briefcaseOutline} style={{ fontSize: 48, color: 'var(--cx-muted)', marginBottom: 10 }} />
+            <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--ion-text-color)', margin: '0 0 6px' }}>
               No has publicado vacantes aún
             </h3>
-            <p style={{ fontSize: 13, color: '#64748B', margin: '0 0 16px' }}>
+            <p style={{ fontSize: 13, color: 'var(--cx-muted)', margin: '0 0 16px' }}>
               Comienza publicando tu primera oferta de trabajo para recibir postulaciones de candidatos verificados.
             </p>
             <IonButton size="small" onClick={() => setShowCrear(true)}>
@@ -387,15 +408,15 @@ const MisVacantes: React.FC = () => {
               <div
                 key={v.id}
                 style={{
-                  background: '#fff',
+                  background: 'var(--ion-card-background)',
                   borderRadius: 16,
                   padding: 16,
-                  border: '1px solid #E2E8F0',
+                  border: '1px solid var(--cx-border)',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1B2A4A', margin: 0 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: 'var(--ion-text-color)', margin: 0 }}>
                     {v.titulo}
                   </h3>
                   <IonBadge color={v.estado === 'publicada' ? 'success' : 'medium'}>
@@ -403,16 +424,16 @@ const MisVacantes: React.FC = () => {
                   </IonBadge>
                 </div>
 
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: 12, color: '#64748B', marginBottom: 12 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, fontSize: 12, color: 'var(--cx-muted)', marginBottom: 12 }}>
                   <span><IonIcon icon={locationOutline} /> {v.ciudad} ({v.modalidad})</span>
                   {v.salario_max && (
-                    <span><IonIcon icon={cashOutline} /> ${v.salario_min || 0} - ${v.salario_max} USD</span>
+                    <span><IonIcon icon={cashOutline} /> {monedaSimbolo(v.moneda)}{Number(v.salario_min || 0).toLocaleString()} - {monedaSimbolo(v.moneda)}{Number(v.salario_max).toLocaleString()} {v.moneda || 'NIO'}</span>
                   )}
                   <span><IonIcon icon={timeOutline} /> {v.vacantes_disponibles} plaza(s)</span>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #F1F5F9' }}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#0F766E' }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--cx-turq-text)' }}>
                     <IonIcon icon={peopleOutline} style={{ verticalAlign: -2 }} /> {v.total_postulantes ?? 0} candidatos postulados
                   </span>
                   <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
@@ -459,7 +480,7 @@ const MisVacantes: React.FC = () => {
 
           <IonContent className="ion-padding">
             <form onSubmit={handleCrearVacante}>
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                 Título del puesto o vacante *
               </label>
               <IonItem className="auth-item" lines="none">
@@ -471,89 +492,107 @@ const MisVacantes: React.FC = () => {
                 />
               </IonItem>
 
-              <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+              <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                 Categoría / Rubro *
               </label>
-              <IonItem className="auth-item" lines="none">
-                <IonSelect
-                  placeholder="Selecciona categoría"
-                  value={categoriaId}
-                  onIonChange={e => setCategoriaId(e.detail.value)}
-                >
-                  {categorias.map(c => (
-                    <IonSelectOption key={c.id} value={c.id}>
-                      {c.nombre}
-                    </IonSelectOption>
-                  ))}
-                </IonSelect>
-              </IonItem>
+              <CxAutocomplete
+                value={categoriaId}
+                onChange={v => setCategoriaId(v)}
+                options={categorias.map(c => ({ value: c.id, label: c.nombre }))}
+                placeholder="Buscar categoría…"
+                icon={gridOutline}
+                strict
+              />
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10 }}>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                     Modalidad *
                   </label>
-                  <IonItem className="auth-item" lines="none">
-                    <IonSelect value={modalidad} onIonChange={e => setModalidad(e.detail.value)}>
-                      {MODALIDADES.map(m => (
-                        <IonSelectOption key={m.v} value={m.v}>
-                          {m.t}
-                        </IonSelectOption>
-                      ))}
-                    </IonSelect>
-                  </IonItem>
+                  <CxAutocomplete
+                    value={modalidad}
+                    onChange={v => setModalidad(String(v))}
+                    options={MODALIDADES.map(m => ({ value: m.v, label: m.t }))}
+                    placeholder="Buscar modalidad…"
+                    icon={laptopOutline}
+                    strict
+                  />
                 </div>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 700, color: '#334155', display: 'block', marginBottom: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)', display: 'block', marginBottom: 4 }}>
                     Ciudad / Ubicación *
                   </label>
-                  <IonItem className="auth-item" lines="none">
-                    <IonSelect value={ciudad} onIonChange={e => setCiudad(e.detail.value)}>
-                      {CIUDADES.map(c => (
-                        <IonSelectOption key={c} value={c}>
-                          {c}
-                        </IonSelectOption>
-                      ))}
-                    </IonSelect>
-                  </IonItem>
+                  <CxAutocomplete
+                    value={ciudad}
+                    onChange={v => setCiudad(String(v))}
+                    options={CIUDADES}
+                    placeholder="Buscar ciudad…"
+                    icon={locationOutline}
+                    strict
+                  />
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4 }}>
+              <div>
+                <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--cx-muted)', display: 'block', marginBottom: 4 }}>
+                  Moneda del salario
+                </label>
+                <div className="cx-moneda-pills" role="radiogroup" aria-label="Moneda del salario">
+                  {([
+                    { v: 'NIO' as const, s: 'C$', t: 'Córdobas' },
+                    { v: 'USD' as const, s: '$', t: 'Dólares' },
+                  ]).map(m => (
+                    <button
+                      key={m.v}
+                      type="button"
+                      role="radio"
+                      aria-checked={moneda === m.v}
+                      className={`cx-moneda-pill ${moneda === m.v ? 'on' : ''}`}
+                      onClick={() => setMoneda(m.v)}
+                    >
+                      <strong>{m.s}</strong> {m.t} ({m.v})
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginTop: 4 }}>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                    Salario Mín (USD)
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--cx-muted)', display: 'block', marginBottom: 4 }}>
+                    Salario Mín ({monedaSimbolo(moneda)})
                   </label>
                   <IonItem className="auth-item" lines="none">
                     <IonInput
-                      type="number"
-                      placeholder="Ej. 400"
+                      type="text"
+                      inputmode="numeric"
+                      placeholder={moneda === 'USD' ? 'Ej. 400' : 'Ej. 12,000'}
                       value={salarioMin}
-                      onIonInput={e => setSalarioMin(e.detail.value ?? '')}
+                      onIonInput={e => setSalarioMin(formatMiles(e.detail.value ?? ''))}
                     />
                   </IonItem>
                 </div>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
-                    Salario Máx (USD)
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--cx-muted)', display: 'block', marginBottom: 4 }}>
+                    Salario Máx ({monedaSimbolo(moneda)})
                   </label>
                   <IonItem className="auth-item" lines="none">
                     <IonInput
-                      type="number"
-                      placeholder="Ej. 650"
+                      type="text"
+                      inputmode="numeric"
+                      placeholder={moneda === 'USD' ? 'Ej. 650' : 'Ej. 18,000'}
                       value={salarioMax}
-                      onIonInput={e => setSalarioMax(e.detail.value ?? '')}
+                      onIonInput={e => setSalarioMax(formatMiles(e.detail.value ?? ''))}
                     />
                   </IonItem>
                 </div>
               </div>
-              <small style={{ color: '#94A3B8', fontSize: 11, display: 'block', marginTop: -4, marginBottom: 8 }}>
-                Opcional. Valores expresados en dólares (USD).
+              <small style={{ color: 'var(--cx-muted)', fontSize: 11, display: 'block', marginTop: -4, marginBottom: 8 }}>
+                Opcional. Valores expresados en {moneda === 'USD' ? 'dólares (USD)' : 'córdobas (NIO)'}.
               </small>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 4, marginBottom: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginTop: 4, marginBottom: 8 }}>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--cx-muted)', display: 'block', marginBottom: 4 }}>
                     Años de experiencia
                   </label>
                   <IonItem className="auth-item" lines="none">
@@ -566,7 +605,7 @@ const MisVacantes: React.FC = () => {
                   </IonItem>
                 </div>
                 <div>
-                  <label style={{ fontSize: 13, fontWeight: 600, color: '#64748B', display: 'block', marginBottom: 4 }}>
+                  <label style={{ fontSize: 13, fontWeight: 600, color: 'var(--cx-muted)', display: 'block', marginBottom: 4 }}>
                     Plazas vacantes
                   </label>
                   <IonItem className="auth-item" lines="none">
@@ -581,7 +620,7 @@ const MisVacantes: React.FC = () => {
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '8px 0 4px' }}>
-                <label style={{ fontSize: 13, fontWeight: 700, color: '#334155' }}>
+                <label style={{ fontSize: 13, fontWeight: 700, color: 'var(--ion-text-color)' }}>
                   Descripción de la vacante y requisitos *
                 </label>
                 <small style={{ color: descripcion.trim().length >= 10 ? '#0F766E' : '#94A3B8', fontSize: 11 }}>
@@ -603,7 +642,7 @@ const MisVacantes: React.FC = () => {
                   style={{
                     color: '#DC2626',
                     backgroundColor: '#FEF2F2',
-                    border: '1px solid #FCA5A5',
+                    border: '1px solid var(--cx-border)',
                     borderRadius: 10,
                     padding: '10px 12px',
                     fontSize: 13,
@@ -648,9 +687,9 @@ const MisVacantes: React.FC = () => {
             {loadingPost ? (
               <div style={{ textAlign: 'center', padding: 40 }}><IonSpinner name="crescent" /></div>
             ) : postulantes.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 40, color: '#64748B' }}>
-                <IonIcon icon={peopleOutline} style={{ fontSize: 48, color: '#94A3B8' }} />
-                <h4 style={{ fontWeight: 700, margin: '14px 0 6px', color: '#1B2A4A' }}>Aún no hay candidatos postulados</h4>
+              <div style={{ textAlign: 'center', padding: 40, color: 'var(--cx-muted)' }}>
+                <IonIcon icon={peopleOutline} style={{ fontSize: 48, color: 'var(--cx-muted)' }} />
+                <h4 style={{ fontWeight: 700, margin: '14px 0 6px', color: 'var(--ion-text-color)' }}>Aún no hay candidatos postulados</h4>
                 <p style={{ fontSize: 13, lineHeight: 1.5 }}>
                   Cuando los candidatos se postulen a esta vacante, aparecerán listados aquí para que revises sus perfiles y coordines por chat.
                 </p>
@@ -664,7 +703,7 @@ const MisVacantes: React.FC = () => {
 
                 <div className="cx-cand-list">
                   {postulantes.map(p => {
-                    const fullName = `${p.nombre || ''} ${p.apellido || ''}`.trim() || 'Candidato';
+                    const fullName = toUpperName(`${p.nombre || ''} ${p.apellido || ''}`.trim()) || 'Candidato';
                     const initials = getInitials(fullName);
                     const avatarUrl = p.avatar ? (p.avatar.startsWith('http') ? p.avatar : `/uploads/${p.avatar}`) : null;
 
@@ -693,16 +732,21 @@ const MisVacantes: React.FC = () => {
                             <span className={`cx-cand-badge badge-${p.estado || 'enviada'}`}>
                               {p.estado === 'en_revision' ? 'En revisión' : p.estado === 'contratado' ? 'Contratado' : p.estado === 'rechazada' ? 'Descartado' : 'Nueva'}
                             </span>
+                            {Number(p.contactado) > 0 && (
+                              <span className="cx-cand-badge badge-contactado">
+                                Contactado
+                              </span>
+                            )}
                           </div>
 
                           <div className="cx-cand-item-sub">
-                            {p.profesion || 'Sin profesión indicada'} · {p.ciudad || 'Ubicación no especificada'}
+                            {toSentenceCase(p.profesion) || 'Sin profesión indicada'} · {p.ciudad || 'Ubicación no especificada'}
                           </div>
 
                           <div className="cx-cand-item-meta">
-                            <span>📅 {p.created_at ? p.created_at.slice(0, 10) : 'Reciente'}</span>
-                            {p.anios_experiencia > 0 && <span>💼 {p.anios_experiencia} años exp.</span>}
-                            {p.salario_deseado && <span>💵 C$ {Number(p.salario_deseado).toLocaleString()}</span>}
+                            <span><IonIcon icon={timeOutline} style={{ verticalAlign: -2, marginRight: 3 }} />{p.created_at ? p.created_at.slice(0, 10) : 'Reciente'}</span>
+                            {p.anios_experiencia > 0 && <span><IonIcon icon={briefcaseOutline} style={{ verticalAlign: -2, marginRight: 3 }} />{p.anios_experiencia} años exp.</span>}
+                            {p.salario_deseado && <span><IonIcon icon={cashOutline} style={{ verticalAlign: -2, marginRight: 3 }} />C$ {Number(p.salario_deseado).toLocaleString()}</span>}
                           </div>
                         </div>
 
@@ -762,7 +806,7 @@ const MisVacantes: React.FC = () => {
                     {postulanteSel.nombre} {postulanteSel.apellido}
                   </h3>
                   <div className="cx-cand-sheet-profession">
-                    {postulanteSel.profesion || 'Profesional'}
+                    {toSentenceCase(postulanteSel.profesion) || 'Profesional'}
                   </div>
                   <div className="cx-cand-sheet-location">
                     <IonIcon icon={locationOutline} /> {postulanteSel.ciudad || 'Ubicación no especificada'}
@@ -772,6 +816,11 @@ const MisVacantes: React.FC = () => {
                     <span className={`cx-cand-badge badge-${postulanteSel.estado || 'enviada'}`}>
                       {postulanteSel.estado === 'en_revision' ? 'En revisión' : postulanteSel.estado === 'contratado' ? 'Contratado' : postulanteSel.estado === 'rechazada' ? 'Descartado' : 'Postulación Nueva'}
                     </span>
+                    {Number(postulanteSel.contactado) > 0 && (
+                      <span className="cx-cand-badge badge-contactado" style={{ marginLeft: 6 }}>
+                        Contactado
+                      </span>
+                    )}
                   </div>
                 </div>
 

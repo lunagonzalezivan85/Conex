@@ -3,22 +3,23 @@ import {
   IonContent, IonPage, IonHeader, IonToolbar, IonTitle,
   IonRefresher, IonRefresherContent, IonCard, IonCardContent,
   IonIcon, IonBadge, IonSpinner, IonButton, IonSegment,
-  IonSegmentButton, IonLabel, RefresherEventDetail,
-  useIonToast, useIonRouter,
+  IonSegmentButton, IonLabel, RefresherEventDetail, useIonRouter,
 } from '@ionic/react';
 import {
   chatbubbleEllipsesOutline, chatbubbleEllipses, callOutline, checkmarkCircleOutline,
   closeCircleOutline, briefcaseOutline, locationOutline, timeOutline,
-  chevronForward, logoWhatsapp, sendOutline, cashOutline,
+  chevronForward, logoWhatsapp, sendOutline, cashOutline, personOutline,
 } from 'ionicons/icons';
 import { useAuth } from '../context/AuthContext';
 import { candidatoApi, empresaApi, notificacionesApi } from '../services/api';
 import '../theme/app.css';
+import { useCxToast } from '../utils/cxFeedback';
+import { toSentenceCase, toUpperName } from '../utils/text';
 
 const Solicitudes: React.FC = () => {
   const { user } = useAuth();
   const router = useIonRouter();
-  const [presentToast] = useIonToast();
+  const [presentToast] = useCxToast();
   const isEmpresa = user?.role === 'empresa';
   const [tab, setTab] = useState<'recibidas' | 'enviadas' | 'postulaciones'>('recibidas');
   const [loading, setLoading] = useState(true);
@@ -244,7 +245,7 @@ const Solicitudes: React.FC = () => {
       <div className={`cx-deal-card ${isMe ? 'outgoing' : 'incoming'}`}>
         <div className="cx-deal-header">
           <div className="cx-deal-title-box">
-            <span className="cx-deal-icon">💰</span>
+            <span className="cx-deal-icon"><IonIcon icon={cashOutline} /></span>
             <span>{tituloOverride || (isMe ? 'Tu Contraoferta' : 'Cotización Propuesta')}</span>
           </div>
           <span className={`cx-deal-status ${estado}`}>
@@ -323,7 +324,7 @@ const Solicitudes: React.FC = () => {
             ) : (
               <div className="sol-list cx-inbox-list">
                 {recibidas.map(s => {
-                  const targetName = s.nombre || 'Cliente';
+                  const targetName = toUpperName(s.nombre) || 'Cliente';
                   const snippet = getLastSnippet(s, isEmpresa);
 
                   return (
@@ -369,12 +370,12 @@ const Solicitudes: React.FC = () => {
                           </div>
 
                           {s.es_postulacion ? (
-                            <div className="cx-inbox-service-tag" style={{ color: '#0F766E', fontWeight: 600 }}>
-                              🎯 Postulante: {s.vacante_titulo || s.oficio}
+                            <div className="cx-inbox-service-tag" style={{ color: 'var(--cx-turq-text)', fontWeight: 600 }}>
+                              <IonIcon icon={personOutline} /> Postulante: {toSentenceCase(s.vacante_titulo || s.oficio)}
                             </div>
                           ) : (
                             <div className="cx-inbox-service-tag">
-                              <IonIcon icon={briefcaseOutline} /> {s.oficio}
+                              <IonIcon icon={briefcaseOutline} /> {toSentenceCase(s.oficio)}
                             </div>
                           )}
 
@@ -384,7 +385,7 @@ const Solicitudes: React.FC = () => {
 
                           {s.precio_propuesto && (
                             <div className="cx-inbox-deal-badge">
-                              💰 Oferta: C$ {formatPrice(s.precio_propuesto)}
+                              <IonIcon icon={cashOutline} /> Oferta: C$ {formatPrice(s.precio_propuesto)}
                             </div>
                           )}
                         </div>
@@ -393,7 +394,7 @@ const Solicitudes: React.FC = () => {
                         <div className="cx-inbox-actions">
                           {s.nueva || s.estado === 'enviada' ? (
                             <span className="cx-inbox-status-pill" style={{ background: '#FEE2E2', color: '#991B1B' }}>
-                              🔔 Nueva
+                              Nueva
                             </span>
                           ) : (
                             <span className={`cx-inbox-status-pill ${s.estado}`}>
@@ -456,8 +457,8 @@ const Solicitudes: React.FC = () => {
                         <div className="sol-contact-box" onClick={(e) => e.stopPropagation()}>
                           <span style={{ fontWeight: 600, fontSize: '12px' }}>Teléfono: <strong>{s.telefono}</strong></span>
                           <div className="sol-contact-btns">
-                            <a href={`tel:${s.telefono}`} className="sol-chip-btn navy">
-                              <IonIcon icon={callOutline} /> Llamar
+                            <a href={`tel:${s.telefono}`} className="sol-chip-btn navy icon" title="Llamar" aria-label="Llamar">
+                              <IonIcon icon={callOutline} />
                             </a>
                             <a
                               href={`https://wa.me/${cleanPhone(s.telefono)}?text=${encodeURIComponent(
@@ -465,9 +466,11 @@ const Solicitudes: React.FC = () => {
                               )}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="sol-chip-btn whatsapp"
+                              className="sol-chip-btn whatsapp icon"
+                              title="WhatsApp"
+                              aria-label="WhatsApp"
                             >
-                              <IonIcon icon={logoWhatsapp} /> WhatsApp
+                              <IonIcon icon={logoWhatsapp} />
                             </a>
                           </div>
                         </div>
@@ -491,7 +494,7 @@ const Solicitudes: React.FC = () => {
             ) : (
               <div className="sol-list cx-inbox-list">
                 {enviadas.map(s => {
-                  const targetName = s.prestador_nombre || 'Prestador del Servicio';
+                  const targetName = toUpperName(s.prestador_nombre) || 'Prestador del Servicio';
                   const snippet = getLastSnippet(s, true);
 
                   return (
@@ -523,7 +526,7 @@ const Solicitudes: React.FC = () => {
                           </div>
 
                           <div className="cx-inbox-service-tag">
-                            <IonIcon icon={briefcaseOutline} /> {s.oficio} {s.zona ? `· ${s.zona}` : ''}
+                            <IonIcon icon={briefcaseOutline} /> {toSentenceCase(s.oficio)} {s.zona ? `· ${s.zona}` : ''}
                           </div>
 
                           <div className="cx-inbox-snippet">
@@ -532,7 +535,7 @@ const Solicitudes: React.FC = () => {
 
                           {s.precio_propuesto && (
                             <div className="cx-inbox-deal-badge">
-                              💰 Cotización: C$ {formatPrice(s.precio_propuesto)}
+                              <IonIcon icon={cashOutline} /> Cotización: C$ {formatPrice(s.precio_propuesto)}
                             </div>
                           )}
                         </div>
@@ -564,8 +567,8 @@ const Solicitudes: React.FC = () => {
                         <div className="sol-contact-box" onClick={(e) => e.stopPropagation()}>
                           <span style={{ fontWeight: 600, fontSize: '12px' }}>Prestador: <strong>{s.prestador_telefono}</strong></span>
                           <div className="sol-contact-btns">
-                            <a href={`tel:${s.prestador_telefono}`} className="sol-chip-btn navy">
-                              <IonIcon icon={callOutline} /> Llamar
+                            <a href={`tel:${s.prestador_telefono}`} className="sol-chip-btn navy icon" title="Llamar" aria-label="Llamar">
+                              <IonIcon icon={callOutline} />
                             </a>
                             <a
                               href={`https://wa.me/${cleanPhone(s.prestador_telefono)}?text=${encodeURIComponent(
@@ -573,9 +576,11 @@ const Solicitudes: React.FC = () => {
                               )}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="sol-chip-btn whatsapp"
+                              className="sol-chip-btn whatsapp icon"
+                              title="WhatsApp"
+                              aria-label="WhatsApp"
                             >
-                              <IonIcon icon={logoWhatsapp} /> WhatsApp
+                              <IonIcon icon={logoWhatsapp} />
                             </a>
                           </div>
                         </div>
@@ -602,8 +607,8 @@ const Solicitudes: React.FC = () => {
                     <IonCardContent>
                       <div className="job-row">
                         <div className="job-info">
-                          <div className="job-title">{p.titulo}</div>
-                          <div className="job-company">{p.empresa_nombre || 'Empresa'}</div>
+                          <div className="job-title">{toSentenceCase(p.titulo)}</div>
+                          <div className="job-company">{toUpperName(p.empresa_nombre) || 'Empresa'}</div>
                           <div className="job-meta">
                             <IonIcon icon={locationOutline} /> {p.ciudad || 'Nicaragua'} · {p.modalidad}
                           </div>
@@ -619,12 +624,11 @@ const Solicitudes: React.FC = () => {
                         >
                           {p.estado}
                         </IonBadge>
-                        <IonIcon icon={chevronForward} className="job-chevron" />
-                      </div>
-                      <div style={{ marginTop: 10, display: 'flex', justifyContent: 'flex-end' }}>
-                        <IonButton
-                          size="small"
-                          fill="outline"
+                        <button
+                          type="button"
+                          className="cx-inbox-open-chat-btn"
+                          title={p.contacto_id ? 'Chat con la empresa' : 'Consultar a la empresa'}
+                          aria-label={p.contacto_id ? 'Chat con la empresa' : 'Consultar a la empresa'}
                           onClick={async (e) => {
                             e.stopPropagation();
                             if (p.contacto_id) {
@@ -643,9 +647,9 @@ const Solicitudes: React.FC = () => {
                             }
                           }}
                         >
-                          <IonIcon icon={chatbubbleEllipsesOutline} slot="start" />
-                          {p.contacto_id ? 'Chat con la empresa' : 'Consultar a la empresa'}
-                        </IonButton>
+                          <IonIcon icon={chatbubbleEllipses} />
+                        </button>
+                        <IonIcon icon={chevronForward} className="job-chevron" />
                       </div>
                     </IonCardContent>
                   </IonCard>

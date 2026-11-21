@@ -4,7 +4,7 @@ import {
   IonRefresher, IonRefresherContent, IonCard, IonCardContent,
   IonIcon, IonBadge, IonSpinner, IonItem, IonLabel,
   IonNote, RefresherEventDetail,
-  useIonRouter, useIonToast, useIonAlert,
+  useIonRouter,
 } from '@ionic/react';
 import {
   briefcaseOutline, peopleOutline,
@@ -17,12 +17,14 @@ import { empresaApi, serviciosApi, vacantesApi, notificacionesApi } from '../ser
 import { catIcon } from '../utils/categoriaIcons';
 import { ChatContactModal } from '../components/ChatContactModal';
 import '../theme/app.css';
+import { useCxToast, useCxAlert } from '../utils/cxFeedback';
+import { toSentenceCase, toUpperName } from '../utils/text';
 
 const Dashboard: React.FC = () => {
   const { user } = useAuth();
   const router = useIonRouter();
-  const [presentToast] = useIonToast();
-  const [presentAlert] = useIonAlert();
+  const [presentToast] = useCxToast();
+  const [presentAlert] = useCxAlert();
   const [loading, setLoading] = useState(true);
   const [vacantes, setVacantes] = useState<any[]>([]);
   const [misVacantes, setMisVacantes] = useState<any[]>([]);
@@ -357,15 +359,15 @@ const Dashboard: React.FC = () => {
                   {misVacantes.length === 0 ? (
                     <div
                       style={{
-                        background: '#fff',
+                        background: 'var(--ion-card-background)',
                         borderRadius: 14,
                         padding: '20px 16px',
-                        border: '1.5px dashed #CBD5E1',
+                        border: '1.5px dashed var(--cx-border)',
                         textAlign: 'center',
                       }}
                     >
-                      <IonIcon icon={briefcaseOutline} style={{ fontSize: 32, color: '#94A3B8', marginBottom: 6 }} />
-                      <p style={{ margin: '0 0 12px', fontSize: 13, color: '#64748B' }}>
+                      <IonIcon icon={briefcaseOutline} style={{ fontSize: 32, color: 'var(--cx-muted)', marginBottom: 6 }} />
+                      <p style={{ margin: '0 0 12px', fontSize: 13, color: 'var(--cx-muted)' }}>
                         Aún no has publicado vacantes. Tienes 5 vacantes gratis en tu mes de prueba.
                       </p>
                       <button
@@ -389,9 +391,9 @@ const Dashboard: React.FC = () => {
                     misVacantes.slice(0, 4).map(v => (
                       <IonItem key={v.id} className="vac-item" routerLink="/app/mis-vacantes" detail>
                         <IonLabel>
-                          <h3>{v.titulo}</h3>
+                          <h3>{toSentenceCase(v.titulo)}</h3>
                           <p><IonIcon icon={locationOutline} /> {v.ciudad || 'Sin ubicación'} · {v.modalidad}</p>
-                          <IonNote style={{ color: '#0F766E', fontWeight: 600 }}>
+                          <IonNote style={{ color: 'var(--cx-turq-text)', fontWeight: 600 }}>
                             <IonIcon icon={peopleOutline} /> {v.total_postulantes ?? 0} candidatos postulados
                           </IonNote>
                         </IonLabel>
@@ -450,10 +452,10 @@ const Dashboard: React.FC = () => {
                             </span>
 
                             <div className="cx-worker-title-row">
-                              <div className="cx-worker-name">{s.nombre_publico}</div>
+                              <div className="cx-worker-name">{toUpperName(s.nombre_publico)}</div>
                               <IonIcon icon={chevronForward} className="cx-worker-chev" />
                             </div>
-                            <div className="cx-worker-role">{s.oficio}</div>
+                            <div className="cx-worker-role">{toSentenceCase(s.oficio)}</div>
 
                             <div className="cx-worker-rating">
                               <IonIcon icon={s.verificado ? shieldCheckmark : star} className="cx-star-icon" />
@@ -534,7 +536,7 @@ const Dashboard: React.FC = () => {
 
                               <div className="cx-opp-main">
                                 <div className="cx-opp-top">
-                                  <span className="cx-opp-company">{v.empresa_nombre || 'Empresa verificada'}</span>
+                                  <span className="cx-opp-company">{toUpperName(v.empresa_nombre) || 'Empresa verificada'}</span>
                                   <span className={`cx-opp-badge ${isUrgente ? 'urgente' : 'nuevo'}`}>
                                     {isUrgente ? 'URGENTE' : 'NUEVO'}
                                   </span>
@@ -652,7 +654,7 @@ const Dashboard: React.FC = () => {
                         <div className="cx-board-info">
                           <strong>{a.titulo}</strong>
                           <span>
-                            {a.empresa_nombre || 'Anuncio verificado'} · {timeAgo(a.fecha_publicacion || a.created_at)}
+                            {toUpperName(a.empresa_nombre) || 'Anuncio verificado'} · {timeAgo(a.fecha_publicacion || a.created_at)}
                           </span>
                         </div>
                         <IonIcon icon={chevronForward} className="cx-group-chev" />

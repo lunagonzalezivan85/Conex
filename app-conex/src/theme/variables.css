@@ -45,6 +45,7 @@
   --cx-surface: rgba(27, 42, 74, 0.04);
   --cx-border: rgba(27, 42, 74, 0.12);
   --cx-muted: #8a92a6;
+  --cx-turq-text: #0A8F8C; /* turquesa legible como texto sobre claro */
 
   /* Tipografia y superficies */
   --ion-font-family: 'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -71,7 +72,8 @@
 
     --cx-surface: rgba(255, 255, 255, 0.05);
     --cx-border: rgba(255, 255, 255, 0.1);
-    --cx-muted: #7d8699;
+    --cx-muted: #9aa5bd;
+    --cx-turq-text: #0FC6C2;
     --cx-grad: linear-gradient(135deg, #2a3d63, #0FC6C2);
   }
 }

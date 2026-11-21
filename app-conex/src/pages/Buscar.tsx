@@ -6,7 +6,7 @@ import {
   IonCard, IonCardContent, IonAvatar, IonBadge, IonSpinner,
   IonSegment, IonSegmentButton, IonLabel,
   IonInfiniteScroll, IonInfiniteScrollContent, IonRefresher,
-  IonRefresherContent, useIonToast, useIonAlert, useIonRouter, RefresherEventDetail,
+  IonRefresherContent, useIonRouter, RefresherEventDetail,
 } from '@ionic/react';
 import {
   filterOutline, locationOutline, navigateOutline,
@@ -23,6 +23,8 @@ import { useAuth } from '../context/AuthContext';
 import { ChatContactModal } from '../components/ChatContactModal';
 import '../theme/app.css';
 import '../theme/buscar.css';
+import { useCxToast, useCxAlert } from '../utils/cxFeedback';
+import { toSentenceCase, toUpperName } from '../utils/text';
 
 interface Filtros {
   q: string;
@@ -70,8 +72,8 @@ const Buscar: React.FC = () => {
     data: any;
   } | null>(null);
   const [prestadorChat, setPrestadorChat] = useState<any | null>(null);
-  const [presentToast] = useIonToast();
-  const [presentAlert] = useIonAlert();
+  const [presentToast] = useCxToast();
+  const [presentAlert] = useCxAlert();
   const { user } = useAuth();
   const router = useIonRouter();
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
@@ -588,7 +590,7 @@ const Buscar: React.FC = () => {
         {/* Chip de especialidad activa en servicios */}
         {modo === 'servicios' && filtros.categoria && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 16px 8px' }}>
-            <span style={{ fontSize: 12, color: '#64748B' }}>Especialidad:</span>
+            <span style={{ fontSize: 12, color: 'var(--cx-muted)' }}>Especialidad:</span>
             <span style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -680,7 +682,7 @@ const Buscar: React.FC = () => {
                   </div>
                   <h4 className="cx-map-card-title">{selectedItem.data.oficio}</h4>
                   <p className="cx-map-card-empresa">
-                    {selectedItem.data.nombre_publico}
+                    {toUpperName(selectedItem.data.nombre_publico)}
                     {selectedItem.data.experiencia_label ? ` · ${selectedItem.data.experiencia_label}` : ''}
                   </p>
                   <div className="cx-map-card-footer">
@@ -691,7 +693,7 @@ const Buscar: React.FC = () => {
                     </span>
                     <button
                       className="cx-chat-icon-btn"
-                      title={`Chatear con ${selectedItem.data.nombre_publico}`}
+                      title={`Chatear con ${toUpperName(selectedItem.data.nombre_publico)}`}
                       onClick={() => contactar(selectedItem.data)}
                       aria-label="Abrir chat tipo Messenger"
                     >
@@ -726,12 +728,12 @@ const Buscar: React.FC = () => {
                       </IonAvatar>
                       <div className="job-info" style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 700, fontSize: 15, color: '#1B2A4A' }}>
-                            {p.nombre_completo}
+                          <span style={{ fontWeight: 700, fontSize: 15, color: 'var(--ion-text-color)' }}>
+                            {toUpperName(p.nombre_completo)}
                           </span>
                           {p.nueva && (
                             <span style={{ background: '#EF4444', color: '#fff', fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 8 }}>
-                              🔔 Nueva
+                              Nueva
                             </span>
                           )}
                           <span style={{
@@ -746,19 +748,19 @@ const Buscar: React.FC = () => {
                           </span>
                         </div>
 
-                        <div style={{ fontSize: 13, color: '#0F766E', fontWeight: 600, marginTop: 2 }}>
-                          {p.profesion || 'Candidato'}
+                        <div style={{ fontSize: 13, color: 'var(--cx-turq-text)', fontWeight: 600, marginTop: 2 }}>
+                          {toSentenceCase(p.profesion) || 'Candidato'}
                         </div>
 
-                        <div style={{ fontSize: 12, color: '#475569', marginTop: 4 }}>
-                          🎯 <strong>Vacante:</strong> {p.vacante_titulo}
+                        <div style={{ fontSize: 12, color: 'var(--cx-muted)', marginTop: 4 }}>
+                          <IonIcon icon={businessOutline} style={{ verticalAlign: -2, marginRight: 4 }} /><strong>Vacante:</strong> {p.vacante_titulo}
                         </div>
 
                         <div className="job-meta" style={{ marginTop: 4 }}>
                           <IonIcon icon={locationOutline} />
                           <span>{p.ciudad || 'Nicaragua'}</span>
                           {p.created_at && (
-                            <span style={{ fontSize: 11, color: '#94A3B8', marginLeft: 6 }}>
+                            <span style={{ fontSize: 11, color: 'var(--cx-muted)', marginLeft: 6 }}>
                               · {p.created_at.slice(0, 10)}
                             </span>
                           )}
@@ -766,12 +768,12 @@ const Buscar: React.FC = () => {
 
                         {p.mensaje && (
                           <div style={{
-                            background: '#F8FAFC',
+                            background: 'var(--cx-surface)',
                             borderLeft: '3px solid #0FC6C2',
                             padding: '6px 8px',
                             borderRadius: 4,
                             fontSize: 12,
-                            color: '#334155',
+                            color: 'var(--ion-text-color)',
                             marginTop: 6,
                             fontStyle: 'italic',
                           }}>
@@ -810,9 +812,9 @@ const Buscar: React.FC = () => {
                             type="button"
                             onClick={() => setPostulanteModal(p)}
                             style={{
-                              background: '#F1F5F9',
-                              color: '#1B2A4A',
-                              border: '1px solid #CBD5E1',
+                              background: 'var(--cx-surface)',
+                              color: 'var(--ion-text-color)',
+                              border: '1px solid var(--cx-border)',
                               borderRadius: 8,
                               padding: '7px 12px',
                               fontSize: 12,
@@ -912,8 +914,8 @@ const Buscar: React.FC = () => {
                           : <div className="job-logo-fallback">{(v.empresa_nombre || 'E')[0]}</div>}
                       </IonAvatar>
                       <div className="job-info">
-                        <div className="job-title">{v.titulo}</div>
-                        <div className="job-company">{v.empresa_nombre}</div>
+                        <div className="job-title">{toSentenceCase(v.titulo)}</div>
+                        <div className="job-company">{toUpperName(v.empresa_nombre)}</div>
                         <div className="job-meta">
                           <IonIcon icon={locationOutline} />
                           {v.ciudad || 'Sin ubicación'} · {v.modalidad}
@@ -1083,11 +1085,11 @@ const Buscar: React.FC = () => {
         {postulanteModal && (
           <IonContent className="ion-padding">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1B2A4A' }}>Perfil del Postulante</h3>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: 'var(--ion-text-color)' }}>Perfil del Postulante</h3>
               <button
                 type="button"
                 onClick={() => setPostulanteModal(null)}
-                style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#64748B' }}
+                style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: 'var(--cx-muted)' }}
                 aria-label="Cerrar perfil"
               >
                 <IonIcon icon={closeOutline} />
@@ -1105,40 +1107,40 @@ const Buscar: React.FC = () => {
                 )}
               </IonAvatar>
               <div>
-                <h4 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700, color: '#1B2A4A' }}>
-                  {postulanteModal.nombre_completo}
+                <h4 style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 700, color: 'var(--ion-text-color)' }}>
+                  {toUpperName(postulanteModal.nombre_completo)}
                 </h4>
-                <div style={{ fontSize: 13, color: '#0F766E', fontWeight: 600 }}>
-                  {postulanteModal.profesion || 'Candidato'}
+                <div style={{ fontSize: 13, color: 'var(--cx-turq-text)', fontWeight: 600 }}>
+                  {toSentenceCase(postulanteModal.profesion) || 'Candidato'}
                 </div>
-                <div style={{ fontSize: 12, color: '#64748B' }}>
-                  📍 {postulanteModal.ciudad || 'Nicaragua'}
+                <div style={{ fontSize: 12, color: 'var(--cx-muted)' }}>
+                  <IonIcon icon={locationOutline} style={{ verticalAlign: -2, marginRight: 3 }} />{postulanteModal.ciudad || 'Nicaragua'}
                 </div>
               </div>
             </div>
 
-            <div style={{ background: '#F8FAFC', borderRadius: 12, padding: 12, marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: '#64748B', marginBottom: 4 }}>Postulado a la vacante:</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: '#1B2A4A' }}>
-                {postulanteModal.vacante_titulo}
+            <div style={{ background: 'var(--cx-surface)', borderRadius: 12, padding: 12, marginBottom: 16 }}>
+              <div style={{ fontSize: 12, color: 'var(--cx-muted)', marginBottom: 4 }}>Postulado a la vacante:</div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--ion-text-color)' }}>
+                {toSentenceCase(postulanteModal.vacante_titulo)}
               </div>
-              <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+              <div style={{ fontSize: 11, color: 'var(--cx-muted)', marginTop: 2 }}>
                 Fecha: {postulanteModal.created_at?.slice(0, 10) || 'Reciente'} · Estado: {postulanteModal.estado}
               </div>
             </div>
 
             {postulanteModal.mensaje && (
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--cx-muted)', marginBottom: 4 }}>
                   Mensaje del candidato:
                 </div>
                 <div style={{
-                  background: '#FFF',
-                  border: '1px solid #E2E8F0',
+                  background: 'var(--ion-card-background)',
+                  border: '1px solid var(--cx-border)',
                   borderRadius: 10,
                   padding: 10,
                   fontSize: 13,
-                  color: '#334155',
+                  color: 'var(--ion-text-color)',
                   fontStyle: 'italic',
                 }}>
                   "{postulanteModal.mensaje}"
@@ -1148,10 +1150,10 @@ const Buscar: React.FC = () => {
 
             {postulanteModal.sobre_mi && (
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--cx-muted)', marginBottom: 4 }}>
                   Sobre el candidato:
                 </div>
-                <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.4 }}>
+                <div style={{ fontSize: 13, color: 'var(--ion-text-color)', lineHeight: 1.4 }}>
                   {postulanteModal.sobre_mi}
                 </div>
               </div>
@@ -1190,8 +1192,8 @@ const Buscar: React.FC = () => {
                     href={`tel:${postulanteModal.telefono}`}
                     style={{
                       flex: 1,
-                      background: '#F1F5F9',
-                      color: '#1B2A4A',
+                      background: 'var(--cx-surface)',
+                      color: 'var(--ion-text-color)',
                       borderRadius: 10,
                       padding: '10px',
                       textAlign: 'center',
@@ -1207,7 +1209,7 @@ const Buscar: React.FC = () => {
                     <IonIcon icon={callOutline} /> Llamar
                   </a>
                   <a
-                    href={`https://wa.me/505${postulanteModal.telefono.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${postulanteModal.nombre_completo}, te contactamos de CONEX sobre tu postulación a ${postulanteModal.vacante_titulo}.`)}`}
+                    href={`https://wa.me/505${postulanteModal.telefono.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${postulanteModal.nombre_completo}, te contactamos de CONEX sobre tu postulación a ${toSentenceCase(postulanteModal.vacante_titulo)}.`)}`}
                     target="_blank"
                     rel="noreferrer"
                     style={{
@@ -1230,7 +1232,7 @@ const Buscar: React.FC = () => {
                   </a>
                 </div>
               ) : (
-                <p style={{ margin: '4px 0 0', fontSize: 11, color: '#64748B', textAlign: 'center' }}>
+                <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--cx-muted)', textAlign: 'center' }}>
                   🔒 El teléfono directo se revela al iniciar conversación o coordinar con el postulante.
                 </p>
               )}

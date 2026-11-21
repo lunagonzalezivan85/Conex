@@ -133,7 +133,7 @@
 .plan-nombre { font-size: 16px; font-weight: 800; margin: 0; color: var(--ion-text-color); }
 .plan-tagline { font-size: 12px; color: var(--cx-muted, #8a94a8); margin: 0; }
 .plan-precio { margin: 4px 0 10px; }
-.plan-precio strong { font-size: 26px; font-weight: 800; color: #1B2A4A; }
+.plan-precio strong { font-size: 26px; font-weight: 800; color: var(--ion-text-color); }
 .plan-precio span { font-size: 13px; color: var(--cx-muted, #8a94a8); }
 .plan-items {
   list-style: none; margin: 0 0 14px; padding: 0;
@@ -1528,7 +1528,7 @@ button.hero-slide { cursor: pointer; }
 
 .pf-row-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 
@@ -1646,6 +1646,15 @@ button.hero-slide { cursor: pointer; }
 
 .sol-chip-btn.whatsapp {
   background: #25D366;
+}
+
+.sol-chip-btn.icon {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 19px;
 }
 
 /* ============================================================
@@ -2262,7 +2271,7 @@ button.hero-slide { cursor: pointer; }
 
 .cx-chat-contact-fields {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 8px;
 }
 
@@ -2932,8 +2941,8 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   display: flex;
   align-items: center;
   gap: 8px;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: var(--ion-card-background, #ffffff);
+  border: 1px solid var(--cx-border, #cbd5e1);
   border-radius: 12px;
   padding: 6px 12px;
 }
@@ -3178,7 +3187,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 }
 
 .cx-msgr-guest-box input {
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--cx-border, #cbd5e1);
   border-radius: 8px;
   padding: 7px 10px;
   font-size: 13px;
@@ -3209,10 +3218,10 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 }
 
 .cx-inbox-item-card {
-  background: #ffffff;
+  background: var(--ion-card-background, #ffffff);
   border-radius: 16px;
   padding: 12px 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--cx-border, #e2e8f0);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
@@ -3221,7 +3230,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 
 .cx-inbox-item-card:active {
   transform: scale(0.99);
-  background-color: #f8fafc;
+  background-color: var(--cx-surface, #f8fafc);
 }
 
 .cx-inbox-item-main {
@@ -3284,7 +3293,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 .cx-inbox-name {
   font-size: 14.5px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--ion-text-color, #0f172a);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3292,7 +3301,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 
 .cx-inbox-time {
   font-size: 11px;
-  color: #94a3b8;
+  color: var(--cx-muted, #94a3b8);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -3312,7 +3321,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 
 .cx-inbox-snippet {
   font-size: 12.5px;
-  color: #64748b;
+  color: var(--cx-muted, #64748b);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3393,7 +3402,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   gap: 8px;
   margin-top: 10px;
   padding-top: 8px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--cx-border, #f1f5f9);
 }
 
 .cx-tab-bar-hidden {
@@ -3431,7 +3440,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   align-items: center;
   justify-content: space-between;
   padding: 16px 18px 12px 18px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--cx-border, #f1f5f9);
 }
 
 .cx-ro-profile-header h3 {
@@ -3553,8 +3562,8 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--cx-surface, #f8fafc);
+  border: 1px solid var(--cx-border, #e2e8f0);
   border-radius: 14px;
   padding: 12px 14px;
 }
@@ -3745,10 +3754,10 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   display: flex;
   align-items: center;
   gap: 12px;
-  background: #ffffff;
+  background: var(--ion-card-background, #ffffff);
   border-radius: 16px;
   padding: 12px 14px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--cx-border, #E2E8F0);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
@@ -3771,7 +3780,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #E2E8F0;
+  border: 2px solid var(--cx-border, #E2E8F0);
 }
 
 .cx-cand-item-avatar-fallback {
@@ -3817,7 +3826,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 .cx-cand-item-name {
   font-size: 14.5px;
   font-weight: 700;
-  color: #0F172A;
+  color: var(--ion-text-color, #0F172A);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3855,9 +3864,14 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   color: #64748B;
 }
 
+.badge-contactado {
+  background: rgba(15, 198, 194, 0.12);
+  color: var(--cx-turq-text, #0A8F8C);
+}
+
 .cx-cand-item-sub {
   font-size: 12.5px;
-  color: #475569;
+  color: var(--cx-muted, #475569);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3868,13 +3882,13 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   align-items: center;
   gap: 8px;
   font-size: 11px;
-  color: #64748B;
+  color: var(--cx-muted, #64748B);
   margin-top: 2px;
   flex-wrap: wrap;
 }
 
 .cx-cand-item-arrow {
-  color: #94A3B8;
+  color: var(--cx-muted, #94A3B8);
   font-size: 18px;
   flex-shrink: 0;
 }
@@ -3966,9 +3980,9 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 .tinder-actions-container {
   margin: 12px 0 16px;
   padding: 14px 16px;
-  background: #ffffff;
+  background: var(--ion-card-background, #ffffff);
   border-radius: 20px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--cx-border, #E2E8F0);
   box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
   text-align: center;
 }
@@ -4085,10 +4099,10 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 
 /* Cards de Detalle */
 .cx-cand-card {
-  background: #ffffff;
+  background: var(--ion-card-background, #ffffff);
   border-radius: 16px;
   padding: 14px 16px;
-  border: 1px solid #E2E8F0;
+  border: 1px solid var(--cx-border, #E2E8F0);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
   margin-bottom: 12px;
 }
@@ -4099,7 +4113,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
   gap: 6px;
   font-size: 12px;
   font-weight: 700;
-  color: #1B2A4A;
+  color: var(--cx-muted, #1B2A4A);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
@@ -4107,7 +4121,7 @@ ion-tabs:has(.cx-messenger-screen) ion-tab-bar,
 
 .cx-cand-card-text {
   font-size: 13.5px;
-  color: #334155;
+  color: var(--ion-text-color, #334155);
   line-height: 1.55;
   margin: 0;
 }
@@ -4176,3 +4190,379 @@ ion-tabs .ion-page:not(.ion-page-hidden) {
 
 
 
+
+/* ============ Feedback de marca CONEX (bento, no default) ============ */
+/* Toast estilo bento: card surface, borde sutil, icono con acento de marca */
+ion-toast.cx-toast {
+  --border-radius: 18px;
+  --background: var(--ion-card-background, #ffffff);
+  --color: var(--ion-text-color, #1B2A4A);
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: var(--cx-border, rgba(27, 42, 74, 0.12));
+  --box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16);
+  --button-color: var(--cx-orange, #F97316);
+  --min-height: 52px;
+  font-weight: 600;
+}
+ion-toast.cx-toast::part(container) {
+  padding: 4px 6px;
+}
+ion-toast.cx-toast::part(icon) {
+  font-size: 22px;
+  margin-inline-end: 4px;
+}
+ion-toast.cx-toast-success::part(icon) { color: var(--cx-turq, #0FC6C2); }
+ion-toast.cx-toast-danger::part(icon)  { color: var(--ion-color-danger, #EF4444); }
+ion-toast.cx-toast-warning::part(icon) { color: var(--cx-orange, #F97316); }
+ion-toast.cx-toast-info::part(icon)    { color: var(--ion-color-primary, #1B2A4A); }
+ion-toast.cx-toast::part(message) {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ion-text-color, #1B2A4A);
+}
+
+/* Alert estilo "sweet modal": card centrada, radius 24, título fuerte,
+   CTA principal naranja pill, cancel ghost muted */
+ion-alert.cx-alert .alert-wrapper {
+  border-radius: 24px !important;
+  background: var(--ion-card-background, #ffffff);
+  border: 1px solid var(--cx-border, rgba(27, 42, 74, 0.12));
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.28);
+  max-width: 320px;
+}
+ion-alert.cx-alert .alert-head {
+  text-align: center;
+  padding-top: 22px;
+}
+ion-alert.cx-alert .alert-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ion-text-color, #1B2A4A);
+}
+ion-alert.cx-alert .alert-sub-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cx-orange, #F97316);
+  text-align: center;
+}
+ion-alert.cx-alert .alert-message {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--cx-muted, #8a92a6);
+  text-align: center;
+  padding: 8px 20px 14px;
+}
+ion-alert.cx-alert .alert-button-group {
+  padding: 8px 14px 14px;
+  gap: 8px;
+}
+ion-alert.cx-alert .alert-button {
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-transform: none;
+  min-height: 44px;
+  margin: 0;
+  padding: 10px 14px;
+  color: var(--ion-text-color, #1B2A4A);
+  background: var(--cx-surface, rgba(27, 42, 74, 0.04));
+}
+ion-alert.cx-alert .alert-button.alert-button-role-cancel {
+  color: var(--cx-muted, #8a92a6);
+}
+/* Último botón no-cancel = CTA principal naranja */
+ion-alert.cx-alert .alert-button:last-child:not(.alert-button-role-cancel) {
+  background: linear-gradient(135deg, #F97316, #FB923C);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.35);
+}
+/* Único botón (OK) también naranja */
+ion-alert.cx-alert .alert-button:only-child {
+  background: linear-gradient(135deg, #F97316, #FB923C);
+  color: #ffffff;
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.35);
+}
+@media (prefers-color-scheme: dark) {
+  ion-alert.cx-alert .alert-wrapper {
+    background: var(--ion-card-background, #16202f);
+    border-color: var(--cx-border, rgba(255, 255, 255, 0.1));
+  }
+}
+
+/* ============ Chat messenger: tema oscuro ============ */
+@media (prefers-color-scheme: dark) {
+  .cx-msgr-content { --background: var(--ion-background-color, #0d1526); }
+
+  .cx-msgr-service-pill-center {
+    background: var(--cx-surface, rgba(255, 255, 255, 0.05));
+    border-color: var(--cx-border, rgba(255, 255, 255, 0.1));
+    box-shadow: none;
+  }
+  .cx-msgr-service-pill-title { color: var(--ion-text-color); }
+  .cx-msgr-service-pill-label { color: var(--cx-muted); }
+  .cx-msgr-service-pill-hint { color: var(--cx-turq-text, #0FC6C2); }
+
+  .cx-msgr-bubble.incoming {
+    background: var(--cx-surface, rgba(255, 255, 255, 0.07));
+    color: var(--ion-text-color);
+  }
+  .cx-msgr-check-icon { color: var(--cx-turq, #0FC6C2); }
+
+  .cx-msgr-plan-card {
+    background: var(--ion-card-background, #16202f);
+    border-color: var(--cx-border, rgba(255, 255, 255, 0.1));
+    box-shadow: none;
+  }
+  .cx-msgr-plan-title { color: var(--ion-text-color); }
+  .cx-msgr-plan-desc { color: var(--cx-muted); }
+  .cx-msgr-plan-btn { color: var(--cx-turq, #0FC6C2); }
+  .cx-msgr-plan-check { color: var(--cx-turq, #0FC6C2); }
+
+  .cx-msgr-footer {
+    background: var(--ion-card-background, #16202f);
+    border-top-color: var(--cx-border, rgba(255, 255, 255, 0.1));
+    box-shadow: none;
+  }
+  .cx-msgr-price-drawer {
+    background: var(--cx-surface, rgba(255, 255, 255, 0.05));
+    border-bottom-color: var(--cx-border, rgba(255, 255, 255, 0.1));
+  }
+  .cx-msgr-drawer-head { color: var(--ion-text-color); }
+  .cx-msgr-drawer-body {
+    background: var(--ion-card-background, #16202f);
+    border-color: var(--cx-border, rgba(255, 255, 255, 0.1));
+  }
+  .cx-msgr-drawer-body input { color: var(--ion-text-color); }
+
+  .cx-msgr-input-bar { background: transparent; }
+  .cx-msgr-loc-btn,
+  .cx-msgr-plus-btn,
+  .cx-msgr-tool-btn,
+  .cx-msgr-emoji-btn,
+  .cx-msgr-send-btn { color: var(--ion-text-color); }
+  .cx-msgr-loc-btn:active { background: var(--cx-surface); }
+
+  .cx-msgr-pill-input {
+    background: var(--cx-surface, rgba(255, 255, 255, 0.07));
+    border: 1px solid var(--cx-border, rgba(255, 255, 255, 0.1));
+  }
+  .cx-msgr-pill-input input { color: var(--ion-text-color); }
+  .cx-msgr-pill-input input::placeholder { color: var(--cx-muted); }
+}
+
+/* Segment toggle en oscuro: fondo surface, no gris claro */
+@media (prefers-color-scheme: dark) {
+  .dash-segment {
+    --background: var(--cx-surface, rgba(255, 255, 255, 0.07));
+  }
+  .dash-segment ion-segment-button {
+    --background-checked: var(--ion-color-primary, #4A6DB8);
+  }
+}
+
+/* Botones deshabilitados: siempre legibles con muted en ambos temas.
+   (Ionic renderiza disabled="false" como atributo, por eso la clase) */
+ion-button.button-disabled {
+  --color: var(--cx-muted, #8a92a6);
+  --border-color: var(--cx-border, rgba(128, 128, 128, 0.3));
+}
+
+/* ============ CxAutocomplete: input pill + dropdown bento ============ */
+.cx-ac-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 50px;
+  padding: 0 10px 0 14px;
+  border-radius: 14px;
+  border: 1px solid var(--ion-border-color, #e5e7eb);
+  background: var(--ion-card-background, #fff);
+}
+.cx-ac-wrap:focus-within {
+  border-color: var(--cx-turq, #0FC6C2);
+  box-shadow: 0 0 0 3px rgba(15, 198, 194, 0.15);
+}
+.cx-ac-icon {
+  font-size: 18px;
+  color: var(--cx-muted, #8a92a6);
+  flex-shrink: 0;
+}
+.cx-ac-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14.5px;
+  color: var(--ion-text-color);
+}
+.cx-ac-input::placeholder { color: var(--cx-muted, #8a92a6); }
+.cx-ac-toggle {
+  border: none;
+  background: transparent;
+  color: var(--cx-muted, #8a92a6);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 6px;
+}
+.cx-ac-list {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 220px;
+  overflow-y: auto;
+  border-radius: 16px;
+  border: 1px solid var(--cx-border, rgba(27, 42, 74, 0.12));
+  background: var(--ion-card-background, #fff);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.18);
+}
+.cx-ac-option {
+  padding: 12px 12px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ion-text-color);
+  cursor: pointer;
+}
+.cx-ac-option.hl { background: var(--cx-surface, rgba(27, 42, 74, 0.05)); }
+.cx-ac-option.sel { color: var(--cx-turq-text, #0A8F8C); }
+@media (prefers-color-scheme: dark) {
+  .cx-ac-list { box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5); }
+}
+
+/* ============ Pills de moneda (NIO/USD) ============ */
+.cx-moneda-pills {
+  display: flex;
+  gap: 10px;
+}
+.cx-moneda-pill {
+  flex: 1;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--cx-border, rgba(27, 42, 74, 0.12));
+  background: var(--ion-card-background, #fff);
+  color: var(--cx-muted, #8a92a6);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cx-moneda-pill strong { font-size: 15px; }
+.cx-moneda-pill.on {
+  border-color: var(--cx-turq, #0FC6C2);
+  background: var(--cx-surface, rgba(15, 198, 194, 0.08));
+  color: var(--ion-text-color);
+  box-shadow: 0 0 0 3px rgba(15, 198, 194, 0.12);
+}
+
+/* ============ Chat: banner de conversación finalizada ============ */
+.cx-msgr-finalized {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  margin: 0;
+  border-top: 1px solid var(--cx-border, rgba(27, 42, 74, 0.12));
+  background: var(--cx-surface, rgba(27, 42, 74, 0.05));
+  color: var(--cx-muted, #8a92a6);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+.cx-msgr-sys-msg {
+  display: flex;
+  justify-content: center;
+  margin: 10px 0;
+}
+.cx-msgr-sys-msg span {
+  font-size: 12px;
+  color: var(--cx-muted, #8a92a6);
+  background: var(--cx-surface, rgba(27, 42, 74, 0.05));
+  border-radius: 999px;
+  padding: 6px 14px;
+  text-align: center;
+}
+
+/* ============ Pills de moneda (NIO/USD) ============ */
+.cx-moneda-pills {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.cx-moneda-pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 48px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--cx-border, rgba(27, 42, 74, 0.12));
+  background: var(--ion-card-background, #fff);
+  color: var(--ion-text-color);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.cx-moneda-pill strong {
+  font-size: 16px;
+  color: var(--cx-turq-text, #0A8F8C);
+}
+.cx-moneda-pill.on {
+  border-color: var(--cx-turq, #0FC6C2);
+  background: var(--cx-surface, rgba(15, 198, 194, 0.08));
+  box-shadow: 0 0 0 3px rgba(15, 198, 194, 0.15);
+}
+
+/* ============ Badge "Contactado" en postulantes ============ */
+.badge-contactado {
+  background: rgba(15, 198, 194, 0.14) !important;
+  color: var(--cx-turq-text, #0A8F8C) !important;
+}
+
+/* ============ Chat: conversación finalizada ============ */
+.cx-msgr-finalized {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 18px;
+  color: var(--cx-muted, #8a92a6);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  border-top: 1px solid var(--cx-border, rgba(27, 42, 74, 0.12));
+}
+.cx-msgr-sys-msg {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}
+.cx-msgr-sys-msg span {
+  font-size: 12px;
+  color: var(--cx-muted, #8a92a6);
+  background: var(--cx-surface, rgba(27, 42, 74, 0.05));
+  padding: 5px 14px;
+  border-radius: 999px;
+  text-align: center;
+}
