@@ -591,7 +591,7 @@ const VacanteDetalle: React.FC = () => {
       </IonModal>
 
       {/* Modal postularse */}
-      <IonModal isOpen={modalPostular} onDidDismiss={() => setModalPostular(false)} initialBreakpoint={0.7} breakpoints={[0, 0.7, 0.95]} className="filtros-modal">
+      <IonModal isOpen={modalPostular} onDidDismiss={() => setModalPostular(false)} initialBreakpoint={0.75} breakpoints={[0, 0.75, 0.95]} className="filtros-modal">
         <IonContent>
           <div className="fm-head">
             <button className="fm-close" onClick={() => setModalPostular(false)} aria-label="Cerrar">
@@ -643,14 +643,13 @@ const VacanteDetalle: React.FC = () => {
             </div>
           </section>
 
-          <div style={{ height: 100 }} />
+          {/* Boton de envio visible inmediatamente despues del mensaje opcional */}
+          <div style={{ padding: '16px 18px calc(24px + env(safe-area-inset-bottom))' }}>
+            <button className="fm-apply" onClick={postular} disabled={enviando}>
+              {enviando ? <IonSpinner name="crescent" /> : cvs.length > 0 ? 'Enviar postulación con CV' : 'Postularme con mi Perfil CONEX'}
+            </button>
+          </div>
         </IonContent>
-
-        <div className="fm-footer">
-          <button className="fm-apply" onClick={postular} disabled={enviando}>
-            {enviando ? <IonSpinner name="crescent" /> : cvs.length > 0 ? 'Enviar postulación con CV' : 'Postularme con mi Perfil CONEX'}
-          </button>
-        </div>
       </IonModal>
     </IonPage>
   );
