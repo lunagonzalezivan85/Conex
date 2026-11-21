@@ -28,14 +28,28 @@ class AuthController extends BaseController
         }
 
         $userModel = new UserModel();
-        $usuario = $this->request->getPost('usuario');
-        $password = $this->request->getPost('password');
+        $usuario = trim((string)($this->request->getPost('usuario') ?? ''));
+        $password = (string)($this->request->getPost('password') ?? '');
+        $cedulaNorm = strtoupper(preg_replace('/[^0-9A-Za-z]/', '', $usuario));
+        $telefonoNorm = preg_replace('/\D/', '', $usuario);
 
-        $user = $userModel->where('usuario', $usuario)
-            ->orWhere('email', $usuario)
-            ->first();
+        $builder = $userModel->groupStart()
+            ->where('usuario', $usuario)
+            ->orWhere('email', $usuario);
+        if (!empty($cedulaNorm)) {
+            $builder->orWhere('usuario', $cedulaNorm);
+        }
+        if (strlen($telefonoNorm) >= 8) {
+            $builder->orWhere('telefono', $usuario);
+        }
+        $user = $builder->groupEnd()->first();
 
-        if (!$user || !password_verify($password, $user['password'])) {
+        $passValid = false;
+        if ($user) {
+            $passValid = password_verify($password, $user['password']) || password_verify(trim($password), $user['password']);
+        }
+
+        if (!$user || !$passValid) {
             return redirect()->back()->withInput()->with('error', 'Credenciales invalidas.');
         }
 
@@ -111,7 +125,7 @@ class AuthController extends BaseController
             'usuario' => $this->request->getPost('usuario'),
             'email' => $this->request->getPost('email'),
             'telefono' => $this->request->getPost('telefono'),
-            'password' => password_hash($this->request->getPost('password'), PASSWORD_BCRYPT),
+            'password' => (string) $this->request->getPost('password'),
             'estado' => 'activo',
             'perfil_completo' => false,
         ];

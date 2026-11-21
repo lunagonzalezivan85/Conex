@@ -25,7 +25,11 @@ class UserModel extends Model
     protected function hashPassword(array $data)
     {
         if (isset($data['data']['password'])) {
-            $data['data']['password'] = password_hash($data['data']['password'], PASSWORD_BCRYPT);
+            $pass = (string) $data['data']['password'];
+            // Si ya es un hash bcrypt ($2y$, $2a$, $2b$), evitar re-hashear
+            if (!preg_match('/^\$2[ayb]\$\d{2}\$[A-Za-z0-9\.\/]{53}$/', $pass)) {
+                $data['data']['password'] = password_hash($pass, PASSWORD_BCRYPT);
+            }
         }
         return $data;
     }

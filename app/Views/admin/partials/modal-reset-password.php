@@ -49,7 +49,7 @@
                         </button>
                     </div>
                     <small style="color: #64748B; font-size: 11.5px; display: block; margin-top: 5px;">
-                        Mínimo 6 caracteres. Si haces clic en "Generar", se creará una clave aleatoria segura.
+                        Mínimo 4 caracteres (o PIN numérico). Puedes escribir una clave manual o hacer clic en "⚡ Generar".
                     </small>
                 </div>
 
@@ -192,8 +192,8 @@
             return;
         }
 
-        if (newPassword && newPassword.length < 6) {
-            errorBox.textContent = 'La contraseña debe contener al menos 6 caracteres.';
+        if (newPassword && newPassword.length < 4) {
+            errorBox.textContent = 'La contraseña debe contener al menos 4 caracteres.';
             errorBox.style.display = 'block';
             return;
         }
