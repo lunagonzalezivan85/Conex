@@ -72,12 +72,7 @@ const Dashboard: React.FC = () => {
   };
 
   useEffect(() => {
-    if (user) {
-      const t = setTimeout(() => {
-        load();
-      }, 50);
-      return () => clearTimeout(t);
-    }
+    if (user) load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 

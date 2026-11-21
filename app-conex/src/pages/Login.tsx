@@ -52,9 +52,7 @@ const Login: React.FC = () => {
     setBusy(true);
     try {
       await login(usuario.trim(), password);
-      setTimeout(() => {
-        router.push('/app/dashboard', 'none', 'replace');
-      }, 30);
+      router.push('/app/dashboard', 'forward', 'replace');
     } catch (err) {
       const e = err as ApiError;
       if (e.status === 429) {
