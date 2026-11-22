@@ -63,6 +63,14 @@ $routes->post('/candidato/servicios/eliminar/(:num)', 'CandidatoController::elim
 $routes->get('/candidato/solicitudes', 'CandidatoController::solicitudesServicio');
 $routes->post('/candidato/solicitudes/(:num)', 'CandidatoController::responderSolicitud/$1');
 $routes->post('/candidato/postularse/(:num)', 'CandidatoController::postularse/$1');
+// Mensajeria interna web (paridad con la app: srv_contacto + srv_contacto_mensaje)
+$routes->get('/chat/(:num)', 'ChatController::ver/$1');
+$routes->post('/chat/(:num)/mensaje', 'ChatController::enviar/$1');
+$routes->post('/chat/(:num)/finalizar', 'ChatController::finalizar/$1');
+$routes->get('/empresa/chat', 'ChatController::index');
+$routes->post('/empresa/chat/iniciar/(:num)', 'ChatController::iniciarPostulante/$1');
+$routes->get('/candidato/mensajes', 'ChatController::index');
+
 $routes->get('/candidato/info', 'CandidatoController::info');
 $routes->get('/candidato/planes', 'CandidatoController::planes');
 $routes->post('/candidato/subir-documento', 'CandidatoController::subirDocumento');

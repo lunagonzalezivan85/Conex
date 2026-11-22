@@ -39,6 +39,13 @@
             <?php endif; ?>
         </div>
         <div class="pd-estado-actions" id="pd-estado-actions">
+            <form action="<?= base_url('empresa/chat/iniciar/' . (int)$postulacion['id']) ?>" method="post" style="display:inline;">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn-estado" style="background:var(--brand-teal,#0FC6C2);color:#fff;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Mensaje
+                </button>
+            </form>
             <?php if ($estadoActual === 'contratado'): ?>
                 <span class="pd-estado-locked">Contratado - No se pueden realizar cambios</span>
             <?php else: ?>
@@ -69,7 +76,7 @@
             <?php endif; ?>
         </div>
         <div class="pd-header-info">
-            <h2 class="pd-name"><?= esc(($candidato['nombre'] ?? '') . ' ' . ($candidato['apellidos'] ?? '')) ?></h2>
+            <h2 class="pd-name"><?= esc(cxNombre(trim(($candidato['nombre'] ?? '') . ' ' . ($candidato['apellidos'] ?? '')))) ?></h2>
             <p class="pd-profesion"><?= esc($candidato['profesion'] ?? 'Sin profesion') ?></p>
             <div class="pd-contact">
                 <?php if (!empty($candidato['email'])): ?>

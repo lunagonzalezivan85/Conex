@@ -578,6 +578,19 @@ class PublicController extends BaseController
             'estado'      => 'pendiente',
             'created_at'  => date('Y-m-d H:i:s'),
         ]);
+        $contactoId = (int)$db->insertID();
+
+        // Hilo de conversacion (paridad con la app)
+        if (!empty($mensaje) && $db->tableExists('srv_contacto_mensaje')) {
+            $db->table('srv_contacto_mensaje')->insert([
+                'contacto_id'   => $contactoId,
+                'emisor_tipo'   => 'cliente',
+                'emisor_nombre' => $nombre,
+                'mensaje'       => mb_substr($mensaje, 0, 500),
+                'created_at'    => date('Y-m-d H:i:s'),
+            ]);
+        }
+
         $db->table('srv_servicio')->where('id', (int)$id)->set('contactos', 'contactos+1', false)->update();
 
         return redirect()->to('servicios/p/' . (int)$id)

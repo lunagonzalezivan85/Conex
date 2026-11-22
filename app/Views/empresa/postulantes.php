@@ -13,7 +13,7 @@
             <?= strtoupper(substr($p['nombre'] ?? 'U', 0, 1)) ?>
         </div>
         <div class="postulante-info">
-            <h3 class="postulante-name"><?= esc(($p['nombre'] ?? '') . ' ' . ($p['apellido'] ?? '')) ?></h3>
+            <h3 class="postulante-name"><?= esc(cxNombre(trim(($p['nombre'] ?? '') . ' ' . ($p['apellido'] ?? '')))) ?></h3>
             <p class="postulante-meta">
                 <?= esc($p['email'] ?? '') ?>
                 <?php if (!empty($p['profesion'])): ?> · <?= esc($p['profesion']) ?><?php endif; ?>

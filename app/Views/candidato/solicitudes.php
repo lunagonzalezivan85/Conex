@@ -1,6 +1,6 @@
 <?php
-$estadoLabel = ['pendiente' => 'Pendiente', 'aceptado' => 'Aceptada', 'rechazado' => 'Rechazada'];
-$estadoClass = ['pendiente' => 'badge-warning', 'aceptado' => 'badge-success', 'rechazado' => 'badge-accent'];
+$estadoLabel = ['pendiente' => 'Pendiente', 'aceptado' => 'Aceptada', 'rechazado' => 'Rechazada', 'finalizado' => 'Finalizada'];
+$estadoClass = ['pendiente' => 'badge-warning', 'aceptado' => 'badge-success', 'rechazado' => 'badge-accent', 'finalizado' => 'badge-accent'];
 ?>
 <div class="srv-panel">
     <div class="card">
@@ -35,6 +35,7 @@ $estadoClass = ['pendiente' => 'badge-warning', 'aceptado' => 'badge-success', '
                             <span class="badge <?= $estadoClass[$s['estado']] ?? 'badge-accent' ?>">
                                 <?= $estadoLabel[$s['estado']] ?? $s['estado'] ?>
                             </span>
+                            <a href="<?= base_url('chat/' . (int)$s['id']) ?>" class="btn btn-ghost btn-sm">Ver conversacion</a>
                             <?php if ($s['estado'] === 'pendiente'): ?>
                                 <form action="<?= base_url('candidato/solicitudes/' . (int)$s['id']) ?>" method="post">
                                     <?= csrf_field() ?>
