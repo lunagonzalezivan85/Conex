@@ -73,8 +73,11 @@ class ChatController extends BaseController
         $builder = $db->table('srv_contacto')
             ->select('srv_contacto.id, srv_contacto.user_id, srv_contacto.nombre, srv_contacto.estado,
                 srv_contacto.created_at, srv_contacto.updated_at, srv_servicio.oficio,
+                TRIM(CONCAT(COALESCE(u2.nombre, ""), " ", COALESCE(u2.apellido, ""))) AS prestador_nombre,
                 (SELECT mensaje FROM srv_contacto_mensaje m WHERE m.contacto_id = srv_contacto.id ORDER BY m.id DESC LIMIT 1) AS ultimo')
             ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
+            ->join('cand_candidato', 'cand_candidato.id = srv_servicio.candidato_id', 'left')
+            ->join('auth_user u2', 'u2.id = cand_candidato.user_id', 'left')
             ->groupStart()
                 ->where('srv_contacto.user_id', $user['id']);
         if ($candidato) {
@@ -89,7 +92,7 @@ class ChatController extends BaseController
         foreach ($conversaciones as &$c) {
             if ((int)$c['user_id'] === (int)$user['id']) {
                 $c['lado'] = 'cliente';
-                $c['otro'] = $c['oficio'] ?? 'Conversacion';
+                $c['otro'] = trim($c['prestador_nombre'] ?? '') ?: ($c['oficio'] ?? 'Conversacion');
             } else {
                 $c['lado'] = 'prestador';
                 $c['otro'] = $c['nombre'];
@@ -201,11 +204,15 @@ class ChatController extends BaseController
             'created_at'       => date('Y-m-d H:i:s'),
         ]);
 
-        $db->table('srv_contacto')->where('id', (int)$id)->update([
+        $update = [
             'respuesta'       => $mensaje,
             'fecha_respuesta' => date('Y-m-d H:i:s'),
             'updated_at'      => date('Y-m-d H:i:s'),
-        ]);
+        ];
+        if ($precio !== null) {
+            $update['precio_propuesto'] = $precio;
+        }
+        $db->table('srv_contacto')->where('id', (int)$id)->update($update);
 
         // Notificar a la contraparte (si tiene cuenta)
         $destino = null;
@@ -258,7 +265,7 @@ class ChatController extends BaseController
             'created_at'    => date('Y-m-d H:i:s'),
         ]);
 
-        return redirect()->to('chat/' . (int)$id)->with('success', 'Conversacion finalizada.');
+        return redirect()->to('chat/' . (int)$id)->with('info', 'Conversacion finalizada.');
     }
 
     /** POST /empresa/chat/iniciar/{postulacion_id} — empresa contacta candidato */

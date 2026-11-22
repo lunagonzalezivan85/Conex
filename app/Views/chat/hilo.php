@@ -64,6 +64,9 @@ $miTipo     = $lado; // 'cliente' o 'prestador'
         <?php else: ?>
             <form class="chat-hilo-form" action="<?= base_url('chat/' . (int)$contacto['id'] . '/mensaje') ?>" method="post">
                 <?= csrf_field() ?>
+                <?php if ($lado === 'prestador'): ?>
+                    <input type="number" name="precio_propuesto" class="chat-input chat-input-precio" placeholder="C$ (opcional)" min="0" step="any" aria-label="Precio propuesto en cordobas">
+                <?php endif; ?>
                 <input type="text" name="mensaje" class="chat-input" placeholder="Escribe un mensaje..." maxlength="1000" required autocomplete="off">
                 <button type="submit" class="btn btn-primary chat-send" aria-label="Enviar mensaje">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>

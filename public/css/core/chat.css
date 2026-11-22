@@ -91,6 +91,7 @@
     background: var(--bg-secondary); color: var(--text-primary); font-size: 14px;
 }
 .chat-input:focus { outline: 2px solid var(--brand-teal); outline-offset: -1px; border-color: var(--brand-teal); }
+.chat-input-precio { flex: 0 0 120px; text-align: center; }
 .chat-send {
     min-width: 48px; min-height: 44px; border-radius: 999px;
     display: flex; align-items: center; justify-content: center;

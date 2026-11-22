@@ -64,11 +64,17 @@ Modelo de datos compartido con la app: `srv_contacto` (conversación) +
 2. Empresa envía 2º mensaje → `emisor_tipo=cliente` ✓
 3. Candidato (iluna) → `/candidato/mensajes` → ve "TechCorp Solutions S.A." con preview ✓
 4. Candidato responde → `emisor_tipo=prestador` + notificación a empresa ✓
-5. Finalizar → `estado=finalizado`, aviso sistema, input desaparece ✓
+5. Finalizar → `estado=finalizado`, aviso sistema con nombre, input desaparece ✓
+6. Solicitante (empresa) → `/servicios/p/1` → envía solicitud → `srv_contacto` + hilo ✓
+7. Prestador acepta → teléfono revelado + link WhatsApp ✓
+8. Prestador negocia con `precio_propuesto` (campo C$ solo visible al prestador) →
+   guardado en hilo y en `srv_contacto.precio_propuesto` ✓
+9. Solicitante ve y responde el hilo desde su propia lista de Mensajes ✓
+10. Lista muestra nombre real de la contraparte (no solo el oficio) ✓
 
 ## Pendiente
 
-- [ ] Flujo prestador↔solicitante con datos reales (no hay prestadores activos en local)
-- [ ] Badge de no-leídos en sidebar "Mensajes"
-- [ ] Dark mode de la web (verificar que chat.css use vars correctas)
-- [ ] Deploy a producción cuando el puntaje sea 100
+- [ ] Badge de no-leídos en sidebar "Mensajes" (requiere flag `leida` en mensajes)
+- [ ] Solicitantes anónimos (sin cuenta) siguen el flujo por teléfono — el chat
+      requiere login, igual que en la app
+- [ ] Deploy a producción cuando se confirme puntaje 100

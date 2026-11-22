@@ -674,7 +674,7 @@ class PublicController extends BaseController
     private function nombrePublico(string $nombre, string $apellido): string
     {
         $ini = mb_strtoupper(mb_substr(trim($apellido), 0, 1));
-        return trim($nombre) . ($ini !== '' ? ' ' . $ini . '.' : '');
+        return cxNombre(trim($nombre)) . ($ini !== '' ? ' ' . $ini . '.' : '');
     }
 
     public function planes(): string
