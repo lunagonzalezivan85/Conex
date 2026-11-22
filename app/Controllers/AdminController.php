@@ -238,9 +238,29 @@ class AdminController extends BaseController
             }
         }
 
+        // Tareas de agente (solo para asesores): leads asignados + sin asignar
+        $leadsAsignados = [];
+        $leadsSinAsignar = [];
+        if ($usuario['role_slug'] === 'asesor') {
+            $leadsAsignados = $db->table('crm_lead')
+                ->where('asesor_id', $userId)
+                ->orderBy('created_at', 'DESC')
+                ->get()->getResultArray();
+            $leadsSinAsignar = $db->table('crm_lead')
+                ->groupStart()
+                    ->where('asesor_id IS NULL')
+                    ->orWhere('asesor_id', 0)
+                ->groupEnd()
+                ->orderBy('created_at', 'DESC')
+                ->limit(50)
+                ->get()->getResultArray();
+        }
+
         $sidebarSections = $this->getSidebarSections($roleSlug);
 
         $content = view('admin/usuario-perfil', [
+            'leadsAsignados'  => $leadsAsignados,
+            'leadsSinAsignar' => $leadsSinAsignar,
             'usuario'                   => $usuario,
             'candidato'                 => $candidato,
             'educacion'                 => $educacion,
@@ -342,6 +362,137 @@ class AdminController extends BaseController
         }
 
         return $this->response->setJSON($response);
+    }
+
+    /** GET /admin/usuarios/crear — formulario de alta de usuario (cualquier rol, solo admin) */
+    public function crearUsuario()
+    {
+        $guard = $this->guardAdminOrRedirect();
+        if ($guard['redirect']) {
+            return $guard['redirect'];
+        }
+        if (($guard['roleSlug'] ?? '') !== 'admin') {
+            return redirect()->to('admin/crm')->with('error', 'Solo el administrador puede crear usuarios.');
+        }
+        $roleSlug = 'admin';
+
+        $db = \Config\Database::connect();
+        $roles = $db->table('auth_role')->orderBy('id')->get()->getResultArray();
+
+        $content = view('admin/usuario-crear', ['roles' => $roles]);
+
+        return view('layouts/panel', [
+            'content'         => $content,
+            'title'           => 'Crear Usuario',
+            'pageTitle'       => 'Crear Usuario',
+            'roleSlug'        => $roleSlug,
+            'sidebarSections' => $this->getSidebarSections($roleSlug),
+            'activeSection'   => 'usuarios',
+            'css'             => ['admin-usuarios.css'],
+        ]);
+    }
+
+    /** POST /admin/usuarios/crear — alta de usuario con rol (asesor, empresa, candidato, admin) */
+    public function guardarUsuario()
+    {
+        $guard = $this->guardAdminOrRedirect();
+        if ($guard['redirect']) {
+            return $guard['redirect'];
+        }
+        if (($guard['roleSlug'] ?? '') !== 'admin') {
+            return redirect()->to('admin/crm')->with('error', 'Solo el administrador puede crear usuarios.');
+        }
+
+        $nombre   = trim((string)$this->request->getPost('nombre'));
+        $apellido = trim((string)$this->request->getPost('apellido'));
+        $usuario  = trim((string)$this->request->getPost('usuario'));
+        $email    = trim((string)$this->request->getPost('email'));
+        $telefono = trim((string)$this->request->getPost('telefono'));
+        $roleId   = (int)$this->request->getPost('role_id');
+        $password = (string)$this->request->getPost('password');
+
+        if ($nombre === '' || $usuario === '' || $email === '' || $roleId <= 0 || strlen($password) < 8) {
+            return redirect()->back()->withInput()
+                ->with('error', 'Completa nombre, usuario, email, rol y una contrasena de al menos 8 caracteres.');
+        }
+
+        $db = \Config\Database::connect();
+        $rol = $db->table('auth_role')->where('id', $roleId)->get()->getRowArray();
+        if (!$rol) {
+            return redirect()->back()->withInput()->with('error', 'Rol invalido.');
+        }
+
+        $userModel = new UserModel();
+        if ($userModel->where('usuario', $usuario)->orWhere('email', $email)->first()) {
+            return redirect()->back()->withInput()->with('error', 'Ya existe un usuario con ese usuario o email.');
+        }
+
+        $userModel->insert([
+            'role_id'   => $roleId,
+            'nombre'    => $nombre,
+            'apellido'  => $apellido,
+            'usuario'   => $usuario,
+            'email'     => $email,
+            'telefono'  => $telefono,
+            'password'  => $password,
+            'estado'    => 'activo',
+        ]);
+        $newId = (int)$userModel->getInsertID();
+
+        // Crear perfil de dominio segun el rol (la empresa/candidato lo completan luego)
+        if ($rol['slug'] === 'empresa') {
+            $db->table('emp_empresa')->insert([
+                'user_id'      => $newId,
+                'razon_social' => $nombre . ' ' . $apellido,
+                'created_at'   => date('Y-m-d H:i:s'),
+                'updated_at'   => date('Y-m-d H:i:s'),
+            ]);
+        } elseif ($rol['slug'] === 'candidato') {
+            $db->table('cand_candidato')->insert([
+                'user_id'    => $newId,
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+            ]);
+        }
+
+        return redirect()->to('admin/usuarios/perfil/' . $newId)
+            ->with('info', "Usuario {$usuario} ({$rol['nombre']}) creado correctamente.");
+    }
+
+    /**
+     * POST /admin/usuarios/asignar-lead/{userId}
+     * Asigna un lead del CRM a un usuario asesor (tarea de agente).
+     */
+    public function asignarLead(int $userId)
+    {
+        $guard = $this->guardAdminOrRedirect();
+        if ($guard['redirect']) {
+            return $guard['redirect'];
+        }
+        if (($guard['roleSlug'] ?? '') !== 'admin') {
+            return redirect()->to('admin/crm')->with('error', 'Solo el administrador puede asignar tareas a asesores.');
+        }
+
+        $userModel = new UserModel();
+        $target = $userModel->find($userId);
+        if (!$target || $userModel->getRoleSlug((int)$target['role_id']) !== 'asesor') {
+            return redirect()->back()->with('error', 'Solo se pueden asignar tareas a usuarios asesores.');
+        }
+
+        $leadId = (int)$this->request->getPost('lead_id');
+        $db = \Config\Database::connect();
+        $lead = $db->table('crm_lead')->where('id', $leadId)->get()->getRowArray();
+        if (!$lead) {
+            return redirect()->back()->with('error', 'Lead no encontrado.');
+        }
+
+        $db->table('crm_lead')->where('id', $leadId)->update([
+            'asesor_id'  => $userId,
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->to('admin/usuarios/perfil/' . $userId)
+            ->with('info', "Lead #{$leadId} asignado a {$target['nombre']} {$target['apellido']}.");
     }
 
     /**

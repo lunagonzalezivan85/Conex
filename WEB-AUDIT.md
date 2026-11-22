@@ -78,3 +78,45 @@ Modelo de datos compartido con la app: `srv_contacto` (conversación) +
 - [ ] Solicitantes anónimos (sin cuenta) siguen el flujo por teléfono — el chat
       requiere login, igual que en la app
 - [ ] Deploy a producción cuando se confirme puntaje 100
+
+---
+
+## Ronda 3 — Chat contacto, buscar-empleo móvil, admin agentes
+
+### Casos de uso nuevos
+
+| CU | Actor | Flujo | Estado |
+|----|-------|-------|--------|
+| CU-11 | Cualquiera en chat | Contactar por tel/WhatsApp desde iconos fijos a la derecha del header (sin ver el número crudo) | IMPLEMENTADO |
+| CU-12 | Candidato | Ver avatar/logo de empresa en `/candidato/buscar-empleo` sin hover; tarjetas usables a 390px | IMPLEMENTADO |
+| CU-13 | Admin | Crear usuario con rol Asesor (u otro rol) desde `/admin/usuarios/crear` | IMPLEMENTADO |
+| CU-14 | Admin | Asignar tareas (leads CRM) a un asesor desde su perfil `/admin/usuarios/perfil/{id}` | IMPLEMENTADO |
+| CU-15 | Asesor | Login → `/agente` → ver leads asignados (`crm_lead.asesor_id`) | VERIFICADO |
+
+### Hallazgos ronda 3
+
+| Sev | Hallazgo | Fix |
+|-----|----------|-----|
+| Alta | Chat mostraba número de teléfono como texto en el hilo | Iconos `tel:`/`wa.me` fijos a la derecha del header (`chat/hilo.php`, `chat.css`), aria-label + title |
+| Media | Avatar empresa solo aparecía al acercarse (notch) | Avatar siempre visible en tarjeta (`buscar-empleo.php` + CSS), responsive 390px |
+| Alta | Admin no podía crear usuarios agente | `AdminController::crearUsuario/guardarUsuario` + vista `usuario-crear.php` + rutas |
+| Alta | Sin forma directa de asignar leads a un asesor desde usuarios | `AdminController::asignarLead` + sección "Tareas de Agente" en `usuario-perfil.php` (tabla de leads asignados + select de pendientes) |
+| Crit | Guard permitía asesor crear usuarios/asignar (role escalation: podría crear un admin) | Restricción `roleSlug==='admin'` en crearUsuario/guardarUsuario/asignarLead |
+| Baja | Columnas crm_lead incorrectas en la vista (`nombre`, `email`) | `nombre_contacto`, `email_contacto`, `estado`, `empresa_nombre` |
+
+### Verificado con Playwright (ronda 3)
+
+1. Admin → `/admin/usuarios` → botón "Crear usuario" visible ✓
+2. `/admin/usuarios/crear` → form apilado (rol, usuario, email, contraseña, nombre, apellido, teléfono) ✓
+3. Crear `agente2` (rol Asesor) → `auth_user` id=20, role_id=2, estado=activo ✓
+4. Perfil de agente2 → sección "Tareas de Agente" lista leads sin asignar ✓
+5. Asignar lead #1 → `crm_lead.asesor_id=20` + flash "Lead #1 asignado a Maria Gomez" ✓
+6. Login agente2 → `/agente` dashboard muestra lead "Pedro Ruiz" ✓
+7. Agente2 intenta `/admin/usuarios/crear` → redirect a `/admin/crm` (bloqueado) ✓
+8. Admin accede `/admin/usuarios/crear` → 200 (bug `role_slug`→`roleSlug` corregido) ✓
+
+### Nota
+
+El pipeline CRM existente (`/admin/crm`, CrmController) ya permite crear leads y
+asignar `asesor_id` en alta/edición — la nueva sección en el perfil del usuario es
+un atajo directo para "asignar tareas a agentes" sin pasar por el pipeline.

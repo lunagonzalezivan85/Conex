@@ -180,6 +180,9 @@ $routes->group('api', ['filter' => ['apiAuth', 'apiRate:120,60']], function ($ro
 // Panel admin
 $routes->get('/admin', 'AdminController::index');
 $routes->get('/admin/usuarios', 'AdminController::usuarios');
+$routes->get('/admin/usuarios/crear', 'AdminController::crearUsuario');
+$routes->post('/admin/usuarios/crear', 'AdminController::guardarUsuario');
+$routes->post('/admin/usuarios/asignar-lead/(:num)', 'AdminController::asignarLead/$1');
 $routes->get('/admin/usuarios/perfil/(:num)', 'AdminController::perfilUsuario/$1');
 $routes->get('/admin/usuarios/api-detalle/(:num)', 'AdminController::apiDetalleUsuario/$1');
 $routes->post('/admin/usuarios/reset-password/(:num)', 'AdminController::resetPassword/$1');

@@ -43,7 +43,7 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
 
             <?php if (isset($pager) && $pager): ?>
             <div class="be-pagination-top">
-                <?= $pager->links() ?>
+                <?= $pager->links('default', 'conex_full') ?>
             </div>
             <?php endif; ?>
         </div>
@@ -114,7 +114,7 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
     <div class="be-grid">
         <?php if (!empty($vacantes)): ?>
             <?php foreach ($vacantes as $v): ?>
-                <a href="<?= base_url('candidato/vacante/' . $v['slug']) ?>" class="dash-card be-card">
+                <a href="<?= base_url('candidato/vacante/' . $v['slug']) ?>" class="dash-card be-card" data-vacante-id="<?= (int)$v['id'] ?>">
                     <div class="be-card-top">
                         <?php if (!empty($v['empresa_logo'])): ?>
                             <img src="<?= base_url('uploads/' . $v['empresa_logo']) ?>" alt="" class="be-card-logo">
@@ -158,6 +158,6 @@ $activos = (int)!empty($filtros['categoria']) + (int)!empty($filtros['modalidad'
     </div>
 
     <?php if (isset($pager) && $pager): ?>
-        <div class="pagination-wrapper"><?= $pager->links() ?></div>
+        <div class="pagination-wrapper"><?= $pager->links('default', 'conex_full') ?></div>
     <?php endif; ?>
 </div>

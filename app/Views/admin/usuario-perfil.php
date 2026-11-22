@@ -481,6 +481,75 @@
                         </div>
                     </div>
                 </div>
+
+                <?php if ($roleSlug === 'asesor'): ?>
+                <!-- TAREAS DE AGENTE: leads del CRM asignados a este asesor -->
+                <div class="perfil-section-card">
+                    <div class="perfil-section-header">
+                        <h3>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            Tareas de Agente (Leads CRM)
+                        </h3>
+                    </div>
+
+                    <?php if (!empty($leadsAsignados)): ?>
+                        <div class="perfil-table-wrap">
+                            <table class="perfil-table">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Contacto</th>
+                                        <th>Empresa</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($leadsAsignados as $lead): ?>
+                                        <tr>
+                                            <td><?= (int)$lead['id'] ?></td>
+                                            <td>
+                                                <?= esc($lead['nombre_contacto'] ?? '-') ?><br>
+                                                <small style="color:var(--text-secondary);"><?= esc($lead['email_contacto'] ?? '') ?></small>
+                                            </td>
+                                            <td><?= esc($lead['empresa_nombre'] ?? '-') ?></td>
+                                            <td><span class="badge-role <?= esc($lead['estado'] ?? '') ?>"><?= esc(ucfirst($lead['estado'] ?? 'prospecto')) ?></span></td>
+                                            <td><?= !empty($lead['created_at']) ? esc(date('d/m/Y', strtotime($lead['created_at']))) : '-' ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php else: ?>
+                        <p style="color:var(--text-secondary);font-size:13.5px;margin:0 0 12px;">Sin tareas asignadas todavía.</p>
+                    <?php endif; ?>
+
+                    <?php if (!empty($leadsSinAsignar)): ?>
+                        <form method="post" action="<?= base_url('admin/usuarios/asignar-lead/' . (int)$usuario['id']) ?>"
+                              style="display:flex;gap:10px;align-items:flex-end;margin-top:14px;flex-wrap:wrap;">
+                            <?= csrf_field() ?>
+                            <div style="flex:1;min-width:220px;">
+                                <label for="lead_id" style="display:block;font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">
+                                    Asignar lead pendiente
+                                </label>
+                                <select id="lead_id" name="lead_id" required
+                                        style="width:100%;min-height:48px;padding:10px 14px;border:1px solid var(--cx-border,#E2E8F0);border-radius:14px;background:var(--cx-surface,#F8FAFC);font-size:14px;">
+                                    <?php foreach ($leadsSinAsignar as $lead): ?>
+                                        <option value="<?= (int)$lead['id'] ?>">
+                                            #<?= (int)$lead['id'] ?> — <?= esc($lead['nombre_contacto'] ?? 'Sin nombre') ?> (<?= esc($lead['estado'] ?? 'prospecto') ?>)
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm" style="min-height:48px;">
+                                Asignar tarea
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <p style="color:var(--text-secondary);font-size:13px;margin:12px 0 0;">No hay leads pendientes por asignar.</p>
+                    <?php endif; ?>
+                </div>
+                <?php endif; ?>
             <?php endif; ?>
         </main>
     </div>
