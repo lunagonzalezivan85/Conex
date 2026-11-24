@@ -70,6 +70,8 @@ $routes->post('/chat/(:num)/finalizar', 'ChatController::finalizar/$1');
 $routes->get('/empresa/chat', 'ChatController::index');
 $routes->post('/empresa/chat/iniciar/(:num)', 'ChatController::iniciarPostulante/$1');
 $routes->get('/candidato/mensajes', 'ChatController::index');
+$routes->get('/notificaciones', 'NotificacionesController::index');
+$routes->post('/notificaciones/leer', 'NotificacionesController::leer');
 
 $routes->get('/candidato/info', 'CandidatoController::info');
 $routes->get('/candidato/planes', 'CandidatoController::planes');

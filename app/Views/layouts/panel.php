@@ -83,6 +83,13 @@
                     <div class="panel-topbar-title"><?= esc($pageTitle ?? 'Panel') ?></div>
                 </div>
                 <div class="panel-topbar-right">
+                    <?php $cxNoLeidas = cxNotificacionesNoLeidas((int)session()->get('user_id')); ?>
+                    <a href="<?= base_url('notificaciones') ?>" class="topbar-bell" aria-label="Notificaciones<?= $cxNoLeidas > 0 ? " ({$cxNoLeidas} sin leer)" : '' ?>" title="Notificaciones">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                        <?php if ($cxNoLeidas > 0): ?>
+                            <span class="topbar-bell-badge"><?= $cxNoLeidas > 99 ? '99+' : $cxNoLeidas ?></span>
+                        <?php endif; ?>
+                    </a>
                     <a href="<?= base_url() ?>" class="btn btn-ghost">Ver sitio</a>
                 </div>
             </header>

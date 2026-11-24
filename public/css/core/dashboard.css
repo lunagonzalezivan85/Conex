@@ -1076,3 +1076,37 @@ a.postulacion-card:hover {
     .postulacion-score { width: 48px; height: 48px; }
     .postulacion-score span { font-size: 11px; }
 }
+
+/* Campana de notificaciones en el topbar del panel */
+.topbar-bell {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    color: var(--cx-navy, #1B2A4A);
+    text-decoration: none;
+    border: 1px solid var(--cx-border, #E2E8F0);
+    background: var(--cx-surface, #F8FAFC);
+    transition: border-color .15s, background .15s;
+}
+.topbar-bell:hover { border-color: var(--cx-turq, #0FC6C2); }
+.topbar-bell-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 10px;
+    background: var(--cx-orange, #F97316);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}

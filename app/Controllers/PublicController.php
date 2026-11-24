@@ -593,6 +593,22 @@ class PublicController extends BaseController
 
         $db->table('srv_servicio')->where('id', (int)$id)->set('contactos', 'contactos+1', false)->update();
 
+        // Notificar al prestador (paridad con la app)
+        $prestadorUser = $db->table('srv_servicio')
+            ->select('cand_candidato.user_id')
+            ->join('cand_candidato', 'cand_candidato.id = srv_servicio.candidato_id')
+            ->where('srv_servicio.id', (int)$id)
+            ->get()->getRowArray();
+        if (!empty($prestadorUser['user_id'])) {
+            cxNotificar(
+                (int)$prestadorUser['user_id'],
+                'mensaje',
+                'Nueva solicitud de servicio',
+                "{$nombre} quiere contactarte por tu servicio '{$servicio['titulo']}'",
+                'chat/' . $contactoId
+            );
+        }
+
         return redirect()->to('servicios/p/' . (int)$id)
             ->with('info', 'Solicitud enviada. El prestador vera tus datos cuando la acepte.');
     }

@@ -63,9 +63,18 @@
         </div>
         <div class="postulante-actions">
             <p class="postulante-fecha-post"><?= isset($p['created_at']) ? date('d M Y', strtotime($p['created_at'])) : '' ?></p>
-            <span class="postulante-ver-link">Ver perfil
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;vertical-align:middle;"><polyline points="9 18 15 12 9 6"/></svg>
-            </span>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <form action="<?= base_url('empresa/chat/iniciar/' . (int)$p['id']) ?>" method="post" style="margin:0;" onclick="event.stopPropagation();">
+                    <?= csrf_field() ?>
+                    <button type="submit" class="postulante-msg-btn" aria-label="Enviar mensaje a <?= esc($p['nombre']) ?>" title="Enviar mensaje"
+                            style="width:40px;height:40px;border-radius:12px;border:1px solid var(--cx-border,#E2E8F0);background:var(--cx-surface,#F8FAFC);color:#0FC6C2;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </button>
+                </form>
+                <span class="postulante-ver-link">Ver perfil
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;vertical-align:middle;"><polyline points="9 18 15 12 9 6"/></svg>
+                </span>
+            </div>
         </div>
     </div>
     <?php endforeach; ?>

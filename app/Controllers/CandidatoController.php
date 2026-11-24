@@ -1235,6 +1235,19 @@ class CandidatoController extends BaseController
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
 
+        // Notificar a la empresa (paridad con la app)
+        $empUser = $db->table('emp_empresa')->select('user_id')->where('id', $vacante['empresa_id'])->get()->getRowArray();
+        if (!empty($empUser['user_id'])) {
+            $candNombre = cxNombre(trim(session()->get('nombre') . ' ' . session()->get('apellido'))) ?: 'Un candidato';
+            cxNotificar(
+                (int)$empUser['user_id'],
+                'postulacion',
+                '¡Nueva postulación recibida!',
+                "{$candNombre} se ha postulado a tu vacante '{$vacante['titulo']}'",
+                'empresa/postulantes'
+            );
+        }
+
         return redirect()->to('candidato/postulaciones')->with('success', 'Te has postulado correctamente.');
     }
 
@@ -1568,7 +1581,7 @@ class CandidatoController extends BaseController
 
         $db = \Config\Database::connect();
         $sol = $db->table('srv_contacto')
-            ->select('srv_contacto.id')
+            ->select('srv_contacto.id, srv_contacto.user_id')
             ->join('srv_servicio', 'srv_servicio.id = srv_contacto.servicio_id')
             ->where('srv_contacto.id', (int)$id)
             ->where('srv_servicio.candidato_id', $candidato['id'])
@@ -1581,6 +1594,20 @@ class CandidatoController extends BaseController
             'estado'     => $accion === 'aceptar' ? 'aceptado' : 'rechazado',
             'updated_at' => date('Y-m-d H:i:s'),
         ]);
+
+        // Notificar al solicitante si tiene cuenta (paridad con la app)
+        if (!empty($sol['user_id'])) {
+            $prestadorNombre = cxNombre(trim(session()->get('nombre') . ' ' . session()->get('apellido'))) ?: 'El prestador';
+            cxNotificar(
+                (int)$sol['user_id'],
+                'mensaje',
+                $accion === 'aceptar' ? 'Solicitud aceptada' : 'Solicitud rechazada',
+                $accion === 'aceptar'
+                    ? "{$prestadorNombre} aceptó tu solicitud. Ya puedes continuar la conversación."
+                    : "{$prestadorNombre} no pudo tomar tu solicitud esta vez.",
+                'chat/' . (int)$id
+            );
+        }
 
         $msg = $accion === 'aceptar'
             ? 'Solicitud aceptada. Ya puedes ver el contacto del cliente.'

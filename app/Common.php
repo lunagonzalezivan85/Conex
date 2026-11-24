@@ -36,3 +36,47 @@ if (! function_exists('cxNombre')) {
         return implode(' ', $tokens);
     }
 }
+
+/**
+ * Inserta una notificacion para un usuario (si la tabla existe).
+ * Paridad web con la API: el panel web y la app leen la misma not_notificacion.
+ */
+if (! function_exists('cxNotificar')) {
+    function cxNotificar(int $userId, string $tipo, string $titulo, string $mensaje, string $url = ''): void
+    {
+        if ($userId <= 0) {
+            return;
+        }
+        $db = \Config\Database::connect();
+        if (! $db->tableExists('not_notificacion')) {
+            return;
+        }
+        $db->table('not_notificacion')->insert([
+            'user_id'    => $userId,
+            'tipo'       => $tipo,
+            'titulo'     => $titulo,
+            'mensaje'    => $mensaje,
+            'url'        => $url,
+            'leida'      => 0,
+            'created_at' => date('Y-m-d H:i:s'),
+        ]);
+    }
+}
+
+/** Cantidad de notificaciones sin leer del usuario (para la campana del panel). */
+if (! function_exists('cxNotificacionesNoLeidas')) {
+    function cxNotificacionesNoLeidas(?int $userId): int
+    {
+        if (!$userId) {
+            return 0;
+        }
+        $db = \Config\Database::connect();
+        if (! $db->tableExists('not_notificacion')) {
+            return 0;
+        }
+        return (int)$db->table('not_notificacion')
+            ->where('user_id', $userId)
+            ->where('leida', 0)
+            ->countAllResults();
+    }
+}

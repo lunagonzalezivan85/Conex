@@ -120,3 +120,49 @@ Modelo de datos compartido con la app: `srv_contacto` (conversación) +
 El pipeline CRM existente (`/admin/crm`, CrmController) ya permite crear leads y
 asignar `asesor_id` en alta/edición — la nueva sección en el perfil del usuario es
 un atajo directo para "asignar tareas a agentes" sin pasar por el pipeline.
+
+---
+
+## Ronda 4 — Reporte de pruebas externo (mensajería, notificaciones, postulaciones, filtros)
+
+### Resultado por punto del reporte
+
+| Punto | Estado | Detalle |
+|-------|--------|---------|
+| A. Mensajes empresa↔postulante | RESUELTO | Chat web ya existía; faltaba acceso directo → **icono de mensaje en cada tarjeta de `/empresa/postulantes`** (POST `empresa/chat/iniciar/{id}`, sin salir de la lista) |
+| B. Notificaciones | **ERA BUG REAL** | La app notificaba por API, pero la web: (1) no tenía NINGUNA UI para ver notificaciones, (2) 4 flujos web no insertaban notificación. Corregido abajo |
+| C. Gestión de postulaciones | OK | Lista con estados, puntaje match, detalle con cambio de estado — verificado |
+| D. Filtros de búsqueda | OK | Verificado contra DB: `modalidad=remoto`→2, `ciudad=Managua`→1, `categoria=2`→3, `q=Desarrollador`→2, `q` inválido→0 |
+
+### Implementado ronda 4
+
+1. **Centro de notificaciones web** (`/notificaciones`): campana en el topbar
+   del panel (todos los roles) con badge de no-leídas + página con lista
+   (icono por tipo, highlight de no-leída, link a `url`) + "marcar leídas".
+   - `NotificacionesController` (index + leer)
+   - `Views/notificaciones/lista.php`
+   - Campana en `layouts/panel.php` + CSS `topbar-bell`/`topbar-bell-badge`
+   - Helpers `cxNotificar()` y `cxNotificacionesNoLeidas()` en `Common.php`
+2. **Inserts de notificación faltantes en flujos web** (paridad app):
+   - `CandidatoController::postularse` → empresa: "Nueva postulación recibida"
+   - `EmpresaController::cambiarEstadoPostulante` → candidato: copy por estado
+     (contratado / en_proceso / no continúa) — misma redacción que la API
+   - `PublicController::contactarPrestador` → prestador: "Nueva solicitud"
+   - `CandidatoController::responderSolicitud` → solicitante registrado:
+     aceptada/rechazada
+
+### Verificado E2E (ronda 4)
+
+1. iluna postula a vacante 1 → `not_notificacion` user_id=2 (techcorp) ✓
+2. techcorp abre `/notificaciones` → campana badge 4, ítem con highlight ✓
+3. "Marcar todas" → 0 no-leídas en DB ✓
+4. Empresa cambia estado postulación → candidato recibe "en revisión" + url ✓
+5. `/empresa/postulantes` muestra botón mensaje por tarjeta (aria-label) ✓
+6. Filtros: todos los conteos coinciden con `vac_vacante` en DB ✓
+
+### Pendiente (decisión de negocio, no bug)
+
+- Match automático por rubro → reservado a planes pagos (free = filtros
+  manuales). Confirmado por el equipo: postulante Y empresa pagan por
+  filtros/match semi-automáticos. Prestadores de servicio sí son
+  contactables; perfil sin servicio = privado.

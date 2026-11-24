@@ -746,6 +746,33 @@ class EmpresaController extends BaseController
             ->where('id', $postulacionId)
             ->update(['estado' => $nuevoEstado, 'updated_at' => date('Y-m-d H:i:s')]);
 
+        // Notificar al candidato (paridad con la app)
+        $candUser = $db->table('cand_candidato')
+            ->select('cand_candidato.user_id, vac_vacante.titulo as vacante_titulo')
+            ->join('post_postulacion', 'post_postulacion.candidato_id = cand_candidato.id')
+            ->join('vac_vacante', 'vac_vacante.id = post_postulacion.vacante_id')
+            ->where('post_postulacion.id', $postulacionId)
+            ->get()->getRowArray();
+
+        if (!empty($candUser['user_id'])) {
+            $vTitulo = $candUser['vacante_titulo'] ?? 'la vacante';
+            [$titulo, $msg] = match ($nuevoEstado) {
+                'contratado' => [
+                    '¡Felicitaciones! Has sido contratado',
+                    "{$empresa['razon_social']} te ha seleccionado como CONTRATADO para '{$vTitulo}'. Revisa tus mensajes para coordinar los detalles.",
+                ],
+                'en_proceso' => [
+                    'Tu postulación está en revisión',
+                    "{$empresa['razon_social']} está revisando tu postulación para '{$vTitulo}'.",
+                ],
+                default => [
+                    'Estado de tu postulación',
+                    "Tu postulación para '{$vTitulo}' no continuará en este proceso. ¡Sigue explorando más oportunidades!",
+                ],
+            };
+            cxNotificar((int)$candUser['user_id'], 'postulacion', $titulo, $msg, 'candidato/postulaciones');
+        }
+
         return $this->response->setJSON(['success' => true, 'estado' => $nuevoEstado]);
     }
 
