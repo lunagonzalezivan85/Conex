@@ -152,7 +152,7 @@ const Dashboard: React.FC = () => {
                 type="button"
                 className="cx-icon-btn"
                 aria-label="Notificaciones"
-                onClick={() => router.push('/app/solicitudes')}
+                onClick={() => router.push('/app/notificaciones')}
                 style={{ position: 'relative' }}
               >
                 <IonIcon icon={notificationsOutline} />

@@ -166,3 +166,28 @@ un atajo directo para "asignar tareas a agentes" sin pasar por el pipeline.
   manuales). Confirmado por el equipo: postulante Y empresa pagan por
   filtros/match semi-automáticos. Prestadores de servicio sí son
   contactables; perfil sin servicio = privado.
+
+---
+
+## Ronda 5 — Bug 500 en perfil API + notificaciones en la app
+
+### Hallazgos
+
+| Sev | Hallazgo | Fix |
+|-----|----------|-----|
+| **Crit** | `POST /api/candidato/perfil` y `/api/empresa/perfil` devolvían **500** aunque los cambios SÍ se guardaban — `Call to undefined method userPayload()` (era `private` en `AuthController`, se llamaba desde Candidato y Empresa) | Movido a `BaseApiController::userPayload()` como `protected`; eliminado duplicado |
+| Alta | App: la campana del Dashboard iba a `/app/solicitudes` — no existía pantalla de notificaciones | Nueva `pages/Notificaciones.tsx` + ruta `/app/notificaciones` + campana apunta ahí |
+
+### App — página Notificaciones
+
+- Lista con icono por tipo (mensaje=turquesa, postulación=naranja), no-leída
+  con fondo turquesa suave + dot
+- "Marcar leídas" en header (checkmark) — solo visible con no-leídas
+- Pull-to-refresh, loading, empty state
+- Tap → navega a la sección (`mapUrl`: chat→/app/chat, postulaciones→/app/solicitudes, postulantes→/app/mis-vacantes)
+
+### Verificado
+
+- `POST /api/candidato/perfil` → **200** con payload completo (antes 500)
+- `POST /api/empresa/perfil` → **200** (mismo bug)
+- `tsc --noEmit` + `npm run build` → OK

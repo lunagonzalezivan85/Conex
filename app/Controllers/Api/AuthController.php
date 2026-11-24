@@ -661,19 +661,4 @@ class AuthController extends BaseApiController
         return $this->ok(['ok' => true]);
     }
 
-    private function userPayload(array $user, ?string $roleSlug): array
-    {
-        return [
-            'id'              => (int)$user['id'],
-            'nombre'          => $user['nombre'],
-            'apellido'        => $user['apellido'],
-            'usuario'         => $user['usuario'],
-            'email'           => $user['email'],
-            'telefono'        => $user['telefono'] ?? null,
-            'avatar'          => $user['avatar'] ?? null,
-            'avatar_url'      => !empty($user['avatar']) ? (str_starts_with($user['avatar'], 'http') ? $user['avatar'] : base_url('uploads/' . $user['avatar'])) : null,
-            'role'            => $roleSlug,
-            'perfil_completo' => (bool)($user['perfil_completo'] ?? false),
-        ];
-    }
 }

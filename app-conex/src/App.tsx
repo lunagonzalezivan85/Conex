@@ -23,6 +23,7 @@ import VacanteDetalle from './pages/VacanteDetalle';
 import Planes from './pages/Planes';
 import Solicitudes from './pages/Solicitudes';
 import ChatMessenger from './pages/ChatMessenger';
+import Notificaciones from './pages/Notificaciones';
 
 import '@ionic/react/css/core.css';
 import '@ionic/react/css/normalize.css';
@@ -56,6 +57,7 @@ const AppTabs: React.FC = () => {
         <Route exact path="/app/solicitudes" component={Solicitudes} />
         <Route exact path="/app/mensajes" component={Solicitudes} />
         <Route exact path="/app/chat" component={ChatMessenger} />
+        <Route exact path="/app/notificaciones" component={Notificaciones} />
         <Route exact path="/app/categorias" component={Categorias} />
         <Route exact path="/app/vacante/:slug" component={VacanteDetalle} />
         <Route exact path="/app/perfil" component={Perfil} />

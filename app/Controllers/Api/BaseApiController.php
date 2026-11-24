@@ -101,4 +101,24 @@ class BaseApiController extends BaseController
         $perPage = min(50, max(1, (int)($this->request->getGet('per_page') ?? 12)));
         return [$page, $perPage];
     }
+
+    /**
+     * Payload publico del usuario autenticado (respuestas de login/perfil).
+     * Compartido por Auth, Candidato y Empresa.
+     */
+    protected function userPayload(array $user, ?string $roleSlug): array
+    {
+        return [
+            'id'              => (int)$user['id'],
+            'nombre'          => $user['nombre'],
+            'apellido'        => $user['apellido'],
+            'usuario'         => $user['usuario'],
+            'email'           => $user['email'],
+            'telefono'        => $user['telefono'] ?? null,
+            'avatar'          => $user['avatar'] ?? null,
+            'avatar_url'      => !empty($user['avatar']) ? (str_starts_with($user['avatar'], 'http') ? $user['avatar'] : base_url('uploads/' . $user['avatar'])) : null,
+            'role'            => $roleSlug,
+            'perfil_completo' => (bool)($user['perfil_completo'] ?? false),
+        ];
+    }
 }
