@@ -41,14 +41,18 @@ class AuthController extends BaseApiController
             $builder->orWhere('usuario', $cedulaNorm);
         }
         if (strlen($telefonoNorm) >= 8) {
-            $builder->orWhere('telefono', $usuario);
+            $tel8 = substr($telefonoNorm, -8);
+            $builder->orWhere('telefono', $telefonoNorm)
+                    ->orWhere("REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(telefono,' ',''),'-',''),'+',''),'(',''),')','') LIKE", '%' . $tel8 . '%');
         }
-        $user = $builder->groupEnd()->first();
-
-        $passValid = false;
-        if ($user) {
-            $passValid = password_verify($password, $user['password']) || password_verify(trim($password), $user['password']);
+        $user = null;
+        foreach ($builder->groupEnd()->findAll(5) as $cand) {
+            if (password_verify($password, $cand['password']) || password_verify(trim($password), $cand['password'])) {
+                $user = $cand;
+                break;
+            }
         }
+        $passValid = (bool) $user;
 
         if (!$user || !$passValid) {
             return $this->fail('Credenciales invalidas', 401);
