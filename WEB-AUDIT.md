@@ -191,3 +191,26 @@ un atajo directo para "asignar tareas a agentes" sin pasar por el pipeline.
 - `POST /api/candidato/perfil` → **200** con payload completo (antes 500)
 - `POST /api/empresa/perfil` → **200** (mismo bug)
 - `tsc --noEmit` + `npm run build` → OK
+
+## Ronda 5 — Deploy a producción (2026-11-23)
+
+### Subido por FTP (`conexftp` @ `win8166.site4now.net`, raíz FTP = raíz del proyecto)
+
+- 23 archivos PHP/vistas/CSS modificados desde `5aecc9d` → commit `a793cac`
+- APK debug → `/descargas/conex-latest.apk` (35,474,466 bytes, verificado byte-exacto)
+
+### Incidente post-deploy: rutas nuevas devolvían 404
+
+- Síntoma: `/empresa/chat`, `/notificaciones`, `/chat/(:num)`, `/admin/usuarios/crear`,
+  `/candidato/mensajes` → 404 JSON vacío; rutas viejas OK
+- Diagnóstico con probe (`__devin-probe.php`): docroot real
+  `h:\root\home\easycash23-001\www\conex` = esta raíz FTP; `Routes.php` con mtime
+  actualizado pero el proceso seguía sirviendo la versión compilada vieja →
+  **PHP 8.5 opcache con revalidación lenta** (site4now/shared IIS)
+- `app_offline.htm` recicló el pool pero el opcache tardó aún ~2-3 min más en
+  reflejar el archivo → al revalidar, todas las rutas nuevas respondieron
+- Verificación final GET: `/empresa/chat` `/notificaciones` `/candidato/mensajes`
+  `/admin/usuarios/crear` → **302 → /login** (guard OK). `HEAD` siempre 404 en
+  este stack (IIS+CF), no es indicador válido
+- Nota deploy futuro: tras subir PHP, esperar ~3-5 min o tocar `web.config`
+  antes de validar rutas; probar siempre con GET, no HEAD
